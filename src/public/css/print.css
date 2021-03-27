@@ -1,0 +1,14 @@
+
+@media print {
+	@page { size: landscape; }
+	* { color: #000; background-color: #fff; box-shadow: none; text-shadow: none; }
+	input, textarea { border: 0; border-style: none; } /* remove inputs borders */
+	::-webkit-input-placeholder { color: transparent; } /* WebKit browsers */
+	:-moz-placeholder { color: transparent; } /* Mozilla Firefox 4 to 18 */
+	::-moz-placeholder { color: transparent; } /* Mozilla Firefox 19+ */
+	:-ms-input-placeholder { color: transparent; } /* Internet Explorer 10+ */
+	a:after { content: " ("attr(href)")"; } /* add href text affter links */
+	.no-print, ul#menu, .mbox, a.btn { display: none; }
+	.only-print { display: block; }
+	.break { page-break-after: always; }
+}
