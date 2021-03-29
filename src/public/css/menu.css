@@ -1,32 +1,32 @@
 
 /* Navbars */
 .navbar {
-	position: sticky;
-	top: 0;
-	z-index: 1;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
 
-	padding: .5rem .8rem;
-	background-color: #f8f9fa;
+  padding: .5rem .8rem;
+  background-color: #f8f9fa;
 }
 .nav-item { display: inline-block; margin-left: 5px; padding: .5rem .8rem; white-space: nowrap; color: rgba(0, 0, 0, .9); }
 .nav-main { font-size: 1.3rem; text-decoration: none; }
 .nav-main:hover { text-decoration: none; color: rgba(0, 0, 0, .9); }
 
 /* Menu-Top dropdown */
-ul.menu-top { margin: 0; margin-left: 5px; margin-right: auto!important; padding: 0; z-index: 1; }
+ul.menu-top { margin: 0; margin-left: 5px; margin-right: auto!important; padding: 0; z-index: 3; }
 /* First li level: starts hide and after fadeIn by JS */
-ul.menu-top > li { display: none; float: left; }
+ul.menu-top > li { display: none; float: left; z-index: 3; }
 /* Next deep level in tree */
 ul.menu-top ul li { width: 100%!important; } /* Sublines expand over all ul parent space */
 ul.menu-top li { position: relative; list-style: none; color: rgba(0, 0, 0, .9); }
 ul.menu-top li:hover { background: #2c3e50; color: #fff; text-decoration: none; color: #fff; }
 /* All nav-links elements:; inherit from li (a same state as it's li) */
-ul.menu-top a { display: block; padding: .5rem .8rem; color: inherit!important; white-space: nowrap; }
+ul.menu-top a { display: block; padding: .5rem .8rem; color: inherit!important; white-space: nowrap; text-decoration: none; }
 ul.menu-top a:hover { color: inherit!important; text-decoration: none; }
 ul.menu-top .nav-icon { display: inline-block; margin-right: 6px; }
 ul.menu-top .nav-tri { display: inline-block; margin-left: 10px; }
@@ -40,19 +40,19 @@ ul.menu-top ul ul { top: 1%; left: 99%; }
 
 /* Sidebar left */
 #sidebar {
-	position: fixed;
-	z-index: 1;
-	top: 50px;
-	left: -240px;
-	width: 240px;
-	height: 100%;
-	padding: 1px;
-	min-height: 100vh;
-	background-color: #f8f9fa;
-	transition: all 500ms linear;
+  position: fixed;
+  z-index: 1;
+  top: 50px;
+  left: -240px;
+  width: 240px;
+  height: 100%;
+  padding: 1px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  transition: all 500ms linear;
 }
 #sidebar.active {
-	left: 0px;
+  left: 0px;
 }
 /* Sidebar left */
 
