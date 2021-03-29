@@ -43,7 +43,7 @@ module.exports = {
 	lblCorreo: "E-Mail", ejCorreo: "ejemplo@dominio.com", phCorreo: "Indique su correo",
 	titCorreo: "Dirección de E-Mail con la que se dió de alta en el sistema",
 	errCorreo: "Formato de E-Mail incorrecto", errUkCorreo: "El E-Mail indicado ya existe en el sistema", errCorreoNotFound: "E-Mail no encontrado en el sistema",
-	msgCorreo: "E-Mail enviado correctamente",
+	msgCorreo: "E-Mail enviado correctamente", errSendMail: "No se ha podido enviar el E-Mail",
 
 	lblAsunto: "Asunto", phAsunto: "Resumen", 
 	titAsunto: "Asunto para el correo de contacto", 
@@ -340,6 +340,7 @@ module.exports = {
 	msgProcesando: "Procesando información...",
 
 	errForm: "Error al validar los datos del formulario",
+	errEjecutar: "Error al ejecutar la operación solicitada",
 	errInsert: "Error al guardar los datos",
 	errUpdate: "Error al actualizar los datos",
 	errValue: "Valor incorrecto",
@@ -360,7 +361,6 @@ module.exports = {
 	errImageResize: "Error al redimensionar la foto",
 	errElemNotFound: "Elemento no encontrado",
 	errFileNotFound: "Fichero no encontrado en el sistema",
-	errSendMail: "No se ha podido enviar el E-Mail",
 	errSendContact: "No se ha podido enviar el E-Mail de contacto",
 	errSendValidate: "No se ha podido enviar el E-Mail de validación",
 	errSendRemember: "No se ha podido enviar el E-Mail recordatorio de su clave",

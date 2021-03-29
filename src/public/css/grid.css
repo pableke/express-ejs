@@ -1,0 +1,25 @@
+
+.header {
+	width: 100%;
+	font-weight: bold;
+	padding: 2px;
+	text-align: center;
+}
+
+.container {
+	display: grid;
+	margin: auto;
+	max-width: 1500px;
+
+	grid-gap: 20px;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+}
+
+.container > div {
+	background-color: blue;
+	text-align: center;
+	vertical-align: center;
+	border: 1px solid gray;
+	color: #fff;
+}
