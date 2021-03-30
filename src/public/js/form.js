@@ -1,5 +1,8 @@
 
 $(document).ready(function() {
+	let lang = $("html").attr("lang") || navigator.language || navigator.userLanguage; //default browser language
+	let mb = new MessageBox(lang);
+	let vs = new ValidatorService();
 	let sb = new StringBox();
 
 	// Alerts handlers
@@ -65,10 +68,6 @@ $(document).ready(function() {
 		ev.preventDefault();
 	});
 
-	function setOk(el) { return $(el).removeClass("is-invalid").siblings(".invalid-feedback").html(""); }
-	function setError(el, msg) { return msg && !$(el).focus().addClass("is-invalid").siblings(".invalid-feedback").html(msg); }
-	const VALIDATORS = {};
-
 	$("form").each(function(i, form) {
 		let inputs = form.elements; //list
 		// Initialize all textarea counter
@@ -114,22 +113,30 @@ $(document).ready(function() {
 			}
 		}
 		function fnShowErrors(errors) {
+			const CLS_INVALID = "is-invalid";
+			const CLS_FEED_BACK = ".invalid-feedback";
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
-				setError(el, errors[el.name]);
+				let _msg = el.name && errors[el.name];
+				_msg ? $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(_msg) 
+					: $(el).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).html("");
 			}
 			showOk(errors.msgok);
 			showError(errors.msgerr);
 		}
 
-		let ok = true; //valid form?
+		vs.init(mb.getLang()); //init service
 		for (let i = _last; i > -1; i--) { //reverse
 			let el = inputs[i]; //element
-			let fn = VALIDATORS[el.id];
-			ok &= !fn || fn(el, sb.trim(el.value));
+			vs.validate(el.name, el.value);
 		}
-		if (!ok || !form.classList.contains("ajax"))
-			return ok; //false o true but no ajax
+		if (vs.fails()) { //if error => stop
+			vs.setError("msgerr", mb.get("errForm"));
+			fnShowErrors(vs.getErrors());
+			return ev.preventDefault();
+		}
+		if (!form.classList.contains("ajax"))
+			return true; //submit form
 
 		fnLoading(); //show loading
 		let fd = new FormData(this); //build pair key/value

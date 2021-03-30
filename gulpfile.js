@@ -16,8 +16,14 @@ const replace = require("gulp-replace");
 // Settings
 const HTML_PATH = "src/views/**/*.html";
 const EJS_PATH = "src/views/**/*.ejs";
-const CSS_FILES = ["src/public/css/form.css", "src/public/css/grid.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/style.css"];
-const JS_FILES = ["src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", "src/public/js/string-box.js"];
+const CSS_FILES = [
+	"src/public/css/form.css", "src/public/css/grid.css", "src/public/css/menu.css", 
+	"src/public/css/progressbar.css", "src/public/css/style.css"
+];
+const JS_FILES = [
+	"src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", "src/public/js/message-box.js", 
+	"src/public/js/string-box.js", "src/public/js/validators.js", "src/public/js/validator-service.js"
+];
 
 // Task to minify HTML's
 gulp.task("minify-html", () => {

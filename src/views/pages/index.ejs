@@ -1,8 +1,7 @@
 <div>
 	<h1>This is great</h1>
-	<p><%=titWelcome%></p>
+	<p><%=i18n["lblBienvenido"]%></p>
 </div>
-<%-include("list")%>
 
 <div class="">
 	<h2>Form</h2>
@@ -17,8 +16,8 @@
 		</div>
 
 		<div class="input-group">
-			<label for="email" class="required">E-Mail</label>
-			<input type="text" id="email" name="email" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
+			<label for="correo" class="required">E-Mail</label>
+			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
 			<i class="input-item input-icon far fa-envelope"></i>
 			<div class="invalid-feedback"></div>
 		</div>

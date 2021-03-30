@@ -1,11 +1,31 @@
 
-<%-include("./styles.html")%>
-<div class="bl1">
-	<% if (usuOk) { %>
+<html>
+<head>
+	<style type="text/css">
+		table { margin:auto; width:94%; border-collapse: collapse; }
+		thead { border-bottom: solid 1px #000; }
+		tfoot { font-weight:bold; border-top: 1px dashed #000; }
+		hr { margin: 7px 0px; }
+		br.clear { margin-top: 4px; clear:both; }
+
+		.w180 { width: 180px; }
+		.tr { text-align: right; }
+		.tl { text-align: left; }
+		.tc { text-align: center; }
+		.tj { text-align: justify; }
+		.bl1 { padding: 5px; border-left: 1px solid #000; }
+	</style>
+</head>
+<body>
+	<div>
 		<p><%=i18n.msgUsuario%></p>
-	<% } else { %>
-		<p><%=i18n.errAlta%></p>
-	<% } %>
-	<hr/>
-	<p>bye!</p>
-</div>
+		<table>
+			<thead><tr><th>head</th></tr></thead>
+			<tbody><tr><td>ci</td></tr></tbody>
+			<tfoot><tr><td>f1</td></tr></tfoot>
+		</table>
+		<hr/>
+		<p>bye!</p>
+	</div>
+</body>
+</html>
