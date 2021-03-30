@@ -339,7 +339,7 @@ module.exports = {
 	msgNotAllowed: "Operación no permitida",
 	msgProcesando: "Procesando información...",
 
-	errForm: "Error al validar los datos del formulario",
+	errForm: "Error al validar los campos del formulario",
 	errEjecutar: "Error al ejecutar la operación solicitada",
 	errInsert: "Error al guardar los datos",
 	errUpdate: "Error al actualizar los datos",
@@ -365,7 +365,7 @@ module.exports = {
 	errSendValidate: "No se ha podido enviar el E-Mail de validación",
 	errSendRemember: "No se ha podido enviar el E-Mail recordatorio de su clave",
 
-	errEndSession: "Tiempo máximo sesión excedido",
+	endSession: "Tiempo máximo sesión excedido",
 	err400: "¡Solicitud errónea!",
 	err401: "¡Acceso no autorizado!",
 	err403: "¡Acceso denegado/prohibido!",

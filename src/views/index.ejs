@@ -4,33 +4,32 @@
 	<main>
 		<div class="alerts">
 			<div class="alert alert-success d-none">
-				<img src="public/img/png/check.png" class="alert-icon d-none-phone">
-				<p class="alert-text"></p>
+				<img src="/public/img/png/check.png" class="alert-icon d-none-phone">
+				<p class="alert-text"><%=msgOk%></p>
 				<span class="alert-close">&times;</span>
 			</div>
 			<div class="alert alert-info d-none">
-				<img src="public/img/png/info-about.png" class="alert-icon d-none-phone">
-				<p class="alert-text">Welcome!</p>
+				<img src="/public/img/png/info-about.png" class="alert-icon d-none-phone">
+				<p class="alert-text"><%=msgInfo%></p>
 				<span class="alert-close">&times;</span>
 			</div>
 			<div class="alert alert-warn d-none">
-				<img src="public/img/png/warning2.png" class="alert-icon d-none-phone">
-				<p class="alert-text"></p>
+				<img src="/public/img/png/warning2.png" class="alert-icon d-none-phone">
+				<p class="alert-text"><%=msgWarn%></p>
 				<span class="alert-close">&times;</span>
 			</div>
 			<div class="alert alert-danger d-none">
-				<img src="public/img/png/error.png" class="alert-icon d-none-phone">
-				<p class="alert-text"></p>
+				<img src="/public/img/png/error.png" class="alert-icon d-none-phone">
+				<p class="alert-text"><%=msgError%></p>
 				<span class="alert-close">&times;</span>
 			</div>
 		</div>
-		<%-include("pages/" + page)%>
+		<%-include(page)%>
 	</main>
 	<div>
 		<a href="email.html" class="ajax">Email</a> | 
 		<a href="peliculas.html" class="ajax" data-dest="#peliculas" data-msg="Peliculas cargadas correctamente">Peliculas</a>
 	</div>
-	<p><%=count%></p>
 	<footer><%-include("partials/footer")%></footer>
 </body>
 </html>
