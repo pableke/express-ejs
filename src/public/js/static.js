@@ -70,7 +70,10 @@ $(document).ready(function() {
 
 	const CLS_INVALID = "is-invalid";
 	const CLS_FEED_BACK = ".invalid-feedback";
-	const INPUT_SELECTOR = ":not([type=hidden])[tabindex]:not([readonly])";
+	function fnFocus(inputs) {
+		$(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus();
+	}
+
 	$("form").each(function(i, form) {
 		const COUNTER_SELECTOR = "textarea[maxlength]";
 		let inputs = form.elements; //list
@@ -112,7 +115,7 @@ $(document).ready(function() {
 			//Do what you need after reset the form
 			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			$(inputs).filter(INPUT_SELECTOR).first().focus();
+			fnFocus(inputs);
 		});
 	}).submit(function(ev) {
 		let form = this; //self reference
@@ -123,9 +126,9 @@ $(document).ready(function() {
 			fnLoadHtml(form, html);
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
-				el.matches(INPUT_SELECTOR) && el.focus();
 				el.value = ""; //clear input
 			}
+			fnFocus(inputs);
 		}
 		function fnShowErrors(errors) {
 			for (let i = _last; i > -1; i--) { //reverse
