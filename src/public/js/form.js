@@ -68,11 +68,16 @@ $(document).ready(function() {
 		ev.preventDefault();
 	});
 
+	const CLS_INVALID = "is-invalid";
+	const CLS_FEED_BACK = ".invalid-feedback";
+	const INPUT_SELECTOR = ":not([type=hidden])[tabindex]:not([readonly])";
 	$("form").each(function(i, form) {
+		const COUNTER_SELECTOR = "textarea[maxlength]";
 		let inputs = form.elements; //list
+
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
-		$(inputs).filter("textarea[maxlength]").keyup(fnCounter).each(fnCounter);
+		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
@@ -99,6 +104,16 @@ $(document).ready(function() {
 			this.value || fnAcLoad(this, "", "");
 		});
 		// End autocomplete inputs
+
+		$(inputs).filter("[type=reset]").click(ev => {
+			//Do what you need before reset the form
+			closeAlerts(); //close previous messages
+			form.reset(); //Reset manually the form
+			//Do what you need after reset the form
+			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			$(inputs).filter(INPUT_SELECTOR).first().focus();
+		});
 	}).submit(function(ev) {
 		let form = this; //self reference
 		let inputs = form.elements; //input list
@@ -108,13 +123,11 @@ $(document).ready(function() {
 			fnLoadHtml(form, html);
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
-				el.matches(":not([type=hidden])[tabindex]:not([readonly])") && el.focus();
+				el.matches(INPUT_SELECTOR) && el.focus();
 				el.value = ""; //clear input
 			}
 		}
 		function fnShowErrors(errors) {
-			const CLS_INVALID = "is-invalid";
-			const CLS_FEED_BACK = ".invalid-feedback";
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
 				let _msg = el.name && errors[el.name];
@@ -125,12 +138,8 @@ $(document).ready(function() {
 			showError(errors.msgerr);
 		}
 
-		vs.init(mb.getLang()); //init service
-		for (let i = _last; i > -1; i--) { //reverse
-			let el = inputs[i]; //element
-			vs.validate(el.name, el.value);
-		}
-		if (vs.fails()) { //if error => stop
+		let _data = vs.values(inputs); //input list to object
+		if (!vs.validate(_data, mb.getLang())) { //error => stop
 			vs.setError("msgerr", mb.get("errForm"));
 			fnShowErrors(vs.getErrors());
 			return ev.preventDefault();

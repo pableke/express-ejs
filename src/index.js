@@ -68,7 +68,7 @@ app.get("/usuarios.html", (req, res) => {
 	res.json(usuarios.filter((u, i) => { return (i < 12); }))
 });
 app.post("/test.html", (req, res) => {
-	res.status(500).json({ email: res.locals.i18n.errCorreo, msgerr: res.locals.i18n.errEjecutar, msgok: res.locals.i18n.msgGuardarOk });
+	res.status(500).json({ correo: res.locals.i18n.errCorreo, msgerr: res.locals.i18n.errEjecutar, msgok: res.locals.i18n.msgGuardarOk });
 });
 app.get("/peliculas.html", (req, res) => {
 	res.locals.peliculas = [{id:1,nombre:"avatar"},{nombre:"raya"}];

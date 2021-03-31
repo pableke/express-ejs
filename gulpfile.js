@@ -21,8 +21,8 @@ const CSS_FILES = [
 	"src/public/css/progressbar.css", "src/public/css/style.css"
 ];
 const JS_FILES = [
-	"src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", "src/public/js/message-box.js", 
-	"src/public/js/string-box.js", "src/public/js/validators.js", "src/public/js/validator-service.js"
+	"src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", "src/public/js/message-box.js", "src/public/js/string-box.js", 
+	"src/public/js/validator-box.js", "src/public/js/validator-service.js", "src/public/js/validators.js"
 ];
 
 // Task to minify HTML's
