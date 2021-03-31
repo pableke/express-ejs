@@ -1,159 +1,21 @@
 
-/**
- * Validators module
- * @module Validators
- */
-function Validators() {
-	const self = this; //self instance
-
-	//RegEx for validating
-	const RE_DIGITS = /^\d+$/;
-	const RE_IDLIST = /^\d+(,\d+)*$/;
-	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
-	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{6,}$/;
-	const RE_IPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
-	const RE_IPv6 = /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/;
-	const RE_SWIFT = /^[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}$/; //SWIFT / BIC
-	const RE_URL = /(http|fttextp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
-	// Spanish Id's
-	const RE_DNI = /^(\d{8})([A-Z])$/;
-	const RE_CIF = /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/;
-	const RE_NIE = /^[XYZ]\d{7,8}[A-Z]$/;
-	// Cards Numbers
-	const RE_VISA = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
-	const RE_MASTER_CARD = /^(?:5[1-5][0-9]{14})$/;
-	const RE_AMEX = /^(?:3[47][0-9]{13})$/;
-	const RE_DISCOVER = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
-	const RE_DINER_CLUB = /^(?:3(?:0[0-5]|[68][0-9])[0-9]{11})$/;
-	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
-
-	function fnSize(str) { return str ? str.length : 0; }; //string o array
-	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
-	function reTest(re, elemval) { //regex test
-		try {
-			return re.test(elemval);
-		} catch(e) {}
-		return false;
+const VALIDATORS = {
+	nombre: function(vs, name, value, msgs) {
+		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
+	},
+	ap1: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	ap2: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 0, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	nif: function(vs, name, value, msgs) {
+		let valid = vs.getValidator();
+		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !vs.setError(name, msgs.errNif);
+	},
+	correo: function(vs, name, value, msgs) {
+		if (!vs.getValidator().size(value, 1, 200))
+			return !vs.setError(name, msgs.errRequired);
+		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
 	}
-
-	this.size = function(elemval, min, max) {
-		let size = fnSize(elemval);
-		return (min <= size) && (size <= max);
-	}
-
-	this.regex = function(re, value) { return reTest(re, value); }
-	this.login = function(elemval) { return reTest(RE_LOGIN, elemval); }
-	this.email = function(elemval) { return reTest(RE_MAIL, elemval); }
-	this.digits = function(elemval) { return reTest(RE_DIGITS, elemval); }
-	this.idlist = function(elemval) { return reTest(RE_IDLIST, elemval); }
-	this.array = function(elemval) { return elemval ? Array.isArray(elemval) : true; }
-
-	this.esId = function(str) {
-		str = minify(str);
-		if (!str)
-			return false;
-		if (reTest(RE_DNI, str))
-			return self.dni(str)
-		if (reTest(RE_CIF, str))
-			return self.cif(str)
-		if (reTest(RE_NIE, str))
-			return self.nie(str)
-		return false;
-	}
-	this.dni = function(dni) {
-		var letras = "TRWAGMYFPDXBNJZSQVHLCKE";
-		var letra = letras.charAt(parseInt(dni, 10) % 23);
-		return (letra == dni.charAt(8));
-	}
-	this.cif = function(cif) {
-		var match = cif.match(RE_CIF);
-		var letter = match[1];
-		var number  = match[2];
-		var control = match[3];
-		var sum = 0;
-
-		for (var i = 0; i < number.length; i++) {
-			var n = parseInt(number[i], 10);
-			//Odd positions (Even index equals to odd position. i=0 equals first position)
-			if ((i % 2) === 0) {
-				n *= 2; //Odd positions are multiplied first
-				// If the multiplication is bigger than 10 we need to adjust
-				n = (n < 10) ? n : (parseInt(n / 10) + (n % 10));
-			}
-			sum += n;
-		}
-
-		sum %= 10;
-		var control_digit = (sum !== 0) ? 10 - sum : sum;
-		var control_letter = "JABCDEFGHI".substr(control_digit, 1);
-		return letter.match(/[ABEH]/) ? (control == control_digit) //Control must be a digit
-					: letter.match(/[KPQS]/) ? (control == control_letter) //Control must be a letter
-					: ((control == control_digit) || (control == control_letter)); //Can be either
-	}
-	this.nie = function(nie) {
-		//Change the initial letter for the corresponding number and validate as DNI
-		var prefix = nie.charAt(0);
-		var p0 = (prefix == "X") ? 0 : ((prefix == "Y") ? 1 : ((prefix == "Z") ? 2 : prefix));
-		return self.dni(p0 + nie.substr(1));
-	}
-
-	this.iban = function(IBAN) {
-		IBAN = minify(IBAN);
-		if (fnSize(IBAN) != 24)
-			return false;
-
-		// Se coge las primeras dos letras y se pasan a números
-		const LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		let num1 = LETRAS.search(IBAN.substring(0, 1)) + 10;
-		let num2 = LETRAS.search(IBAN.substring(1, 2)) + 10;
-		//Se sustituye las letras por números.
-		let aux = String(num1) + String(num2) + IBAN.substring(2);
-		// Se mueve los 6 primeros caracteres al final de la cadena.
-		aux = aux.substring(6) + aux.substring(0,6);
-
-		//Se calcula el resto modulo 97
-		let resto = "";
-		let parts = Math.ceil(aux.length/7);
-		for (let i = 1; i <= parts; i++)
-			resto = String(parseFloat(resto + aux.substr((i-1)*7, 7))%97);
-		return (1 == resto);
-	}
-
-	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
-		cardNo = minify(cardNo);
-		if (fnSize(cardNo) != 16)
-			return false;
-
-		let s = 0;
-		let doubleDigit = false;
-		cardNo = cardNo.trim().replace(/\s+/g, ""); //remove spaces
-		for (let i = 15; i >= 0; i--) {
-			let digit = +cardNo[i];
-			if (doubleDigit) {
-				digit *= 2;
-				digit -= (digit > 9) ? 9 : 0;
-			}
-			s += digit;
-			doubleDigit = !doubleDigit;
-		}
-		return ((s % 10) == 0);
-	}
-
-	this.generatePassword = function(size, charSet) {
-		charSet = charSet || "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#@&°!§%;:=^/()?*+~.,-$";
-		return Array.apply(null, Array(size || 10)).map(function() { 
-			return charSet.charAt(Math.random() * charSet.length);
-		}).join(""); 
-	}
-	this.testPassword = function(pass) {
-		let strength = 0;
-		//Check each group independently
-		strength += /[A-Z]+/.test(pass) ? 1 : 0;
-		strength += /[a-z]+/.test(pass) ? 1 : 0;
-		strength += /[0-9]+/.test(pass) ? 1 : 0;
-		strength += /[\W]+/.test(pass) ? 1 : 0;
-		//Validation for length of password
-		strength += ((strength > 2) && (fnSize(pass) > 8));
-		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
-	}
-}
+};

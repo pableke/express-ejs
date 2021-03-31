@@ -68,11 +68,16 @@ $(document).ready(function() {
 		ev.preventDefault();
 	});
 
+	const CLS_INVALID = "is-invalid";
+	const CLS_FEED_BACK = ".invalid-feedback";
+	const INPUT_SELECTOR = ":not([type=hidden])[tabindex]:not([readonly])";
 	$("form").each(function(i, form) {
+		const COUNTER_SELECTOR = "textarea[maxlength]";
 		let inputs = form.elements; //list
+
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
-		$(inputs).filter("textarea[maxlength]").keyup(fnCounter).each(fnCounter);
+		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
@@ -99,6 +104,16 @@ $(document).ready(function() {
 			this.value || fnAcLoad(this, "", "");
 		});
 		// End autocomplete inputs
+
+		$(inputs).filter("[type=reset]").click(ev => {
+			//Do what you need before reset the form
+			closeAlerts(); //close previous messages
+			form.reset(); //Reset manually the form
+			//Do what you need after reset the form
+			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			$(inputs).filter(INPUT_SELECTOR).first().focus();
+		});
 	}).submit(function(ev) {
 		let form = this; //self reference
 		let inputs = form.elements; //input list
@@ -108,13 +123,11 @@ $(document).ready(function() {
 			fnLoadHtml(form, html);
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
-				el.matches(":not([type=hidden])[tabindex]:not([readonly])") && el.focus();
+				el.matches(INPUT_SELECTOR) && el.focus();
 				el.value = ""; //clear input
 			}
 		}
 		function fnShowErrors(errors) {
-			const CLS_INVALID = "is-invalid";
-			const CLS_FEED_BACK = ".invalid-feedback";
 			for (let i = _last; i > -1; i--) { //reverse
 				let el = inputs[i]; //element
 				let _msg = el.name && errors[el.name];
@@ -125,12 +138,8 @@ $(document).ready(function() {
 			showError(errors.msgerr);
 		}
 
-		vs.init(mb.getLang()); //init service
-		for (let i = _last; i > -1; i--) { //reverse
-			let el = inputs[i]; //element
-			vs.validate(el.name, el.value);
-		}
-		if (vs.fails()) { //if error => stop
+		let _data = vs.values(inputs); //input list to object
+		if (!vs.validate(_data, mb.getLang())) { //error => stop
 			vs.setError("msgerr", mb.get("errForm"));
 			fnShowErrors(vs.getErrors());
 			return ev.preventDefault();
@@ -387,10 +396,10 @@ function StringBox() {
 
 
 /**
- * Validators module
- * @module Validators
+ * ValidatorBox module
+ * @module ValidatorBox
  */
-function Validators() {
+function ValidatorBox() {
 	const self = this; //self instance
 
 	//RegEx for validating
@@ -433,7 +442,6 @@ function Validators() {
 	this.email = function(elemval) { return reTest(RE_MAIL, elemval); }
 	this.digits = function(elemval) { return reTest(RE_DIGITS, elemval); }
 	this.idlist = function(elemval) { return reTest(RE_IDLIST, elemval); }
-	this.array = function(elemval) { return elemval ? Array.isArray(elemval) : true; }
 
 	this.esId = function(str) {
 		str = minify(str);
@@ -543,10 +551,19 @@ function Validators() {
 		strength += ((strength > 2) && (fnSize(pass) > 8));
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
 	}
+
+	//extends for extra validators
+	this.get = function(name) {
+		return self[name];
+	}
+	this.set = function(name, fn) {
+		self[name] = fn;
+		return self;
+	}
 }
 
 
-const valid = new Validators();
+const valid = new ValidatorBox();
 
 /**
  * ValidatorService module
@@ -555,31 +572,64 @@ const valid = new Validators();
 function ValidatorService() {
 	const self = this; //self instance
 	const ERRORS = {}; //errors container
-	let MSGS = {}; //messages container
+	let _data, _msgs; //containers
 
+	//initialize validators container => doesn't throw a ReferenceError exception when used
+	let _validators = ((typeof VALIDATORS === "undefined") || !VALIDATORS) ? {} : VALIDATORS;
+
+	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
-	function fnError(name, value) { //save error
-		ERRORS[name] = value;
-		ERRORS.num++;
-		return false;
+
+	this.getData = function(name) {
+		return name ? _data[name] : _data;
+	}
+	this.setData = function(data) {
+		_data = data || {};
+		return self;
+	}
+	this.getMsg = function(name) {
+		return _msgs[name];
+	}
+	this.setMsg = function(name, msg) {
+		_msgs[name] = msg;
+		return self;
+	}
+	this.getMsgs = function() {
+		return _msgs;
+	}
+	this.setMsgs = function(i18n) {
+		_msgs = i18n || {};
+		return self;
+	}
+	this.getValidator = function() {
+		return valid;
+	}
+	this.getValidators = function() {
+		return _validators;
 	}
 
-	const VALIDATORS = {
-		nombre: function(name, value) {
-			return valid.size(value, 1, 200) || fnError(name, MSGS.errRequired);
-		},
-		nif: function(name, value) {
-			return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || fnError(name, MSGS.errNif);
-		},
-		correo: function(name, value) {
-			if (!valid.size(value, 1, 200))
-				return fnError(name, MSGS.errRequired);
-			return valid.email(value) || fnError(name, MSGS.errCorreo);
+	/**
+	 * Return an object with the values from input list as pairs name / value
+	 *
+	 * @function values
+	 * @param      {NodeList} list Input list to be translated to an output object as name value pairs
+	 * @param      {Object} obj Initial object container by default is empty object {}
+	 * @return     {Object} Object containing name value pairs from input list
+	 */
+	this.values = function(list, obj) {
+		obj = obj || {}; //result
+		let size = fnSize(list); //length
+		for (let i = 0; i < size; i++) {
+			let el = list[i]; //element
+			if (el.name) //has value
+				obj[el.name] = fnTrim(el.value);
 		}
-	};
+		return obj;
+	}
 
-	this.init = function(i18n) {
-		MSGS = i18n || MSGS;
+	this.init = function(data, i18n, validators) {
+		_validators = validators || _validators;
+		self.setData(data).setMsgs(i18n);
 		for (let k in ERRORS)
 			delete ERRORS[k];
 		ERRORS.num = 0;
@@ -592,20 +642,45 @@ function ValidatorService() {
 		return ERRORS[name];
 	}
 	this.setError = function(name, value) {
-		fnError(name, value);
+		ERRORS[name] = value;
+		ERRORS.num++;
 		return self;
+	}
+	this.setMsgError = function(name, key) {
+		return self.setError(name, self.getMsg(key));
 	}
 
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
 
-	this.validate = function(name, value) {
-		let fn = VALIDATORS[name];
-		return !fn || fn(name, fnTrim(value));
-	}
-	this.validObject = function(data) {
-		for (let k in data)
-			self.validate(k, data[k]);
+	this.validate = function(data, i18n, validators) {
+		self.init(data, i18n, validators);
+		for (let k in _data) {
+			let fn = _validators[k];
+			fn && fn(self, k, fnTrim(_data[k]), _msgs);
+		}
 		return self.isValid();
 	}
 }
+
+
+const VALIDATORS = {
+	nombre: function(vs, name, value, msgs) {
+		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
+	},
+	ap1: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	ap2: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 0, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	nif: function(vs, name, value, msgs) {
+		let valid = vs.getValidator();
+		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !vs.setError(name, msgs.errNif);
+	},
+	correo: function(vs, name, value, msgs) {
+		if (!vs.getValidator().size(value, 1, 200))
+			return !vs.setError(name, msgs.errRequired);
+		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
+	}
+};

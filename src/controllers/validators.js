@@ -7,14 +7,8 @@ const vs = require("../lib/validator-service.js");
  * @function body
  */
 exports.body = function(req, res, next) {
-	//initialize service and validate request body
-	vs.init(res.locals.i18n).validObject(req.body);
-	/*let { nombre, ap1, ap2, nif, correo } = req.body;
-	valid.size(fields.nombre, 1, 200) || valid.setError("nombre", "errNombre");
-	valid.size(fields.ap1, 1, 200) || valid.setError("ap1", "errNombre");
-	valid.size(fields.ap2, 0, 200) || valid.setError("ap2", "errNombre");
-	(valid.size(fields.nif, 1, 50) && valid.esId(fields.nif)) || valid.setError("nif", "errNif");
-	return fnEmail(fields.correo) && valid.isValid();*/
+	vs.validate(req.body, res.locals.i18n);
+	next();
 }
 
 exports.auth = function(req, res, next) {
@@ -23,6 +17,7 @@ exports.auth = function(req, res, next) {
 		res.render("index", { page: "forms/login" });
 	}
 	if ((req.session.click + 3600000) < Date.now()) {
+		req.session.destroy(); //remove session vars
 		res.locals.msgError = res.locals.i18n.endSession;
 		res.render("index", { page: "forms/login" });
 	}
