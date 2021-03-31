@@ -3,7 +3,7 @@
  * ValidatorBox module
  * @module ValidatorBox
  */
-function ValidatorBox() {
+module.exports = function() {
 	const self = this; //self instance
 
 	//RegEx for validating

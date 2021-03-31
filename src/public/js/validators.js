@@ -1,5 +1,7 @@
 
-const VALIDATORS = {
+const VALIDATORS = {};
+
+VALIDATORS.test = { //validators TO form test
 	nombre: function(vs, name, value, msgs) {
 		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
 	},

@@ -68,20 +68,26 @@ $(document).ready(function() {
 		ev.preventDefault();
 	});
 
-	const CLS_INVALID = "is-invalid";
-	const CLS_FEED_BACK = ".invalid-feedback";
-	function fnFocus(inputs) {
-		$(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus();
-	}
-
-	$("form").each(function(i, form) {
+	let forms = document.querySelectorAll("form");
+	for (let i = forms.length - 1; (i > -1); i--) {
+		const CLS_INVALID = "is-invalid";
+		const CLS_FEED_BACK = ".invalid-feedback";
 		const COUNTER_SELECTOR = "textarea[maxlength]";
+
+		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
 		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
+
+		function fnFocus() { $(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus(); }
+		function fnClean() { //reset message and state inputs
+			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			fnFocus(); //focus on first
+		}
 
 		// Autocomplete inputs
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
@@ -111,57 +117,54 @@ $(document).ready(function() {
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
 			closeAlerts(); //close previous messages
-			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			fnFocus(inputs);
+			fnClean(); //reset message and state inputs
 		});
-	}).submit(function(ev) {
-		let form = this; //self reference
-		let inputs = form.elements; //input list
-		let _last = sb.size(inputs) - 1; //last input
 
-		function fnLoad(html) {
-			fnLoadHtml(form, html);
-			for (let i = _last; i > -1; i--) //reverse
-				inputs[i].value = ""; //clear input
-			fnFocus(inputs);
-		}
-		function fnShowErrors(errors) {
-			for (let i = _last; i > -1; i--) { //reverse
-				let el = inputs[i]; //element
-				let _msg = el.name && errors[el.name];
-				_msg ? $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(_msg) 
-					: $(el).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).html("");
+		fnFocus(); //focus on first
+		form.addEventListener("submit", function(ev) {
+			function fnLoad(html) {
+				$(inputs).val(""); //clean input values
+				fnLoadHtml(form, html); //load html section
+				fnClean(); //reset message and state inputs
 			}
-			showOk(errors.msgok);
-			showError(errors.msgerr);
-		}
-
-		let _data = vs.values(inputs); //input list to object
-		if (!vs.validate(_data, mb.getLang())) { //error => stop
-			vs.setError("msgerr", mb.get("errForm"));
-			fnShowErrors(vs.getErrors());
-			return ev.preventDefault();
-		}
-		if (!form.classList.contains("ajax"))
-			return true; //submit form
-
-		fnLoading(); //show loading
-		let fd = new FormData(this); //build pair key/value
-		fetch(this.action, { //init options
-			method: this.method,
-			body: (this.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-			headers: {
-				"Content-Type": this.enctype || "application/x-www-form-urlencoded",
-				"x-requested-with": "XMLHttpRequest"
+			function fnShowErrors(errors) {
+				fnClean(); //reset message and state inputs
+				let _last = sb.size(inputs) - 1; //last input
+				for (let i = _last; (i > -1); i--) { //reverse
+					let el = inputs[i]; //element
+					let msg = el.name && errors[el.name];
+					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
+				}
+				showOk(errors.msgok);
+				showError(errors.msgerr);
 			}
-		}).then(res => {
-			return res.ok ? res.text().then(fnLoad) : res.json().then(fnShowErrors);
-		}).catch(showError) //error handler
-			.finally(fnUnloading); //allways
-		ev.preventDefault();
-	});
+
+			let _data = vs.values(inputs); //input list to object
+			if (!vs.validate(form.id, _data, mb.getLang())) { //error => stop
+				vs.setError("msgerr", mb.get("errForm"));
+				fnShowErrors(vs.getErrors());
+				return ev.preventDefault();
+			}
+			if (!form.classList.contains("ajax"))
+				return true; //submit form
+
+			fnLoading(); //show loading
+			let fd = new FormData(form); //build pair key/value
+			fetch(form.action, { //init options
+				method: form.method,
+				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
+				headers: {
+					"Content-Type": form.enctype || "application/x-www-form-urlencoded",
+					"x-requested-with": "XMLHttpRequest"
+				}
+			}).then(res => {
+				return res.ok ? res.text().then(fnLoad) : res.json().then(fnShowErrors);
+			}).catch(showError) //error handler
+				.finally(fnUnloading); //allways
+			ev.preventDefault();
+		});
+	}
 	// End AJAX links and forms
 });

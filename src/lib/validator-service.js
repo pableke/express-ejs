@@ -1,12 +1,12 @@
 
 const valid = require("./validator-box.js");
-const VALIDATORS = require("./validators.js");
+const forms = require("./validator-form.js");
 
 /**
  * ValidatorService module
  * @module ValidatorService
  */
-function ValidatorService() {
+module.exports = function() {
 	const self = this; //self instance
 	const ERRORS = {}; //errors container
 	let _data, _msgs; //containers
@@ -41,8 +41,8 @@ function ValidatorService() {
 	this.getValidator = function() {
 		return valid;
 	}
-	this.getValidators = function() {
-		return _validators;
+	this.getForm = function() {
+		return forms;
 	}
 
 	/**
@@ -64,8 +64,7 @@ function ValidatorService() {
 		return obj;
 	}
 
-	this.init = function(data, i18n, validators) {
-		_validators = validators || _validators;
+	this.init = function(data, i18n) {
 		self.setData(data).setMsgs(i18n);
 		for (let k in ERRORS)
 			delete ERRORS[k];
@@ -90,12 +89,14 @@ function ValidatorService() {
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
 
-	this.validate = function(data, i18n, validators) {
-		self.init(data, i18n, validators);
-		for (let k in _data) {
-			let fn = _validators[k];
-			fn && fn(self, k, fnTrim(_data[k]), _msgs);
-		}
+	this.validate = function(form, data, i18n) {
+		self.init(data, i18n); //init service
+		let fields = forms.getFields(form) || [];
+		let validators = forms.get(form) || {};
+		fields.forEach(field => {
+			let fn = validators[field];
+			fn && fn(self, field, fnTrim(_data[field]), _msgs);
+		});
 		return self.isValid();
 	}
 }
