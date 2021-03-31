@@ -111,9 +111,9 @@ $(document).ready(function() {
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
 			closeAlerts(); //close previous messages
+			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
 			fnFocus(inputs);
 		});
@@ -124,10 +124,8 @@ $(document).ready(function() {
 
 		function fnLoad(html) {
 			fnLoadHtml(form, html);
-			for (let i = _last; i > -1; i--) { //reverse
-				let el = inputs[i]; //element
-				el.value = ""; //clear input
-			}
+			for (let i = _last; i > -1; i--) //reverse
+				inputs[i].value = ""; //clear input
 			fnFocus(inputs);
 		}
 		function fnShowErrors(errors) {
