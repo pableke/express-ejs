@@ -68,20 +68,26 @@ $(document).ready(function() {
 		ev.preventDefault();
 	});
 
-	const CLS_INVALID = "is-invalid";
-	const CLS_FEED_BACK = ".invalid-feedback";
-	function fnFocus(inputs) {
-		$(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus();
-	}
-
-	$("form").each(function(i, form) {
+	let forms = document.querySelectorAll("form");
+	for (let i = forms.length - 1; (i > -1); i--) {
+		const CLS_INVALID = "is-invalid";
+		const CLS_FEED_BACK = ".invalid-feedback";
 		const COUNTER_SELECTOR = "textarea[maxlength]";
+
+		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
 		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
+
+		function fnFocus() { $(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus(); }
+		function fnClean() { //reset message and state inputs
+			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			fnFocus(); //focus on first
+		}
 
 		// Autocomplete inputs
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
@@ -113,58 +119,53 @@ $(document).ready(function() {
 			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
-			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			fnFocus(inputs);
+			fnClean(); //reset message and state inputs
 		});
-	}).submit(function(ev) {
-		let form = this; //self reference
-		let inputs = form.elements; //input list
-		let _last = sb.size(inputs) - 1; //last input
 
-		function fnLoad(html) {
-			fnLoadHtml(form, html);
-			for (let i = _last; i > -1; i--) { //reverse
-				let el = inputs[i]; //element
-				el.value = ""; //clear input
+		fnFocus(); //focus on first
+		form.addEventListener("submit", function(ev) {
+			function fnLoad(html) {
+				$(inputs).val(""); //clean input values
+				fnLoadHtml(form, html); //load html section
+				fnClean(); //reset message and state inputs
 			}
-			fnFocus(inputs);
-		}
-		function fnShowErrors(errors) {
-			for (let i = _last; i > -1; i--) { //reverse
-				let el = inputs[i]; //element
-				let _msg = el.name && errors[el.name];
-				_msg ? $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(_msg) 
-					: $(el).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).html("");
+			function fnShowErrors(errors) {
+				fnClean(); //reset message and state inputs
+				let _last = sb.size(inputs) - 1; //last input
+				for (let i = _last; (i > -1); i--) { //reverse
+					let el = inputs[i]; //element
+					let msg = el.name && errors[el.name];
+					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
+				}
+				showOk(errors.msgok);
+				showError(errors.msgerr);
 			}
-			showOk(errors.msgok);
-			showError(errors.msgerr);
-		}
 
-		let _data = vs.values(inputs); //input list to object
-		if (!vs.validate(_data, mb.getLang())) { //error => stop
-			vs.setError("msgerr", mb.get("errForm"));
-			fnShowErrors(vs.getErrors());
-			return ev.preventDefault();
-		}
-		if (!form.classList.contains("ajax"))
-			return true; //submit form
-
-		fnLoading(); //show loading
-		let fd = new FormData(this); //build pair key/value
-		fetch(this.action, { //init options
-			method: this.method,
-			body: (this.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-			headers: {
-				"Content-Type": this.enctype || "application/x-www-form-urlencoded",
-				"x-requested-with": "XMLHttpRequest"
+			let _data = vs.values(inputs); //input list to object
+			if (!vs.validate(form.id, _data, mb.getLang())) { //error => stop
+				vs.setError("msgerr", mb.get("errForm"));
+				fnShowErrors(vs.getErrors());
+				return ev.preventDefault();
 			}
-		}).then(res => {
-			return res.ok ? res.text().then(fnLoad) : res.json().then(fnShowErrors);
-		}).catch(showError) //error handler
-			.finally(fnUnloading); //allways
-		ev.preventDefault();
-	});
+			if (!form.classList.contains("ajax"))
+				return true; //submit form
+
+			fnLoading(); //show loading
+			let fd = new FormData(form); //build pair key/value
+			fetch(form.action, { //init options
+				method: form.method,
+				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
+				headers: {
+					"Content-Type": form.enctype || "application/x-www-form-urlencoded",
+					"x-requested-with": "XMLHttpRequest"
+				}
+			}).then(res => {
+				return res.ok ? res.text().then(fnLoad) : res.json().then(fnShowErrors);
+			}).catch(showError) //error handler
+				.finally(fnUnloading); //allways
+			ev.preventDefault();
+		});
+	}
 	// End AJAX links and forms
 });
 
@@ -398,6 +399,30 @@ function StringBox() {
 }
 
 
+const VALIDATORS = {};
+
+VALIDATORS.test = { //validators TO form test
+	nombre: function(vs, name, value, msgs) {
+		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
+	},
+	ap1: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	ap2: function(vs, name, value, msgs) {
+		vs.getValidator().size(value, 0, 200) || !vs.setError(name, msgs.errNombre);
+	},
+	nif: function(vs, name, value, msgs) {
+		let valid = vs.getValidator();
+		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !vs.setError(name, msgs.errNif);
+	},
+	correo: function(vs, name, value, msgs) {
+		if (!vs.getValidator().size(value, 1, 200))
+			return !vs.setError(name, msgs.errRequired);
+		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
+	}
+};
+
+
 /**
  * ValidatorBox module
  * @module ValidatorBox
@@ -566,7 +591,40 @@ function ValidatorBox() {
 }
 
 
+/**
+ * ValidatorForm module
+ * @module ValidatorForm
+ */
+function ValidatorForm() {
+	const self = this; //self instance
+	let _validators; //container
+
+	this.load = function(forms) {
+		_validators = forms || _validators;
+		return self;
+	}
+
+	this.get = function(form) {
+		return _validators[form];
+	}
+	this.set = function(form, validators) {
+		_validators[form] = validators;
+		return self;
+	}
+
+	this.getFields = function(form) {
+		return Object.keys(self.get(form));
+	}
+
+	//initialize validators container => doesn't throw a ReferenceError exception when used
+	if ((typeof VALIDATORS !== "undefined") && (VALIDATORS !== null)) {
+		_validators = VALIDATORS; //initialize from global config
+	}
+}
+
+
 const valid = new ValidatorBox();
+const forms = new ValidatorForm();
 
 /**
  * ValidatorService module
@@ -607,8 +665,8 @@ function ValidatorService() {
 	this.getValidator = function() {
 		return valid;
 	}
-	this.getValidators = function() {
-		return _validators;
+	this.getForm = function() {
+		return forms;
 	}
 
 	/**
@@ -630,8 +688,7 @@ function ValidatorService() {
 		return obj;
 	}
 
-	this.init = function(data, i18n, validators) {
-		_validators = validators || _validators;
+	this.init = function(data, i18n) {
 		self.setData(data).setMsgs(i18n);
 		for (let k in ERRORS)
 			delete ERRORS[k];
@@ -656,34 +713,14 @@ function ValidatorService() {
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
 
-	this.validate = function(data, i18n, validators) {
-		self.init(data, i18n, validators);
-		for (let k in _data) {
-			let fn = _validators[k];
-			fn && fn(self, k, fnTrim(_data[k]), _msgs);
-		}
+	this.validate = function(form, data, i18n) {
+		self.init(data, i18n); //init service
+		let fields = forms.getFields(form) || [];
+		let validators = forms.get(form) || {};
+		fields.forEach(field => {
+			let fn = validators[field];
+			fn && fn(self, field, fnTrim(_data[field]), _msgs);
+		});
 		return self.isValid();
 	}
 }
-
-
-const VALIDATORS = {
-	nombre: function(vs, name, value, msgs) {
-		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
-	},
-	ap1: function(vs, name, value, msgs) {
-		vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errNombre);
-	},
-	ap2: function(vs, name, value, msgs) {
-		vs.getValidator().size(value, 0, 200) || !vs.setError(name, msgs.errNombre);
-	},
-	nif: function(vs, name, value, msgs) {
-		let valid = vs.getValidator();
-		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !vs.setError(name, msgs.errNif);
-	},
-	correo: function(vs, name, value, msgs) {
-		if (!vs.getValidator().size(value, 1, 200))
-			return !vs.setError(name, msgs.errRequired);
-		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
-	}
-};

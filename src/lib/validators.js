@@ -1,5 +1,7 @@
 
-module.exports = {
+const VALIDATORS = {};
+
+VALIDATORS.test = {
 	nombre: function(vs, name, value, msgs) {
 		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
 	},
@@ -19,3 +21,5 @@ module.exports = {
 		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
 	}
 };
+
+module.exports = VALIDATORS;
