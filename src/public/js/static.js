@@ -1,9 +1,8 @@
 
 $(document).ready(function() {
-	let lang = $("html").attr("lang") || navigator.language || navigator.userLanguage; //default browser language
-	let mb = new MessageBox(lang);
-	let vs = new ValidatorService();
+	let lang = $("html").attr("lang");// || navigator.language || navigator.userLanguage; //default browser language
 	let sb = new StringBox();
+	let mb = new MessageBox(lang);
 
 	// Alerts handlers
 	function hideAlert(el) { el.parentNode.classList.add("d-none");  }
@@ -86,6 +85,7 @@ $(document).ready(function() {
 		function fnClean() { //reset message and state inputs
 			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			closeAlerts(); //close previous messages
 			fnFocus(); //focus on first
 		}
 
@@ -116,7 +116,6 @@ $(document).ready(function() {
 
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
-			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			fnClean(); //reset message and state inputs
@@ -126,8 +125,8 @@ $(document).ready(function() {
 		form.addEventListener("submit", function(ev) {
 			function fnLoad(html) {
 				$(inputs).val(""); //clean input values
-				fnLoadHtml(form, html); //load html section
 				fnClean(); //reset message and state inputs
+				fnLoadHtml(form, html); //load html section
 			}
 			function fnShowErrors(errors) {
 				fnClean(); //reset message and state inputs
@@ -137,14 +136,15 @@ $(document).ready(function() {
 					let msg = el.name && errors[el.name];
 					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 				}
-				showOk(errors.msgok);
-				showError(errors.msgerr);
+				showOk(errors.msgOk);
+				showInfo(errors.msgInfo);
+				showWarn(errors.msgWarn);
+				showError(errors.msgError);
 			}
 
-			let _data = vs.values(inputs); //input list to object
-			if (!vs.validate(form.id, _data, mb.getLang())) { //error => stop
-				vs.setError("msgerr", mb.get("errForm"));
-				fnShowErrors(vs.getErrors());
+			let _data = valid.values(inputs); //input list to object
+			if (!valid.validate(form.getAttribute("action"), _data, mb.getLang())) { //error => stop
+				fnShowErrors(valid.addMsg("msgError", mb.get("errForm")).getErrors());
 				return ev.preventDefault();
 			}
 			if (!form.classList.contains("ajax"))
@@ -273,8 +273,10 @@ function MessageBox(lang) {
 		en: { //english
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
+			errMinlength8: "The min length required is 8 characters",
+			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
-			errNif: "Wrong id format",
+			errRegex: "Wrong format",
 
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?"
@@ -283,8 +285,10 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
+			errMinlength8: "Valor mínimo requerido de 8 caracteres",
+			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
-			errNif: "Formato de NIF incorrecto",
+			errRegex: "Formato incorrecto",
 
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?"
@@ -399,42 +403,21 @@ function StringBox() {
 }
 
 
-const VALIDATORS = {};
-
-VALIDATORS.test = { //validators TO form test
-	nombre: function(vs, name, value, msgs) {
-		return vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errRequired);
-	},
-	ap1: function(vs, name, value, msgs) {
-		vs.getValidator().size(value, 1, 200) || !vs.setError(name, msgs.errNombre);
-	},
-	ap2: function(vs, name, value, msgs) {
-		vs.getValidator().size(value, 0, 200) || !vs.setError(name, msgs.errNombre);
-	},
-	nif: function(vs, name, value, msgs) {
-		let valid = vs.getValidator();
-		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !vs.setError(name, msgs.errNif);
-	},
-	correo: function(vs, name, value, msgs) {
-		if (!vs.getValidator().size(value, 1, 200))
-			return !vs.setError(name, msgs.errRequired);
-		return vs.getValidator().email(value) || !vs.setError(name, msgs.errCorreo);
-	}
-};
-
-
 /**
  * ValidatorBox module
  * @module ValidatorBox
  */
 function ValidatorBox() {
 	const self = this; //self instance
+	const ERRORS = {}; //errors container
+	const VALIDATORS = {}; //common multiforms validators
+	const FORMS = {}; //forms by id => unique id
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
-	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{6,}$/;
+	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
 	const RE_IPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
 	const RE_IPv6 = /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/;
 	const RE_SWIFT = /^[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}$/; //SWIFT / BIC
@@ -452,6 +435,8 @@ function ValidatorBox() {
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
+	function fnTrim(str) { return str ? str.trim() : str; } //string only
+	function fnExec(fn, field, value, i18n) { return !fn || fn(self, field, value, i18n); } //run validate function
 	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
 	function reTest(re, elemval) { //regex test
 		try {
@@ -471,7 +456,7 @@ function ValidatorBox() {
 	this.digits = function(elemval) { return reTest(RE_DIGITS, elemval); }
 	this.idlist = function(elemval) { return reTest(RE_IDLIST, elemval); }
 
-	this.esId = function(str) {
+	this.idES = function(str) {
 		str = minify(str);
 		if (!str)
 			return false;
@@ -580,93 +565,60 @@ function ValidatorBox() {
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
 	}
 
-	//extends for extra validators
+	//extends extra validations
 	this.get = function(name) {
-		return self[name];
+		return VALIDATORS[name];
 	}
 	this.set = function(name, fn) {
-		self[name] = fn;
+		VALIDATORS[name] = fn;
 		return self;
 	}
-}
+	this.call = function(name, field, value, msgs) {
+		return fnExec(VALIDATORS[name], field, value, msgs);
+	}
 
-
-/**
- * ValidatorForm module
- * @module ValidatorForm
- */
-function ValidatorForm() {
-	const self = this; //self instance
-	let _validators; //container
-
-	this.load = function(forms) {
-		_validators = forms || _validators;
+	// Errors asociated by fields
+	function fnInit() {
+		for (let k in ERRORS)
+			delete ERRORS[k];
+		ERRORS.num = 0;
 		return self;
 	}
 
-	this.get = function(form) {
-		return _validators[form];
+	this.getErrors = function() {
+		return ERRORS;
 	}
-	this.set = function(form, validators) {
-		_validators[form] = validators;
+	this.getError = function(name) {
+		return ERRORS[name];
+	}
+	this.addMsg = function(name, value) {
+		ERRORS[name] = value;
 		return self;
 	}
+	this.setError = function(name, value) {
+		ERRORS.num++;
+		return self.addMsg(name, value);
+	}
 
+	// OJO! sobrescritura de forms => id's unicos
+	this.getForm = function(form) {
+		return FORMS[form];
+	}
+	this.setForm = function(form, validators) {
+		FORMS[form] = validators;
+		return self;
+	}
+	this.addForms = function(forms) {
+		Object.assign(FORMS, forms);
+		return self;
+	}
 	this.getFields = function(form) {
-		return Object.keys(self.get(form));
+		let fields = self.getForm(form);
+		return fields ? Object.keys(fields) : [];
 	}
-
-	//initialize validators container => doesn't throw a ReferenceError exception when used
-	if ((typeof VALIDATORS !== "undefined") && (VALIDATORS !== null)) {
-		_validators = VALIDATORS; //initialize from global config
-	}
-}
-
-
-const valid = new ValidatorBox();
-const forms = new ValidatorForm();
-
-/**
- * ValidatorService module
- * @module ValidatorService
- */
-function ValidatorService() {
-	const self = this; //self instance
-	const ERRORS = {}; //errors container
-	let _data, _msgs; //containers
-
-	//initialize validators container => doesn't throw a ReferenceError exception when used
-	let _validators = ((typeof VALIDATORS === "undefined") || !VALIDATORS) ? {} : VALIDATORS;
-
-	function fnSize(str) { return str ? str.length : 0; }; //string o array
-	function fnTrim(str) { return str ? str.trim() : str; } //string only
-
-	this.getData = function(name) {
-		return name ? _data[name] : _data;
-	}
-	this.setData = function(data) {
-		_data = data || {};
+	this.initFields = function(form) {
+		fnInit().getFields(form).forEach(field => { ERRORS[field] = ""; });
 		return self;
-	}
-	this.getMsg = function(name) {
-		return _msgs[name];
-	}
-	this.setMsg = function(name, msg) {
-		_msgs[name] = msg;
-		return self;
-	}
-	this.getMsgs = function() {
-		return _msgs;
-	}
-	this.setMsgs = function(i18n) {
-		_msgs = i18n || {};
-		return self;
-	}
-	this.getValidator = function() {
-		return valid;
-	}
-	this.getForm = function() {
-		return forms;
 	}
 
 	/**
@@ -688,39 +640,58 @@ function ValidatorService() {
 		return obj;
 	}
 
-	this.init = function(data, i18n) {
-		self.setData(data).setMsgs(i18n);
-		for (let k in ERRORS)
-			delete ERRORS[k];
-		ERRORS.num = 0;
-		return self;
-	}
-	this.getErrors = function() {
-		return ERRORS;
-	}
-	this.getError = function(name) {
-		return ERRORS[name];
-	}
-	this.setError = function(name, value) {
-		ERRORS[name] = value;
-		ERRORS.num++;
-		return self;
-	}
-	this.setMsgError = function(name, key) {
-		return self.setError(name, self.getMsg(key));
-	}
-
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
 
 	this.validate = function(form, data, i18n) {
-		self.init(data, i18n); //init service
-		let fields = forms.getFields(form) || [];
-		let validators = forms.get(form) || {};
-		fields.forEach(field => {
-			let fn = validators[field];
-			fn && fn(self, field, fnTrim(_data[field]), _msgs);
+		fnInit(); //init service
+		let validators = self.getForm(form) || {};
+		self.getFields(form).forEach(field => {
+			fnExec(validators[field], field, fnTrim(data[field]), i18n);
 		});
 		return self.isValid();
 	}
 }
+
+
+const VALIDATORS = {};
+VALIDATORS["/test.html"] = {
+	nombre: function(valid, name, value, msgs) {
+		return valid.call("required", name, value, msgs);
+	},
+	/*ap1: function(valid, name, value, msgs) {
+		return valid.call("required", name, value, msgs);
+	},
+	ap2: function(valid, name, value, msgs) {
+		valid.size(value, 0, 200) || !valid.setError(name, msgs.errNombre);
+	},
+	nif: function(valid, name, value, msgs) {
+		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !valid.setError(name, msgs.errNif);
+	},*/
+	correo: function(valid, name, value, msgs) {
+		return valid.call("correo", name, value, msgs);
+	},
+	asunto: function(valid, name, value, msgs) {
+		return valid.call("required", name, value, msgs);
+	}
+};
+
+//extended config
+const valid = new ValidatorBox();
+valid.set("required", function(valid, name, value, msgs) {
+	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("login", function(valid, name, value, msgs) {
+	if (!valid.size(value, 8, 200))
+		return !valid.setError(name, msgs.errMinlength8);
+	return valid.idES(value) || valid.email(value)|| !valid.setError(name, msgs.errRegex);
+}).set("clave", function(valid, name, value, msgs) {
+	if (!valid.size(value, 8, 200))
+		return !valid.setError(name, msgs.errMinlength8);
+	return valid.login(value) || !valid.setError(name, msgs.errRegex);
+}).set("nif", function(valid, name, value, msgs) {
+	return (valid.size(value, 1, 50) && valid.idES(value)) || !valid.setError(name, msgs.errNif);
+}).set("correo", function(valid, name, value, msgs) {
+	if (!valid.size(value, 1, 200))
+		return !valid.setError(name, msgs.errRequired);
+	return valid.email(value) || !valid.setError(name, msgs.errCorreo);
+}).addForms(VALIDATORS);

@@ -7,19 +7,19 @@
 	<h2>Form</h2>
 	<hr/>
 
-	<form id="test" action="/test.html?lang=en" method="post" class="ajax">
+	<form id="test" action="/test.html" method="post" class="ajax">
 		<div class="input-group">
 			<label for="nombre" class="required">Name:</label>
 			<input type="text" id="nombre" name="nombre" value="" size="20" maxlength="200" class="input-item input-control " tabindex="1" title="User name" placeholder="Joe" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="invalid-feedback"></span>
+			<span class="invalid-feedback"><%=errors.nombre%></span>
 		</div>
 
 		<div class="input-group">
 			<label for="correo" class="required">E-Mail</label>
 			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
 			<i class="input-item input-icon far fa-envelope"></i>
-			<div class="invalid-feedback"></div>
+			<div class="invalid-feedback"><%=errors.correo%></div>
 		</div>
 
 		<div class="input-group">
@@ -60,7 +60,7 @@
 		<div class="input-group">
 			<label for="asunto" class="required">Subject:</label>
 			<input type="text" id="asunto" name="asunto" value="" size="40" maxlength="200" class="input-item input-control" tabindex="3" placeholder="Type a resume" />
-			<span class="invalid-feedback"></span>
+			<span class="invalid-feedback"><%=errors.asunto%></span>
 		</div>
 
 		<div class="form-group col-md-4">
