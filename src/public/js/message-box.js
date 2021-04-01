@@ -9,8 +9,10 @@ function MessageBox(lang) {
 		en: { //english
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
+			errMinlength8: "The min length required is 8 characters",
+			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
-			errNif: "Wrong id format",
+			errRegex: "Wrong format",
 
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?"
@@ -19,8 +21,10 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
+			errMinlength8: "Valor mínimo requerido de 8 caracteres",
+			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
-			errNif: "Formato de NIF incorrecto",
+			errRegex: "Formato incorrecto",
 
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?"

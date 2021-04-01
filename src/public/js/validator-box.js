@@ -5,12 +5,15 @@
  */
 function ValidatorBox() {
 	const self = this; //self instance
+	const ERRORS = {}; //errors container
+	const VALIDATORS = {}; //common multiforms validators
+	const FORMS = {}; //forms by id => unique id
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
-	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{6,}$/;
+	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
 	const RE_IPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
 	const RE_IPv6 = /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/;
 	const RE_SWIFT = /^[A-Z]{6,6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3,3}){0,1}$/; //SWIFT / BIC
@@ -28,6 +31,8 @@ function ValidatorBox() {
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
+	function fnTrim(str) { return str ? str.trim() : str; } //string only
+	function fnExec(fn, field, value, i18n) { return !fn || fn(self, field, value, i18n); } //run validate function
 	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
 	function reTest(re, elemval) { //regex test
 		try {
@@ -47,7 +52,7 @@ function ValidatorBox() {
 	this.digits = function(elemval) { return reTest(RE_DIGITS, elemval); }
 	this.idlist = function(elemval) { return reTest(RE_IDLIST, elemval); }
 
-	this.esId = function(str) {
+	this.idES = function(str) {
 		str = minify(str);
 		if (!str)
 			return false;
@@ -156,12 +161,90 @@ function ValidatorBox() {
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
 	}
 
-	//extends for extra validators
+	//extends extra validations
 	this.get = function(name) {
-		return self[name];
+		return VALIDATORS[name];
 	}
 	this.set = function(name, fn) {
-		self[name] = fn;
+		VALIDATORS[name] = fn;
 		return self;
+	}
+	this.call = function(name, field, value, msgs) {
+		return fnExec(VALIDATORS[name], field, value, msgs);
+	}
+
+	// Errors asociated by fields
+	function fnInit() {
+		for (let k in ERRORS)
+			delete ERRORS[k];
+		ERRORS.num = 0;
+		return self;
+	}
+
+	this.getErrors = function() {
+		return ERRORS;
+	}
+	this.getError = function(name) {
+		return ERRORS[name];
+	}
+	this.addMsg = function(name, value) {
+		ERRORS[name] = value;
+		return self;
+	}
+	this.setError = function(name, value) {
+		ERRORS.num++;
+		return self.addMsg(name, value);
+	}
+
+	// OJO! sobrescritura de forms => id's unicos
+	this.getForm = function(form) {
+		return FORMS[form];
+	}
+	this.setForm = function(form, validators) {
+		FORMS[form] = validators;
+		return self;
+	}
+	this.addForms = function(forms) {
+		Object.assign(FORMS, forms);
+		return self;
+	}
+	this.getFields = function(form) {
+		let fields = self.getForm(form);
+		return fields ? Object.keys(fields) : [];
+	}
+	this.initFields = function(form) {
+		fnInit().getFields(form).forEach(field => { ERRORS[field] = ""; });
+		return self;
+	}
+
+	/**
+	 * Return an object with the values from input list as pairs name / value
+	 *
+	 * @function values
+	 * @param      {NodeList} list Input list to be translated to an output object as name value pairs
+	 * @param      {Object} obj Initial object container by default is empty object {}
+	 * @return     {Object} Object containing name value pairs from input list
+	 */
+	this.values = function(list, obj) {
+		obj = obj || {}; //result
+		let size = fnSize(list); //length
+		for (let i = 0; i < size; i++) {
+			let el = list[i]; //element
+			if (el.name) //has value
+				obj[el.name] = fnTrim(el.value);
+		}
+		return obj;
+	}
+
+	this.fails = function() { return ERRORS.num > 0; }
+	this.isValid = function() { return ERRORS.num == 0; }
+
+	this.validate = function(form, data, i18n) {
+		fnInit(); //init service
+		let validators = self.getForm(form) || {};
+		self.getFields(form).forEach(field => {
+			fnExec(validators[field], field, fnTrim(data[field]), i18n);
+		});
+		return self.isValid();
 	}
 }

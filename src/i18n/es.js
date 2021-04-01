@@ -19,7 +19,7 @@ module.exports = {
 	lblUsuario: "Usuario", lblUsuarios: "Usuarios", lblGU: "Grupo / Usuario", 
 	lblRegistro: "Registro", lblRegistro2: "Datos de Registro", lblRegistro3: "Nuevo usuario", 
 	lblNombre: "Nombre", lblApellido1: "Primer Apellido", lblApellido2: "Segundo Apellido", lblApellidos: "Apellidos", 
-	phUsuario: "NIF/CIF/Correo", phNombre: "Jhon", phApellido1: "Doe", phApellido2: "Hofstadter", 
+	phUsuario: "NIF / CIF / Correo", phNombre: "Jhon", phApellido1: "Doe", phApellido2: "Hofstadter", 
 	lblApellido1: "Indique su primer apellido", lblApellido2: "Indique su segundo apellido", titApellidos: "Indique sus apellidos",
 	titNombre: "Introduzca su nombre", titUsuario: "Nombre del usuario en el sistema, debe tener una longitud mínima de 8 caracteres",
 	lblFormRegistro: "Registro como nuevo usuario", errUserNotFound: "Usuario no encontrado en el sistema", errUserInactive: "Usuario no validado en el sistema",
@@ -37,8 +37,8 @@ module.exports = {
 	msgChangePassOk: "Clave modificada correctamente",
 
 	lblNif: "NIF", lblCif: "CIF", lblNie: "NIE", lblNifCif: "NIF / CIF", 
-	titNif: "NIF/CIF del usuario en el sistema", phNif: "12345678X",
-	errNif: "Formato de NIF incorrecto", errUkNif: "NIF ya dado de alta en el sistema",
+	titNif: "NIF/CIF del usuario en el sistema", phNif: "12345678X / B12345678",
+	errNif: "Formato de NIF / CIF incorrecto", errUkNif: "NIF / CIF ya dado de alta en el sistema",
 
 	lblCorreo: "E-Mail", ejCorreo: "ejemplo@dominio.com", phCorreo: "Indique su correo",
 	titCorreo: "Dirección de E-Mail con la que se dió de alta en el sistema",
@@ -345,7 +345,7 @@ module.exports = {
 	errUpdate: "Error al actualizar los datos",
 	errValue: "Valor incorrecto",
 	errRequired: "¡Campo obligatorio!",
-	errMinlength: "Valor demasiado corto",
+	errMinlength8: "Valor mínimo requerido de 8 caracteres",
 	errMaxlength: "Longitud máxima excedida",
 	errRegex: "Formato incorrecto",
 	errMin: "Valor por debajo del mínimo",

@@ -1,9 +1,8 @@
 
 $(document).ready(function() {
-	let lang = $("html").attr("lang") || navigator.language || navigator.userLanguage; //default browser language
-	let mb = new MessageBox(lang);
-	let vs = new ValidatorService();
+	let lang = $("html").attr("lang");// || navigator.language || navigator.userLanguage; //default browser language
 	let sb = new StringBox();
+	let mb = new MessageBox(lang);
 
 	// Alerts handlers
 	function hideAlert(el) { el.parentNode.classList.add("d-none");  }
@@ -86,6 +85,7 @@ $(document).ready(function() {
 		function fnClean() { //reset message and state inputs
 			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			closeAlerts(); //close previous messages
 			fnFocus(); //focus on first
 		}
 
@@ -116,7 +116,6 @@ $(document).ready(function() {
 
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
-			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			fnClean(); //reset message and state inputs
@@ -126,8 +125,8 @@ $(document).ready(function() {
 		form.addEventListener("submit", function(ev) {
 			function fnLoad(html) {
 				$(inputs).val(""); //clean input values
-				fnLoadHtml(form, html); //load html section
 				fnClean(); //reset message and state inputs
+				fnLoadHtml(form, html); //load html section
 			}
 			function fnShowErrors(errors) {
 				fnClean(); //reset message and state inputs
@@ -137,14 +136,15 @@ $(document).ready(function() {
 					let msg = el.name && errors[el.name];
 					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 				}
-				showOk(errors.msgok);
-				showError(errors.msgerr);
+				showOk(errors.msgOk);
+				showInfo(errors.msgInfo);
+				showWarn(errors.msgWarn);
+				showError(errors.msgError);
 			}
 
-			let _data = vs.values(inputs); //input list to object
-			if (!vs.validate(form.id, _data, mb.getLang())) { //error => stop
-				vs.setError("msgerr", mb.get("errForm"));
-				fnShowErrors(vs.getErrors());
+			let _data = valid.values(inputs); //input list to object
+			if (!valid.validate(form.getAttribute("action"), _data, mb.getLang())) { //error => stop
+				fnShowErrors(valid.addMsg("msgError", mb.get("errForm")).getErrors());
 				return ev.preventDefault();
 			}
 			if (!form.classList.contains("ajax"))
