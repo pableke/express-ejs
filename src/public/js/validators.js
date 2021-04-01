@@ -39,4 +39,4 @@ valid.set("required", function(valid, name, value, msgs) {
 	if (!valid.size(value, 1, 200))
 		return !valid.setError(name, msgs.errRequired);
 	return valid.email(value) || !valid.setError(name, msgs.errCorreo);
-}).addForms(VALIDATORS);
+}).setForms(VALIDATORS);
