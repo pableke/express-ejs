@@ -133,7 +133,7 @@ $(document).ready(function() {
 				let _last = sb.size(inputs) - 1; //last input
 				for (let i = _last; (i > -1); i--) { //reverse
 					let el = inputs[i]; //element
-					let msg = el.name && errors[el.name];
+					let msg = el.name && errors[el.name]; //exists message error?
 					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 				}
 				showOk(errors.msgOk);

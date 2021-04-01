@@ -204,17 +204,13 @@ function ValidatorBox() {
 		FORMS[form] = validators;
 		return self;
 	}
-	this.addForms = function(forms) {
+	this.setForms = function(forms) {
 		Object.assign(FORMS, forms);
 		return self;
 	}
 	this.getFields = function(form) {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
-	}
-	this.initFields = function(form) {
-		fnInit().getFields(form).forEach(field => { ERRORS[field] = ""; });
-		return self;
 	}
 
 	/**
@@ -240,9 +236,8 @@ function ValidatorBox() {
 	this.isValid = function() { return ERRORS.num == 0; }
 
 	this.validate = function(form, data, i18n) {
-		fnInit(); //init service
-		let validators = self.getForm(form) || {};
-		self.getFields(form).forEach(field => {
+		let validators = self.getForm(form);
+		fnInit().getFields(form).forEach(field => {
 			fnExec(validators[field], field, fnTrim(data[field]), i18n);
 		});
 		return self.isValid();
