@@ -6,7 +6,6 @@
 function ValidatorBox() {
 	const self = this; //self instance
 	const ERRORS = {}; //errors container
-	const VALIDATORS = {}; //common multiforms validators
 	const FORMS = {}; //forms by id => unique id
 
 	//RegEx for validating
@@ -32,7 +31,6 @@ function ValidatorBox() {
 
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
-	function fnExec(fn, field, value, i18n) { return !fn || fn(self, field, value, i18n); } //run validate function
 	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
 	function reTest(re, elemval) { //regex test
 		try {
@@ -163,24 +161,17 @@ function ValidatorBox() {
 
 	//extends extra validations
 	this.get = function(name) {
-		return VALIDATORS[name];
+		return self[name];
 	}
 	this.set = function(name, fn) {
-		VALIDATORS[name] = fn;
+		self[name] = fn;
 		return self;
 	}
-	this.call = function(name, field, value, msgs) {
-		return fnExec(VALIDATORS[name], field, value, msgs);
-	}
+	/*****************************************************************/
+	/************************ FIN VALIDADORES ************************/
+	/*****************************************************************/
 
 	// Errors asociated by fields
-	function fnInit() {
-		for (let k in ERRORS)
-			delete ERRORS[k];
-		ERRORS.num = 0;
-		return self;
-	}
-
 	this.getErrors = function() {
 		return ERRORS;
 	}
@@ -234,11 +225,14 @@ function ValidatorBox() {
 
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
-
 	this.validate = function(form, data, i18n) {
+		for (let k in ERRORS) //clear prev errors
+			delete ERRORS[k]; //delete error message
+		ERRORS.num = 0; //num errors
 		let validators = self.getForm(form);
-		fnInit().getFields(form).forEach(field => {
-			fnExec(validators[field], field, fnTrim(data[field]), i18n);
+		self.getFields(form).forEach(field => {
+			let fn = validators[field];
+			fn && fn(field, fnTrim(data[field]), i18n, data);
 		});
 		return self.isValid();
 	}

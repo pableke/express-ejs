@@ -3,7 +3,6 @@ body {
 	background-color: silver;
 }
 
-
 /* Cards clases */
 .card { border-left: 6px solid #1976D2; }
 .card h1 { margin: 1em; color: #1976D2; border-bottom: 1px solid #1976D2; }
