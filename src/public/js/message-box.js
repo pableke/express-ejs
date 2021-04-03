@@ -9,7 +9,7 @@ function MessageBox(lang) {
 		en: { //english
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
-			errMinlength8: "The min length required is 8 characters",
+			errMinlength8: "The minimum required length is 8 characters",
 			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
 			errRegex: "Wrong format",
@@ -21,7 +21,7 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
-			errMinlength8: "Valor mínimo requerido: 8 caracteres",
+			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
 			errRegex: "Formato incorrecto",

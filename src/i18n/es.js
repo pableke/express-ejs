@@ -345,7 +345,7 @@ module.exports = {
 	errUpdate: "Error al actualizar los datos",
 	errValue: "Valor incorrecto",
 	errRequired: "¡Campo obligatorio!",
-	errMinlength8: "Valor mínimo requerido: 8 caracteres",
+	errMinlength8: "La longitud mínima requerida es de 8 caracteres",
 	errMaxlength: "Longitud máxima excedida",
 	errRegex: "Formato incorrecto",
 	errMin: "Valor por debajo del mínimo",
