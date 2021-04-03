@@ -69,8 +69,8 @@ $(document).ready(function() {
 
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
-		const CLS_INVALID = "is-invalid";
-		const CLS_FEED_BACK = ".invalid-feedback";
+		const CLS_INVALID = "input-error";
+		const CLS_FEED_BACK = ".msg-error";
 		const COUNTER_SELECTOR = "textarea[maxlength]";
 
 		let form = forms[i]; //element

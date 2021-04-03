@@ -69,8 +69,8 @@ $(document).ready(function() {
 
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
-		const CLS_INVALID = "is-invalid";
-		const CLS_FEED_BACK = ".invalid-feedback";
+		const CLS_INVALID = "input-error";
+		const CLS_FEED_BACK = ".msg-error";
 		const COUNTER_SELECTOR = "textarea[maxlength]";
 
 		let form = forms[i]; //element
@@ -133,7 +133,7 @@ $(document).ready(function() {
 				let _last = sb.size(inputs) - 1; //last input
 				for (let i = _last; (i > -1); i--) { //reverse
 					let el = inputs[i]; //element
-					let msg = el.name && errors[el.name];
+					let msg = el.name && errors[el.name]; //exists message error?
 					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 				}
 				showOk(errors.msgOk);
@@ -285,7 +285,7 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
-			errMinlength8: "Valor mínimo requerido de 8 caracteres",
+			errMinlength8: "Valor mínimo requerido: 8 caracteres",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
 			errRegex: "Formato incorrecto",
@@ -410,7 +410,6 @@ function StringBox() {
 function ValidatorBox() {
 	const self = this; //self instance
 	const ERRORS = {}; //errors container
-	const VALIDATORS = {}; //common multiforms validators
 	const FORMS = {}; //forms by id => unique id
 
 	//RegEx for validating
@@ -436,7 +435,6 @@ function ValidatorBox() {
 
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
-	function fnExec(fn, field, value, i18n) { return !fn || fn(self, field, value, i18n); } //run validate function
 	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
 	function reTest(re, elemval) { //regex test
 		try {
@@ -567,24 +565,17 @@ function ValidatorBox() {
 
 	//extends extra validations
 	this.get = function(name) {
-		return VALIDATORS[name];
+		return self[name];
 	}
 	this.set = function(name, fn) {
-		VALIDATORS[name] = fn;
+		self[name] = fn;
 		return self;
 	}
-	this.call = function(name, field, value, msgs) {
-		return fnExec(VALIDATORS[name], field, value, msgs);
-	}
+	/*****************************************************************/
+	/************************ FIN VALIDADORES ************************/
+	/*****************************************************************/
 
 	// Errors asociated by fields
-	function fnInit() {
-		for (let k in ERRORS)
-			delete ERRORS[k];
-		ERRORS.num = 0;
-		return self;
-	}
-
 	this.getErrors = function() {
 		return ERRORS;
 	}
@@ -608,17 +599,13 @@ function ValidatorBox() {
 		FORMS[form] = validators;
 		return self;
 	}
-	this.addForms = function(forms) {
+	this.setForms = function(forms) {
 		Object.assign(FORMS, forms);
 		return self;
 	}
 	this.getFields = function(form) {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
-	}
-	this.initFields = function(form) {
-		fnInit().getFields(form).forEach(field => { ERRORS[field] = ""; });
-		return self;
 	}
 
 	/**
@@ -642,56 +629,45 @@ function ValidatorBox() {
 
 	this.fails = function() { return ERRORS.num > 0; }
 	this.isValid = function() { return ERRORS.num == 0; }
-
 	this.validate = function(form, data, i18n) {
-		fnInit(); //init service
-		let validators = self.getForm(form) || {};
+		for (let k in ERRORS) //clear prev errors
+			delete ERRORS[k]; //delete error message
+		ERRORS.num = 0; //num errors
+		let validators = self.getForm(form);
 		self.getFields(form).forEach(field => {
-			fnExec(validators[field], field, fnTrim(data[field]), i18n);
+			let fn = validators[field];
+			fn && fn(field, fnTrim(data[field]), i18n);
 		});
 		return self.isValid();
 	}
 }
 
 
-const VALIDATORS = {};
-VALIDATORS["/test.html"] = {
-	nombre: function(valid, name, value, msgs) {
-		return valid.call("required", name, value, msgs);
-	},
-	/*ap1: function(valid, name, value, msgs) {
-		return valid.call("required", name, value, msgs);
-	},
-	ap2: function(valid, name, value, msgs) {
-		valid.size(value, 0, 200) || !valid.setError(name, msgs.errNombre);
-	},
-	nif: function(valid, name, value, msgs) {
-		return (valid.size(value, 1, 50) && valid.esId(fields.nif)) || !valid.setError(name, msgs.errNif);
-	},*/
-	correo: function(valid, name, value, msgs) {
-		return valid.call("correo", name, value, msgs);
-	},
-	asunto: function(valid, name, value, msgs) {
-		return valid.call("required", name, value, msgs);
-	}
-};
-
 //extended config
 const valid = new ValidatorBox();
-valid.set("required", function(valid, name, value, msgs) {
+
+valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
-}).set("login", function(valid, name, value, msgs) {
+}).set("usuario", function(name, value, msgs) {
 	if (!valid.size(value, 8, 200))
 		return !valid.setError(name, msgs.errMinlength8);
-	return valid.idES(value) || valid.email(value)|| !valid.setError(name, msgs.errRegex);
-}).set("clave", function(valid, name, value, msgs) {
+	return valid.idES(value) || valid.email(value) || !valid.setError(name, msgs.errRegex);
+}).set("clave", function(name, value, msgs) {
 	if (!valid.size(value, 8, 200))
 		return !valid.setError(name, msgs.errMinlength8);
 	return valid.login(value) || !valid.setError(name, msgs.errRegex);
-}).set("nif", function(valid, name, value, msgs) {
-	return (valid.size(value, 1, 50) && valid.idES(value)) || !valid.setError(name, msgs.errNif);
-}).set("correo", function(valid, name, value, msgs) {
-	if (!valid.size(value, 1, 200))
-		return !valid.setError(name, msgs.errRequired);
-	return valid.email(value) || !valid.setError(name, msgs.errCorreo);
-}).addForms(VALIDATORS);
+}).set("nif", function(name, value, msgs) {
+	return (valid.required(name, value, msgs) && valid.idES(value)) || !valid.setError(name, msgs.errNif);
+}).set("correo", function(name, value, msgs) {
+	return (valid.required(name, value, msgs) && valid.email(value)) || !valid.setError(name, msgs.errCorreo);
+}).setForm("/login.html", {
+	usuario: valid.usuario,
+	clave: valid.clave
+}).setForm("/test.html", {
+	nombre: valid.required,
+	correo: valid.correo,
+	asunto: valid.required,
+	info: function(name, value, msgs) {
+		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
+	}
+});

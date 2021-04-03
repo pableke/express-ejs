@@ -77,6 +77,10 @@ app.use((req, res, next) => {
 		res.locals.page = tpl; //tpl path
 		return res.render("index"); //index.ejs
 	}
+	res.ok = function(msg, tpl) {
+		res.locals.msgOk = msg; //error text
+		return res.build(tpl); //build /index.ejs
+	}
 	res.error = function(msg, tpl) {
 		res.locals.msgError = msg; //error text
 		return res.build(tpl); //build /index.ejs

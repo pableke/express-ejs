@@ -21,7 +21,7 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
-			errMinlength8: "Valor mínimo requerido de 8 caracteres",
+			errMinlength8: "Valor mínimo requerido: 8 caracteres",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
 			errRegex: "Formato incorrecto",
