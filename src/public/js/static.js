@@ -273,7 +273,7 @@ function MessageBox(lang) {
 		en: { //english
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
-			errMinlength8: "The min length required is 8 characters",
+			errMinlength8: "The minimum required length is 8 characters",
 			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
 			errRegex: "Wrong format",
@@ -285,7 +285,7 @@ function MessageBox(lang) {
 		es: { //spanish
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
-			errMinlength8: "Valor mínimo requerido: 8 caracteres",
+			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
 			errRegex: "Formato incorrecto",
@@ -636,7 +636,7 @@ function ValidatorBox() {
 		let validators = self.getForm(form);
 		self.getFields(form).forEach(field => {
 			let fn = validators[field];
-			fn && fn(field, fnTrim(data[field]), i18n);
+			fn && fn(field, fnTrim(data[field]), i18n, data);
 		});
 		return self.isValid();
 	}
@@ -648,18 +648,18 @@ const valid = new ValidatorBox();
 
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("min8", function(name, value, msgs) {
+	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
 }).set("usuario", function(name, value, msgs) {
-	if (!valid.size(value, 8, 200))
-		return !valid.setError(name, msgs.errMinlength8);
-	return valid.idES(value) || valid.email(value) || !valid.setError(name, msgs.errRegex);
+	return valid.min8(name, value, msgs) && (valid.idES(value) || valid.email(value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {
-	if (!valid.size(value, 8, 200))
-		return !valid.setError(name, msgs.errMinlength8);
-	return valid.login(value) || !valid.setError(name, msgs.errRegex);
+	return valid.min8(name, value, msgs) && (valid.login(value) || !valid.setError(name, msgs.errRegex));
+}).set("reclave", function(name, value, msgs, data) {
+	return valid.clave(name, value, msgs) && ((value == data.clave) || !valid.setError(name, msgs.errReclave));
 }).set("nif", function(name, value, msgs) {
-	return (valid.required(name, value, msgs) && valid.idES(value)) || !valid.setError(name, msgs.errNif);
+	return valid.required(name, value, msgs) && (valid.idES(value) || !valid.setError(name, msgs.errNif));
 }).set("correo", function(name, value, msgs) {
-	return (valid.required(name, value, msgs) && valid.email(value)) || !valid.setError(name, msgs.errCorreo);
+	return valid.required(name, value, msgs) && (valid.email(value) || !valid.setError(name, msgs.errCorreo));
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
