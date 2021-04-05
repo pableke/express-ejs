@@ -57,14 +57,16 @@ $(document).ready(function() {
 			showOk(html);
 	}
 	$("a.ajax").click(function(ev) {
-		fnLoading();
 		let link = this; //self reference
+		ev.preventDefault(); //stop event
+		if (link.classList.contains("remove") && !confirm(mb.get("remove")))
+			return false; //stop call
+		fnLoading(); //show loading frame
 		function fnLoad(html) { return fnLoadHtml(link, html); }
 		fetch(link.href) //default method="GET"
 			.then(res => res.text().then(res.ok ? fnLoad : showError))
 			.catch(showError) //error handler
 			.finally(fnUnloading); //allways
-		ev.preventDefault();
 	});
 
 	let forms = document.querySelectorAll("form");
