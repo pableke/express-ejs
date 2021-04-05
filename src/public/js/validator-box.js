@@ -81,8 +81,7 @@ function ValidatorBox() {
 
 	this.float = function(name, value, msgs) {
 		if (value) {
-			let dec = (msgs.lang == "en") ? "." : ",";
-			let separator = value.lastIndexOf(dec);
+			let separator = value.lastIndexOf(msgs.decimals);
 			let sign = (value.charAt(0) == "-") ? "-" : EMPTY;
 			let whole = (separator < 0) ? value : value.substr(0, separator); //extract whole part
 			let decimal = (separator < 0) ? EMPTY : ("." + value.substring(separator + 1)); //decimal part

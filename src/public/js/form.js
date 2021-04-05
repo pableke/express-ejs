@@ -78,6 +78,10 @@ $(document).ready(function() {
 		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
+		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
+		$(inputs).filter(".date").keyup(function() { this.value = msgs.dateHelper(this.value); });//.change(function() { this.value = dt.acDate(this.value); });
+		$(inputs).filter(".time").keyup(function() { this.value = msgs.timeHelper(this.value); });//.change(function() { this.value = dt.acTime(this.value); });
+
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
 		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
