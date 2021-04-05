@@ -1,8 +1,8 @@
 
 $(document).ready(function() {
-	let lang = $("html").attr("lang");// || navigator.language || navigator.userLanguage; //default browser language
-	let sb = new StringBox();
-	let mb = new MessageBox(lang);
+	const lang = $("html").attr("lang"); //|| navigator.language || navigator.userLanguage; //default browser language
+	const msgs = i18n.setI18n(lang).getLang(); //messages container
+	const sb = new StringBox(); //helpers
 
 	// Alerts handlers
 	function hideAlert(el) { el.parentNode.classList.add("d-none");  }
@@ -59,7 +59,7 @@ $(document).ready(function() {
 	$("a.ajax").click(function(ev) {
 		let link = this; //self reference
 		ev.preventDefault(); //stop event
-		if (link.classList.contains("remove") && !confirm(mb.get("remove")))
+		if (link.classList.contains("remove") && !confirm(msgs.remove))
 			return false; //stop call
 		fnLoading(); //show loading frame
 		function fnLoad(html) { return fnLoadHtml(link, html); }
@@ -145,8 +145,8 @@ $(document).ready(function() {
 			}
 
 			let _data = valid.values(inputs); //input list to object
-			if (!valid.validate(form.getAttribute("action"), _data, mb.getLang())) { //error => stop
-				fnShowErrors(valid.addMsg("msgError", mb.get("errForm")).getErrors());
+			if (!valid.validate(form.getAttribute("action"), _data, msgs)) { //error => stop
+				fnShowErrors(valid.addMsg("msgError", msgs.errForm).getErrors());
 				return ev.preventDefault();
 			}
 			if (!form.classList.contains("ajax"))
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function() {
  * Message-Box module
  * @module Message-Box
  */
-function MessageBox(lang) {
+function MessageBox() {
 	const self = this; //self instance
 	const langs = {
 		en: { //english
@@ -324,9 +324,6 @@ function MessageBox(lang) {
 	this.format = function(str) {
 		return str.replace(/@(\w+);/g, (m, k) => { return nvl(_lang[k], m); });
 	}
-
-	//load default language
-	self.setI18n(lang);
 }
 
 
@@ -720,6 +717,7 @@ function ValidatorBox() {
 
 
 //extended config
+const i18n = new MessageBox();
 const valid = new ValidatorBox();
 
 function toISODateString(date) { return date.toISOString().substring(0, 10); }

@@ -3,7 +3,7 @@
  * Message-Box module
  * @module Message-Box
  */
-function MessageBox(lang) {
+function MessageBox() {
 	const self = this; //self instance
 	const langs = {
 		en: { //english
@@ -58,7 +58,4 @@ function MessageBox(lang) {
 	this.format = function(str) {
 		return str.replace(/@(\w+);/g, (m, k) => { return nvl(_lang[k], m); });
 	}
-
-	//load default language
-	self.setI18n(lang);
 }

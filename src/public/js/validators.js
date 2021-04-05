@@ -1,5 +1,6 @@
 
 //extended config
+const i18n = new MessageBox();
 const valid = new ValidatorBox();
 
 function toISODateString(date) { return date.toISOString().substring(0, 10); }
