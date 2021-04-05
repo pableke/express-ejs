@@ -5,6 +5,9 @@
  */
 function MessageBox() {
 	const self = this; //self instance
+	const EMPTY = ""; //empty string
+	const DOT = ".";
+
 	const langs = {
 		en: { //english
 			lang: "en",
@@ -23,7 +26,13 @@ function MessageBox() {
 			errRange: "Value out of allowed range",
 
 			remove: "Are you sure to delete element?",
-			cancel: "Are you sure to cancel element?"
+			cancel: "Are you sure to cancel element?",
+
+			//helpers functions
+			decimals: DOT, //decimal separator
+			dateHelper: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
+			timeHelper: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
+			floatHelper: function(str, d) { return str && format(str, ",", DOT, 2); }
 		},
 
 		es: { //spanish
@@ -43,11 +52,35 @@ function MessageBox() {
 			errRange: "Valor fuera del rango permitido",
 
 			remove: "¿Confirma que desea eliminar este registro?",
-			cancel: "¿Confirma que desea cancelar este registro?"
+			cancel: "¿Confirma que desea cancelar este registro?",
+
+			//helpers functions
+			decimals: ",", //decimal separator
+			dateHelper: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
+			timeHelper: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
+			floatHelper: function(str, d) { return str && format(str, DOT, ",", 2); }
 		}
 	}
 
 	let _lang = langs.es; //default
+	function rtl(str, size) {
+		var result = []; //parts container
+		for (var i = str.length; i > size; i -= size)
+			result.unshift(str.substr(i - size, size));
+		(i > 0) && result.unshift(str.substr(0, i));
+		return result;
+	}
+	function format(str, s, d, n) {
+		let separator = str.lastIndexOf(_lang.decimals);
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = ((separator < 0) ? str : str.substr(0, separator)).replace(/\D+/g, EMPTY).replace(/^0+/, EMPTY); //extract whole part
+		let decimal = (separator < 0) ? EMPTY : str.substr(separator + 1); //extract decimal part
+		let num = parseFloat(sign + whole + DOT + decimal); //float value
+		if (isNaN(num))
+			return str;
+		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? "0".repeat(n) : decimal.padEnd(n, "0"));
+	}
+
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
 	this.getI18n = function(lang) { return (lang) ? (langs[lang] || langs[lang.substr(0, 2)] || langs.es) : langs.es; }
