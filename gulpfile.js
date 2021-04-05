@@ -22,6 +22,7 @@ const CSS_FILES = [
 ];
 const JS_FILES = [
 	"src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", 
+	"src/public/js/date-box.js", "src/public/js/number-box.js", 
 	"src/public/js/message-box.js", "src/public/js/string-box.js", 
 	"src/public/js/validator-box.js", "src/public/js/validators.js"
 ];

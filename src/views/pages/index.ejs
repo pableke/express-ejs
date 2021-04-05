@@ -33,16 +33,15 @@
 					<input type="text" id="date" name="date" value="" size="40" maxlength="10" tabindex="3" 
 						class="input-item input-control datepicker" placeholder="format-lang" />
 					<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fa fa-calendar"></i></span></div>
-					<div class="msg-error"></div>
+					<div class="msg-error"><%=errors.date%></div>
 				</div>
-				<small>ej: @ejDate;</small>
 			</div>
 
 			<div class="input-group">
-				<label for="time">Time:</label>
+				<label for="number">Price:</label>
 				<div class="input-group">
-					<input id="time" type="text" value="" tabindex="4" class="input-item input-control datepicker" />
-					<i class="input-icon far fa-clock"></i>
+					<input id="number" name="number" type="text" value="" tabindex="4" class="input-item input-control" /> &euro;
+					<div class="msg-error"><%=errors.number%></div>
 				</div>
 			</div>
 
