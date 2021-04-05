@@ -7,24 +7,36 @@ function MessageBox(lang) {
 	const self = this; //self instance
 	const langs = {
 		en: { //english
+			lang: "en",
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
 			errMinlength8: "The minimum required length is 8 characters",
 			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
+			errDate: "Wrong date format",
+			errNumber: "Wrong number format",
+			errGt0: "Price must be great than 0.00 &euro;", 
 			errRegex: "Wrong format",
+			errReclave: "Passwords typed do not match",
+			errRange: "Value out of allowed range",
 
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?"
 		},
 
 		es: { //spanish
+			lang: "es",
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
+			errDate: "Formato de fecha incorrecto",
+			errNumber: "Valor no numérico",
+			errGt0: "El importe debe ser mayor de 0,00 &euro;", 
 			errRegex: "Formato incorrecto",
+			errReclave: "Las claves introducidas no coinciden",
+			errRange: "Valor fuera del rango permitido",
 
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?"

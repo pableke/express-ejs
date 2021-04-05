@@ -7,9 +7,12 @@ function ValidatorBox() {
 	const self = this; //self instance
 	const ERRORS = {}; //errors container
 	const FORMS = {}; //forms by id => unique id
+	const OUTPUT = {}; //data formated container
+	const EMPTY = ""; //empty string
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
+	const RE_NO_DIGITS = /\D+/g;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
 	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
@@ -31,44 +34,85 @@ function ValidatorBox() {
 
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
-	function minify(str) { return str ? str.trim().replace(/\W+/g, "").toUpperCase() : str; }; //remove spaces and upper
-	function reTest(re, elemval) { //regex test
+	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
+
+	this.size = function(value, min, max) {
+		let size = fnSize(value);
+		return (min <= size) && (size <= max);
+	}
+	this.regex = function(re, value) {
 		try {
-			return re.test(elemval);
+			return re.test(value);
 		} catch(e) {}
 		return false;
 	}
 
-	this.size = function(elemval, min, max) {
-		let size = fnSize(elemval);
-		return (min <= size) && (size <= max);
+	this.login = function(name, value) { return self.regex(RE_LOGIN, value); }
+	this.digits = function(name, value) { return self.regex(RE_DIGITS, value); }
+	this.idlist = function(name, value) { return self.regex(RE_IDLIST, value); }
+	this.email = function(name, value, msgs) {
+		return self.regex(RE_MAIL, value) && self.setData(name, value.toLowerCase());
 	}
 
-	this.regex = function(re, value) { return reTest(re, value); }
-	this.login = function(elemval) { return reTest(RE_LOGIN, elemval); }
-	this.email = function(elemval) { return reTest(RE_MAIL, elemval); }
-	this.digits = function(elemval) { return reTest(RE_DIGITS, elemval); }
-	this.idlist = function(elemval) { return reTest(RE_IDLIST, elemval); }
+	function setDate(date, yyyy, mm, dd) { date.setFullYear(+yyyy, +mm - 1, +dd); }
+	function setTime(date, hh, mm, ss, ms) { date.setHours(+hh || 0, +mm || 0, +ss || 0, +ms || 0); }
+	this.date = function(name, value, msgs) {
+		let parts = value && value.split(RE_NO_DIGITS); //parts = string
+		if (parts[0] && parts[1] && parts[2]) { //year, month and day required
+			let date = new Date(); //object date
+			if (msgs.lang == "en")
+				setDate(date, parts[0], parts[1], parts[2]);
+			else
+				setDate(date, parts[2], parts[1], parts[0]);
+			setTime(date, parts[3], parts[4], parts[5], parts[6]);
+			return isNaN(date.getTime()) ? false : self.setData(name, date);
+		}
+		return false
+	}
+	this.time = function(name, value, msgs) {
+		let parts = value && value.split(RE_NO_DIGITS); //parts = string
+		if (parts[0] && parts[1]) { //hours and minutes required
+			let date = new Date(); //object date now
+			setTime(date, parts[0], parts[1], parts[2], parts[3]);
+			return isNaN(date.getTime()) ? false : self.setData(name, date);
+		}
+		return false
+	}
 
-	this.idES = function(str) {
-		str = minify(str);
-		if (!str)
-			return false;
-		if (reTest(RE_DNI, str))
-			return self.dni(str)
-		if (reTest(RE_CIF, str))
-			return self.cif(str)
-		if (reTest(RE_NIE, str))
-			return self.nie(str)
+	this.float = function(name, value, msgs) {
+		if (value) {
+			let dec = (msgs.lang == "en") ? "." : ",";
+			let separator = value.lastIndexOf(dec);
+			let sign = (value.charAt(0) == "-") ? "-" : EMPTY;
+			let whole = (separator < 0) ? value : value.substr(0, separator); //extract whole part
+			let decimal = (separator < 0) ? EMPTY : ("." + value.substring(separator + 1)); //decimal part
+			let float = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+			return isNaN(float) ? false : self.setData(name, float);
+		}
+		return false
+	}
+
+	this.idES = function(name, value) {
+		value = minify(value);
+		if (value) {
+			if (self.regex(RE_DNI, value))
+				return self.dni(name, value);
+			if (self.regex(RE_CIF, value))
+				return self.cif(name, value);
+			if (self.regex(RE_NIE, value))
+				return self.nie(name, value);
+		}
 		return false;
 	}
-	this.dni = function(dni) {
+	this.dni = function(name, value) {
+		self.setData(name, value); //save reformat
 		var letras = "TRWAGMYFPDXBNJZSQVHLCKE";
-		var letra = letras.charAt(parseInt(dni, 10) % 23);
-		return (letra == dni.charAt(8));
+		var letra = letras.charAt(parseInt(value, 10) % 23);
+		return (letra == value.charAt(8));
 	}
-	this.cif = function(cif) {
-		var match = cif.match(RE_CIF);
+	this.cif = function(name, value) {
+		self.setData(name, value); //save reformat
+		var match = value.match(RE_CIF);
 		var letter = match[1];
 		var number  = match[2];
 		var control = match[3];
@@ -92,18 +136,18 @@ function ValidatorBox() {
 					: letter.match(/[KPQS]/) ? (control == control_letter) //Control must be a letter
 					: ((control == control_digit) || (control == control_letter)); //Can be either
 	}
-	this.nie = function(nie) {
+	this.nie = function(name, value) {
 		//Change the initial letter for the corresponding number and validate as DNI
-		var prefix = nie.charAt(0);
+		var prefix = value.charAt(0);
 		var p0 = (prefix == "X") ? 0 : ((prefix == "Y") ? 1 : ((prefix == "Z") ? 2 : prefix));
-		return self.dni(p0 + nie.substr(1));
+		return self.dni(p0 + value.substr(1));
 	}
 
-	this.iban = function(IBAN) {
+	this.iban = function(name, IBAN) {
 		IBAN = minify(IBAN);
 		if (fnSize(IBAN) != 24)
 			return false;
-
+		self.setData(name, IBAN); //save reformat
 		// Se coge las primeras dos letras y se pasan a números
 		const LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		let num1 = LETRAS.search(IBAN.substring(0, 1)) + 10;
@@ -114,21 +158,22 @@ function ValidatorBox() {
 		aux = aux.substring(6) + aux.substring(0,6);
 
 		//Se calcula el resto modulo 97
-		let resto = "";
+		let resto = EMPTY;
 		let parts = Math.ceil(aux.length/7);
 		for (let i = 1; i <= parts; i++)
 			resto = String(parseFloat(resto + aux.substr((i-1)*7, 7))%97);
 		return (1 == resto);
 	}
 
-	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
+	this.creditCardNumber = function(name, cardNo) { //Luhn check algorithm
 		cardNo = minify(cardNo);
 		if (fnSize(cardNo) != 16)
 			return false;
+		self.setData(name, cardNo); //save reformat
 
 		let s = 0;
 		let doubleDigit = false;
-		cardNo = cardNo.trim().replace(/\s+/g, ""); //remove spaces
+		cardNo = cardNo.trim().replace(/\s+/g, EMPTY); //remove spaces
 		for (let i = 15; i >= 0; i--) {
 			let digit = +cardNo[i];
 			if (doubleDigit) {
@@ -145,7 +190,7 @@ function ValidatorBox() {
 		charSet = charSet || "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#@&°!§%;:=^/()?*+~.,-$";
 		return Array.apply(null, Array(size || 10)).map(function() { 
 			return charSet.charAt(Math.random() * charSet.length);
-		}).join(""); 
+		}).join(EMPTY); 
 	}
 	this.testPassword = function(pass) {
 		let strength = 0;
@@ -203,6 +248,13 @@ function ValidatorBox() {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
 	}
+	this.getData = function(name) {
+		return name ? OUTPUT[name] : OUTPUT;
+	}
+	this.setData = function(name, value) {
+		OUTPUT[name] = value;
+		return self;
+	}
 
 	/**
 	 * Return an object with the values from input list as pairs name / value
@@ -229,11 +281,17 @@ function ValidatorBox() {
 		for (let k in ERRORS) //clear prev errors
 			delete ERRORS[k]; //delete error message
 		ERRORS.num = 0; //num errors
+		for (let k in OUTPUT) //clear prev data
+			delete OUTPUT[k]; //delete forated data
+
 		let validators = self.getForm(form);
-		self.getFields(form).forEach(field => {
-			let fn = validators[field];
-			fn && fn(field, fnTrim(data[field]), i18n, data);
-		});
+		if (validators) { //validators exists?
+			for (let field in validators) {
+				let fn = validators[field];
+				OUTPUT[field] = fnTrim(data[field]);
+				fn(field, OUTPUT[field], i18n, data);
+			}
+		}
 		return self.isValid();
 	}
 }

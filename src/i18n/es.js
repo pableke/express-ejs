@@ -52,7 +52,7 @@ module.exports = {
 	lblArticulo: "Artículo", lblArticulos: "Artículos", lblProducto: "Producto", lblProductos: "Productos",
 	lblPrecio: "Importe", lblPrecio1: "Importe", lblPrecio2: "Importe 2", lblImporte: "Importe", lblImporte2: "Importe 2",
 	phPrecio: "Precio del producto", phPrecio2: "Precio del elemento", phImporte: "Importe del producto", phImporte2: "Importe del elemento",
-	errImporte0: "El importe debe ser mayor de 0,00 &euro;", 
+	errGt0: "El importe debe ser mayor de 0,00 &euro;", 
 
 	//texts views
 	lblEmpresaNombre: "La Casa del Bosque",
