@@ -12,6 +12,7 @@ body {
 .mw-300 { width: 300px; max-width: 300px; }
 .disabled { opacity: 0.5; pointer-events: none; text-decoration: none; }
 .simple { background-color: transparent; border-color: transparent; text-decoration: none; }
+.tr { text-align: right; }
 
 .loading { position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background-color: rgba(255, 255, 255, .8); display: none; }
 .loading-content { position: absolute; top: 50%; left: 50%; text-align: center; z-index: 100; }

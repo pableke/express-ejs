@@ -126,6 +126,7 @@ function MessageBox() {
 
 	this.get = function(name) { return _lang[name]; }
 	this.set = function(name, value) { _lang[name] = value; return self; }
+	this.sysdate = function() { return sysdate; }
 	this.format = function(str) {
 		return str.replace(/@(\w+);/g, (m, k) => { return nvl(_lang[k], m); });
 	}
