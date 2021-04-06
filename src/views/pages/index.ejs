@@ -32,7 +32,7 @@
 				<div class="input-group">
 					<input type="text" id="date" name="date" value="" size="40" maxlength="10" tabindex="3" 
 						class="input-item input-control date datepicker" placeholder="" />
-					<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fa fa-calendar"></i></span></div>
+					<span class="input-group-text" id="basic-addon2"><i class="fa fa-calendar"></i></span>
 					<div class="msg-error"><%=errors.date%></div>
 				</div>
 			</div>
@@ -41,7 +41,7 @@
 				<label for="number">Price:</label>
 				<div class="input-group">
 					<input id="number" name="number" type="text" value="" tabindex="4" class="input-item input-control float tr" />
-					<div class="input-group-append"><span class="input-group-text" id="basic-addon2">&euro;</span></div>
+					<span class="input-group-text" id="basic-addon2">&euro;</span>
 					<div class="msg-error"><%=errors.number%></div>
 				</div>
 			</div>
@@ -50,20 +50,20 @@
 				<label for="f1">Date Range:</label>
 				<div class="input-group">
 					<input type="text" id="f1" name="f1" class="input-item input-control" value="2012-04-05" tabindex="5" />
-					<div class="input-group-append"><span class="input-group-text" id="basic-addon2">...</span></div>
+					<span class="input-group-text" id="basic-addon2">...</span>
 					<input type="text" id="f2" name="f2" class="input-item input-control" value="2012-04-19" tabindex="6" />
 				</div>
 			</div>
 
 			<div class="input-group">
 				<label for="asunto" class="required">Subject:</label>
-				<input type="text" id="asunto" name="asunto" value="" size="40" maxlength="200" class="input-item input-control" tabindex="3" placeholder="Type a resume" />
+				<input type="text" id="asunto" name="asunto" value="" size="40" maxlength="200" class="input-item input-control" tabindex="7" placeholder="Type a resume" />
 				<span class="msg-error"><%=errors.asunto%></span>
 			</div>
 
 			<div class="input-group">
 				<label for="info" class="required">Comentarios:</label>
-				<textarea id="info" name="info" class="input-item input-control" tabindex="7" cols="62" rows="6" maxlength="600"></textarea>
+				<textarea id="info" name="info" class="input-item input-control" tabindex="8" cols="62" rows="6" maxlength="600"></textarea>
 				<span class="msg-error"></span>
 				<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
 			</div>

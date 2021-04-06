@@ -39,10 +39,10 @@ $(document).ready(function() {
 	$(document).on("input", ".clearable", function() {
 		$(this)[tog(this.value)]("x");
 	}).on("mousemove", ".x", function(ev) {
-		$(this)[tog(this.offsetWidth-28 < ev.clientX-this.getBoundingClientRect().left)]("onX");
+		$(this)[tog((this.offsetWidth-28) < (ev.clientX-this.getBoundingClientRect().left))]("onX");
 	}).on("touchstart click", ".onX", function(ev) {
-		ev.preventDefault();
 		$(this).removeClass("x onX").val("").change();
+		ev.preventDefault();
 	});
 	// End clearable text inputs
 

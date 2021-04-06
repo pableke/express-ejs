@@ -39,7 +39,7 @@ function ValidatorBox() {
 
 	// Date validators helpers
 	this.sysdate = function() { return sysdate; }
-	this.toISODateString = function(date) {
+	this.toISODateString = function(date) { //ej: 2021-05-01
 		return (date || sysdate).toISOString().substring(0, 10);
 	}
 
