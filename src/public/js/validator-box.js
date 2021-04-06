@@ -84,7 +84,7 @@ function ValidatorBox() {
 			let separator = value.lastIndexOf(msgs.decimals);
 			let sign = (value.charAt(0) == "-") ? "-" : EMPTY;
 			let whole = (separator < 0) ? value : value.substr(0, separator); //extract whole part
-			let decimal = (separator < 0) ? EMPTY : ("." + value.substring(separator + 1)); //decimal part
+			let decimal = (separator < 0) ? EMPTY : ("." + value.substr(separator + 1)); //decimal part
 			let float = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 			return isNaN(float) ? false : self.setData(name, float);
 		}
