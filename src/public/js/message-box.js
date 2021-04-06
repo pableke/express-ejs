@@ -111,7 +111,7 @@ function MessageBox() {
 		let separator = str.lastIndexOf(_lang.decimals);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
-						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+/, EMPTY); //extract whole part
+						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
 		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
 		let num = parseFloat(sign + whole + DOT + decimal); //float value
 		if (isNaN(num))
