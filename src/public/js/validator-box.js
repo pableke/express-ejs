@@ -9,6 +9,7 @@ function ValidatorBox() {
 	const FORMS = {}; //forms by id => unique id
 	const OUTPUT = {}; //data formated container
 	const EMPTY = ""; //empty string
+	const sysdate = new Date(); //current
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
@@ -36,6 +37,13 @@ function ValidatorBox() {
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 
+	// Date validators helpers
+	this.sysdate = function() { return sysdate; }
+	this.toISODateString = function(date) {
+		return (date || sysdate).toISOString().substring(0, 10);
+	}
+
+	// String validators helpers
 	this.size = function(value, min, max) {
 		let size = fnSize(value);
 		return (min <= size) && (size <= max);
@@ -283,6 +291,7 @@ function ValidatorBox() {
 		for (let k in OUTPUT) //clear prev data
 			delete OUTPUT[k]; //delete forated data
 
+		sysdate.setTime(Date.now()); //upgrade
 		let validators = self.getForm(form);
 		if (validators) { //validators exists?
 			for (let field in validators) {

@@ -3,8 +3,6 @@
 const i18n = new MessageBox();
 const valid = new ValidatorBox();
 
-function toISODateString(date) { return date.toISOString().substring(0, 10); }
-
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
@@ -26,7 +24,7 @@ valid.set("required", function(name, value, msgs) {
 }).set("leToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((toISODateString(valid.getData(name)) <= toISODateString(new Date())) || !valid.setError(name, msgs.errDateLe));
+			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
 }).set("gtNow", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
@@ -34,7 +32,7 @@ valid.set("required", function(name, value, msgs) {
 }).set("geToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((toISODateString(valid.getData(name)) >= toISODateString(new Date())) || !valid.setError(name, msgs.errDateGe));
+			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
 }).set("gt0", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
@@ -46,7 +44,7 @@ valid.set("required", function(name, value, msgs) {
 	nombre: valid.required,
 	correo: valid.correo,
 	date: function(name, value, msgs) { //optional input
-		return !value || valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate);
+		return !value || valid.ltNow(name, value, msgs);
 	},
 	number: valid.gt0,
 	asunto: valid.required,
