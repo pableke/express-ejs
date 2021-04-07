@@ -11,6 +11,7 @@ module.exports = {
 
 	lblFecha: "Fecha", lblF_validacion: "F. Valid.", lblF_creacion: "F. Creación", lblF_pago: "F. Pago", lblF_inicio: "F. Inicio", lblF_fin: "F. Fin",
 	errDate: "Formato de fecha incorrecto", phDate: "dd/mm/aa", titDate: "Formato de fecha dd/mm/aaaa",
+	errDateLe: "La fecha debe ser menor o igual a la actual", errDateGe: "La fecha debe ser mayor o igual a la actual",
 
 	errNumber: "Valor no numérico", ejNumber: "1.222,33", phNumber: "Valor numérico", titNumber: "Formato numérico = 1.222,33",
 	errDigits: "Por favor introduzca solo valores numéricos",

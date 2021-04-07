@@ -26,6 +26,12 @@ $(document).ready(function() {
 	function showWarn(txt) { txt && setAlert(texts[2], txt); }
 	function showError(txt) { txt && setAlert(texts[3], txt); }
 	function closeAlerts() { buttons.forEach(el => { el.click(); }); }
+	function showAlerts(msgs) {
+		showOk(msgs.msgOk);
+		showInfo(msgs.msgInfo);
+		showWarn(msgs.msgWarn);
+		showError(msgs.msgError);
+	}
 	// End alerts handlers
 
 	// Loading div
@@ -47,14 +53,14 @@ $(document).ready(function() {
 	// End clearable text inputs
 
 	// AJAX links and forms
-	function fnLoadHtml(el, html) {
-		let _dest = el.dataset.dest; //selector
-		if (_dest) { //load container?
-			$(_dest).html(html);
-			showOk(el.dataset.msg);
-		}
-		else
-			showOk(html);
+	function fnResponseOk(res) { //response = 200 read type
+		let contentType = res.headers.get("content-type");
+		if (contentType && (contentType.indexOf("application/json") > -1))
+			return res.json().then(data => {
+				data.update && $(data.update).html(data.html); //update selector dest
+				showAlerts(data); //show alerts
+			});
+		return res.text().then(showOk);
 	}
 	$("a.ajax").click(function(ev) {
 		let link = this; //self reference
@@ -62,9 +68,8 @@ $(document).ready(function() {
 		if (link.classList.contains("remove") && !confirm(msgs.remove))
 			return false; //stop call
 		fnLoading(); //show loading frame
-		function fnLoad(html) { return fnLoadHtml(link, html); }
 		fetch(link.href) //default method="GET"
-			.then(res => res.text().then(res.ok ? fnLoad : showError))
+			.then(res => res.ok ? fnResponseOk(res) : res.text().then(showError))
 			.catch(showError) //error handler
 			.finally(fnUnloading); //allways
 	});
@@ -129,11 +134,6 @@ $(document).ready(function() {
 
 		fnFocus(); //focus on first
 		form.addEventListener("submit", function(ev) {
-			function fnLoad(html) {
-				$(inputs).val(""); //clean input values
-				fnClean(); //reset message and state inputs
-				fnLoadHtml(form, html); //load html section
-			}
 			function fnShowErrors(errors) {
 				fnClean(); //reset message and state inputs
 				let _last = sb.size(inputs) - 1; //last input
@@ -142,10 +142,7 @@ $(document).ready(function() {
 					let msg = el.name && errors[el.name]; //exists message error?
 					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 				}
-				showOk(errors.msgOk);
-				showInfo(errors.msgInfo);
-				showWarn(errors.msgWarn);
-				showError(errors.msgError);
+				showAlerts(errors);
 			}
 
 			let _data = valid.values(inputs); //input list to object
@@ -157,6 +154,7 @@ $(document).ready(function() {
 				return true; //submit form
 
 			fnLoading(); //show loading
+			ev.preventDefault(); //stop default
 			let fd = new FormData(form); //build pair key/value
 			fetch(form.action, { //init options
 				method: form.method,
@@ -166,10 +164,14 @@ $(document).ready(function() {
 					"x-requested-with": "XMLHttpRequest"
 				}
 			}).then(res => {
-				return res.ok ? res.text().then(fnLoad) : res.json().then(fnShowErrors);
+				if (res.ok)
+					return fnResponseOk(res).then(() => {
+						$(inputs).val(""); //clean input values
+						fnClean(); //reset message and state inputs
+					});
+				return res.json().then(fnShowErrors);
 			}).catch(showError) //error handler
 				.finally(fnUnloading); //allways
-			ev.preventDefault();
 		});
 	}
 	// End AJAX links and forms
