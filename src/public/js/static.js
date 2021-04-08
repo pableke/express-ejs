@@ -21,16 +21,18 @@ $(document).ready(function() {
 		});
 	});
 
-	function showOk(txt) { txt && setAlert(texts[0], txt); }
-	function showInfo(txt) { txt && setAlert(texts[1], txt); }
-	function showWarn(txt) { txt && setAlert(texts[2], txt); }
-	function showError(txt) { txt && setAlert(texts[3], txt); }
+	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
+	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
+	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
+	function showError(txt) { txt && setAlert(texts[3], txt); } //red
 	function closeAlerts() { buttons.forEach(el => { el.click(); }); }
 	function showAlerts(msgs) {
-		showOk(msgs.msgOk);
-		showInfo(msgs.msgInfo);
-		showWarn(msgs.msgWarn);
-		showError(msgs.msgError);
+		closeAlerts(); //close previous messages
+		//show posible multiple messages types
+		showOk(msgs.msgOk); //green
+		showInfo(msgs.msgInfo); //blue
+		showWarn(msgs.msgWarn); //yellow
+		showError(msgs.msgError); //red
 	}
 	// End alerts handlers
 
@@ -63,12 +65,11 @@ $(document).ready(function() {
 		return res.text().then(showOk);
 	}
 	$("a.ajax").click(function(ev) {
-		let link = this; //self reference
-		ev.preventDefault(); //stop event
-		if (link.classList.contains("remove") && !confirm(msgs.remove))
+		ev.preventDefault(); //always stop event
+		if (this.classList.contains("remove") && !confirm(msgs.remove))
 			return false; //stop call
 		fnLoading(); //show loading frame
-		fetch(link.href) //default method="GET"
+		fetch(this.href) //default method="GET"
 			.then(res => res.ok ? fnResponseOk(res) : res.text().then(showError))
 			.catch(showError) //error handler
 			.finally(fnUnloading); //allways
@@ -84,8 +85,8 @@ $(document).ready(function() {
 		let inputs = form.elements; //list
 
 		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
-		$(inputs).filter(".date").keyup(function() { this.value = msgs.dateHelper(this.value); }).change(function() { this.value = msgs.acDate(this.value); });
-		$(inputs).filter(".time").keyup(function() { this.value = msgs.timeHelper(this.value); }).change(function() { this.value = msgs.acTime(this.value); });
+		$(inputs).filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
+		$(inputs).filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
 
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
@@ -96,7 +97,6 @@ $(document).ready(function() {
 		function fnClean() { //reset message and state inputs
 			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			closeAlerts(); //close previous messages
 			fnFocus(); //focus on first
 		}
 
@@ -127,6 +127,7 @@ $(document).ready(function() {
 
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
+			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			fnClean(); //reset message and state inputs
@@ -282,11 +283,13 @@ function MessageBox() {
 	const DOT = ".";
 
 	const sysdate = new Date(); //global sysdate
-	const RE_NO_DIGITS = /\D+/g; //split
+	const RE_NO_DIGITS = /\D+/g; //split no digits
+	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
 	const langs = {
 		en: { //english
-			lang: "en",
+			lang: "en", //id iso
+			//inputs errors messages
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
 			errMinlength8: "The minimum required length is 8 characters",
@@ -301,28 +304,22 @@ function MessageBox() {
 			errReclave: "Passwords typed do not match",
 			errRange: "Value out of allowed range",
 
+			//confirm cuestions
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?",
 
-			//helpers functions
+			//inputs helpers functions
 			decimals: DOT, //decimal separator
 			floatHelper: function(str, d) { return str && float(str, ",", DOT, 2); },
-			dateHelper: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
-			timeHelper: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			acTime: function(str) { return str && acTime(str); },
-			acDate: function(str) {
-				if (!str)
-					return str;
-				let parts = splitDate(str);
-				parts[2] = range(parts[2], 1, 31);
-				parts[1] = range(parts[1], 1, 12);
-				parts[0] = rangeYear(parts[0]);
-				return parts.map(lpad).join("-");
-			}
+			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
+			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
+			dateHelper: function(str) { return str && fnDateHelper(splitDate(str)).join("-"); },
+			timeHelper: function(str) { return str && fnTimeHelper(str); }
 		},
 
 		es: { //spanish
-			lang: "es",
+			lang: "es", //id iso
+			//inputs errors messages
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
@@ -337,38 +334,41 @@ function MessageBox() {
 			errReclave: "Las claves introducidas no coinciden",
 			errRange: "Valor fuera del rango permitido",
 
+			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?",
 
-			//helpers functions
+			//inputs helpers functions
 			decimals: ",", //decimal separator
 			floatHelper: function(str, d) { return str && float(str, DOT, ",", 2); },
-			dateHelper: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
-			timeHelper: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			acTime: function(str) { return str && acTime(str); },
-			acDate: function(str) {
-				if (!str)
-					return str;
-				let parts = splitDate(str);
-				parts[0] = range(parts[0], 1, 31);
-				parts[1] = range(parts[1], 1, 12);
-				parts[2] = rangeYear(parts[2]);
-				return parts.map(lpad).join("/");
-			}
+			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
+			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
+			dateHelper: function(str) { return str && swap(fnDateHelper(swap(splitDate(str)))).join("/"); },
+			timeHelper: function(str) { return str && fnTimeHelper(str); }
 		}
 	}
 
 	let _lang = langs.es; //default
-	function lpad(val) { return (+val < 10) ? ("0" + val) : val; } //always 2 digits
+	function lpad(val) { return (+val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
 	function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
+	function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
 	function range(val, min, max) { return Math.min(Math.max(+val, min), max); } //force range
 	function rangeYear(yy) { return (yy < 100) ? (EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
-	function acTime(str) {
+	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
+	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+
+	function fnDateHelper(parts) {
+		parts[0] = rangeYear(parts[0]); //year
+		parts[1] = range(parts[1], 1, 12); //months
+		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
+		return parts.map(lpad);
+	}
+	function fnTimeHelper(str) {
 		let parts = splitDate(str);
-		parts[0] = range(parts[0], 0, 23);
-		parts[1] = range(parts[1], 0, 59);
-		parts[2] = range(parts[2], 0, 59);
+		parts[0] = range(parts[0], 0, 23); //hours
+		parts[1] = range(parts[1], 0, 59); //minutes
+		parts[2] = range(parts[2], 0, 59); //seconds
 		return parts.map(lpad).join(":");
 	}
 
@@ -843,7 +843,7 @@ valid.set("required", function(name, value, msgs) {
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
-}).setForm("/test.html", {
+}).setForm("/email.html", {
 	nombre: valid.required,
 	correo: valid.correo,
 	date: function(name, value, msgs) { //optional input

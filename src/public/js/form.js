@@ -21,16 +21,18 @@ $(document).ready(function() {
 		});
 	});
 
-	function showOk(txt) { txt && setAlert(texts[0], txt); }
-	function showInfo(txt) { txt && setAlert(texts[1], txt); }
-	function showWarn(txt) { txt && setAlert(texts[2], txt); }
-	function showError(txt) { txt && setAlert(texts[3], txt); }
+	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
+	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
+	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
+	function showError(txt) { txt && setAlert(texts[3], txt); } //red
 	function closeAlerts() { buttons.forEach(el => { el.click(); }); }
 	function showAlerts(msgs) {
-		showOk(msgs.msgOk);
-		showInfo(msgs.msgInfo);
-		showWarn(msgs.msgWarn);
-		showError(msgs.msgError);
+		closeAlerts(); //close previous messages
+		//show posible multiple messages types
+		showOk(msgs.msgOk); //green
+		showInfo(msgs.msgInfo); //blue
+		showWarn(msgs.msgWarn); //yellow
+		showError(msgs.msgError); //red
 	}
 	// End alerts handlers
 
@@ -83,8 +85,8 @@ $(document).ready(function() {
 		let inputs = form.elements; //list
 
 		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
-		$(inputs).filter(".date").keyup(function() { this.value = msgs.dateHelper(this.value); }).change(function() { this.value = msgs.acDate(this.value); });
-		$(inputs).filter(".time").keyup(function() { this.value = msgs.timeHelper(this.value); }).change(function() { this.value = msgs.acTime(this.value); });
+		$(inputs).filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
+		$(inputs).filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
 
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
@@ -95,7 +97,6 @@ $(document).ready(function() {
 		function fnClean() { //reset message and state inputs
 			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			closeAlerts(); //close previous messages
 			fnFocus(); //focus on first
 		}
 
@@ -126,6 +127,7 @@ $(document).ready(function() {
 
 		$(inputs).filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
+			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			fnClean(); //reset message and state inputs
