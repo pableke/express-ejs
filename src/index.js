@@ -25,9 +25,9 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Express configurations
-app.use("/public", express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use("/public", express.static(path.join(__dirname, "public"))); // static files
+app.use(express.urlencoded({ limit: "50mb", extended: true })); // to support URL-encoded bodies
+app.use(express.json({ limit: "50mb" }));
 
 app.set("trust proxy", 1) // trust first proxy
 app.use(session({ //session config
@@ -59,44 +59,42 @@ app.use((req, res, next) => {
 	res.locals.i18n = req.session[lang];
 	res.locals.lang = lang;
 
-	// Commons request hadlers
-	req.validate = function() {
-		return valid.validate(req.path, req.body, res.locals.i18n);
-	}
-
 	// Commons response hadlers
-	res.initFormErrors = function() {
-		let _errors = res.locals.errors || {};
-		valid.getFields(req.path).forEach(field => {
-			_errors[field] = _errors[field] || "";
-		});
-		res.locals.errors = _errors;
+	res.setBody = function(tpl) {
+		res.locals._tplBody = tpl; //tpl body path
 		return res;
 	}
 	res.build = function(tpl) {
-		res.locals.page = tpl; //tpl path
-		return res.render("index"); //index.ejs
+		//set tpl body path and render index
+		return res.setBody(tpl).render("index");
 	}
 	res.ok = function(msg, tpl) {
 		res.locals.msgOk = msg; //error text
 		return res.build(tpl); //build /index.ejs
 	}
-	res.error = function(msg, tpl) {
-		res.locals.msgError = msg; //error text
-		return res.build(tpl); //build /index.ejs
-	}
-	res.errors = function(msg, tpl) { //for error response
-		if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
-			return res.status(500).json(valid.addMsg("msgError", msg).getErrors());
-		res.locals.errors = valid.getErrors();
-		return res.initFormErrors().error(msg, tpl);
-	}
 
 	// Go yo next route
 	next(); //call next
 });
+app.get("*", (req, res, next) => {
+	res.locals.errors = {}; //init messages
+	next();
+});
+app.post("*", (req, res, next) => { //validate all form post
+	if (valid.validate(req.path, req.body, res.locals.i18n))
+		next();
+	else
+		next(res.locals.i18n.errForm);
+});
 app.use(require("./routes/routes.js")); //add all routes
-app.use("*", (req, res) => { res.build("errors/404"); }); //404
+app.use((err, req, res, next) => { //global handler error
+	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
+		return res.status(500).json(valid.addMsg("msgError", err).getErrors());
+	res.locals.errors = valid.getErrors();
+	res.locals.msgError = err; //error text
+	return res.render("index");
+});
+app.use("*", (req, res) => res.build("errors/404")); //404
 
 //arranca el servidor
 const httpServer = http.createServer(app);
