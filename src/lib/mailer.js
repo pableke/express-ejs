@@ -1,5 +1,6 @@
 
 const fs = require("fs"); //file system module
+const path = require("path"); //file and directory paths
 const nodemailer = require("nodemailer"); //send emails
 const ejs = require("ejs"); //tpl engine
 
@@ -45,13 +46,14 @@ function fnShowError(type, err) {
 	return err;
 }
 
-exports.send = function(to, subject, path, data, attachments) {
+exports.send = function(to, subject, tpl, data, attachments) {
 	MESSAGE.to = to;
 	MESSAGE.subject = subject;
 	MESSAGE.attachments = attachments;
 
+	tpl = path.join(__dirname, "../views", tpl);
 	return new Promise(function(resolve, reject) {
-		ejs.renderFile(path, data, function(err, result) {
+		ejs.renderFile(tpl, data, function(err, result) {
 			if (err)
 				return reject(fnShowError("EJS", err));
 			MESSAGE.html = result;

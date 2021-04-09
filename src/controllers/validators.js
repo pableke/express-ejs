@@ -52,13 +52,13 @@ valid.set("required", function(name, value, msgs) {
 });
 
 exports.auth = function(req, res, next) {
+	res.setBody("forms/login"); //if error => go login
 	if (!req.session || !req.session.time) //no hay sesion
-		return res.error(res.locals.i18n.err401, "forms/login");
+		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
 		req.session.destroy(); //remove session vars
-		return res.error(res.locals.i18n.endSession, "forms/login");
+		return next(res.locals.i18n.endSession);
 	}
-
 	//nuevo instante del ultimo click
 	req.session.click = Date.now();
 	next();
