@@ -2,7 +2,8 @@
 const express = require("express");
 const router = express.Router();
 
-const tests = require("../../controllers/tests/zip.js");
+const basename = "../../../controllers/";
+const tests = require(basename + "web/tests/zip.js");
 
 router.get("/", tests.index).get("/index.html", tests.index)
 	.get("/home.html", tests.index).get("/inicio.html", tests.index);

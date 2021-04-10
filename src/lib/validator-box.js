@@ -39,7 +39,7 @@ function ValidatorBox() {
 
 	// Date validators helpers
 	this.sysdate = function() { return sysdate; }
-	this.toISODateString = function(date) {
+	this.toISODateString = function(date) { //ej: 2021-05-01
 		return (date || sysdate).toISOString().substring(0, 10);
 	}
 
@@ -47,6 +47,13 @@ function ValidatorBox() {
 	this.size = function(value, min, max) {
 		let size = fnSize(value);
 		return (min <= size) && (size <= max);
+	}
+	this.range = function(value, min, max) {
+		let num = parseInt(value); //parse to a int number
+		return !isNaN(num) && (min <= num) && (num <= max);
+	}
+	this.close = function(value, min, max) { //close number in range
+		return Math.min(Math.max(value, min), max);
 	}
 	this.regex = function(re, value) {
 		try {
@@ -87,6 +94,14 @@ function ValidatorBox() {
 		return false
 	}
 
+	this.integer = function(name, value, msgs) {
+		if (value) {
+			let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+			let whole = str.replace(RE_NO_DIGITS, EMPTY);
+			return isNaN(whole) ? false : self.setData(name, parseInt(sing + whole));
+		}
+		return false
+	}
 	this.float = function(name, value, msgs) {
 		if (value) {
 			let separator = value.lastIndexOf(msgs.decimals);

@@ -343,7 +343,7 @@ module.exports = {
 	errInsert: "Error al guardar los datos",
 	errUpdate: "Error al actualizar los datos",
 	errValue: "Valor incorrecto",
-	errRequired: "¡Campo obligatorio!",
+	errRequired: "Required value!",
 	errMinlength: "Valor demasiado corto",
 	errMaxlength: "Longitud máxima excedida",
 	errRegex: "Formato incorrecto",

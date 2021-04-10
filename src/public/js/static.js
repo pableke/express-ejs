@@ -84,6 +84,7 @@ $(document).ready(function() {
 		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
+		$(inputs).filter(".integer").change(function() { this.value = msgs.intHelper(this.value); });
 		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
 		$(inputs).filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
 		$(inputs).filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
@@ -245,33 +246,6 @@ $(document).ready(function() {
 });
 
 
-document.addEventListener("DOMContentLoaded", function() {
-	let steps = document.querySelectorAll("#progressbar li");
-	let index = 0; //current step
-
-	document.querySelectorAll(".next-tab").forEach(el => {
-		el.addEventListener("click", ev => { //activate next step on progressbar
-			(index < (steps.length - 1)) && steps[++index].classList.add("active");
-			return false;
-		});
-	});
-	$(".prev-tab").click(function() {
-		//de-activate current step on progressbar
-		index && steps[index--].classList.remove("active");
-		return false;
-	});
-	$("a[href^='#tab-']").click(function() {
-		//go to a specific step on progressbar
-		let step = +this.href.substr(this.href.lastIndexOf("-") + 1);
-		if ((0 <= step) && (step != index) && (step < steps.length)) {
-			steps.forEach((el, i) => { el.classList.toggle("active", i <= step); });
-			index = step;
-		}
-		return false;
-	});
-});
-
-
 /**
  * Message-Box module
  * @module Message-Box
@@ -281,6 +255,7 @@ function MessageBox() {
 	const EMPTY = ""; //empty string
 	const ZERO = "0";
 	const DOT = ".";
+	const COMMA = ",";
 
 	const sysdate = new Date(); //global sysdate
 	const RE_NO_DIGITS = /\D+/g; //split no digits
@@ -310,7 +285,8 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
-			floatHelper: function(str, d) { return str && float(str, ",", DOT, 2); },
+			intHelper: function(str, d) { return str && integer(str, COMMA); },
+			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, 2); },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			dateHelper: function(str) { return str && fnDateHelper(splitDate(str)).join("-"); },
@@ -339,8 +315,9 @@ function MessageBox() {
 			cancel: "¿Confirma que desea cancelar este registro?",
 
 			//inputs helpers functions
-			decimals: ",", //decimal separator
-			floatHelper: function(str, d) { return str && float(str, DOT, ",", 2); },
+			decimals: COMMA, //decimal separator
+			intHelper: function(str, d) { return str && integer(str, DOT); },
+			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, 2); },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			dateHelper: function(str) { return str && swap(fnDateHelper(swap(splitDate(str)))).join("/"); },
@@ -379,6 +356,11 @@ function MessageBox() {
 		(i > 0) && result.unshift(str.substr(0, i));
 		return result;
 	}
+	function integer(str, s) {
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = str.replace(RE_NO_DIGITS, EMPTY);
+		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
+	}
 	function float(str, s, d, n) {
 		let separator = str.lastIndexOf(_lang.decimals);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
@@ -386,7 +368,7 @@ function MessageBox() {
 						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
 		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
 		let num = parseFloat(sign + whole + DOT + decimal); //float value
-		if (isNaN(num))
+		if (isNaN(num)) //is a valida number?
 			return str;
 		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 	}
@@ -403,6 +385,33 @@ function MessageBox() {
 		return str.replace(/@(\w+);/g, (m, k) => { return nvl(_lang[k], m); });
 	}
 }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+	let steps = document.querySelectorAll("#progressbar li");
+	let index = 0; //current step
+
+	document.querySelectorAll(".next-tab").forEach(el => {
+		el.addEventListener("click", ev => { //activate next step on progressbar
+			(index < (steps.length - 1)) && steps[++index].classList.add("active");
+			return false;
+		});
+	});
+	$(".prev-tab").click(function() {
+		//de-activate current step on progressbar
+		index && steps[index--].classList.remove("active");
+		return false;
+	});
+	$("a[href^='#tab-']").click(function() {
+		//go to a specific step on progressbar
+		let step = +this.href.substr(this.href.lastIndexOf("-") + 1);
+		if ((0 <= step) && (step != index) && (step < steps.length)) {
+			steps.forEach((el, i) => { el.classList.toggle("active", i <= step); });
+			index = step;
+		}
+		return false;
+	});
+});
 
 
 //String Box extensions
@@ -545,6 +554,13 @@ function ValidatorBox() {
 		let size = fnSize(value);
 		return (min <= size) && (size <= max);
 	}
+	this.range = function(value, min, max) {
+		let num = parseInt(value); //parse to a int number
+		return !isNaN(num) && (min <= num) && (num <= max);
+	}
+	this.close = function(value, min, max) { //close number in range
+		return Math.min(Math.max(value, min), max);
+	}
 	this.regex = function(re, value) {
 		try {
 			return re.test(value);
@@ -584,6 +600,14 @@ function ValidatorBox() {
 		return false
 	}
 
+	this.integer = function(name, value, msgs) {
+		if (value) {
+			let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+			let whole = str.replace(RE_NO_DIGITS, EMPTY);
+			return isNaN(whole) ? false : self.setData(name, parseInt(sing + whole));
+		}
+		return false
+	}
 	this.float = function(name, value, msgs) {
 		if (value) {
 			let separator = value.lastIndexOf(msgs.decimals);
