@@ -49,17 +49,29 @@ app.use((req, res, next) => {
 		lang = (i18n[lang]) ? lang : ac.substr(0, 5); //search region language es-ES
 		lang = (i18n[lang]) ? lang : lang.substr(0, 2); //search type language es
 		lang = (i18n[lang]) ? lang : "es"; //default language = es
-		req.session[lang] = i18n.es; //save messages on session
+		req.session.langs = i18n; //all languages container
 		req.session.lang = lang; //save language on session
 	}
 
 	// Commons actions for all views
 	res.locals.msgOk = res.locals.msgInfo = res.locals.msgWarn = res.locals.msgError = "";
 	req.session.menu = req.session.menu || [{},{}]; //public menu
-	res.locals.i18n = req.session[lang];
+	res.locals.i18n = i18n[lang];
 	res.locals.lang = lang;
 
 	// Commons response hadlers
+	res.setMsgOk = function(msg) {
+		res.locals.msgOk = msg;
+		return res;
+	}
+	res.setMsgInfo = function(msg) {
+		res.locals.msgInfo = msg;
+		return res;
+	}
+	res.setMsgWarn = function(msg) {
+		res.locals.msgWarn = msg;
+		return res;
+	}
 	res.setBody = function(tpl) {
 		res.locals._tplBody = tpl; //tpl body path
 		return res;
@@ -67,10 +79,6 @@ app.use((req, res, next) => {
 	res.build = function(tpl) {
 		//set tpl body path and render index
 		return res.setBody(tpl).render("index");
-	}
-	res.ok = function(msg, tpl) {
-		res.locals.msgOk = msg; //error text
-		return res.build(tpl); //build /index.ejs
 	}
 
 	// Go yo next route
@@ -90,11 +98,12 @@ app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
 		return res.status(500).json(valid.addMsg("msgError", err).getErrors());
+	res.locals._tplBody = res.locals._tplBody || "web/forms/index"; //default body
 	res.locals.errors = valid.getErrors();
 	res.locals.msgError = err; //error text
 	return res.render("index");
 });
-app.use("*", (req, res) => res.build("errors/404")); //404
+app.use("*", (req, res) => res.build("web/errors/404")); //404
 
 //arranca el servidor
 const httpServer = http.createServer(app);

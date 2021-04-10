@@ -14,17 +14,18 @@ const strip = require("gulp-strip-comments");
 const replace = require("gulp-replace");
 
 // Settings
-const HTML_PATH = "src/views/**/*.html";
 const EJS_PATH = "src/views/**/*.ejs";
-const CSS_FILES = [
-	"src/public/css/form.css", "src/public/css/grid.css", "src/public/css/menu.css", 
-	"src/public/css/progressbar.css", "src/public/css/style.css"
-];
-const JS_FILES = [
-	"src/public/js/form.js", "src/public/js/menu.js", "src/public/js/progressbar.js", 
-	"src/public/js/message-box.js", "src/public/js/string-box.js", 
-	"src/public/js/validator-box.js", "src/public/js/validators.js"
-];
+const HTML_PATH = "src/views/**/*.html";
+const CSS_FILES = [ "src/public/css/web/**/*.css" ];
+const JS_FILES = [ "src/public/js/web/**/*.js" ];
+
+// Task to minify EJS's
+gulp.task("minify-ejs", function() {
+	return gulp.src(EJS_PATH)
+				.pipe(minifyejs())
+				//.pipe(rename({suffix:".min"}))
+				.pipe(gulp.dest("dist/views"))
+});
 
 // Task to minify HTML's
 gulp.task("minify-html", () => {
@@ -37,14 +38,6 @@ gulp.task("minify-html", () => {
 				.pipe(strip()).pipe(htmlmin(config))
 				//.pipe(replace('<base href="src/">', '<base href="dist/">'))
 				.pipe(gulp.dest("dist/views"));
-});
-
-// Task to minify EJS's
-gulp.task("minify-ejs", function() {
-	return gulp.src(EJS_PATH)
-				.pipe(minifyejs())
-				//.pipe(rename({suffix:".min"}))
-				.pipe(gulp.dest("dist/views"))
 });
 
 // Tasks to minify CSS's
@@ -74,11 +67,11 @@ gulp.task("copy", () => {
 });
 
 gulp.task("watch", () => {
-	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(EJS_PATH, gulp.series("minify-ejs"));
+	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
 	// Other watchers ...
 });
 
-gulp.task("default", gulp.parallel("minify-html", "minify-ejs", "minify-css", "minify-js", "copy", "watch"));
+gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", "copy", "watch"));

@@ -84,6 +84,7 @@ $(document).ready(function() {
 		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
+		$(inputs).filter(".integer").change(function() { this.value = msgs.intHelper(this.value); });
 		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
 		$(inputs).filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
 		$(inputs).filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });

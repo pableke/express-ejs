@@ -1,6 +1,9 @@
-<%-include("partials/head")%>
+
+<!doctype html>
+<html lang="<%=lang%>">
+<%-include("web/partials/head")%>
 <body>
-	<header><%-include("partials/header")%></header>
+	<%-include("web/partials/header")%>
 	<main>
 		<div class="alerts">
 			<div class="alert alert-success d-none">
@@ -26,6 +29,6 @@
 		</div>
 		<%-include(_tplBody)%>
 	</main>
-	<footer><%-include("partials/footer")%></footer>
+	<%-include("web/partials/footer")%>
 </body>
 </html>

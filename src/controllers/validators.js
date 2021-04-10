@@ -52,7 +52,7 @@ valid.set("required", function(name, value, msgs) {
 });
 
 exports.auth = function(req, res, next) {
-	res.setBody("forms/login"); //if error => go login
+	res.setBody("web/forms/login"); //if error => go login
 	if (!req.session || !req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
