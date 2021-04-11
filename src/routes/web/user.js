@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-const basename = "../../../controllers/";
+const basename = "../../controllers/";
 const pass = require(basename + "web/user/pass.js");
 const perfil = require(basename + "web/user/perfil.js");
 
