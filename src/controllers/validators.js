@@ -38,7 +38,7 @@ valid.set("required", function(name, value, msgs) {
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
-}).setForm("/email.html", {
+}).setForm("/tests/email.html", {
 	nombre: valid.required,
 	correo: valid.correo,
 	date: function(name, value, msgs) { //optional input

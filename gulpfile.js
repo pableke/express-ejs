@@ -16,8 +16,10 @@ const replace = require("gulp-replace");
 // Settings
 const EJS_PATH = "src/views/**/*.ejs";
 const HTML_PATH = "src/views/**/*.html";
-const CSS_FILES = [ "src/public/css/web/**/*.css" ];
-const JS_FILES = [ "src/public/js/web/**/*.js" ];
+const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
+const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
+const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "src/certs/*.pem" ]
+const FOLDERS = [ "dist/public/files", "dist/public/thumb" ];
 
 // Task to minify EJS's
 gulp.task("minify-ejs", function() {
@@ -60,9 +62,26 @@ gulp.task("minify-js", () => {
 				.pipe(gulp.dest("dist/public/js"));
 });
 
+// Tasks to copy sources to dist
+gulp.task("copy-modules", () => {
+	gulp.src(MODULES[0]).pipe(gulp.dest("dist"));
+	gulp.src(MODULES[1]).pipe(gulp.dest("dist/routes"));
+	gulp.src(MODULES[2]).pipe(gulp.dest("dist/lib"));
+	gulp.src(MODULES[3]).pipe(gulp.dest("dist/i18n"));
+	gulp.src(MODULES[4]).pipe(gulp.dest("dist/dao"));
+	gulp.src(MODULES[5]).pipe(gulp.dest("dist/controllers"));
+	gulp.src(MODULES[6]).pipe(gulp.dest("dist/certs"));
+
+	FOLDERS.forEach(dir => {
+		fs.existsSync(dir) || fs.mkdirSync(dir);
+	});
+});
+
 // Tasks to copy files once
 gulp.task("copy", () => {
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
+	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
+	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
 	return gulp.src("src/public/img/**/*").pipe(gulp.dest("dist/public/img"));
 });
 
@@ -71,7 +90,8 @@ gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
+	gulp.watch(MODULES, gulp.series("copy-modules"));
 	// Other watchers ...
 });
 
-gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", "copy", "watch"));
+gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", "copy-modules", "copy", "watch"));

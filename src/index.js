@@ -6,19 +6,34 @@ const https = require("https"); //secure server
 
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
+const formidable = require("formidable"); //file uploads
+const sharp = require("sharp"); //image resizer
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
+const dao = require("./dao/factory.js"); //DAO factory
 const valid = require("./lib/validator-box.js"); //validators
 
 const HTTPS = { //credentials
-	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
-	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
+	key: fs.readFileSync(path.join(__dirname, "certs/key.pem")).toString(),
+	cert: fs.readFileSync(path.join(__dirname, "certs/cert.pem")).toString()
+};
+const UPLOAD = {
+	keepExtensions: true,
+	uploadDir: path.join(__dirname, "public/files/"),
+	maxFieldsSize: 20 * 1024 * 1024, //20mb
+	maxFileSize: 50 * 1024 * 1024, //50mb
+	maxFields: 1000,
+	multiples: true
 };
 const i18n = { //aviable languages list
-	es: require("./i18n/es.js"), 
+	es: require("./i18n/es.js"),
 	en: require("./i18n/en.js")
 };
+i18n.tests_es = Object.assign({}, i18n.es, require("./i18n/tests/es.js"));
+i18n.tests_en = Object.assign({}, i18n.en, require("./i18n/tests/en.js"));
+i18n.web_es = Object.assign({}, i18n.es, require("./i18n/web/es.js"));
+i18n.web_en = Object.assign({}, i18n.en, require("./i18n/web/en.js"));
 
 // Template engines
 app.set("view engine", "ejs");
@@ -26,8 +41,8 @@ app.set("views", path.join(__dirname, "views"));
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
-app.use(express.urlencoded({ limit: "50mb", extended: true })); // to support URL-encoded bodies
-app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "80mb", extended: true })); // to support URL-encoded bodies
+app.use(express.json({ limit: "80mb" }));
 
 app.set("trust proxy", 1) // trust first proxy
 app.use(session({ //session config
@@ -56,8 +71,9 @@ app.use((req, res, next) => {
 	// Commons actions for all views
 	res.locals.msgOk = res.locals.msgInfo = res.locals.msgWarn = res.locals.msgError = "";
 	req.session.menu = req.session.menu || [{},{}]; //public menu
-	res.locals.i18n = i18n[lang];
-	res.locals.lang = lang;
+	res.locals.i18n = i18n[lang]; //current language
+	res.locals.lang = lang; //lang id
+	res.locals.errors = {}; //init messages
 
 	// Commons response hadlers
 	res.setMsgOk = function(msg) {
@@ -84,13 +100,35 @@ app.use((req, res, next) => {
 	// Go yo next route
 	next(); //call next
 });
-app.get("*", (req, res, next) => {
-	res.locals.errors = {}; //init messages
-	next();
-});
 app.post("*", (req, res, next) => { //validate all form post
-	if (valid.validate(req.path, req.body, res.locals.i18n))
-		next();
+	if (valid.validate(req.path, req.body, res.locals.i18n)) {
+		let enctype = req.headers["content-type"] || ""; //get content-type
+		if (enctype.startsWith("multipart/form-data")) { //multipart => files
+			const form = formidable(UPLOAD); //file upload options
+			form.parse(req, (err, fields, files) => {
+				if (err)
+					return next(err);
+				files = files || {};
+				for (let k in files) {
+					let file = files[k];
+					if (file.type.startsWith("image")) {
+						sharp(file.path)
+							.resize({ width: 250 })
+							.toFile(path.join(__dirname, "public/thumb/", path.basename(file.path)))
+							//.then(info => console.log(info))
+							.catch(err => console.log(err));
+					}
+					/*else (file.type == "application/pdf") {
+					}*/
+				}
+				req.body = fields;
+				req.files = files;
+				next();
+			});
+		}
+		else
+			next();
+	}
 	else
 		next(res.locals.i18n.errForm);
 });
@@ -103,9 +141,14 @@ app.use((err, req, res, next) => { //global handler error
 	res.locals.msgError = err; //error text
 	return res.render("index");
 });
-app.use("*", (req, res) => res.build("web/errors/404")); //404
+app.use("*", (req, res) => { //404
+	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
+		return res.status(404).send(res.locals.i18n.err404);
+	res.status(404).build("web/errors/404");
+});
 
-//arranca el servidor
+// Start servers (bd's and http)
+dao.open(); //open db factories
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(HTTPS, app);
 httpServer.listen(3000);
@@ -117,6 +160,7 @@ function fnExit(signal) { //exit handler
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
 
+	dao.close();
 	httpServer.close();
 	httpsServer.close();
 

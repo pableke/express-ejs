@@ -1,9 +1,11 @@
 
 # Directories
-certs
 dist
 docs
 spec
+src/certs
+src/public/files
+src/public/thumb
 node_modules
 
 # Files

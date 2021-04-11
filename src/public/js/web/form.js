@@ -161,10 +161,7 @@ $(document).ready(function() {
 			fetch(form.action, { //init options
 				method: form.method,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-				headers: {
-					"Content-Type": form.enctype || "application/x-www-form-urlencoded",
-					"x-requested-with": "XMLHttpRequest"
-				}
+				headers: { "x-requested-with": "XMLHttpRequest" }
 			}).then(res => {
 				if (res.ok)
 					return fnResponseOk(res).then(() => {
