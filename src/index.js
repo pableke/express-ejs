@@ -95,10 +95,10 @@ app.use((req, res, next) => {
 });
 app.post("*", (req, res, next) => { //validate all form post
 	if (!valid.validate(req.path, req.body, res.locals.i18n))
-		next(res.locals.i18n.errForm); //err validator
+		next(res.locals.i18n.errForm); //validate inputs form
 	let enctype = req.headers["content-type"] || ""; //get content-type
 	if (enctype.startsWith("multipart/form-data")) { //multipart => files
-		let fields = {}; //fields container
+		let fields = req.body = {}; //fields container
 		const form = formidable(UPLOADS); //file upload options
 		form.on("field", function(field, value) {
 			fields[field] = value;
@@ -115,10 +115,7 @@ app.post("*", (req, res, next) => { //validate all form post
 			fields[field].push(file);
 		});
 		form.once("error", err => next(err));
-		form.once("end", () => {
-			req.body = fields;
-			next();
-		});
+		form.once("end", () => next());
 		form.parse(req);
 	}
 	else
