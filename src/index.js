@@ -11,6 +11,7 @@ const sharp = require("sharp"); //image resizer
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
+const i18n = require("./i18n/i18n.js"); //languages
 const dao = require("./dao/factory.js"); //DAO factory
 const valid = require("./lib/validator-box.js"); //validators
 
@@ -18,7 +19,7 @@ const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "certs/key.pem")).toString(),
 	cert: fs.readFileSync(path.join(__dirname, "certs/cert.pem")).toString()
 };
-const UPLOAD = {
+const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: path.join(__dirname, "public/files/"),
 	maxFieldsSize: 20 * 1024 * 1024, //20mb
@@ -26,14 +27,6 @@ const UPLOAD = {
 	maxFields: 1000,
 	multiples: true
 };
-const i18n = { //aviable languages list
-	es: require("./i18n/es.js"),
-	en: require("./i18n/en.js")
-};
-i18n.tests_es = Object.assign({}, i18n.es, require("./i18n/tests/es.js"));
-i18n.tests_en = Object.assign({}, i18n.en, require("./i18n/tests/en.js"));
-i18n.web_es = Object.assign({}, i18n.es, require("./i18n/web/es.js"));
-i18n.web_en = Object.assign({}, i18n.en, require("./i18n/web/en.js"));
 
 // Template engines
 app.set("view engine", "ejs");
@@ -41,7 +34,7 @@ app.set("views", path.join(__dirname, "views"));
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
-app.use(express.urlencoded({ limit: "80mb", extended: true })); // to support URL-encoded bodies
+app.use(express.urlencoded({ limit: "80mb", extended: false })); // to support URL-encoded bodies
 app.use(express.json({ limit: "80mb" }));
 
 app.set("trust proxy", 1) // trust first proxy
@@ -101,36 +94,35 @@ app.use((req, res, next) => {
 	next(); //call next
 });
 app.post("*", (req, res, next) => { //validate all form post
-	if (valid.validate(req.path, req.body, res.locals.i18n)) {
-		let enctype = req.headers["content-type"] || ""; //get content-type
-		if (enctype.startsWith("multipart/form-data")) { //multipart => files
-			const form = formidable(UPLOAD); //file upload options
-			form.parse(req, (err, fields, files) => {
-				if (err)
-					return next(err);
-				files = files || {};
-				for (let k in files) {
-					let file = files[k];
-					if (file.type.startsWith("image")) {
-						sharp(file.path)
-							.resize({ width: 250 })
-							.toFile(path.join(__dirname, "public/thumb/", path.basename(file.path)))
-							//.then(info => console.log(info))
-							.catch(err => console.log(err));
-					}
-					/*else (file.type == "application/pdf") {
-					}*/
-				}
-				req.body = fields;
-				req.files = files;
-				next();
-			});
-		}
-		else
+	if (!valid.validate(req.path, req.body, res.locals.i18n))
+		next(res.locals.i18n.errForm); //err validator
+	let enctype = req.headers["content-type"] || ""; //get content-type
+	if (enctype.startsWith("multipart/form-data")) { //multipart => files
+		let fields = {}; //fields container
+		const form = formidable(UPLOADS); //file upload options
+		form.on("field", function(field, value) {
+			fields[field] = value;
+		});
+		form.on("file", function(field, file) {
+			fields[field] = fields[field] || [];
+			if (file.type.startsWith("image")) {
+				sharp(file.path)
+					.resize({ width: 250 })
+					.toFile(path.join(__dirname, "public/thumb/", path.basename(file.path)))
+					//.then(info => console.log(info))
+					.catch(err => console.log(err));
+			}
+			fields[field].push(file);
+		});
+		form.once("error", err => next(err));
+		form.once("end", () => {
+			req.body = fields;
 			next();
+		});
+		form.parse(req);
 	}
 	else
-		next(res.locals.i18n.errForm);
+		next();
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
