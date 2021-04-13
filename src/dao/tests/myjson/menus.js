@@ -1,8 +1,7 @@
 
-module.exports = function(dbs) {
-	let table = dbs.get("company").get("menus");
-
+module.exports = function(table) {
 	return {
-		getAll: table.getAll
+		getAll: table.getAll,
+		getPublic: function() { return table.filter(menu => menu.mask&1); }
 	}	
 }

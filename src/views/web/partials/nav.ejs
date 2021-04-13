@@ -2,7 +2,7 @@
 <nav class="navbar">
 	<ul class="menu menu-top">
 		<% menus.forEach(menu => { %>
-			<li id="<%=menu._id%>" parent="<%=menu.id_padre%>"><a href="#"><%=menu.nombre%></a></li>
+			<li id="<%=menu._id%>" parent="<%=menu.id_padre%>"><a href="<%=menu.href%>"><%=menu.nombre%></a></li>
 		<% }); %>
 		<li class="disabled">
 			<a href="#" tabindex="-1">Disabled</a>

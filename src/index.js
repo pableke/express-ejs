@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 
 	// Commons actions for all views
 	res.locals.msgOk = res.locals.msgInfo = res.locals.msgWarn = res.locals.msgError = "";
-	req.session.menus = req.session.menus || dao.tests.myjson.menus.getAll(); //public menu
+	req.session.menus = req.session.menus || dao.tests.myjson.menus.getPublic(); //public menu
 	res.locals.menus = req.session.menus; //set menus on view
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
