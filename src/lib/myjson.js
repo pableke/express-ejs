@@ -15,13 +15,6 @@ function Collection(db, pathname) {
 	const self = this; //self instance
 	let table = { seq: 1, data: [] };
 
-	this.db = function() { return db; }
-	this.stringify = function() { return JSON.stringify(table); }
-	this.name = function() {
-		let name = path.basename(pathname); //file.json
-		return name.substr(0, name.lastIndexOf("."));
-	}
-
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
@@ -40,6 +33,7 @@ function Collection(db, pathname) {
 	}
 	this.drop = function() {
 		table.seq = 1; //restart sequence
+		delete table.sort; //remove sort id
 		table.data.splice(0); //remove data array
 		fs.unlink(pathname, err => {
 			err ? reject(fnError(err)) : resolve(self);
@@ -47,24 +41,43 @@ function Collection(db, pathname) {
 		return self;
 	}
 
+	this.db = function() { return db; }
+	this.get = function(i) { return table.data[i]; }
+	this.set = function(i, item) { Object.assign(table.data[i], item); return self.commit(); }
+	this.stringify = function() { return JSON.stringify(table); }
+	this.name = function() {
+		let name = path.basename(pathname); //file.json
+		return name.substr(0, name.lastIndexOf("."));
+	}
+
 	this.getAll = function() { return table.data; }
 	this.findAll = function() { return table.data; }
 	this.find = function(cb) { return table.data.find(cb); }
+	this.findIndex = function(id) { return table.data.findIndex(row => (row._id == id)); }
 	this.getById = function(id) { return self.find(row => (row._id == id)); }
 	this.findById = function(id) { return self.getById(id); }
 	this.filter = function(cb) { return table.data.filter(cb); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
+	this.unsort = function() { delete table.sort; return self; }
+	this.sort = function(name, cmp) {
+		if (table.sort == name)
+			return self;
+		table.sort = name;
+		table.data.sort(cmp);
+		return self.commit();
+	}
 
 	this.insert = function(data) {
+		delete table.sort;
 		data._id = table.seq++;
 		table.data.push(data);
 		return self.commit();
 	}
-	this.update = function(cb, data) {
+	this.update = function(cb, item) {
 		let updates = 0; //counter
 		table.data.forEach((row, i) => {
 			if (cb(row, i)) {
-				Object.assign(row, data);
+				Object.assign(row, item);
 				updates++;
 			}
 		});
@@ -95,7 +108,7 @@ function Collection(db, pathname) {
 		return deletes ? self.commit() : self; //save data
 	}
 	this.deleteById = function(id) {
-		let i = table.data.findIndex(row => (row._id == id));
+		let i = self.findIndex(id);
 		if (i < 0) //table modified?
 			return self;
 		table.data.splice(i, 1);
