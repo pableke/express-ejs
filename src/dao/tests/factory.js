@@ -1,5 +1,7 @@
 
-const myjson = require("../../lib/myjson.js");
+const myjson = require("./myjson/factory.js");
+
+exports.myjson = myjson;
 
 exports.open = function() {
 	myjson.open();

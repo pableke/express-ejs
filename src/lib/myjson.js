@@ -2,10 +2,6 @@
 const fs = require("fs"); //file system
 const path = require("path"); //file and directory paths
 
-const BASEDIR = path.join(__dirname, "../dbs");
-const ALL = 511; //0777; //permisos
-const DBS = {}; //container
-
 function fnError(err) {
 	console.log("\n--------------------", "MyJson", "--------------------");
 	console.log("> " + (new Date()));
@@ -20,123 +16,171 @@ function Collection(db, pathname) {
 	let table = { seq: 1, data: [] };
 
 	this.db = function() { return db; }
-	this.get = function(name) { return db.get(name); }
+	this.stringify = function() { return JSON.stringify(table); }
+	this.name = function() {
+		let name = path.basename(pathname); //file.json
+		return name.substr(0, name.lastIndexOf("."));
+	}
+
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
-		fs.readFile(pathname + ".json", "utf-8", (err, data) => {
-				if (err && err.code == "ENOENT")
-					return resolve(self);
+			fs.readFile(pathname, "utf-8", (err, data) => {
 				if (err)
 					return reject(fnError(err));
 				table = JSON.parse(data);
-				console.log("load", pathname);
 				resolve(self);
 			});
 		});
 	}
 	this.commit = function() {
-		return new Promise(function(resolve, reject) {
-			fs.writeFile(pathname + ".json", JSON.stringify(table), err => {
-				err ? reject(fnError(err)) : resolve(self);
-			});
+		fs.writeFile(pathname, self.stringify(), err => {
+			err ? reject(fnError(err)) : resolve(self);
 		});
+		return self;
 	}
 	this.drop = function() {
-		return new Promise((resolve, reject) => {
-			table.data.splice(0);
-			delete table.seq; delete table.data; delete table;
-			delete db[path.basename(pathname)]; //delete from db
-			fs.unlink(pathname + ".json", err => {
-				err ? reject(fnError(err)) : resolve(self);
-			});
+		table.seq = 1; //restart sequence
+		table.data.splice(0); //remove data array
+		fs.unlink(pathname, err => {
+			err ? reject(fnError(err)) : resolve(self);
 		});
+		return self;
 	}
 
 	this.getAll = function() { return table.data; }
 	this.findAll = function() { return table.data; }
 	this.find = function(cb) { return table.data.find(cb); }
-	this.getById = function(id) { return this.find(row => (row._id == id)); }
-	this.findById = function(id) { return this.getById(id); }
+	this.getById = function(id) { return self.find(row => (row._id == id)); }
+	this.findById = function(id) { return self.getById(id); }
 	this.filter = function(cb) { return table.data.filter(cb); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
-	this.format = function(str, arr, opts) { return JSON.format(str, arr || table.data, opts); }
-	this.join = function(cb, tables) { return table.data.filter((row, i) => cb(row, i, tables)); }
 
 	this.insert = function(data) {
 		data._id = table.seq++;
 		table.data.push(data);
-		return this.commit();
+		return self.commit();
 	}
 	this.update = function(cb, data) {
-		table.data.forEach((row, i) => { cb(row, i) && Object.assign(row, data); });
-		return this.commit();
+		let updates = 0; //counter
+		table.data.forEach((row, i) => {
+			if (cb(row, i)) {
+				Object.assign(row, data);
+				updates++;
+			}
+		});
+		return updates ? self.commit() : self;
 	}
 	this.updateById = function(data) {
-		let row = this.find(row => (row._id == data._id));
-		if (row) {
+		let row = self.find(row => (row._id == data._id));
+		if (row) { //table modified?
 			Object.assign(row, data);
-			return this.commit();
+			return self.commit();
 		}
-		return Promise.resolve(self);
+		return self;
 	}
 	this.save = function(data) {
-		return data._id ? this.updateById(data) : this.insert(data);
+		return data._id ? self.updateById(data) : self.insert(data);
 	}
+
 	this.delete = function(cb) {
-		table.data.forEach((row, i) => { cb(row, i) && table.data.splice(i, 1); });
-		return this.commit();
+		let deletes = 0; //counter
+		let results = []; //new container
+		table.data.forEach((row, i) => {
+			if (cb(row, i))
+				deletes++;
+			else
+				results.push(row);
+		});
+		table.data = results; //new container
+		return deletes ? self.commit() : self; //save data
 	}
 	this.deleteById = function(id) {
 		let i = table.data.findIndex(row => (row._id == id));
-		if (i < 0) //is table modified?
-			return Promise.resolve(self);
+		if (i < 0) //table modified?
+			return self;
 		table.data.splice(i, 1);
-		return this.commit();
+		return self.commit();
 	}
 }
 
 function Collections(dbs, pathname) {
 	const self = this; //self instance
-	const db = {}; //container
-
-	this.create = function(name) { //create new table
-		db[name] && db[name].drop(); //remove previos table
-		db[name] = new Collection(self, path.join(pathname, name));
-		return self;
-	}
-	this.drop = function() { //drop collections and all tables
-		return new Promise(function(resolve, reject) {
-			Object.values(db).forEach(table => table.drop());
-			fs.rmdir(pathname, { recursive: true }, err => {
-				err ? reject(fnError(err)) : resolve(self);
-			});
-		});
-	}
+	const db = {}; //DB container
 
 	this.dbs = function() { return dbs; }
 	this.get = function(name) { return name ? db[name] : db; }
 	this.set = function(name, table) { db[name] = table; return self; }
+
+	this.dropTable = function(name) {
+		db[name] && db[name].drop(); //remove table from db
+		delete db[name]; //remove form container
+		return self;
+	}
+	this.createTable = function(name) {
+		let tablepath = path.join(pathname, name);
+		let table = new Collection(self, tablepath);
+
+		self.dropTable(name); //remove previous table from db
+		table.commit(); //write empty table on file system
+		return self.set(name, table);
+	}
+
+	this.drop = function() {
+		Object.keys(db).forEach(self.dropTable);
+		fs.rmdir(pathname, { recursive: true }, err => {
+			err ? reject(fnError(err)) : resolve(self);
+		});
+		return self;
+	}
 }
 
-exports.open = function() {
-	let list = fs.readdirSync(BASEDIR);
+module.exports = function(pathname) {
+	const self = this; //self instance
+	const DBS = {}; //DB's container
+
+	this.dbs = function() { return DBS; }
+	this.get = function(name) { return name ? DBS[name] : DBS; }
+	this.set = function(name, db) { DBS[name] = db; return self; }
+
+	this.dropDB = function(name) {
+		[name] && DBS[name].drop(); //remove db
+		delete db[name]; //remove form container
+		return self;
+	}
+	this.createDB = function(name) { //create new table
+		let dbpath = path.join(pathname, name); //new db path
+		let db = new Collections(self, dbpath);
+
+		self.dropDB(name);
+		//create container directory if it doesn't exist
+		fs.mkdir(dbpath, 511, err => { //511 = 0777
+			if (err && (err.code != "EEXIST"))
+				return fnError(err);
+		});
+		return self.set(name, db);
+	}
+	this.drop = function() {
+		for (let db in DBS) {
+			DBS[db].drop();
+			delete DBS[db];
+		}
+		return self;
+	}
+
+	//force sync auto-load on instance
+	let list = fs.readdirSync(pathname);
 	list.forEach(function(dir) {
-		let pathname = path.join(BASEDIR, dir);
-		let stat = fs.statSync(pathname);
+		let dbpath = path.join(pathname, dir);
+		let stat = fs.statSync(dbpath);
 		if (stat && stat.isDirectory()) { //load DB
-			let bd = new Collections(DBS, pathname);
-			let tables = fs.readdirSync(pathname);
-			tables.forEach(function(file) {
-				let table = new Collection(bd, path.join(pathname, file));
-				table.load().then(coll => {bd.set(file, coll);console.log(coll);});
+			let bd = new Collections(self, dbpath);
+			let tables = fs.readdirSync(dbpath);
+			tables.forEach(function(file) { //tables iterator
+				let table = new Collection(bd, path.join(dbpath, file)); //instance
+				bd.set(table.name(), table); //add table on db
+				table.load(); //load data async
 			});
 			DBS[dir] = bd;
 		}
 	});
-	console.log(DBS);
-}
-
-exports.close = function() {
-	for (let db in DBS)
-		DBS[db].drop();
 }

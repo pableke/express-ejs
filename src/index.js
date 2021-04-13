@@ -63,7 +63,8 @@ app.use((req, res, next) => {
 
 	// Commons actions for all views
 	res.locals.msgOk = res.locals.msgInfo = res.locals.msgWarn = res.locals.msgError = "";
-	req.session.menu = req.session.menu || [{},{}]; //public menu
+	req.session.menus = req.session.menus || dao.tests.myjson.menus.getAll(); //public menu
+	res.locals.menus = req.session.menus; //set menus on view
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
 	res.locals.errors = {}; //init messages
@@ -98,7 +99,7 @@ app.post("*", (req, res, next) => { //validate all form post
 		next(res.locals.i18n.errForm); //validate inputs form
 	let enctype = req.headers["content-type"] || ""; //get content-type
 	if (enctype.startsWith("multipart/form-data")) { //multipart => files
-		let fields = req.body = {}; //fields container
+		const fields = req.body = {}; //fields container
 		const form = formidable(UPLOADS); //file upload options
 		form.on("field", function(field, value) {
 			fields[field] = value;
