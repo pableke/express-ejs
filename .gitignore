@@ -3,6 +3,7 @@
 dist
 docs
 spec
+src/dbs
 src/certs
 src/public/files
 src/public/thumb
