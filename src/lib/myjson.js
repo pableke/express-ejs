@@ -13,7 +13,7 @@ function fnError(err) {
 
 function Collection(db, pathname) {
 	const self = this; //self instance
-	let table = { seq: 1, fields: ["_id"], data: [] };
+	let table = { seq: 1, fields: [], data: [] };
 
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
@@ -48,7 +48,7 @@ function Collection(db, pathname) {
 	this.get = function(i) { return table.data[i]; }
 	this.merge = function(item1, item2) {
 		table.fields.forEach(field => {
-			item1[field] = item2[field] ?? item1[field];
+			item1[field] = item2[field];
 		});
 		return self;
 	}
@@ -81,10 +81,10 @@ function Collection(db, pathname) {
 		return self.commit();
 	}
 
-	this.insert = function(data) {
+	this.insert = function(item) {
 		delete table.sort;
-		data._id = table.seq++;
-		table.data.push(data);
+		item._id = table.seq++;
+		table.data.push(item);
 		return self.commit();
 	}
 	this.update = function(cb, item) {
@@ -97,12 +97,12 @@ function Collection(db, pathname) {
 		});
 		return updates ? self.commit() : self;
 	}
-	this.updateById = function(data) {
-		let row = self.find(row => (row._id == data._id));
-		return row ? self.merge(row, data).commit() : self;
+	this.updateById = function(item) {
+		let row = self.find(row => (row._id == item._id));
+		return row ? self.merge(row, item).commit() : self;
 	}
-	this.save = function(data) {
-		return data._id ? self.updateById(data) : self.insert(data);
+	this.save = function(item) {
+		return item._id ? self.updateById(item) : self.insert(item);
 	}
 
 	this.delete = function(cb) {
