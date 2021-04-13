@@ -104,8 +104,13 @@ app.post("*", (req, res, next) => { //validate all form post
 		form.on("field", function(field, value) {
 			fields[field] = value;
 		});
+		form.on("fileBegin", function(field, file) {
+			file.path = file.path.replace("/upload_", "/");
+		});
 		form.on("file", function(field, file) {
 			fields[field] = fields[field] || [];
+			if (file.size < 1) //empty uploaded file
+				return fs.unlink(file.path, err => {});
 			if (file.type.startsWith("image")) {
 				sharp(file.path)
 					.resize({ width: 250 })
