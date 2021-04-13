@@ -120,5 +120,5 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.alerts { position: fixed; top: 40px; right: 1em; width: 40%; z-index: 2; }
+	.alerts { position: fixed; top: 45px; right: 1em; width: 40%; z-index: 2; }
 }

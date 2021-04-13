@@ -13,14 +13,15 @@ function fnError(err) {
 
 function Collection(db, pathname) {
 	const self = this; //self instance
-	let table = { seq: 1, data: [] };
+	let table = { seq: 1, fields: ["_id"], data: [] };
 
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
 				if (err)
 					return reject(fnError(err));
-				table = JSON.parse(data);
+				table = JSON.parse(data); //parse json
+				self.onload && self.onload(self);
 				resolve(self);
 			});
 		});
@@ -42,12 +43,25 @@ function Collection(db, pathname) {
 	}
 
 	this.db = function() { return db; }
-	this.get = function(i) { return table.data[i]; }
-	this.set = function(i, item) { Object.assign(table.data[i], item); return self.commit(); }
 	this.stringify = function() { return JSON.stringify(table); }
+
+	this.get = function(i) { return table.data[i]; }
+	this.merge = function(item1, item2) {
+		table.fields.forEach(field => {
+			item1[field] = item2[field] ?? item1[field];
+		});
+		return self;
+	}
+	this.set = function(i, item) {
+		return self.merge(table.data[i], item).commit();
+	}
 	this.name = function() {
 		let name = path.basename(pathname); //file.json
 		return name.substr(0, name.lastIndexOf("."));
+	}
+	this.setField = function(field) {
+		table.fields.push(field);
+		return self;
 	}
 
 	this.getAll = function() { return table.data; }
@@ -77,7 +91,7 @@ function Collection(db, pathname) {
 		let updates = 0; //counter
 		table.data.forEach((row, i) => {
 			if (cb(row, i)) {
-				Object.assign(row, item);
+				self.merge(row, item);
 				updates++;
 			}
 		});
@@ -85,11 +99,7 @@ function Collection(db, pathname) {
 	}
 	this.updateById = function(data) {
 		let row = self.find(row => (row._id == data._id));
-		if (row) { //table modified?
-			Object.assign(row, data);
-			return self.commit();
-		}
-		return self;
+		return row ? self.merge(row, data).commit() : self;
 	}
 	this.save = function(data) {
 		return data._id ? self.updateById(data) : self.insert(data);
