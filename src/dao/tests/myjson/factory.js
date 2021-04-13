@@ -5,7 +5,9 @@ const MyJson = require("../../../lib/myjson.js");
 const basedir = path.join(__dirname, "../../../dbs/");
 const myjson = new MyJson(basedir);
 
-exports.menus = myjson.get("company").get("menus");
+const menus = require("./menus.js");
+
+exports.menus = menus(myjson.get("company").get("menus"));
 
 exports.open = function() {
 	console.log("> DAO Tests Factory open.");
