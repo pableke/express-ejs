@@ -19,7 +19,7 @@ const HTML_PATH = "src/views/**/*.html";
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "src/certs/*.pem" ]
-const FOLDERS = [ "dist/public/files", "dist/public/thumb" ];
+const FOLDERS = [ "dist/dbs", "dist/public/files", "dist/public/thumb" ];
 
 // Task to minify EJS's
 gulp.task("minify-ejs", function() {
