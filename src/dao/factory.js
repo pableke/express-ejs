@@ -2,6 +2,9 @@
 const tests = require("./tests/factory.js");
 const web = require("./web/factory.js");
 
+exports.tests = tests;
+exports.web = web;
+
 exports.open = function() {
 	tests.open();
 	web.open();
