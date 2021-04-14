@@ -11,7 +11,6 @@ module.exports = function(table) {
 		return _publicMenus;
 	}
 
-	return table.setField("href").setField("icon")
-				.setField("nombre").setField("orden")
-				.setField("mask").setField("f_creacion");
+	return table.setField("id_padre").setField("href").setField("icon").setField("nombre")
+				.setField("orden").setField("mask").setField("f_creacion");
 }

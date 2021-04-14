@@ -4,6 +4,8 @@ const valid = require("../../../lib/validator-box.js");
 
 // User DAO
 module.exports = function(table) {
+	function fnError(msg) { return !valid.setError("msgError", msg); }
+
 	table.findByNif = function(nif) { return table.find(user => (user.nif == nif)); }
 	table.findByMail = function(email) { return table.find(user => (user.correo == email)); }
 
@@ -18,24 +20,23 @@ module.exports = function(table) {
 		user.clave = bcrypt.hashSync(pass, bcrypt.genSaltSync(10));
 		return table;		
 	}
-	table.updatePassByMail = function(email, pass) {
+	table.updatePassByMail = function(email, pass, msgs) {
 		let user = table.findByMail(email);
-		return user ? cryptPass(user, pass).commit()
-					: !valid.setError("msgError", "errCorreoNotFound");
+		return user ? cryptPass(user, pass).commit() : fnError(msgs.errCorreoNotFound);
 	}
-	table.updateNewPass = function(id, oldPass, newPass) {
+	table.updateNewPass = function(id, oldPass, newPass, msgs) {
 		let user = table.findById(id);
 		if (user) {
 			return bcrypt.compareSync(oldPass, user.clave) 
 						? cryptPass(user, newPass).commit() //truthy
-						: !valid.setError("msgError", "errClave"); //falsy
+						: fnError(msgs.errClave); //falsy
 		}
-		return !valid.setError("msgError", "errUserNotFound");
+		return fnError(msgs.errUserNotFound);
 	}
 
-	table.insertUser = function(user) {
+	table.insertUser = function(user, msgs) {
 		if (table.findLogin(user.nif, user.correo))
-			return !valid.setError("msgError", "errUsuarioUk");
+			return fnError(msgs.errUsuarioUk);
 		return table.insert(cryptPass(user, user.clave));
 	}
 
