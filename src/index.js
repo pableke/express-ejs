@@ -105,7 +105,8 @@ app.post("*", (req, res, next) => { //validate all form post
 			fields[field] = value;
 		});
 		form.on("fileBegin", function(field, file) {
-			file.path = file.path.replace("/upload_", "/");
+			let name = path.basename(file.path).replace("upload_", "");
+			file.path = path.join(path.dirname(file.path), name);
 		});
 		form.on("file", function(field, file) {
 			fields[field] = fields[field] || [];
