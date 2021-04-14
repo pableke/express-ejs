@@ -26,11 +26,10 @@ module.exports = function(table) {
 	}
 	table.updateNewPass = function(id, oldPass, newPass, msgs) {
 		let user = table.findById(id);
-		if (user) {
+		if (user)
 			return bcrypt.compareSync(oldPass, user.clave) 
 						? cryptPass(user, newPass).commit() //truthy
 						: fnError(msgs.errClave); //falsy
-		}
 		return fnError(msgs.errUserNotFound);
 	}
 
