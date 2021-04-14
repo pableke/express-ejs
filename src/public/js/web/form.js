@@ -149,7 +149,7 @@ $(document).ready(function() {
 
 			let _data = valid.values(inputs); //input list to object
 			if (!valid.validate(form.getAttribute("action"), _data, msgs)) { //error => stop
-				fnShowErrors(valid.addMsg("msgError", msgs.errForm).getErrors());
+				fnShowErrors(valid.setError("msgError", msgs.errForm).getErrors());
 				return ev.preventDefault();
 			}
 			if (!form.classList.contains("ajax"))

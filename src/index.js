@@ -130,7 +130,7 @@ app.post("*", (req, res, next) => { //validate all form post
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
-		return res.status(500).json(valid.addMsg("msgError", err).getErrors());
+		return res.status(500).json(valid.setError("msgError", err).getErrors());
 	res.locals._tplBody = res.locals._tplBody || "web/forms/index"; //default body
 	res.locals.errors = valid.getErrors();
 	res.locals.msgError = err; //error text

@@ -5,10 +5,12 @@ const path = require("path"); //file and directory paths
 function fnError(err) {
 	console.log("\n--------------------", "MyJson", "--------------------");
 	console.log("> " + (new Date()));
-	//err.message = "Error " + err.errno + ": " + err.sqlMessage;
 	console.log(err);
 	console.log("--------------------", "MyJson", "--------------------\n");
 	return err;
+}
+function fnMkdirError(err) {
+	return (err && (err.code != "EEXIST")) ? fnError(err) : err;
 }
 
 function Collection(db, pathname) {
@@ -43,22 +45,36 @@ function Collection(db, pathname) {
 	}
 
 	this.db = function() { return db; }
+	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
-	this.get = function(i) { return table.data[i]; }
 	this.merge = function(item1, item2) {
 		table.fields.forEach(field => {
 			item1[field] = item2[field];
 		});
 		return self;
 	}
+	this.assign = function(item1, item2) {
+		table.fields.forEach(field => {
+			item1[field] = item2[field] ?? item1[field];
+		});
+		return self;
+	}
+
+	this.get = function(i) { return table.data[i]; }
 	this.set = function(i, item) {
-		return self.merge(table.data[i], item).commit();
+		return ((i > -1) && (i < table.data.length)) ? self.merge(table.data[i], item).commit() : self;
+	}
+	this.setById = function(item) {
+		let row = self.find(row => (row._id == item._id));
+		return row ? self.merge(row, item).commit() : self;
 	}
 	this.name = function() {
 		let name = path.basename(pathname); //file.json
 		return name.substr(0, name.lastIndexOf("."));
 	}
+
+	this.getFields = function() { return table.fields; }
 	this.setField = function(field) {
 		table.fields.push(field);
 		return self;
@@ -91,7 +107,7 @@ function Collection(db, pathname) {
 		let updates = 0; //counter
 		table.data.forEach((row, i) => {
 			if (cb(row, i)) {
-				self.merge(row, item);
+				self.assign(row, item);
 				updates++;
 			}
 		});
@@ -99,7 +115,7 @@ function Collection(db, pathname) {
 	}
 	this.updateById = function(item) {
 		let row = self.find(row => (row._id == item._id));
-		return row ? self.merge(row, item).commit() : self;
+		return row ? self.assign(row, item).commit() : self;
 	}
 	this.save = function(item) {
 		return item._id ? self.updateById(item) : self.insert(item);
@@ -140,7 +156,7 @@ function Collections(dbs, pathname) {
 		return self;
 	}
 	this.createTable = function(name) {
-		let tablepath = path.join(pathname, name);
+		let tablepath = path.join(pathname, name + ".json");
 		let table = new Collection(self, tablepath);
 
 		self.dropTable(name); //remove previous table from db
@@ -166,8 +182,8 @@ module.exports = function(pathname) {
 	this.set = function(name, db) { DBS[name] = db; return self; }
 
 	this.dropDB = function(name) {
-		[name] && DBS[name].drop(); //remove db
-		delete db[name]; //remove form container
+		DBS[name] && DBS[name].drop(); //remove db
+		delete DBS[name]; //remove form container
 		return self;
 	}
 	this.createDB = function(name) { //create new table
@@ -176,10 +192,7 @@ module.exports = function(pathname) {
 
 		self.dropDB(name);
 		//create container directory if it doesn't exist
-		fs.mkdir(dbpath, 511, err => { //511 = 0777
-			if (err && (err.code != "EEXIST"))
-				return fnError(err);
-		});
+		fs.mkdir(dbpath, 511, fnMkdirError); //511 = 0777
 		return self.set(name, db);
 	}
 	this.drop = function() {
@@ -190,7 +203,8 @@ module.exports = function(pathname) {
 		return self;
 	}
 
-	//force sync auto-load on instance
+	// Sync auto-load on create new instance
+	fs.mkdir(pathname, 511, fnMkdirError); //511 = 0777
 	let list = fs.readdirSync(pathname);
 	list.forEach(function(dir) {
 		let dbpath = path.join(pathname, dir);
