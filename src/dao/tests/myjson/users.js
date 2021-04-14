@@ -4,7 +4,7 @@ const valid = require("../../../lib/validator-box.js");
 
 // User DAO
 module.exports = function(table) {
-	function fnError(msg) { return !valid.setError("msgError", msg); }
+	function fnError(msg) { return !valid.setMsgError(msg); }
 
 	table.findByNif = function(nif) { return table.find(user => (user.nif == nif)); }
 	table.findByMail = function(email) { return table.find(user => (user.correo == email)); }

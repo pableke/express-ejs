@@ -149,7 +149,7 @@ $(document).ready(function() {
 
 			let _data = valid.values(inputs); //input list to object
 			if (!valid.validate(form.getAttribute("action"), _data, msgs)) { //error => stop
-				fnShowErrors(valid.setError("msgError", msgs.errForm).getErrors());
+				fnShowErrors(valid.setMsgError(msgs.errForm).getErrors());
 				return ev.preventDefault();
 			}
 			if (!form.classList.contains("ajax"))
@@ -741,6 +741,43 @@ function ValidatorBox() {
 	/************************ FIN VALIDADORES ************************/
 	/*****************************************************************/
 
+	// Messages for response
+	this.initMsgs = function() {
+		for (let k in ERRORS) //clear prev errors
+			delete ERRORS[k]; //delete error message
+		ERRORS.__num = 0; //error counter
+		return self;
+	}
+	this.getMsgOk = function() {
+		return ERRORS.msgOk;
+	}
+	this.setMsgOk = function(msg) {
+		ERRORS.msgOk = msg;
+		return self;
+	}
+	this.getMsgInfo = function() {
+		return ERRORS.msgInfo;
+	}
+	this.setMsgInfo = function(msg) {
+		ERRORS.msgInfo = msg;
+		return self;
+	}
+	this.getMsgWarn = function() {
+		return ERRORS.msgWarn;
+	}
+	this.setMsgWarn = function(msg) {
+		ERRORS.msgWarn = msg;
+		return self;
+	}
+	this.getMsgError = function() {
+		return ERRORS.msgError;
+	}
+	this.setMsgError = function(msg) {
+		ERRORS.msgError = msg;
+		ERRORS.__num++;
+		return self;
+	}
+
 	// Errors asociated by fields
 	this.getErrors = function() {
 		return ERRORS;
@@ -749,8 +786,8 @@ function ValidatorBox() {
 		return ERRORS[name];
 	}
 	this.setError = function(name, value) {
-		ERRORS.num++;
 		ERRORS[name] = value;
+		ERRORS.__num++;
 		return self;
 	}
 
@@ -793,17 +830,14 @@ function ValidatorBox() {
 		return obj;
 	}
 
-	this.fails = function() { return ERRORS.num > 0; }
-	this.isValid = function() { return ERRORS.num == 0; }
+	this.fails = function() { return ERRORS.__num > 0; }
+	this.isValid = function() { return ERRORS.__num == 0; }
 	this.validate = function(form, data, i18n) {
-		for (let k in ERRORS) //clear prev errors
-			delete ERRORS[k]; //delete error message
-		ERRORS.num = 0; //num errors
-		for (let k in OUTPUT) //clear prev data
-			delete OUTPUT[k]; //delete forated data
+		for (let k in OUTPUT) //clear previous data
+			delete OUTPUT[k]; //delete parsed data
 
 		sysdate.setTime(Date.now()); //upgrade
-		let validators = self.getForm(form);
+		let validators = self.initMsgs().getForm(form);
 		if (validators) { //validators exists?
 			for (let field in validators) {
 				let fn = validators[field];

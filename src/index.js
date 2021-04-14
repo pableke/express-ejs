@@ -62,34 +62,28 @@ app.use((req, res, next) => {
 	}
 
 	// Commons actions for all views
-	res.locals.msgOk = res.locals.msgInfo = res.locals.msgWarn = res.locals.msgError = "";
 	req.session.menus = req.session.menus || dao.tests.myjson.menus.getPublic(); //public menu
 	res.locals.menus = req.session.menus; //set menus on view
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
-	res.locals.errors = {}; //init messages
+
+	// Init. messages and form errors
+	res.locals.errors = valid.getErrors();
+	res.locals.msgs = valid;
 
 	// Commons response hadlers
-	res.setMsgOk = function(msg) {
-		res.locals.msgOk = msg;
-		return res;
-	}
-	res.setMsgInfo = function(msg) {
-		res.locals.msgInfo = msg;
-		return res;
-	}
-	res.setMsgWarn = function(msg) {
-		res.locals.msgWarn = msg;
-		return res;
-	}
+	res.locals._tplBody = "web/forms/index"; //default body
 	res.setBody = function(tpl) {
-		res.locals._tplBody = tpl; //tpl body path
+		res.locals._tplBody = tpl; //new tpl body path
 		return res;
 	}
 	res.build = function(tpl) {
 		//set tpl body path and render index
 		return res.setBody(tpl).render("index");
 	}
+	res.on("finish", function() {
+		valid.initMsgs(); //reset messages
+	});
 
 	// Go yo next route
 	next(); //call next
@@ -130,11 +124,9 @@ app.post("*", (req, res, next) => { //validate all form post
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
-	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
-		return res.status(500).json(valid.setError("msgError", err).getErrors());
-	res.locals._tplBody = res.locals._tplBody || "web/forms/index"; //default body
-	res.locals.errors = valid.getErrors();
-	res.locals.msgError = err; //error text
+	valid.setMsgError(err); //set message error on view
+	if (req.headers["x-requested-with"] == "XMLHttpRequest")
+		return res.status(500).json(valid.getErrors()); //ajax response
 	return res.render("index");
 });
 app.use("*", (req, res) => { //404
