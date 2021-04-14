@@ -2,16 +2,15 @@
 const fs = require("fs"); //file system
 const path = require("path"); //file and directory paths
 
-function fnError(err) {
+function fnLogError(err) {
 	console.log("\n--------------------", "MyJson", "--------------------");
 	console.log("> " + (new Date()));
 	console.log(err);
 	console.log("--------------------", "MyJson", "--------------------\n");
 	return err;
 }
-function fnMkdirError(err) {
-	return (err && (err.code != "EEXIST")) ? fnError(err) : err;
-}
+function fnError(err) { return err ? fnLogError(err) : err; }
+function fnMkdirError(err) { return (err && (err.code != "EEXIST")) ? fnLogError(err) : err; }
 
 function Collection(db, pathname) {
 	const self = this; //self instance
@@ -21,7 +20,7 @@ function Collection(db, pathname) {
 		return new Promise(function(resolve, reject) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
 				if (err)
-					return reject(fnError(err));
+					return reject(fnLogError(err));
 				table = JSON.parse(data); //parse json
 				self.onload && self.onload(self);
 				resolve(self);
@@ -29,18 +28,14 @@ function Collection(db, pathname) {
 		});
 	}
 	this.commit = function() {
-		fs.writeFile(pathname, self.stringify(), err => {
-			err ? reject(fnError(err)) : resolve(self);
-		});
+		fs.writeFile(pathname, self.stringify(), fnError);
 		return self;
 	}
 	this.drop = function() {
 		table.seq = 1; //restart sequence
 		delete table.sort; //remove sort id
 		table.data.splice(0); //remove data array
-		fs.unlink(pathname, err => {
-			err ? reject(fnError(err)) : resolve(self);
-		});
+		fs.unlink(pathname, fnError);
 		return self;
 	}
 
@@ -163,19 +158,21 @@ function Collections(dbs, pathname) {
 		table.commit(); //write empty table on file system
 		return self.set(name, table);
 	}
+	this.buildTable = function(name) {
+		return db[name] || self.createTable(name).get(name);
+	}
 
 	this.drop = function() {
 		Object.keys(db).forEach(self.dropTable);
-		fs.rmdir(pathname, { recursive: true }, err => {
-			err ? reject(fnError(err)) : resolve(self);
-		});
+		fs.rmdir(pathname, { recursive: true }, fnError);
 		return self;
 	}
 }
 
-module.exports = function(pathname) {
+function MyJson() {
 	const self = this; //self instance
 	const DBS = {}; //DB's container
+	let basedir = __dirname; //default
 
 	this.dbs = function() { return DBS; }
 	this.get = function(name) { return name ? DBS[name] : DBS; }
@@ -187,7 +184,7 @@ module.exports = function(pathname) {
 		return self;
 	}
 	this.createDB = function(name) { //create new table
-		let dbpath = path.join(pathname, name); //new db path
+		let dbpath = path.join(basedir, name); //new db path
 		let db = new Collections(self, dbpath);
 
 		self.dropDB(name);
@@ -195,6 +192,10 @@ module.exports = function(pathname) {
 		fs.mkdir(dbpath, 511, fnMkdirError); //511 = 0777
 		return self.set(name, db);
 	}
+	this.buildDB = function(name) {
+		return DBS[name] || self.createDB(name).get(name);
+	}
+
 	this.drop = function() {
 		for (let db in DBS) {
 			DBS[db].drop();
@@ -203,21 +204,29 @@ module.exports = function(pathname) {
 		return self;
 	}
 
-	// Sync auto-load on create new instance
-	fs.mkdir(pathname, 511, fnMkdirError); //511 = 0777
-	let list = fs.readdirSync(pathname);
-	list.forEach(function(dir) {
-		let dbpath = path.join(pathname, dir);
-		let stat = fs.statSync(dbpath);
-		if (stat && stat.isDirectory()) { //load DB
-			let bd = new Collections(self, dbpath);
-			let tables = fs.readdirSync(dbpath);
-			tables.forEach(function(file) { //tables iterator
-				let table = new Collection(bd, path.join(dbpath, file)); //instance
-				bd.set(table.name(), table); //add table on db
-				table.load(); //load data async
-			});
-			DBS[dir] = bd;
-		}
-	});
+	this.open = function(pathname) {
+		//define defaults paths
+		pathname = pathname || basedir;
+		basedir = pathname || basedir;
+		// Sync auto-load on create new instance
+		fs.mkdir(pathname, 511, fnMkdirError); //511 = 0777
+		let list = fs.readdirSync(pathname);
+		list.forEach(function(dir) {
+			let dbpath = path.join(pathname, dir);
+			let stat = fs.statSync(dbpath);
+			if (stat && stat.isDirectory()) { //load DB
+				let bd = new Collections(self, dbpath);
+				let tables = fs.readdirSync(dbpath);
+				tables.forEach(function(file) { //tables iterator
+					let table = new Collection(bd, path.join(dbpath, file)); //instance
+					bd.set(table.name(), table); //add table on db
+					table.load(); //load data async
+				});
+				DBS[dir] = bd;
+			}
+		});
+		return self;
+	}
 }
+
+module.exports = new MyJson();
