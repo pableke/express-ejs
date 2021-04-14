@@ -1,4 +1,5 @@
 
+// Menus DAO
 module.exports = function(table) {
 	let _publicMenus;
 
@@ -6,12 +7,11 @@ module.exports = function(table) {
 		_publicMenus = menus.filter(menu => menu.mask&1);
 	}
 
-	table.setField("href").setField("icon")
-		.setField("nombre").setField("orden")
-		.setField("mask").setField("f_creacion");
+	table.getPublic = function() {
+		return _publicMenus;
+	}
 
-	return {
-		getAll: table.getAll,
-		getPublic: function() { return _publicMenus; }
-	}	
+	return table.setField("href").setField("icon")
+				.setField("nombre").setField("orden")
+				.setField("mask").setField("f_creacion");
 }

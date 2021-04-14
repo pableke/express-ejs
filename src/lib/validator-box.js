@@ -245,13 +245,10 @@ function ValidatorBox() {
 	this.getError = function(name) {
 		return ERRORS[name];
 	}
-	this.addMsg = function(name, value) {
-		ERRORS[name] = value;
-		return self;
-	}
 	this.setError = function(name, value) {
 		ERRORS.num++;
-		return self.addMsg(name, value);
+		ERRORS[name] = value;
+		return self;
 	}
 
 	// OJO! sobrescritura de forms => id's unicos
@@ -260,10 +257,6 @@ function ValidatorBox() {
 	}
 	this.setForm = function(form, validators) {
 		FORMS[form] = validators;
-		return self;
-	}
-	this.setForms = function(forms) {
-		Object.assign(FORMS, forms);
 		return self;
 	}
 	this.getFields = function(form) {
