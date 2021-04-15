@@ -75,6 +75,7 @@ $(document).ready(function() {
 			.finally(fnUnloading); //allways
 	});
 
+	const XHR = { "x-requested-with": "XMLHttpRequest" };
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
 		const CLS_INVALID = "input-error";
@@ -100,11 +101,24 @@ $(document).ready(function() {
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
 			fnFocus(); //focus on first
 		}
+		function fnShowErrors(errors) {
+			fnClean(); //reset message and state inputs
+			let _last = sb.size(inputs) - 1; //last input
+			for (let i = _last; (i > -1); i--) { //reverse
+				let el = inputs[i]; //element
+				let msg = el.name && errors[el.name]; //exists message error?
+				msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
+			}
+			showAlerts(errors);
+		}
 
 		// Autocomplete inputs
+		let _search = false;
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
 		function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
-		$(inputs).filter(".ac-user").autocomplete({ //autocomplete for users
+		$(inputs).filter(".ac-user").keydown(ev => { //reduce server calls
+			_search = (ev.keyCode == 8) || (ev.keyCode > 45); //backspace or alfanum
+		}).autocomplete({ //autocomplete for users
 			minLength: 3,
 			source: function(req, res) {
 				fnLoading();
@@ -112,14 +126,13 @@ $(document).ready(function() {
 					let label = sb.iwrap(fnRenderUser(item), req.term); //decore matches
 					return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
 				}
-				fetch("/usuarios.html?term=" + req.term) //js ajax call default get
-					.then(res => res.json()) //default response allways json
-					.then(data => { res(data.slice(0, 10)); }) //maxResults = 10
+				fetch("/tests/usuarios.html?term=" + req.term, { headers: XHR }) //default call = get
+					.then(xhr => xhr.ok ? xhr.json().then((data) => res(data.slice(0, 10))) : xhr.text().then(showError))
 					.catch(showError) //error handler
 					.finally(fnUnloading); //allways
 			},
 			focus: function() { return false; }, //no change focus on select
-			//search: function(ev, ui) { return true; }, //lunch source
+			search: function(ev, ui) { return _search; }, //lunch source
 			select: function(ev, ui) { return fnAcLoad(this, ui.item.nif, fnRenderUser(ui.item)); }
 		}).change(function(ev) {
 			this.value || fnAcLoad(this, "", "");
@@ -136,17 +149,6 @@ $(document).ready(function() {
 
 		fnFocus(); //focus on first
 		form.addEventListener("submit", function(ev) {
-			function fnShowErrors(errors) {
-				fnClean(); //reset message and state inputs
-				let _last = sb.size(inputs) - 1; //last input
-				for (let i = _last; (i > -1); i--) { //reverse
-					let el = inputs[i]; //element
-					let msg = el.name && errors[el.name]; //exists message error?
-					msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
-				}
-				showAlerts(errors);
-			}
-
 			let _data = valid.values(inputs); //input list to object
 			if (!valid.validate(form.getAttribute("action"), _data, msgs)) { //error => stop
 				fnShowErrors(valid.setMsgError(msgs.errForm).getErrors());
@@ -161,7 +163,7 @@ $(document).ready(function() {
 			fetch(form.action, { //init options
 				method: form.method,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-				headers: { "x-requested-with": "XMLHttpRequest" }
+				headers: XHR
 			}).then(res => {
 				if (res.ok)
 					return fnResponseOk(res).then(() => {

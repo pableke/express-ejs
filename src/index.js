@@ -66,10 +66,7 @@ app.use((req, res, next) => {
 	res.locals.menus = req.session.menus; //set menus on view
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
-
-	// Init. messages and form errors
-	res.locals.errors = valid.getErrors();
-	res.locals.msgs = valid;
+	res.locals.msgs = valid; //init messages
 
 	// Commons response hadlers
 	res.locals._tplBody = "web/forms/index"; //default body
@@ -130,9 +127,10 @@ app.use((err, req, res, next) => { //global handler error
 	return res.render("index");
 });
 app.use("*", (req, res) => { //404
-	if (req.headers["x-requested-with"] == "XMLHttpRequest") //ajax call
-		return res.status(404).send(res.locals.i18n.err404);
-	res.status(404).build("web/errors/404");
+	valid.setMsgError(res.locals.i18n.err404); //set message error on view
+	if (req.headers["x-requested-with"] == "XMLHttpRequest")
+		return res.status(404).send(valid.getMsgError()); //ajax response
+	return res.status(404).build("web/errors/404");
 });
 
 // Start servers (bd's and http)
