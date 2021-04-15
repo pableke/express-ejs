@@ -1,5 +1,6 @@
 
-//extended config
+// Extends config
+const sb = new StringBox();
 const i18n = new MessageBox();
 const valid = new ValidatorBox();
 

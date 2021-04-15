@@ -5,7 +5,7 @@
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const ERRORS = {}; //errors container
+	const ERRORS = { __num: 0 }; //errors container
 	const FORMS = {}; //forms by id => unique id
 	const OUTPUT = {}; //data formated container
 	const EMPTY = ""; //empty string
@@ -306,25 +306,6 @@ function ValidatorBox() {
 	this.setData = function(name, value) {
 		OUTPUT[name] = value;
 		return self;
-	}
-
-	/**
-	 * Return an object with the values from input list as pairs name / value
-	 *
-	 * @function values
-	 * @param      {NodeList} list Input list to be translated to an output object as name value pairs
-	 * @param      {Object} obj Initial object container by default is empty object {}
-	 * @return     {Object} Object containing name value pairs from input list
-	 */
-	this.values = function(list, obj) {
-		obj = obj || {}; //result
-		let size = fnSize(list); //length
-		for (let i = 0; i < size; i++) {
-			let el = list[i]; //element
-			if (el.name) //has value
-				obj[el.name] = fnTrim(el.value);
-		}
-		return obj;
 	}
 
 	this.fails = function() { return ERRORS.__num > 0; }

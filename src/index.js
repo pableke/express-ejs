@@ -87,7 +87,7 @@ app.use((req, res, next) => {
 });
 app.post("*", (req, res, next) => { //validate all form post
 	if (!valid.validate(req.path, req.body, res.locals.i18n))
-		next(res.locals.i18n.errForm); //validate inputs form
+		return next(res.locals.i18n.errForm); //validate inputs form
 	let enctype = req.headers["content-type"] || ""; //get content-type
 	if (enctype.startsWith("multipart/form-data")) { //multipart => files
 		const fields = req.body = {}; //fields container
@@ -124,7 +124,7 @@ app.use((err, req, res, next) => { //global handler error
 	valid.setMsgError(err); //set message error on view
 	if (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(500).json(valid.getErrors()); //ajax response
-	return res.render("index");
+	return res.status(500).render("index");
 });
 app.use("*", (req, res) => { //404
 	valid.setMsgError(res.locals.i18n.err404); //set message error on view
