@@ -63,13 +63,15 @@ $(document).ready(function() {
 	const COUNTER_SELECTOR = "textarea[maxlength]";
 	const XHR = { "x-requested-with": "XMLHttpRequest" };
 
-	valid.focus = function(inputs) {
-		$(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus();
+	valid.focus = function(form) { //focus first active input
+		var inputs = Array.prototype.slice.call(form.elements);
+		let first = inputs.find(input => input.matches(":not([type=hidden][readonly][disabled])[tabindex]"));
+		first && first.focus();
 		return valid;
 	}
-	valid.clean = function(inputs) { //reset message and state inputs
-		$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
-		return valid.focus(inputs); //focus on first
+	valid.clean = function(form) { //reset message and state inputs
+		$(form.elements).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+		return valid.focus(form); //focus on first
 	}
 	valid.values = function(inputs, obj) {
 		obj = obj || {}; //result
@@ -93,21 +95,24 @@ $(document).ready(function() {
 	}
 	valid.validateForm = function(form) {
 		let inputs = form.elements; //list
-		let _data = valid.clean(inputs).values(inputs); //input list to object
+		let _data = valid.clean(form).values(inputs); //input list to object
 		return valid.validate(form.getAttribute("action"), _data, msgs)
 				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getErrors());
 	}
 
 	function fnResponse(res) { //response = 200 read type
 		res.ok || valid.setMsgError(msgs.errAjax); //server response ok?
-		let contentType = res.headers.get("content-type") || "";
+		let contentType = res.headers.get("content-type") || ""; //response type
 		return (contentType.indexOf("application/json") > -1) ? res.json() : res.text();
 	}
-	valid.ajax = function(action, ev) {
+	valid.ajax = function(action, ev, resolve) {
 		fnLoading(); //show loading frame
 		ev && ev.preventDefault(); //stop default
+		resolve = resolve || showOk; //default ok
 		return fetch(action, { headers: XHR }) //get call
 					.then(fnResponse) //detect response
+					// Only call resolve function if is valid otherwise showError
+					.then(data => valid.isValid() ? resolve(data) : showError(data))
 					.catch(showError) //error handler
 					.finally(fnUnloading); //allways
 	}
@@ -121,6 +126,7 @@ $(document).ready(function() {
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
 				headers: XHR
 			}
+			resolve = resolve || showOk; //default ok
 			return fetch(action || form.action, CONFIG)
 						.then(fnResponse) //detect response
 						// Only call resolve function if is valid otherwise showErrors
@@ -142,11 +148,11 @@ $(document).ready(function() {
 
 
 	// AJAX links and forms
-	$("a.ajax").click(function(ev) {
-		if (this.classList.contains("remove") && !confirm(msgs.remove))
-			return false; //stop call
-		valid.ajax(this.href, ev) // If response is ok => json, else => plain/text
-			.then(data => valid.isValid() ? valid.update(data) : showError(data));
+	$("a.ajax.remove").click(function(ev) {
+		return confirm(msgs.remove) && valid.ajax(this.href, ev);
+	});
+	$("a.ajax.reload").click(function(ev) {
+		valid.ajax(this.href, ev, valid.update);
 	});
 
 	let forms = document.querySelectorAll("form");
@@ -177,9 +183,7 @@ $(document).ready(function() {
 					let label = sb.iwrap(fnRenderUser(item), req.term); //decore matches
 					return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
 				}
-				valid.ajax("/tests/usuarios.html?term=" + req.term)
-					// If response is ok => json (max 10 results), else => plain/text
-					.then(data => valid.isValid() ? res(data.slice(0, 10)) : showError(data));
+				valid.ajax("/tests/usuarios.html?term=" + req.term, null, data => res(data.slice(0, 10)));
 			},
 			focus: function() { return false; }, //no change focus on select
 			search: function(ev, ui) { return _search; }, //lunch source
@@ -194,7 +198,7 @@ $(document).ready(function() {
 			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			valid.clean(inputs); //reset message and state inputs
+			valid.clean(form); //reset message and state inputs
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
 		});
 		$(inputs).filter("a.duplicate").click(ev => {
@@ -205,7 +209,7 @@ $(document).ready(function() {
 			});
 		});
 
-		valid.focus(); //focus on first
+		valid.focus(form); //focus on first
 		form.addEventListener("submit", function(ev) {
 			if (form.classList.contains("ajax")) {
 				// If response is ok => plain/text, else => json
