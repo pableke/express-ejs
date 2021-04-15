@@ -208,7 +208,7 @@ function MyJson() {
 		//define defaults paths
 		pathname = pathname || basedir;
 		basedir = pathname || basedir;
-		// Sync auto-load on create new instance
+		// Sync load structure, load data table is async
 		fs.mkdir(pathname, 511, fnMkdirError); //511 = 0777
 		let list = fs.readdirSync(pathname);
 		list.forEach(function(dir) {

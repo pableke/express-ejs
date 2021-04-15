@@ -2,7 +2,6 @@
 $(document).ready(function() {
 	const lang = $("html").attr("lang"); //|| navigator.language || navigator.userLanguage; //default browser language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
-	const sb = new StringBox(); //helpers
 
 	// Alerts handlers
 	function hideAlert(el) { el.parentNode.classList.add("d-none");  }
@@ -54,34 +53,104 @@ $(document).ready(function() {
 	});
 	// End clearable text inputs
 
-	// AJAX links and forms
-	function fnResponseOk(res) { //response = 200 read type
-		let contentType = res.headers.get("content-type");
-		if (contentType && (contentType.indexOf("application/json") > -1))
-			return res.json().then(data => {
-				data.update && $(data.update).html(data.html); //update selector dest
-				showAlerts(data); //show alerts
-			});
-		return res.text().then(showOk);
+
+	/*********************************************/
+	/*************** validator-cli ***************/
+	/*********************************************/
+	// Extends validator-box for clients
+	const CLS_INVALID = "input-error";
+	const CLS_FEED_BACK = ".msg-error";
+	const COUNTER_SELECTOR = "textarea[maxlength]";
+	const XHR = { "x-requested-with": "XMLHttpRequest" };
+
+	valid.focus = function(inputs) {
+		$(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus();
+		return valid;
 	}
+	valid.clean = function(inputs) { //reset message and state inputs
+		$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
+		return valid.focus(inputs); //focus on first
+	}
+	valid.values = function(inputs, obj) {
+		obj = obj || {}; //result
+		let size = sb.size(inputs); //length
+		for (let i = 0; i < size; i++) {
+			let el = inputs[i]; //element
+			if (el.name) //has value
+				obj[el.name] = sb.trim(el.value);
+		}
+		return obj;
+	}
+	valid.showErrors = function(inputs, errors) {
+		let _last = sb.size(inputs) - 1; //last input
+		for (let i = _last; (i > -1); i--) { //reverse
+			let el = inputs[i]; //element
+			let msg = el.name && errors[el.name]; //exists message error?
+			msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
+		}
+		showAlerts(errors);
+		return valid.initMsgs();
+	}
+	valid.validateForm = function(form) {
+		let inputs = form.elements; //list
+		let _data = valid.clean(inputs).values(inputs); //input list to object
+		return valid.validate(form.getAttribute("action"), _data, msgs)
+				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getErrors());
+	}
+
+	function fnResponse(res) { //response = 200 read type
+		res.ok || valid.setMsgError(msgs.errAjax); //server response ok?
+		let contentType = res.headers.get("content-type") || "";
+		return (contentType.indexOf("application/json") > -1) ? res.json() : res.text();
+	}
+	valid.ajax = function(action, ev) {
+		fnLoading(); //show loading frame
+		ev && ev.preventDefault(); //stop default
+		return fetch(action, { headers: XHR }) //get call
+					.then(fnResponse) //detect response
+					.catch(showError) //error handler
+					.finally(fnUnloading); //allways
+	}
+	valid.submit = function(form, ev, action, resolve) {
+		ev.preventDefault(); //stop default
+		if (valid.validateForm(form)) {
+			fnLoading(); //show loading frame
+			let fd = new FormData(form); //build pair key/value
+			const CONFIG = { //init call options
+				method: form.method,
+				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
+				headers: XHR
+			}
+			return fetch(action || form.action, CONFIG)
+						.then(fnResponse) //detect response
+						// Only call resolve function if is valid otherwise showErrors
+						.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
+						.catch(showError)
+						.finally(fnUnloading);
+		}
+		// Always return a promise
+		return new Promise((resolve, reject) => {});
+	}
+	valid.update = function(data) { //update partial
+		data.update && $(data.update).html(data.html); //selector
+		showAlerts(data); //show alerts
+	}
+	// End extends validator-box for clients
+	/*********************************************/
+	/*************** validator-cli ***************/
+	/*********************************************/
+
+
+	// AJAX links and forms
 	$("a.ajax").click(function(ev) {
-		ev.preventDefault(); //always stop event
 		if (this.classList.contains("remove") && !confirm(msgs.remove))
 			return false; //stop call
-		fnLoading(); //show loading frame
-		fetch(this.href) //default method="GET"
-			.then(res => res.ok ? fnResponseOk(res) : res.text().then(showError))
-			.catch(showError) //error handler
-			.finally(fnUnloading); //allways
+		valid.ajax(this.href, ev) // If response is ok => json, else => plain/text
+			.then(data => valid.isValid() ? valid.update(data) : showError(data));
 	});
 
-	const XHR = { "x-requested-with": "XMLHttpRequest" };
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
-		const CLS_INVALID = "input-error";
-		const CLS_FEED_BACK = ".msg-error";
-		const COUNTER_SELECTOR = "textarea[maxlength]";
-
 		let form = forms[i]; //element
 		let inputs = form.elements; //list
 
@@ -95,25 +164,8 @@ $(document).ready(function() {
 		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
 
-		function fnFocus() { $(inputs).filter(":not([type=hidden])[tabindex]:not([readonly])").first().focus(); }
-		function fnClean() { //reset message and state inputs
-			$(inputs).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
-			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
-			fnFocus(); //focus on first
-		}
-		function fnShowErrors(errors) {
-			fnClean(); //reset message and state inputs
-			let _last = sb.size(inputs) - 1; //last input
-			for (let i = _last; (i > -1); i--) { //reverse
-				let el = inputs[i]; //element
-				let msg = el.name && errors[el.name]; //exists message error?
-				msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
-			}
-			showAlerts(errors);
-		}
-
 		// Autocomplete inputs
-		let _search = false;
+		let _search = false; //call source indicator
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
 		function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
 		$(inputs).filter(".ac-user").keydown(ev => { //reduce server calls
@@ -121,15 +173,13 @@ $(document).ready(function() {
 		}).autocomplete({ //autocomplete for users
 			minLength: 3,
 			source: function(req, res) {
-				fnLoading();
 				this.element.autocomplete("instance")._renderItem = function(ul, item) {
 					let label = sb.iwrap(fnRenderUser(item), req.term); //decore matches
 					return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
 				}
-				fetch("/tests/usuarios.html?term=" + req.term, { headers: XHR }) //default call = get
-					.then(xhr => xhr.ok ? xhr.json().then((data) => res(data.slice(0, 10))) : xhr.text().then(showError))
-					.catch(showError) //error handler
-					.finally(fnUnloading); //allways
+				valid.ajax("/tests/usuarios.html?term=" + req.term)
+					// If response is ok => json (max 10 results), else => plain/text
+					.then(data => valid.isValid() ? res(data.slice(0, 10)) : showError(data));
 			},
 			focus: function() { return false; }, //no change focus on select
 			search: function(ev, ui) { return _search; }, //lunch source
@@ -144,35 +194,28 @@ $(document).ready(function() {
 			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			fnClean(); //reset message and state inputs
+			valid.clean(inputs); //reset message and state inputs
+			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+		});
+		$(inputs).filter("a.duplicate").click(ev => {
+			// If response is ok => plain/text, else => json
+			valid.submit(form, ev, this.href, (data) => {
+				$(inputs).filter(".duplicate").val(""); //clean input values
+				showOk(data); //show ok message
+			});
 		});
 
-		fnFocus(); //focus on first
+		valid.focus(); //focus on first
 		form.addEventListener("submit", function(ev) {
-			let _data = valid.values(inputs); //input list to object
-			if (!valid.validate(form.getAttribute("action"), _data, msgs)) { //error => stop
-				fnShowErrors(valid.setMsgError(msgs.errForm).getErrors());
-				return ev.preventDefault();
+			if (form.classList.contains("ajax")) {
+				// If response is ok => plain/text, else => json
+				valid.submit(form, ev, null, (data) => {
+					$(inputs).val(""); //clean input values
+					showOk(data); //show ok message
+				});
 			}
-			if (!form.classList.contains("ajax"))
-				return true; //submit form
-
-			fnLoading(); //show loading
-			ev.preventDefault(); //stop default
-			let fd = new FormData(form); //build pair key/value
-			fetch(form.action, { //init options
-				method: form.method,
-				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-				headers: XHR
-			}).then(res => {
-				if (res.ok)
-					return fnResponseOk(res).then(() => {
-						$(inputs).val(""); //clean input values
-						fnClean(); //reset message and state inputs
-					});
-				return res.json().then(fnShowErrors);
-			}).catch(showError) //error handler
-				.finally(fnUnloading); //allways
+			else
+				valid.validateForm(form) || ev.preventDefault();
 		});
 	}
 	// End AJAX links and forms
@@ -264,6 +307,7 @@ function MessageBox() {
 		en: { //english
 			lang: "en", //id iso
 			//inputs errors messages
+			errAjax: "Error on ajax call",
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
 			errMinlength8: "The minimum required length is 8 characters",
@@ -295,6 +339,7 @@ function MessageBox() {
 		es: { //spanish
 			lang: "es", //id iso
 			//inputs errors messages
+			errAjax: "Error en la llamada al servidor",
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
@@ -510,7 +555,7 @@ function StringBox() {
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const ERRORS = {}; //errors container
+	const ERRORS = { __num: 0 }; //errors container
 	const FORMS = {}; //forms by id => unique id
 	const OUTPUT = {}; //data formated container
 	const EMPTY = ""; //empty string
@@ -813,25 +858,6 @@ function ValidatorBox() {
 		return self;
 	}
 
-	/**
-	 * Return an object with the values from input list as pairs name / value
-	 *
-	 * @function values
-	 * @param      {NodeList} list Input list to be translated to an output object as name value pairs
-	 * @param      {Object} obj Initial object container by default is empty object {}
-	 * @return     {Object} Object containing name value pairs from input list
-	 */
-	this.values = function(list, obj) {
-		obj = obj || {}; //result
-		let size = fnSize(list); //length
-		for (let i = 0; i < size; i++) {
-			let el = list[i]; //element
-			if (el.name) //has value
-				obj[el.name] = fnTrim(el.value);
-		}
-		return obj;
-	}
-
 	this.fails = function() { return ERRORS.__num > 0; }
 	this.isValid = function() { return ERRORS.__num == 0; }
 	this.validate = function(form, data, i18n) {
@@ -852,7 +878,8 @@ function ValidatorBox() {
 }
 
 
-//extended config
+// Extends config
+const sb = new StringBox();
 const i18n = new MessageBox();
 const valid = new ValidatorBox();
 
