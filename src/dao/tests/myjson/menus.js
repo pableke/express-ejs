@@ -1,7 +1,7 @@
 
 // Menus DAO
 module.exports = function(table) {
-	let _publicMenus;
+	let _publicMenus = [];
 
 	table.onload = function(menus) {
 		_publicMenus = menus.filter(menu => menu.mask&1);

@@ -97,7 +97,7 @@ $(document).ready(function() {
 		let inputs = form.elements; //list
 		let _data = valid.clean(form).values(inputs); //input list to object
 		return valid.validate(form.getAttribute("action"), _data, msgs)
-				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getErrors());
+				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 
 	function fnResponse(res) { //response = 200 read type
@@ -127,15 +127,14 @@ $(document).ready(function() {
 				headers: XHR
 			}
 			resolve = resolve || showOk; //default ok
-			return fetch(action || form.action, CONFIG)
-						.then(fnResponse) //detect response
-						// Only call resolve function if is valid otherwise showErrors
-						.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
-						.catch(showError)
-						.finally(fnUnloading);
+			fetch(action || form.action, CONFIG)
+					.then(fnResponse) //detect response
+					// Only call resolve function if is valid otherwise showErrors
+					.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
+					.catch(showError)
+					.finally(fnUnloading);
 		}
-		// Always return a promise
-		return new Promise((resolve, reject) => {});
+		return valid;
 	}
 	valid.update = function(data) { //update partial
 		data.update && $(data.update).html(data.html); //selector
@@ -148,12 +147,12 @@ $(document).ready(function() {
 
 
 	// AJAX links and forms
-	$("a.ajax.remove").click(function(ev) {
+	/*$("a.ajax.remove").click(function(ev) {
 		return confirm(msgs.remove) && valid.ajax(this.href, ev);
 	});
 	$("a.ajax.reload").click(function(ev) {
 		valid.ajax(this.href, ev, valid.update);
-	});
+	});*/
 
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
@@ -202,7 +201,6 @@ $(document).ready(function() {
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
 		});
 		$(inputs).filter("a.duplicate").click(ev => {
-			// If response is ok => plain/text, else => json
 			valid.submit(form, ev, this.href, (data) => {
 				$(inputs).filter(".duplicate").val(""); //clean input values
 				showOk(data); //show ok message
@@ -212,7 +210,6 @@ $(document).ready(function() {
 		valid.focus(form); //focus on first
 		form.addEventListener("submit", function(ev) {
 			if (form.classList.contains("ajax")) {
-				// If response is ok => plain/text, else => json
 				valid.submit(form, ev, null, (data) => {
 					$(inputs).val(""); //clean input values
 					showOk(data); //show ok message
@@ -559,7 +556,7 @@ function StringBox() {
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const ERRORS = { __num: 0 }; //errors container
+	const MSGS = { __num: 0 }; //msgs container
 	const FORMS = {}; //forms by id => unique id
 	const OUTPUT = {}; //data formated container
 	const EMPTY = ""; //empty string
@@ -794,52 +791,51 @@ function ValidatorBox() {
 
 	// Messages for response
 	this.initMsgs = function() {
-		for (let k in ERRORS) //clear prev errors
-			delete ERRORS[k]; //delete error message
-		ERRORS.__num = 0; //error counter
+		for (let k in MSGS) //clear prev msgs
+			delete MSGS[k]; //delete message
+		MSGS.__num = 0; //error counter
+		return self;
+	}
+	this.getMsgs = function() {
+		return MSGS;
+	}
+	this.getMsg = function(name) {
+		return MSGS[name];
+	}
+	this.setMsg = function(name, msg) {
+		MSGS[name] = msg;
 		return self;
 	}
 	this.getMsgOk = function() {
-		return ERRORS.msgOk;
+		return MSGS.msgOk;
 	}
 	this.setMsgOk = function(msg) {
-		ERRORS.msgOk = msg;
+		MSGS.msgOk = msg;
 		return self;
 	}
 	this.getMsgInfo = function() {
-		return ERRORS.msgInfo;
+		return MSGS.msgInfo;
 	}
 	this.setMsgInfo = function(msg) {
-		ERRORS.msgInfo = msg;
+		MSGS.msgInfo = msg;
 		return self;
 	}
 	this.getMsgWarn = function() {
-		return ERRORS.msgWarn;
+		return MSGS.msgWarn;
 	}
 	this.setMsgWarn = function(msg) {
-		ERRORS.msgWarn = msg;
+		MSGS.msgWarn = msg;
 		return self;
 	}
 	this.getMsgError = function() {
-		return ERRORS.msgError;
+		return MSGS.msgError;
+	}
+	this.setError = function(name, msg) {
+		MSGS.__num++; //error counter
+		return self.setMsg(name, msg);
 	}
 	this.setMsgError = function(msg) {
-		ERRORS.msgError = msg;
-		ERRORS.__num++;
-		return self;
-	}
-
-	// Errors asociated by fields
-	this.getErrors = function() {
-		return ERRORS;
-	}
-	this.getError = function(name) {
-		return ERRORS[name];
-	}
-	this.setError = function(name, value) {
-		ERRORS[name] = value;
-		ERRORS.__num++;
-		return self;
+		return self.setError("msgError", msg);
 	}
 
 	// OJO! sobrescritura de forms => id's unicos
@@ -862,8 +858,8 @@ function ValidatorBox() {
 		return self;
 	}
 
-	this.fails = function() { return ERRORS.__num > 0; }
-	this.isValid = function() { return ERRORS.__num == 0; }
+	this.fails = function() { return MSGS.__num > 0; }
+	this.isValid = function() { return MSGS.__num == 0; }
 	this.validate = function(form, data, i18n) {
 		for (let k in OUTPUT) //clear previous data
 			delete OUTPUT[k]; //delete parsed data

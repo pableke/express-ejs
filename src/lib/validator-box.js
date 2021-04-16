@@ -5,11 +5,12 @@
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const ERRORS = { __num: 0 }; //errors container
+	const MSGS = {}; //msgs container
 	const FORMS = {}; //forms by id => unique id
 	const OUTPUT = {}; //data formated container
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
+	let errors = 0; //counter
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
@@ -240,52 +241,51 @@ function ValidatorBox() {
 
 	// Messages for response
 	this.initMsgs = function() {
-		for (let k in ERRORS) //clear prev errors
-			delete ERRORS[k]; //delete error message
-		ERRORS.__num = 0; //error counter
+		for (let k in MSGS) //clear prev msgs
+			delete MSGS[k]; //delete message
+		errors = 0; //error counter
+		return self;
+	}
+	this.getMsgs = function() {
+		return MSGS;
+	}
+	this.getMsg = function(name) {
+		return MSGS[name];
+	}
+	this.setMsg = function(name, msg) {
+		MSGS[name] = msg;
 		return self;
 	}
 	this.getMsgOk = function() {
-		return ERRORS.msgOk;
+		return MSGS.msgOk;
 	}
 	this.setMsgOk = function(msg) {
-		ERRORS.msgOk = msg;
+		MSGS.msgOk = msg;
 		return self;
 	}
 	this.getMsgInfo = function() {
-		return ERRORS.msgInfo;
+		return MSGS.msgInfo;
 	}
 	this.setMsgInfo = function(msg) {
-		ERRORS.msgInfo = msg;
+		MSGS.msgInfo = msg;
 		return self;
 	}
 	this.getMsgWarn = function() {
-		return ERRORS.msgWarn;
+		return MSGS.msgWarn;
 	}
 	this.setMsgWarn = function(msg) {
-		ERRORS.msgWarn = msg;
+		MSGS.msgWarn = msg;
 		return self;
 	}
 	this.getMsgError = function() {
-		return ERRORS.msgError;
+		return MSGS.msgError;
+	}
+	this.setError = function(name, msg) {
+		errors++; //error counter
+		return self.setMsg(name, msg);
 	}
 	this.setMsgError = function(msg) {
-		ERRORS.msgError = msg;
-		ERRORS.__num++;
-		return self;
-	}
-
-	// Errors asociated by fields
-	this.getErrors = function() {
-		return ERRORS;
-	}
-	this.getError = function(name) {
-		return ERRORS[name];
-	}
-	this.setError = function(name, value) {
-		ERRORS[name] = value;
-		ERRORS.__num++;
-		return self;
+		return self.setError("msgError", msg);
 	}
 
 	// OJO! sobrescritura de forms => id's unicos
@@ -308,8 +308,8 @@ function ValidatorBox() {
 		return self;
 	}
 
-	this.fails = function() { return ERRORS.__num > 0; }
-	this.isValid = function() { return ERRORS.__num == 0; }
+	this.fails = function() { return errors > 0; }
+	this.isValid = function() { return errors == 0; }
 	this.validate = function(form, data, i18n) {
 		for (let k in OUTPUT) //clear previous data
 			delete OUTPUT[k]; //delete parsed data

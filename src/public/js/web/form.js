@@ -91,13 +91,13 @@ $(document).ready(function() {
 			msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 		}
 		showAlerts(errors);
-		return valid.initMsgs();
+		return valid;
 	}
 	valid.validateForm = function(form) {
 		let inputs = form.elements; //list
 		let _data = valid.clean(form).values(inputs); //input list to object
 		return valid.validate(form.getAttribute("action"), _data, msgs)
-				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getErrors());
+				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 
 	function fnResponse(res) { //response = 200 read type
@@ -127,19 +127,19 @@ $(document).ready(function() {
 				headers: XHR
 			}
 			resolve = resolve || showOk; //default ok
-			return fetch(action || form.action, CONFIG)
-						.then(fnResponse) //detect response
-						// Only call resolve function if is valid otherwise showErrors
-						.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
-						.catch(showError)
-						.finally(fnUnloading);
+			fetch(action || form.action, CONFIG)
+					.then(fnResponse) //detect response
+					// Only call resolve function if is valid otherwise showErrors
+					.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
+					.catch(showError)
+					.finally(fnUnloading);
 		}
-		// Always return a promise
-		return new Promise((resolve, reject) => {});
+		return valid;
 	}
 	valid.update = function(data) { //update partial
 		data.update && $(data.update).html(data.html); //selector
 		showAlerts(data); //show alerts
+		return valid;
 	}
 	// End extends validator-box for clients
 	/*********************************************/
@@ -148,12 +148,12 @@ $(document).ready(function() {
 
 
 	// AJAX links and forms
-	$("a.ajax.remove").click(function(ev) {
+	/*$("a.ajax.remove").click(function(ev) {
 		return confirm(msgs.remove) && valid.ajax(this.href, ev);
 	});
 	$("a.ajax.reload").click(function(ev) {
 		valid.ajax(this.href, ev, valid.update);
-	});
+	});*/
 
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
@@ -202,7 +202,6 @@ $(document).ready(function() {
 			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
 		});
 		$(inputs).filter("a.duplicate").click(ev => {
-			// If response is ok => plain/text, else => json
 			valid.submit(form, ev, this.href, (data) => {
 				$(inputs).filter(".duplicate").val(""); //clean input values
 				showOk(data); //show ok message
@@ -212,7 +211,6 @@ $(document).ready(function() {
 		valid.focus(form); //focus on first
 		form.addEventListener("submit", function(ev) {
 			if (form.classList.contains("ajax")) {
-				// If response is ok => plain/text, else => json
 				valid.submit(form, ev, null, (data) => {
 					$(inputs).val(""); //clean input values
 					showOk(data); //show ok message
