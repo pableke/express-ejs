@@ -62,7 +62,7 @@ app.use((req, res, next) => {
 	}
 
 	// Commons actions for all views
-	req.session.menus = req.session.menus || dao.tests.myjson.menus.getPublic(); //public menu
+	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic(); //public menu
 	res.locals.menus = req.session.menus; //set menus on view
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
@@ -79,15 +79,16 @@ app.use((req, res, next) => {
 		return res.setBody(tpl).render("index");
 	}
 	res.on("finish", function() {
-		valid.initMsgs(); //reset messages
+		valid.init(); //reset data and messages
 	});
 
 	// Go yo next route
 	next(); //call next
 });
 app.post("*", (req, res, next) => { //validate all form post
-	if (!valid.validate(req.path, req.body, res.locals.i18n))
-		return next(res.locals.i18n.errForm); //validate inputs form
+	if (!valid.loadData(req.body).validate(req.path, res.locals.i18n))
+		return next(res.locals.i18n.errForm); //validate form values
+	// Inputs values are valids => process POST request
 	let enctype = req.headers["content-type"] || ""; //get content-type
 	if (enctype.startsWith("multipart/form-data")) { //multipart => files
 		const fields = req.body = {}; //fields container

@@ -1,0 +1,57 @@
+
+<div class="jumbotron m-4">
+	<h5><%=i18n.lblFormRegistro%></h5>
+	<hr class="my-4"/>
+
+	<form id="user" action="/user/signup.html" method="post" class="ajax">
+		<div class="input-group">
+			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nombre" name="nombre" value="" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titNombre;" placeholder="@phNombre;" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.getMsg("nombre")%></span>
+		</div>
+		<div class="form-row m-2">
+			<div class="form-group col-md-4">
+				<label for="ap1" class="required">@lblApellido1;:</label>
+				<div class="input-group">
+					<input type="text" id="ap1" name="ap1" value="" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titApellido1;" placeholder="@phApellido1;" />
+					<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fas fa-file-signature"></i></span></div>
+					<span class="invalid-feedback">@apellido1ErrText;</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-row m-2">
+			<div class="form-group col-md-4">
+				<label for="ap2">@lblApellido2;:</label>
+				<div class="input-group">
+					<input type="text" id="ap2" name="ap2" value="" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titApellido2;" placeholder="@phApellido2;" />
+					<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fas fa-file-signature"></i></span></div>
+					<span class="invalid-feedback">@apellido2ErrText;</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-row m-2">
+			<div class="form-group col-md-3">
+				<label for="nif" class="required">@lblNifCif;:</label>
+				<div class="input-group">
+					<input type="text" id="nif" name="nif" value="" size="35" maxlength="20" class="input-item input-control" tabindex="1" title="@titNif;" placeholder="@phNif;" />
+					<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="far fa-address-card"></i></span></div>
+					<span class="invalid-feedback">@nifErrText;</span>
+				</div>
+			</div>
+		</div>
+		<div class="input-group">
+			<label for="correo" class="required">E-Mail</label>
+			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
+			<i class="input-item input-icon far fa-envelope"></i>
+			<div class="msg-error"><%=msgs.getMsg("correo")%></div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary ajax-submit captcha" tabindex="100" title="@titAcceder;"><%=i18n.lblEnviar%> &raquo;</button>
+		<button type="reset" class="btn btn-light ml-2" tabindex="101" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
+
+	<div append="dist/forms/public/links.html" />
+</div>
+<script src="https://www.google.com/recaptcha/api.js?render=6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ"></script>
