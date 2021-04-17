@@ -1,5 +1,5 @@
 
-const valid = require("../lib/validator-box.js");
+const valid = require("./validator-box.js");
 
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
@@ -38,6 +38,9 @@ valid.set("required", function(name, value, msgs) {
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
+}).setForm("/user/reactive.html", {
+	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+	correo: valid.correo
 }).setForm("/tests/email.html", {
 	nombre: valid.required,
 	correo: valid.correo,

@@ -73,15 +73,13 @@ $(document).ready(function() {
 		$(form.elements).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 		return valid.focus(form); //focus on first
 	}
-	valid.values = function(inputs, obj) {
-		obj = obj || {}; //result
+	valid.loadInputs = function(inputs) {
 		let size = sb.size(inputs); //length
 		for (let i = 0; i < size; i++) {
 			let el = inputs[i]; //element
-			if (el.name) //has value
-				obj[el.name] = sb.trim(el.value);
+			el.name && valid.setData(el.name, el.value);
 		}
-		return obj;
+		return valid;
 	}
 	valid.showErrors = function(inputs, errors) {
 		let _last = sb.size(inputs) - 1; //last input
@@ -95,8 +93,8 @@ $(document).ready(function() {
 	}
 	valid.validateForm = function(form) {
 		let inputs = form.elements; //list
-		let _data = valid.clean(form).values(inputs); //input list to object
-		return valid.validate(form.getAttribute("action"), _data, msgs)
+		valid.clean(form).loadInputs(inputs); //input list to object
+		return valid.validate(form.getAttribute("action"), msgs)
 				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 
@@ -121,6 +119,8 @@ $(document).ready(function() {
 		if (valid.validateForm(form)) {
 			fnLoading(); //show loading frame
 			let fd = new FormData(form); //build pair key/value
+			for (let field in valid.getData()) //add extra data
+				fd.has(field) || fd.append(field, valid.getData(field));
 			const CONFIG = { //init call options
 				method: form.method,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
@@ -206,6 +206,14 @@ $(document).ready(function() {
 				$(inputs).filter(".duplicate").val(""); //clean input values
 				showOk(data); //show ok message
 			});
+		});
+		$(inputs).filter(".captcha").click(ev => {
+			grecaptcha.ready(function() {
+				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
+					.then(token => valid.setData("token", token).submit(form, ev))
+					.catch(showError);
+			});
+			ev.preventDefault();
 		});
 
 		valid.focus(form); //focus on first

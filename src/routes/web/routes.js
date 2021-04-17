@@ -2,9 +2,9 @@
 const express = require("express");
 const router = express.Router();
 
-const valid = require("../../controllers/validators.js");
+const web = require("../../controllers/web/index.js");
 
-router.use(require("./public.js"));
-router.use("/user", valid.auth, require("./user.js"));
+router.get("/", web.index).get("/index.html", web.index).get("/home.html", web.index).get("/inicio.html", web.index);
+router.use("/user", require("./user.js"));
 
 module.exports = router;

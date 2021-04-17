@@ -73,15 +73,13 @@ $(document).ready(function() {
 		$(form.elements).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
 		return valid.focus(form); //focus on first
 	}
-	valid.values = function(inputs, obj) {
-		obj = obj || {}; //result
+	valid.loadInputs = function(inputs) {
 		let size = sb.size(inputs); //length
 		for (let i = 0; i < size; i++) {
 			let el = inputs[i]; //element
-			if (el.name) //has value
-				obj[el.name] = sb.trim(el.value);
+			el.name && valid.setData(el.name, el.value);
 		}
-		return obj;
+		return valid;
 	}
 	valid.showErrors = function(inputs, errors) {
 		let _last = sb.size(inputs) - 1; //last input
@@ -91,12 +89,12 @@ $(document).ready(function() {
 			msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
 		}
 		showAlerts(errors);
-		return valid.initMsgs();
+		return valid;
 	}
 	valid.validateForm = function(form) {
 		let inputs = form.elements; //list
-		let _data = valid.clean(form).values(inputs); //input list to object
-		return valid.validate(form.getAttribute("action"), _data, msgs)
+		valid.clean(form).loadInputs(inputs); //input list to object
+		return valid.validate(form.getAttribute("action"), msgs)
 				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 
@@ -121,6 +119,8 @@ $(document).ready(function() {
 		if (valid.validateForm(form)) {
 			fnLoading(); //show loading frame
 			let fd = new FormData(form); //build pair key/value
+			for (let field in valid.getData()) //add extra data
+				fd.has(field) || fd.append(field, valid.getData(field));
 			const CONFIG = { //init call options
 				method: form.method,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
@@ -139,6 +139,7 @@ $(document).ready(function() {
 	valid.update = function(data) { //update partial
 		data.update && $(data.update).html(data.html); //selector
 		showAlerts(data); //show alerts
+		return valid;
 	}
 	// End extends validator-box for clients
 	/*********************************************/
@@ -205,6 +206,14 @@ $(document).ready(function() {
 				$(inputs).filter(".duplicate").val(""); //clean input values
 				showOk(data); //show ok message
 			});
+		});
+		$(inputs).filter(".captcha").click(ev => {
+			grecaptcha.ready(function() {
+				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
+					.then(token => valid.setData("token", token).submit(form, ev))
+					.catch(showError);
+			});
+			ev.preventDefault();
 		});
 
 		valid.focus(form); //focus on first
@@ -556,11 +565,12 @@ function StringBox() {
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const MSGS = { __num: 0 }; //msgs container
+	const MSGS = {}; //msgs container
 	const FORMS = {}; //forms by id => unique id
-	const OUTPUT = {}; //data formated container
+	const DATA = {}; //data formated container
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
+	let errors = 0; //counter
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
@@ -793,7 +803,7 @@ function ValidatorBox() {
 	this.initMsgs = function() {
 		for (let k in MSGS) //clear prev msgs
 			delete MSGS[k]; //delete message
-		MSGS.__num = 0; //error counter
+		errors = 0; //error counter
 		return self;
 	}
 	this.getMsgs = function() {
@@ -831,7 +841,7 @@ function ValidatorBox() {
 		return MSGS.msgError;
 	}
 	this.setError = function(name, msg) {
-		MSGS.__num++; //error counter
+		errors++; //error counter
 		return self.setMsg(name, msg);
 	}
 	this.setMsgError = function(msg) {
@@ -850,28 +860,34 @@ function ValidatorBox() {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
 	}
-	this.getData = function(name) {
-		return name ? OUTPUT[name] : OUTPUT;
-	}
-	this.setData = function(name, value) {
-		OUTPUT[name] = value;
+	this.initData = function() {
+		for (let k in DATA) //clear previous data
+			delete DATA[k]; //delete parsed data
 		return self;
 	}
+	this.getData = function(name) {
+		return name ? DATA[name] : DATA;
+	}
+	this.setData = function(name, value) {
+		DATA[name] = fnTrim(value);
+		return self;
+	}
+	this.loadData = function(values) {
+		Object.assign(DATA, values);
+		return self;
+	}
+	this.init = function() {
+		return self.initData().initMsgs();
+	}
 
-	this.fails = function() { return MSGS.__num > 0; }
-	this.isValid = function() { return MSGS.__num == 0; }
-	this.validate = function(form, data, i18n) {
-		for (let k in OUTPUT) //clear previous data
-			delete OUTPUT[k]; //delete parsed data
-
-		sysdate.setTime(Date.now()); //upgrade
+	this.fails = function() { return errors > 0; }
+	this.isValid = function() { return errors == 0; }
+	this.validate = function(form, i18n) {
+		sysdate.setTime(Date.now()); //update
 		let validators = self.initMsgs().getForm(form);
-		if (validators) { //validators exists?
-			for (let field in validators) {
-				let fn = validators[field];
-				OUTPUT[field] = fnTrim(data[field]);
-				fn(field, OUTPUT[field], i18n, data);
-			}
+		for (let field in validators) {
+			let fn = validators[field];
+			fn(field, DATA[field], i18n);
 		}
 		return self.isValid();
 	}
@@ -920,6 +936,20 @@ valid.set("required", function(name, value, msgs) {
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
+}).setForm("/user/reactive.html", {
+	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+	correo: valid.correo
+}).setForm("/tests/email.html", {
+	nombre: valid.required,
+	correo: valid.correo,
+	date: function(name, value, msgs) { //optional input
+		return !value || valid.ltNow(name, value, msgs);
+	},
+	number: valid.gt0,
+	asunto: valid.required,
+	info: function(name, value, msgs) {
+		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
+	}
 });
 
 

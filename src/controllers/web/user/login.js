@@ -3,7 +3,7 @@
  * Login controller
  * @module Login
  */
-exports.login = function(req, res) {
+exports.view = function(req, res) {
 	res.build("web/forms/login");
 }
 

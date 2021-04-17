@@ -97,8 +97,8 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 /* Alerts */
 .alerts { position: relative; }
 .alert { display: flex; margin: 1rem; border: 1px solid transparent; border-radius: .25rem; }
-.alert-icon { display: inline-block; margin-right: 1rem; max-height: 64px; }
-.alert-text { display: inline-block; padding-right: 2rem; width: auto; }
+.alert-icon { margin-right: 1rem; max-height: 50px; }
+.alert-text { padding-right: 2rem; width: auto; }
 .alert-close {
 	position: absolute;
 	display: block;
@@ -120,5 +120,5 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.alerts { position: fixed; top: 45px; right: 1em; width: 40%; z-index: 2; }
+	.alerts { position: fixed; top: 45px; right: 1em; width: 45%; z-index: 2; }
 }

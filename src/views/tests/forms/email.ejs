@@ -7,7 +7,7 @@
 		<form id="test" action="/tests/email.html" method="post" class="ajax">
 			<div class="input-group">
 				<label for="nombre" class="required">Name:</label>
-				<input type="text" id="nombre" name="nombre" value="" size="20" maxlength="200" class="input-item input-control " tabindex="1" title="User name" placeholder="Joe" />
+				<input type="text" id="nombre" name="nombre" value="" size="20" maxlength="200" class="input-item input-control" tabindex="1" title="User name" placeholder="Joe" />
 				<i class="input-item input-icon fas fa-signature"></i>
 				<span class="msg-error"><%=msgs.getMsg("nombre")%></span>
 			</div>
@@ -68,8 +68,8 @@
 			</div>
 
 			<hr/>
-			<button type="submit" class="btn btn-primary" tabindex="100">Send &raquo;</button>
-			<button type="reset" class="btn btn-light ml-2" tabindex="101">&olarr; Clear</button>
+			<button type="submit" class="btn btn-primary" tabindex="100"><%=i18n.lblSend%> &raquo;</button>
+			<button type="reset" class="btn btn-light ml-2" tabindex="101">&olarr; <%=i18n.lblLimpiar%></button>
 
 			<!-- Example single danger button -->
 			<button type="button" class="btn btn-danger dropdown" tabindex="102">Action &dtrif;</button>
