@@ -4,6 +4,10 @@ const dao = require("../../../dao/factory.js");
 const mailer = require("../../../lib/mailer.js");
 const valid = require("../../../lib/validator-box.js")
 
+function fnError(res, msg) {
+	res.status(500).json(valid.setMsgError(msg).getMsgs());
+}
+
 exports.view = function(req, res) {
 	res.build("web/forms/reactive");
 }
@@ -20,10 +24,10 @@ exports.save = function(req, res) {
 				dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, res.locals.i18n);
 				mailer.send("pableke@gmail.com", "Reactivar cuenta", tpl, res.locals)
 					.then(info => res.send(res.locals.i18n.msgReactive))
-					.catch(err => res.send(res.locals.i18n.errSendMail));
+					.catch(err => fnError(res, res.locals.i18n.errSendMail));
 			}
 			else
-				res.status(500).json(valid.setMsgError(res.locals.i18n.errCaptcha).getMsgs());
+				fnError(res, res.locals.i18n.errCaptcha);
 		})
-		.catch(err => res.status(500).json(valid.setMsgError(res.locals.i18n.errCaptcha).getMsgs()));
+		.catch(err => fnError(res, res.locals.i18n.errCaptcha));
 }

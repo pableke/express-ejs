@@ -79,15 +79,22 @@ app.use((req, res, next) => {
 		return res.setBody(tpl).render("index");
 	}
 	res.on("finish", function() {
-		valid.init(); //reset data and messages
+		valid.initMsgs(); //reset data and messages
 	});
 
 	// Go yo next route
 	next(); //call next
 });
+app.get("*", (req, res, next) => {
+	res.locals.body = {}; //inputs container
+	next(); //go to next middleware
+});
 app.post("*", (req, res, next) => { //validate all form post
-	if (!valid.loadData(req.body).validate(req.path, res.locals.i18n))
+	if (!valid.setInputs(req.body).validate(req.path, res.locals.i18n))
 		return next(res.locals.i18n.errForm); //validate form values
+	// Returns inputs and parsed data to view
+	res.locals.body = req.body; //preserve client inputs
+	req.data = valid.getData(); //build data from inputs
 	// Inputs values are valids => process POST request
 	let enctype = req.headers["content-type"] || ""; //get content-type
 	if (enctype.startsWith("multipart/form-data")) { //multipart => files

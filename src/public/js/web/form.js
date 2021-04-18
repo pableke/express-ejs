@@ -15,16 +15,14 @@ $(document).ready(function() {
 
 	let buttons = document.querySelectorAll(".alert-close");
 	buttons.forEach(el => {
-		el.addEventListener("click", function() {
-			hideAlert(el);
-		});
+		el.addEventListener("click", () => hideAlert(el));
 	});
 
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
 	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
 	function showError(txt) { txt && setAlert(texts[3], txt); } //red
-	function closeAlerts() { buttons.forEach(el => { el.click(); }); }
+	function closeAlerts() { buttons.forEach(el => hideAlert(el)); }
 	function showAlerts(msgs) {
 		closeAlerts(); //close previous messages
 		//show posible multiple messages types
@@ -77,7 +75,7 @@ $(document).ready(function() {
 		let size = sb.size(inputs); //length
 		for (let i = 0; i < size; i++) {
 			let el = inputs[i]; //element
-			el.name && valid.setData(el.name, el.value);
+			el.name && valid.setInput(el.name, el.value);
 		}
 		return valid;
 	}
@@ -119,8 +117,8 @@ $(document).ready(function() {
 		if (valid.validateForm(form)) {
 			fnLoading(); //show loading frame
 			let fd = new FormData(form); //build pair key/value
-			for (let field in valid.getData()) //add extra data
-				fd.has(field) || fd.append(field, valid.getData(field));
+			for (let field in valid.getInputs()) //add extra data
+				fd.has(field) || fd.append(field, valid.getInput(field));
 			const CONFIG = { //init call options
 				method: form.method,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
@@ -154,6 +152,18 @@ $(document).ready(function() {
 	$("a.ajax.reload").click(function(ev) {
 		valid.ajax(this.href, ev, valid.update);
 	});*/
+	if (typeof grecaptcha !== "undefined") {
+		grecaptcha.ready(function() {
+			document.querySelectorAll(".captcha").forEach(el => {
+				el.addEventListener("click", ev => {
+					grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
+						.then(token => valid.setInput("token", token).submit(el.closest("form"), ev))
+						.catch(showError);
+					ev.preventDefault();
+				});
+			});
+		});
+	}
 
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
@@ -207,17 +217,9 @@ $(document).ready(function() {
 				showOk(data); //show ok message
 			});
 		});
-		$(inputs).filter(".captcha").click(ev => {
-			grecaptcha.ready(function() {
-				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
-					.then(token => valid.setData("token", token).submit(form, ev))
-					.catch(showError);
-			});
-			ev.preventDefault();
-		});
 
 		valid.focus(form); //focus on first
-		form.addEventListener("submit", function(ev) {
+		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax")) {
 				valid.submit(form, ev, null, (data) => {
 					$(inputs).val(""); //clean input values

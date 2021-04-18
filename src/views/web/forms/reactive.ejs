@@ -3,10 +3,10 @@
 	<h5>reCAPTCHA v3 Demo</h5>
 	<hr class="my-4"/>
 
-	<form id="reactive" method="post" action="/user/reactive.html" class="ajax">
+	<form id="reactive" action="/user/reactive.html" method="post" class="ajax">
 		<div class="input-group">
 			<label for="correo" class="required">E-Mail</label>
-			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" 
+			<input type="text" id="correo" name="correo" value="<%=body.correo%>" size="40" maxlength="200" tabindex="2" 
 				class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
 			<i class="input-item input-icon far fa-envelope"></i>
 			<div class="msg-error"><%=msgs.getMsg("correo")%></div>

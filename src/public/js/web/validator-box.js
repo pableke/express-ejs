@@ -7,9 +7,11 @@ function ValidatorBox() {
 	const self = this; //self instance
 	const MSGS = {}; //msgs container
 	const FORMS = {}; //forms by id => unique id
-	const DATA = {}; //data formated container
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
+
+	let data = {}; //data parsed
+	let inputs = {}; //inputs container
 	let errors = 0; //counter
 
 	//RegEx for validating
@@ -300,34 +302,38 @@ function ValidatorBox() {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
 	}
-	this.initData = function() {
-		for (let k in DATA) //clear previous data
-			delete DATA[k]; //delete parsed data
-		return self;
-	}
 	this.getData = function(name) {
-		return name ? DATA[name] : DATA;
+		return name ? data[name] : data;
 	}
 	this.setData = function(name, value) {
-		DATA[name] = fnTrim(value);
+		data[name] = value;
 		return self;
 	}
-	this.loadData = function(values) {
-		Object.assign(DATA, values);
+	this.getInput = function(name) {
+		return inputs[name];
+	}
+	this.setInput = function(name, value) {
+		inputs[name] = fnTrim(value);
 		return self;
 	}
-	this.init = function() {
-		return self.initData().initMsgs();
+	this.getInputs = function() {
+		return inputs;
+	}
+	this.setInputs = function(data) {
+		inputs = data;
+		return self;
 	}
 
 	this.fails = function() { return errors > 0; }
 	this.isValid = function() { return errors == 0; }
 	this.validate = function(form, i18n) {
-		sysdate.setTime(Date.now()); //update
+		data = {}; //new data output
+		sysdate.setTime(Date.now()); //update time
 		let validators = self.initMsgs().getForm(form);
 		for (let field in validators) {
 			let fn = validators[field];
-			fn(field, DATA[field], i18n);
+			data[field] = inputs[field];
+			fn(field, inputs[field], i18n);
 		}
 		return self.isValid();
 	}
