@@ -1,6 +1,9 @@
 
-const valid = require("./validator-box.js");
+const bcrypt = require("bcrypt"); //encrypt
+const dao = require("../../../dao/factory.js");
+const valid = require("../../../lib/validator-box.js")
 
+//extends validators
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
@@ -35,24 +38,34 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
-}).setForm("/login.html", {
+});
+
+const FORM = {
 	usuario: valid.usuario,
 	clave: valid.clave
-}).setForm("/user/reactive.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
-	correo: valid.correo
-}).setForm("/tests/email.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	date: function(name, value, msgs) { //optional input
-		return !value || valid.ltNow(name, value, msgs);
-	},
-	number: valid.gt0,
-	asunto: valid.required,
-	info: function(name, value, msgs) {
-		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
+};
+valid.setForm("/login.html", FORM)
+	.setForm("/signin.html", FORM);
+
+exports.view = function(req, res) {
+	res.build("web/forms/login");
+}
+
+exports.check = function(req, res) {
+	let fields = req.data;
+	let msgs = res.locals.i18n;
+	let user = dao.web.myjson.users.findByLogin(fields.usuario);
+	if (!user) //validate user exists
+		valid.setError("usuario", msgs.errUsuario).setMsgError(msgs.errUserNotFound);
+	else if (!bcrypt.compareSync(fields.clave, user.clave)) //validate password
+		valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
+	else { //update menus start session....
+		req.session.user = user;
+		req.session.time = Date.now();
+		req.session.click = Date.now();
 	}
-});
+	res.build("web/forms/login");
+}
 
 exports.auth = function(req, res, next) {
 	res.setBody("web/forms/login"); //if error => go login

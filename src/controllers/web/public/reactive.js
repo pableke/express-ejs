@@ -4,6 +4,11 @@ const dao = require("../../../dao/factory.js");
 const mailer = require("../../../lib/mailer.js");
 const valid = require("../../../lib/validator-box.js")
 
+valid.setForm("/reactive.html", {
+	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+	correo: valid.correo
+});
+
 function fnError(res, msg) {
 	res.status(500).json(valid.setMsgError(msg).getMsgs());
 }
@@ -12,7 +17,7 @@ exports.view = function(req, res) {
 	res.build("web/forms/reactive");
 }
 
-exports.save = function(req, res) {
+exports.send = function(req, res) {
 	//https://www.google.com/recaptcha/intro/v3.html
 	const url = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_PRIVATE}&response=` + req.body.token;
 	fetch(url, { method: "post" })

@@ -71,7 +71,7 @@ app.use((req, res, next) => {
 	res.locals.body = valid.getMsgs(); //ojo! colisiones poco probables
 
 	// Commons response hadlers
-	res.locals._tplBody = "web/forms/index"; //default body
+	res.locals._tplBody = "web/index"; //default body
 	res.setBody = function(tpl) {
 		res.locals._tplBody = tpl; //new tpl body path
 		return res;
