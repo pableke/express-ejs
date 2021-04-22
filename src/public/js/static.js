@@ -143,7 +143,6 @@ $(document).ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 
-
 	// AJAX links and forms
 	/*$("a.ajax.remove").click(function(ev) {
 		return confirm(msgs.remove) && valid.ajax(this.href, ev);
@@ -943,7 +942,18 @@ valid.set("required", function(name, value, msgs) {
 }).setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
-}).setForm("/user/reactive.html", {
+}).setForm("/contact.html", {
+	nombre: valid.required,
+	correo: valid.correo,
+	asunto: valid.required,
+	info: valid.required
+}).setForm("/signup.html", {
+	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+	nombre: valid.required,
+	ap1: valid.required,
+	nif: valid.nif,
+	correo: valid.correo
+}).setForm("/reactive.html", {
 	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
 	correo: valid.correo
 }).setForm("/tests/email.html", {

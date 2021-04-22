@@ -143,7 +143,6 @@ $(document).ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 
-
 	// AJAX links and forms
 	/*$("a.ajax.remove").click(function(ev) {
 		return confirm(msgs.remove) && valid.ajax(this.href, ev);
