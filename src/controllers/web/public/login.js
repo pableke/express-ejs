@@ -1,7 +1,7 @@
 
 const bcrypt = require("bcrypt"); //encrypt
-const dao = require("../../../dao/factory.js");
-const valid = require("../../../lib/validator-box.js")
+const dao = require("app/dao/factory.js");
+const valid = require("app/validator-box.js")
 
 //extends validators
 valid.set("required", function(name, value, msgs) {

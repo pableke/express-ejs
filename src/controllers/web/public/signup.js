@@ -1,7 +1,7 @@
 
-const dao = require("../../../dao/factory.js");
-const mailer = require("../../../lib/mailer.js");
-const valid = require("../../../lib/validator-box.js")
+const dao = require("app/dao/factory.js");
+const mailer = require("app/mailer.js");
+const valid = require("app/validator-box.js")
 
 valid.setForm("/signup.html", {
 	token: function(name, value, msgs) { return valid.size(value, 200, 800); },

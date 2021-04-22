@@ -18,7 +18,7 @@ const EJS_PATH = "src/views/**/*.ejs";
 const HTML_PATH = "src/views/**/*.html";
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
-const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "src/certs/*.pem" ]
+const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
 const FOLDERS = [ "dist/dbs", "dist/public/files", "dist/public/thumb" ];
 
 // Task to minify EJS's
@@ -79,6 +79,12 @@ gulp.task("copy-modules", () => {
 
 // Tasks to copy files once
 gulp.task("copy", () => {
+	//root configuration
+	gulp.src("src/lib/*.js").pipe(gulp.dest("node_modules/app"));
+	gulp.src("src/dao/**/*").pipe(gulp.dest("node_modules/app/dao"));
+	gulp.src("dbs/**/*").pipe(gulp.dest("node_modules/app/dbs"));
+
+	//public/static files
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));

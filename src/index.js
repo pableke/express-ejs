@@ -16,8 +16,8 @@ const dao = require("./dao/factory.js"); //DAO factory
 const valid = require("./lib/validator-box.js"); //validators
 
 const HTTPS = { //credentials
-	key: fs.readFileSync(path.join(__dirname, "certs/key.pem")).toString(),
-	cert: fs.readFileSync(path.join(__dirname, "certs/cert.pem")).toString()
+	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
+	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };
 const UPLOADS = {
 	keepExtensions: true,
