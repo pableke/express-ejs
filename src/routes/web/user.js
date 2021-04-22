@@ -12,8 +12,8 @@ const profile = require(basename + "profile.js");
 const reactive = require(basename + "reactive.js");
 const singup = require(basename + "signup.js");
 
-router.get("/", login.view).get("/login.html", login.view);
-router.post("/login.html", login.auth);
+router.get("/", login.view).get("/login.html", login.view).get("/signin.html", login.view);
+router.post("/login.html", login.auth).post("/signin.html", login.auth);
 
 router.get("/contact.html", contact.view).get("/contacto.html", contact.view);
 router.post("/contact.html", contact.save).post("/contacto.html", contact.save);

@@ -51,7 +51,6 @@ $(document).ready(function() {
 	});
 	// End clearable text inputs
 
-
 	/*********************************************/
 	/*************** validator-cli ***************/
 	/*********************************************/
@@ -153,7 +152,7 @@ $(document).ready(function() {
 		valid.ajax(this.href, ev, valid.update);
 	});*/
 	if (typeof grecaptcha !== "undefined") {
-		grecaptcha.ready(function() {
+		grecaptcha.ready(function() { //google captcha defined
 			document.querySelectorAll(".captcha").forEach(el => {
 				el.addEventListener("click", ev => {
 					grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
