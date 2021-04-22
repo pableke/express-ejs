@@ -1,8 +1,8 @@
 
 const fs = require("fs"); //file system
 const cp = require("child_process"); //system calls
-const mailer = require("../../lib/mailer.js"); //google mailer
-const valid = require("../../lib/validator-box.js"); //validator
+const mailer = require("app/mailer.js"); //google mailer
+const valid = require("app/validator-box.js"); //validator
 
 valid.setForm("/tests/email.html", {
 	nombre: valid.required,
