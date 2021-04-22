@@ -6,13 +6,9 @@ exports.view = function(req, res) {
 }
 
 exports.save = function(req, res) {
-	let fields = req.body; //request fields
-	if (sv.contact(fields)) //fields error?
-		return res.jerr(sv.getErrors());
-
-	res.set("tplSection", "dist/mails/contact.html");
-	let html = res.build("dist/mails/index.html").getValue();
-	mailer.send("pablo.rosique@upct.es", "Email de contacto", html)
-		.then(info => { res.text(res.get("msgCorreo")); })
-		.catch(err => { res.jerr(sv.getErrors()); });
+	res.locals.pass = "asklñdfjasd fsd";
+	let tpl = "web/emails/reactive.ejs"; //email template path base = /views
+	mailer.send("pableke@gmail.com", "Email de contacto", tpl, res.locals)
+		.then(info => res.send(res.locals.i18n.msgCorreo))
+		.catch(err => fnError(res, res.locals.i18n.errSendMail));
 }

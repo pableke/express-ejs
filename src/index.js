@@ -22,8 +22,8 @@ const HTTPS = { //credentials
 const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: path.join(__dirname, "public/files/"),
-	maxFieldsSize: 20 * 1024 * 1024, //20mb
-	maxFileSize: 50 * 1024 * 1024, //50mb
+	maxFieldsSize: 30 * 1024 * 1024, //30mb
+	maxFileSize: 60 * 1024 * 1024, //60mb
 	maxFields: 1000,
 	multiples: true
 };
@@ -67,6 +67,8 @@ app.use((req, res, next) => {
 	res.locals.i18n = i18n[lang]; //current language
 	res.locals.lang = lang; //lang id
 	res.locals.msgs = valid; //init messages
+	//init non-ajax body forms, pointer to messages
+	res.locals.body = valid.getMsgs(); //ojo! colisiones poco probables
 
 	// Commons response hadlers
 	res.locals._tplBody = "web/forms/index"; //default body
@@ -84,10 +86,6 @@ app.use((req, res, next) => {
 
 	// Go yo next route
 	next(); //call next
-});
-app.get("*", (req, res, next) => {
-	res.locals.body = {}; //inputs container
-	next(); //go to next middleware
 });
 app.post("*", (req, res, next) => { //validate all form post
 	if (!valid.setInputs(req.body).validate(req.path, res.locals.i18n))
