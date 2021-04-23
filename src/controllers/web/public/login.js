@@ -55,16 +55,19 @@ exports.check = function(req, res) {
 	let fields = req.data;
 	let msgs = res.locals.i18n;
 	let user = dao.web.myjson.users.findByLogin(fields.usuario);
-	if (!user) //validate user exists
+	if (!user) { //validate user exists
 		valid.setError("usuario", msgs.errUsuario).setMsgError(msgs.errUserNotFound);
-	else if (!bcrypt.compareSync(fields.clave, user.clave)) //validate password
-		valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
-	else { //update menus start session....
-		req.session.user = user;
-		req.session.time = Date.now();
-		req.session.click = Date.now();
+		return res.build("web/forms/login"); //stay at login
 	}
-	res.build("web/forms/login");
+	if (!bcrypt.compareSync(fields.clave, user.clave)) { //validate password
+		valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
+		return res.build("web/forms/login"); //stay at login
+	}
+	req.session.user = user;
+	req.session.time = Date.now();
+	req.session.click = Date.now();
+	valid.setMsgOk(res.locals.i18n.msgLogin);
+	res.build("web/list/index");
 }
 
 exports.auth = function(req, res, next) {
@@ -72,10 +75,20 @@ exports.auth = function(req, res, next) {
 	if (!req.session || !req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
-		req.session.destroy(); //remove session vars
+		req.session.destroy();  //remove session => regenerated next request
 		return next(res.locals.i18n.endSession);
 	}
 	//nuevo instante del ultimo click
 	req.session.click = Date.now();
 	next();
+}
+
+exports.home = function(req, res) {
+	res.build("web/list/index");
+}
+
+exports.logout = function(req, res) {
+	req.session.destroy(); //remove session => regenerated next request
+	valid.setMsgOk(res.locals.i18n.msgLogout);
+	res.build("web/forms/login");
 }

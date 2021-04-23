@@ -11,6 +11,7 @@ const singup = require(basename + "signup.js");
 router.get("/contact.html", contact.view).get("/contacto.html", contact.view);
 router.post("/contact.html", contact.send).post("/contacto.html", contact.send);
 
+router.get("/logout.html", login.logout).get("/signout.html", login.logout);
 router.get("/login.html", login.view).get("/signin.html", login.view);
 router.post("/login.html", login.check).post("/signin.html", login.check);
 
