@@ -1,6 +1,6 @@
 
 $(document).ready(function() {
-	const lang = $("html").attr("lang"); //|| navigator.language || navigator.userLanguage; //default browser language
+	const lang = valid.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 
 	// Alerts handlers
@@ -882,6 +882,10 @@ function ValidatorBox() {
 	this.setInputs = function(data) {
 		inputs = data;
 		return self;
+	}
+	this.getLang = function() {
+		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
+		return lang || navigator.language || navigator.userLanguage; //default browser language
 	}
 
 	this.fails = function() { return errors > 0; }
