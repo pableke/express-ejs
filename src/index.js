@@ -12,8 +12,8 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const i18n = require("./i18n/i18n.js"); //languages
-const dao = require("./dao/factory.js"); //DAO factory
-const valid = require("./lib/validator-box.js"); //validators
+const dao = require("app/dao/factory.js"); //DAO factory
+const valid = require("app/validator-box.js"); //validators
 
 const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
