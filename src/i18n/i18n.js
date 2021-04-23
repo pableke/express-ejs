@@ -1,14 +1,22 @@
 
 const i18n = {
+	tests: {
+		es: {},
+		en: {}
+	},
+	web: {
+		es: {},
+		en: {}
+	},
 	//aviable languages list
 	es: require("./es.js"),
 	en: require("./en.js")
 };
 
 // specific laguage list for modules
-i18n.tests_es = Object.assign({}, i18n.es, require("./tests/es.js"));
-i18n.tests_en = Object.assign({}, i18n.en, require("./tests/en.js"));
-i18n.web_es = Object.assign({}, i18n.es, require("./web/es.js"));
-i18n.web_en = Object.assign({}, i18n.en, require("./web/en.js"));
+Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));
+Object.assign(i18n.tests.en, i18n.en, require("./tests/en.js"));
+Object.assign(i18n.web.es, i18n.es, require("./web/es.js"));
+Object.assign(i18n.web.en, i18n.en, require("./web/en.js"));
 
 module.exports = i18n;

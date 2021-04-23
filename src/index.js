@@ -6,12 +6,9 @@ const https = require("https"); //secure server
 
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
-const formidable = require("formidable"); //file uploads
-const sharp = require("sharp"); //image resizer
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
-const i18n = require("./i18n/i18n.js"); //languages
 const dao = require("app/dao/factory.js"); //DAO factory
 const valid = require("app/validator-box.js"); //validators
 
@@ -32,6 +29,43 @@ const UPLOADS = {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+//extends validators
+valid.set("required", function(name, value, msgs) {
+	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("min8", function(name, value, msgs) {
+	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
+}).set("usuario", function(name, value, msgs) {
+	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
+}).set("clave", function(name, value, msgs) {
+	return valid.min8(name, value, msgs) && (valid.login(name, value) || !valid.setError(name, msgs.errRegex));
+}).set("reclave", function(name, value, msgs, data) {
+	return valid.clave(name, value, msgs) && ((value == data.clave) || !valid.setError(name, msgs.errReclave));
+}).set("nif", function(name, value, msgs) {
+	return valid.required(name, value, msgs) && (valid.idES(name, value) || !valid.setError(name, msgs.errNif));
+}).set("correo", function(name, value, msgs) {
+	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
+}).set("ltNow", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
+}).set("leToday", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
+}).set("gtNow", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
+}).set("geToday", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
+}).set("gt0", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
+			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
+});
+
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
 app.use(express.urlencoded({ limit: "80mb", extended: false })); // to support URL-encoded bodies
@@ -49,82 +83,7 @@ app.use(session({ //session config
 }));
 
 // Routes
-app.use((req, res, next) => {
-	let lang = req.query.lang || req.session.lang;
-	if (!lang || (lang !== req.session.lang)) {
-		//user has changed current language or first access
-		let ac = req.headers["accept-language"] || "es"; //default laguage = es
-		lang = (i18n[lang]) ? lang : ac.substr(0, 5); //search region language es-ES
-		lang = (i18n[lang]) ? lang : lang.substr(0, 2); //search type language es
-		lang = (i18n[lang]) ? lang : "es"; //default language = es
-		req.session.langs = i18n; //all languages container
-		req.session.lang = lang; //save language on session
-	}
-
-	// Commons actions for all views
-	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic(); //public menu
-	res.locals.menus = req.session.menus; //set menus on view
-	res.locals.i18n = i18n[lang]; //current language
-	res.locals.lang = lang; //lang id
-	res.locals.msgs = valid; //init messages
-	//init non-ajax body forms, pointer to messages
-	res.locals.body = valid.getMsgs(); //ojo! colisiones poco probables
-
-	// Commons response hadlers
-	res.locals._tplBody = "web/index"; //default body
-	res.setBody = function(tpl) {
-		res.locals._tplBody = tpl; //new tpl body path
-		return res;
-	}
-	res.build = function(tpl) {
-		//set tpl body path and render index
-		return res.setBody(tpl).render("index");
-	}
-	res.on("finish", function() {
-		valid.initMsgs(); //reset data and messages
-	});
-
-	// Go yo next route
-	next(); //call next
-});
-app.post("*", (req, res, next) => { //validate all form post
-	if (!valid.setInputs(req.body).validate(req.path, res.locals.i18n))
-		return next(res.locals.i18n.errForm); //validate form values
-	// Returns inputs and parsed data to view
-	res.locals.body = req.body; //preserve client inputs
-	req.data = valid.getData(); //build data from inputs
-	// Inputs values are valids => process POST request
-	let enctype = req.headers["content-type"] || ""; //get content-type
-	if (enctype.startsWith("multipart/form-data")) { //multipart => files
-		const fields = req.body = {}; //fields container
-		const form = formidable(UPLOADS); //file upload options
-		form.on("field", function(field, value) {
-			fields[field] = value;
-		});
-		form.on("fileBegin", function(field, file) {
-			let name = path.basename(file.path).replace("upload_", "");
-			file.path = path.join(path.dirname(file.path), name);
-		});
-		form.on("file", function(field, file) {
-			fields[field] = fields[field] || [];
-			if (file.size < 1) //empty uploaded file
-				return fs.unlink(file.path, err => {});
-			if (file.type.startsWith("image")) {
-				sharp(file.path)
-					.resize({ width: 250 })
-					.toFile(path.join(__dirname, "public/thumb/", path.basename(file.path)))
-					//.then(info => console.log(info))
-					.catch(err => console.log(err));
-			}
-			fields[field].push(file);
-		});
-		form.once("error", err => next(err));
-		form.once("end", () => next());
-		form.parse(req);
-	}
-	else
-		next();
-});
+//app.use((req, res, next) => {});
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	valid.setMsgError(err); //set message error on view

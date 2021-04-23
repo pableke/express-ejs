@@ -1,6 +1,6 @@
 
 $(document).ready(function() {
-	const lang = $("html").attr("lang"); //|| navigator.language || navigator.userLanguage; //default browser language
+	const lang = valid.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 
 	// Alerts handlers
