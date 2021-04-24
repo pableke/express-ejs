@@ -19,7 +19,7 @@ const HTML_PATH = "src/views/**/*.html";
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "dbs/**/*.json", "src/controllers/**/*.js", "certs/*.pem" ]
-const FOLDERS = [ "dist", "dist/dbs", "dist/public/files", "dist/public/thumb" ];
+const FOLDERS = [ "dist", "dist/dbs", "dist/public", "dist/public/files", "dist/public/thumb" ];
 const ROOTS = [ "src/lib/*.js", "src/dao/**/*.js" ];
 
 // Task to minify EJS's
@@ -64,7 +64,7 @@ gulp.task("minify-js", () => {
 });
 
 // Tasks to copy sources to dist
-gulp.task("copy-modules", () => {
+/*gulp.task("copy-modules", () => {
 	FOLDERS.forEach(dir => {
 		fs.existsSync(dir) || fs.mkdirSync(dir);
 	});
@@ -84,7 +84,7 @@ gulp.task("copy-modules", () => {
 gulp.task("copy-roots", () => {
 	gulp.src(ROOTS[0]).pipe(gulp.dest("node_modules/app"));
 	return gulp.src(ROOTS[1]).pipe(gulp.dest("node_modules/app/dao"));
-});
+});*/
 
 // Tasks to copy files once
 gulp.task("copy", () => {
@@ -100,10 +100,10 @@ gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
-	gulp.watch(MODULES, gulp.series("copy-modules"));
-	gulp.watch(ROOTS, gulp.series("copy-roots"));
+	//gulp.watch(MODULES, gulp.series("copy-modules"));
+	//gulp.watch(ROOTS, gulp.series("copy-roots"));
 	// Other watchers ...
 });
 
 gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", 
-									"copy-modules", "copy-roots", "copy", "watch"));
+									/*"copy-modules", "copy-roots",*/ "copy", "watch"));
