@@ -1,4 +1,6 @@
 
+const fs = require("fs"); //file system module
+const path = require("path"); //file and directory paths
 const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
 
@@ -6,6 +8,15 @@ const dao = require("app/dao/factory.js");
 const valid = require("app/validator-box.js")
 const login = require("./web/public/login.js");
 const i18n = require("../i18n/i18n.js"); //languages
+
+const UPLOADS = {
+	keepExtensions: true,
+	uploadDir: path.join(__dirname, "../public/files/"),
+	maxFieldsSize: 30 * 1024 * 1024, //30mb
+	maxFileSize: 60 * 1024 * 1024, //60mb
+	maxFields: 1000,
+	multiples: true
+};
 
 exports.lang = function(req, res, next) {
 	let lang = req.query.lang || req.session.lang;
@@ -15,7 +26,6 @@ exports.lang = function(req, res, next) {
 		lang = (i18n[lang]) ? lang : ac.substr(0, 5); //search region language es-ES
 		lang = (i18n[lang]) ? lang : lang.substr(0, 2); //search type language es
 		lang = (i18n[lang]) ? lang : "es"; //default language = es
-		req.session.langs = i18n; //all languages container
 		req.session.lang = lang; //save language on session
 	}
 	res.locals.lang = lang; //lang id
@@ -26,30 +36,15 @@ exports.lang = function(req, res, next) {
 	// Load specific user menus or load public
 	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic(); //public menu
 	res.locals.menus = req.session.menus; //set menus on view
-
-	// Commons response helpers
-	res.locals._tplBody = "web/index"; //default body
-	res.setBody = function(tpl) {
-		res.locals._tplBody = tpl; //new tpl body path
-		return res;
-	}
-	res.build = function(tpl) {
-		//set tpl body path and render index
-		return res.setBody(tpl).render("index");
-	}
-	res.on("finish", function() {
-		valid.initMsgs(); //reset data and messages
-	});
-	//go next middleware
-	next();
+	next(); //go next middleware
 }
 exports.tests = function(req, res, next) {
 	res.locals.i18n = i18n.tests[res.locals.lang]; //current language
-	next();
+	next(); //go next middleware
 }
 exports.web = function(req, res, next) {
 	res.locals.i18n = i18n.web[res.locals.lang]; //current language
-	next();
+	next(); //go next middleware
 }
 
 exports.post = function(req, res, next) { //validate all form post
@@ -77,7 +72,7 @@ exports.post = function(req, res, next) { //validate all form post
 			if (file.type.startsWith("image")) {
 				sharp(file.path)
 					.resize({ width: 250 })
-					.toFile(path.join(__dirname, "public/thumb/", path.basename(file.path)))
+					.toFile(path.join(__dirname, "../public/thumb/", path.basename(file.path)))
 					//.then(info => console.log(info))
 					.catch(err => console.log(err));
 			}

@@ -16,20 +16,28 @@ const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };
-const UPLOADS = {
-	keepExtensions: true,
-	uploadDir: path.join(__dirname, "public/files/"),
-	maxFieldsSize: 30 * 1024 * 1024, //30mb
-	maxFileSize: 60 * 1024 * 1024, //60mb
-	maxFields: 1000,
-	multiples: true
-};
 
 // Template engines
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-//extends validators
+// Express configurations
+app.use("/public", express.static(path.join(__dirname, "public"))); // static files
+app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
+app.use(express.json({ limit: "90mb" }));
+
+app.set("trust proxy", 1) // trust first proxy
+app.use(session({ //session config
+	resave: false,
+	saveUninitialized: false,
+	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
+	cookie: {
+		secure: false, //require https
+		maxAge: 60*60*1000 //1h
+	}
+}));
+
+// Extends validators
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
@@ -66,24 +74,23 @@ valid.set("required", function(name, value, msgs) {
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
 
-// Express configurations
-app.use("/public", express.static(path.join(__dirname, "public"))); // static files
-app.use(express.urlencoded({ limit: "80mb", extended: false })); // to support URL-encoded bodies
-app.use(express.json({ limit: "80mb" }));
-
-app.set("trust proxy", 1) // trust first proxy
-app.use(session({ //session config
-	resave: false,
-	saveUninitialized: false,
-	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
-	cookie: {
-		secure: false, //require https
-		maxAge: 60*60*1000 //1h
-	}
-}));
-
 // Routes
-//app.use((req, res, next) => {});
+app.use((req, res, next) => {
+	// Initialize response helpers
+	res.locals._tplBody = "web/index"; //default body
+	res.setBody = function(tpl) { //set body template
+		res.locals._tplBody = tpl; //tpl body path
+		return res;
+	}
+	res.build = function(tpl) {
+		//set tpl body path and render index
+		return res.setBody(tpl).render("index");
+	}
+	res.on("finish", function() {
+		valid.initMsgs(); //reset messages
+	});
+	next(); //go next middleware
+});
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	valid.setMsgError(err); //set message error on view
@@ -91,11 +98,11 @@ app.use((err, req, res, next) => { //global handler error
 		return res.status(500).json(valid.getMsgs()); //ajax response
 	return res.status(500).render("index");
 });
-app.use("*", (req, res) => { //404
+app.use("*", (req, res) => { //error 404 page not found
 	valid.setMsgError(res.locals.i18n.err404); //set message error on view
 	if (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(404).send(valid.getMsgError()); //ajax response
-	return res.status(404).build("web/errors/404");
+	return res.status(404).build("web/errors/404"); //show 404 page
 });
 
 // Start servers (bd's and http)
