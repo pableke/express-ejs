@@ -39,8 +39,8 @@ exports.send = (req, res, next) => {
 exports.files = (req, res) => {
 	res.build("tests/forms/files");
 };
-exports.upload = (req, res, next) => {
-	console.log("req", req.query, req.params, req.body);
+exports.upload = (req, res) => {
+	console.log("upload", req.body);
 	res.send("file uploaded!");
 };
 

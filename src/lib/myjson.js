@@ -218,9 +218,10 @@ function MyJson() {
 				let bd = new Collections(self, dbpath);
 				let tables = fs.readdirSync(dbpath);
 				tables.forEach(function(file) { //tables iterator
-					let table = new Collection(bd, path.join(dbpath, file)); //instance
-					bd.set(table.name(), table); //add table on db
-					table.load(); //load data async
+					//let table = new Collection(bd, path.join(dbpath, file)); //instance
+					//bd.set(table.name(), table); //add table on db
+					//table.load(); //load data async
+					bd.buildTable(path.basename(file)).load();
 				});
 				DBS[dir] = bd;
 			}
