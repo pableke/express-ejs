@@ -107,9 +107,10 @@ app.use("*", (req, res) => { //error 404 page not found
 
 // Start servers (bd's and http)
 dao.open(); //open db factories
+const port = process.env.PORT || 3000;
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(HTTPS, app);
-httpServer.listen(3000);
+httpServer.listen(port);
 httpsServer.listen(3443);
 
 //capture Node.js Signals and Events
@@ -135,5 +136,5 @@ process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D 
 process.on("SIGTERM", function() { fnExit("SIGTERM"); }); //kill the server using command kill [PID_number] or killall node
 process.stdin.on("data", function(data) { (data == "exit\n") && fnExit("exit"); }); //console exit
 
-console.log("Server listening on port http://localhost:3000");
+console.log("Server listening on port http://localhost:" + port);
 console.log("Secure Server listening on port https://localhost:3443");
