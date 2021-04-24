@@ -31,12 +31,15 @@ function Collection(db, pathname) {
 		fs.writeFile(pathname, self.stringify(), fnError);
 		return self;
 	}
-	this.drop = function() {
+	this.flush = function() {
 		table.seq = 1; //restart sequence
 		delete table.sort; //remove sort id
 		table.data.splice(0); //remove data array
-		fs.unlink(pathname, fnError);
 		return self;
+	}
+	this.drop = function() {
+		fs.unlink(pathname, fnError);
+		return self.flush();
 	}
 
 	this.db = function() { return db; }
@@ -152,16 +155,9 @@ function Collections(dbs, pathname) {
 	}
 	this.createTable = function(name) {
 		let tablepath = path.join(pathname, name + ".json");
-		let table = new Collection(self, tablepath);
-
-		self.dropTable(name); //remove previous table from db
-		table.commit(); //write empty table on file system
-		return self.set(name, table);
+		let table = db[name] || new Collection(self, tablepath);
+		return self.set(name, table.flush());
 	}
-	this.buildTable = function(name) {
-		return db[name] || self.createTable(name).get(name);
-	}
-
 	this.drop = function() {
 		Object.keys(db).forEach(self.dropTable);
 		fs.rmdir(pathname, { recursive: true }, fnError);
@@ -172,11 +168,12 @@ function Collections(dbs, pathname) {
 function MyJson() {
 	const self = this; //self instance
 	const DBS = {}; //DB's container
-	let basedir = __dirname; //default
+	let pathname; //base firectory
 
 	this.dbs = function() { return DBS; }
 	this.get = function(name) { return name ? DBS[name] : DBS; }
 	this.set = function(name, db) { DBS[name] = db; return self; }
+	this.setPath = function(path) { pathname = path; return self; }
 
 	this.dropDB = function(name) {
 		DBS[name] && DBS[name].drop(); //remove db
@@ -184,18 +181,12 @@ function MyJson() {
 		return self;
 	}
 	this.createDB = function(name) { //create new table
-		let dbpath = path.join(basedir, name); //new db path
-		let db = new Collections(self, dbpath);
-
-		self.dropDB(name);
+		let dbpath = path.join(pathname, name); //new db path
+		let db = DBS[name] || new Collections(self, dbpath);
 		//create container directory if it doesn't exist
 		fs.mkdir(dbpath, 511, fnMkdirError); //511 = 0777
 		return self.set(name, db);
 	}
-	this.buildDB = function(name) {
-		return DBS[name] || self.createDB(name).get(name);
-	}
-
 	this.drop = function() {
 		for (let db in DBS) {
 			DBS[db].drop();
@@ -204,10 +195,7 @@ function MyJson() {
 		return self;
 	}
 
-	this.open = function(pathname) {
-		//define defaults paths
-		pathname = pathname || basedir;
-		basedir = pathname || basedir;
+	this.load = function() {
 		// Sync load structure, load data table is async
 		fs.mkdir(pathname, 511, fnMkdirError); //511 = 0777
 		let list = fs.readdirSync(pathname);
@@ -215,13 +203,12 @@ function MyJson() {
 			let dbpath = path.join(pathname, dir);
 			let stat = fs.statSync(dbpath);
 			if (stat && stat.isDirectory()) { //load DB
-				let bd = new Collections(self, dbpath);
+				let bd = self.createDB(dir).get(dir);
 				let tables = fs.readdirSync(dbpath);
 				tables.forEach(function(file) { //tables iterator
-					//let table = new Collection(bd, path.join(dbpath, file)); //instance
-					//bd.set(table.name(), table); //add table on db
-					//table.load(); //load data async
-					bd.buildTable(path.basename(file)).load();
+					let name = path.parse(file).name;
+					let table = bd.createTable(name).get(name);
+					table.load(); //load data async
 				});
 				DBS[dir] = bd;
 			}
