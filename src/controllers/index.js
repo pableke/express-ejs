@@ -5,7 +5,7 @@ const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
 
 const dao = require("app/dao/factory.js");
-const valid = require("app/validator-box.js")
+const valid = require("app/lib/validator-box.js")
 const login = require("./web/public/login.js");
 const i18n = require("../i18n/i18n.js"); //languages
 

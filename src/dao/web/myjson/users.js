@@ -1,6 +1,6 @@
 
 const bcrypt = require("bcrypt"); //encrypt
-const valid = require("app/validator-box.js");
+const valid = require("app/lib/validator-box.js");
 
 // User DAO
 module.exports = function(table) {

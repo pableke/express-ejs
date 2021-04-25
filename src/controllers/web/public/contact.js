@@ -1,6 +1,6 @@
 
-const mailer = require("app/mailer.js");
-const valid = require("app/validator-box.js")
+const mailer = require("app/lib/mailer.js");
+const valid = require("app/lib/validator-box.js")
 
 const FORM = {
 	nombre: valid.required,

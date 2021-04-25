@@ -10,7 +10,7 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
-const valid = require("app/validator-box.js"); //validators
+const valid = require("app/lib/validator-box.js"); //validators
 
 const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
