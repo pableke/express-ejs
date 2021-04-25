@@ -1,8 +1,8 @@
 
 const fetch = require("node-fetch"); //ajax calls
 const dao = require("app/dao/factory.js");
-const mailer = require("app/mailer.js");
-const valid = require("app/validator-box.js")
+const mailer = require("app/lib/mailer.js");
+const valid = require("app/lib/validator-box.js")
 
 valid.setForm("/reactive.html", {
 	token: function(name, value, msgs) { return valid.size(value, 200, 800); },

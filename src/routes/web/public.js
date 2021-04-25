@@ -2,11 +2,10 @@
 const express = require("express");
 const router = express.Router();
 
-const basename = "../../controllers/web/public/";
-const contact = require(basename + "contact.js");
-const login = require(basename + "login.js");
-const reactive = require(basename + "reactive.js");
-const singup = require(basename + "signup.js");
+const contact = require("app/controllers/web/public/contact.js");
+const login = require("app/controllers/web/public/login.js");
+const reactive = require("app/controllers/web/public/reactive.js");
+const singup = require("app/controllers/web/public/signup.js");
 
 router.get("/contact.html", contact.view).get("/contacto.html", contact.view);
 router.post("/contact.html", contact.send).post("/contacto.html", contact.send);

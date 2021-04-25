@@ -1,7 +1,7 @@
 
 const bcrypt = require("bcrypt"); //encrypt
 const dao = require("app/dao/factory.js");
-const valid = require("app/validator-box.js")
+const valid = require("app/lib/validator-box.js")
 
 const FORM = {
 	usuario: valid.usuario,

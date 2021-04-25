@@ -18,7 +18,6 @@ const HTML_PATH = "src/views/**/*.html";
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "dbs/**/*.json", "src/controllers/**/*.js", "certs/*.pem" ]
-const ROOTS = [ "src/lib/*.js", "src/dao/**/*.js" ];
 
 // Task to minify EJS's
 gulp.task("minify-ejs", function() {
@@ -73,15 +72,18 @@ gulp.task("copy-modules", () => {
 	return gulp.src(MODULES[7]).pipe(gulp.dest("dist/certs"));
 });
 
-// Task to copy root modules
-gulp.task("copy-roots", () => {
-	gulp.src(ROOTS[0]).pipe(gulp.dest("node_modules/app"));
-	return gulp.src(ROOTS[1]).pipe(gulp.dest("node_modules/app/dao"));
+// Task to create symlink in root => node_modules
+gulp.task("symlinks", () => {
+	//ln -s ../../src/controllers/web/public node_modules/app
+	//mv node_modules/app/controllers node_modules/app/ctrl
+	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
+	gulp.src("src/lib").pipe(gulp.symlink("node_modules/app"));
+	gulp.src("dbs").pipe(gulp.symlink("node_modules/app"));
+	return gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
 });
 
 // Tasks to copy files once
 gulp.task("copy-files", () => {
-	gulp.src("dbs/**/*").pipe(gulp.dest("node_modules/app/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
@@ -94,9 +96,8 @@ gulp.task("watch", () => {
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
 	gulp.watch(MODULES, gulp.series("copy-modules"));
-	gulp.watch(ROOTS, gulp.series("copy-roots"));
 	// Other watchers ...
 });
 
 gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", 
-									"copy-modules", "copy-roots", "copy-files", "watch"));
+									"copy-modules", "symlinks", "copy-files", "watch"));
