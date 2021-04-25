@@ -19,7 +19,7 @@ const EJS_PATH = "src/views/**/*.ejs";
 const HTML_PATH = "src/views/**/*.html";
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
-const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "dbs/**/*.json", "src/controllers/**/*.js", "certs/*.pem" ]
+const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
 
 // Task to minify EJS's
 gulp.task("minify-ejs", function() {
@@ -69,9 +69,8 @@ gulp.task("copy-modules", () => {
 	gulp.src(MODULES[2]).pipe(gulp.dest("dist/lib"));
 	gulp.src(MODULES[3]).pipe(gulp.dest("dist/i18n"));
 	gulp.src(MODULES[4]).pipe(gulp.dest("dist/dao"));
-	gulp.src(MODULES[5]).pipe(gulp.dest("dist/dbs"));
-	gulp.src(MODULES[6]).pipe(gulp.dest("dist/controllers"));
-	return gulp.src(MODULES[7]).pipe(gulp.dest("dist/certs"));
+	gulp.src(MODULES[5]).pipe(gulp.dest("dist/controllers"));
+	return gulp.src(MODULES[6]).pipe(gulp.dest("dist/certs"));
 });
 
 // Task to create symlink in root => node_modules
@@ -86,7 +85,7 @@ gulp.task("symlinks", () => {
 
 // Tasks to copy files once
 gulp.task("copy-files", () => {
-	if (!fs.existsSync(path)) //initialize data once
+	if (!fs.existsSync("dist/dbs")) //initialize data once
 		gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
