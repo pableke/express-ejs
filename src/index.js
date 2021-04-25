@@ -109,9 +109,9 @@ app.use("*", (req, res) => { //error 404 page not found
 dao.open(); //open db factories
 const port = process.env.PORT || 3000;
 const httpServer = http.createServer(app);
-const httpsServer = https.createServer(HTTPS, app);
+//const httpsServer = https.createServer(HTTPS, app);
 httpServer.listen(port);
-httpsServer.listen(3443);
+//httpsServer.listen(3443);
 
 //capture Node.js Signals and Events
 function fnExit(signal) { //exit handler
@@ -121,7 +121,7 @@ function fnExit(signal) { //exit handler
 
 	dao.close();
 	httpServer.close();
-	httpsServer.close();
+	//httpsServer.close();
 
 	console.log("> Http server closed.");
 	console.log("> " + (new Date()));
@@ -129,7 +129,7 @@ function fnExit(signal) { //exit handler
 	process.exit(0);
 };
 httpServer.on("close", fnExit); //close server event
-httpsServer.on("close", fnExit); //close server event
+//httpsServer.on("close", fnExit); //close server event
 process.on("exit", function() { fnExit("exit"); }); //common exit signal = SIGINT
 process.on("SIGHUP", function() { fnExit("SIGHUP"); }); //generated on Windows when the console window is closed
 process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D keys to exit
