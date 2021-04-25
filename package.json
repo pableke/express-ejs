@@ -7,7 +7,8 @@
     "build": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --ignore src/public ./src/index.js",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "heroku-postbuild": "gulp"
   },
   "keywords": [],
   "author": "",
