@@ -1,5 +1,6 @@
 
 const fs = require("fs"); //file system
+const path = require("path"); //file and directory paths
 const cp = require("child_process"); //system calls
 const mailer = require("app/mailer.js"); //google mailer
 const valid = require("app/validator-box.js"); //validator
@@ -45,9 +46,11 @@ exports.upload = (req, res) => {
 };
 
 exports.zip = function(req, res) {
-	//prueba de compresin de multiples ficheros en un zip
-	var zip = cp.spawn("zip", ["-rj", "-", "src/public/upload/1558425194264k2.jpg", "src/public/upload/1558425194264n0.jpg"]);
-	//var ws = fs.createWriteStream("src/public/temp/test.zip"); zip.stdout.pipe(ws);
-	res.status(200).type("zip").attachment("test.zip");
+	// Options -r recursive -j ignore directory info - redirect to stdout
+	let zip = cp.spawn("zip", ["-rj", "-", "src/public/files/afe98b43839ed5f35684bbc308714e15.jpg", "src/public/files/32b80803a9369f0438bc1bb604b07cf5.jpg"]);
+	res.writeHead(200, {
+		"Content-Type": "application/zip",
+		"Content-disposition": "attachment; filename=test.zip"
+	});
 	zip.stdout.pipe(res); //sobrescribe file
 }
