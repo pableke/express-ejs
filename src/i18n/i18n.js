@@ -13,7 +13,7 @@ const i18n = {
 	en: require("./en.js")
 };
 
-// specific laguage list for modules
+// Specific laguage list for modules
 Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));
 Object.assign(i18n.tests.en, i18n.en, require("./tests/en.js"));
 Object.assign(i18n.web.es, i18n.es, require("./web/es.js"));

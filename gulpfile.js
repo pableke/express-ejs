@@ -1,6 +1,7 @@
 
-//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs
-//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs
+//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs gulp-rename
+//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs gulp-rename
+const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const merge = require("merge-stream");
 const gulp = require("gulp");
@@ -11,6 +12,7 @@ const concat = require("gulp-concat");
 const cssmin = require("gulp-clean-css");
 const strip = require("gulp-strip-comments");
 const replace = require("gulp-replace");
+const rename = require("gulp-rename");
 
 // Settings
 const EJS_PATH = "src/views/**/*.ejs";
@@ -76,14 +78,16 @@ gulp.task("copy-modules", () => {
 gulp.task("symlinks", () => {
 	//ln -s ../../src/controllers/web/public node_modules/app
 	//mv node_modules/app/controllers node_modules/app/ctrl
+	//cp -r node_modules/app/controllers node_modules/app/ctrl
 	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/lib").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("dbs").pipe(gulp.symlink("node_modules/app"));
 	return gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
 });
 
 // Tasks to copy files once
 gulp.task("copy-files", () => {
+	if (!fs.existsSync(path)) //initialize data once
+		gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
