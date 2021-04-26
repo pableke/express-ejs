@@ -10,7 +10,8 @@ const i18n = {
 	},
 	//aviable languages list
 	es: require("./es.js"),
-	en: require("./en.js")
+	en: require("./en.js"),
+	default: "es"
 };
 
 // Specific laguage list for modules
