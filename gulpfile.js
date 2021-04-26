@@ -1,35 +1,26 @@
 
-//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs gulp-rename
-//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-replace gulp-minify-ejs gulp-rename
+//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename
+//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const merge = require("merge-stream");
 const gulp = require("gulp");
 const htmlmin = require("gulp-htmlmin");
-const minifyejs = require("gulp-minify-ejs");
 const jsmin = require("gulp-minify");
 const concat = require("gulp-concat");
 const cssmin = require("gulp-clean-css");
+const cssInline = require('gulp-minify-inline');
 const strip = require("gulp-strip-comments");
-const replace = require("gulp-replace");
-const rename = require("gulp-rename");
+//const replace = require("gulp-replace");
+//const rename = require("gulp-rename");
 
 // Settings
-const EJS_PATH = "src/views/**/*.ejs";
-const HTML_PATH = "src/views/**/*.html";
+const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs"];
 const CSS_FILES = [ "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
 const JS_FILES = [ "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
 
-// Task to minify EJS's
-gulp.task("minify-ejs", function() {
-	return gulp.src(EJS_PATH)
-				.pipe(minifyejs())
-				//.pipe(rename({suffix:".min"}))
-				.pipe(gulp.dest("dist/views"))
-});
-
-// Task to minify HTML's
+// Task to minify all views (HTML's and EJS's)
 gulp.task("minify-html", () => {
 	const config = {
 		collapseWhitespace: true,
@@ -37,7 +28,7 @@ gulp.task("minify-html", () => {
 		removeRedundantAttributes: true //remove attr with default value
 	};
 	return gulp.src(HTML_PATH)
-				.pipe(strip()).pipe(htmlmin(config))
+				.pipe(strip()).pipe(htmlmin(config)).pipe(cssInline())
 				//.pipe(replace('<base href="src/">', '<base href="dist/">'))
 				.pipe(gulp.dest("dist/views"));
 });
@@ -94,7 +85,6 @@ gulp.task("copy-files", () => {
 });
 
 gulp.task("watch", () => {
-	gulp.watch(EJS_PATH, gulp.series("minify-ejs"));
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
@@ -102,5 +92,6 @@ gulp.task("watch", () => {
 	// Other watchers ...
 });
 
-gulp.task("default", gulp.parallel("minify-ejs", "minify-html", "minify-css", "minify-js", 
-									"copy-modules", "symlinks", "copy-files", "watch"));
+gulp.task("default", gulp.parallel("minify-html", "minify-css", "minify-js", 
+									"copy-modules", "symlinks", "copy-files", 
+									"watch"));

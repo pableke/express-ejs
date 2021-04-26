@@ -9,14 +9,14 @@
 				<label for="nombre" class="required">Name:</label>
 				<input type="text" id="nombre" name="nombre" value="" size="20" maxlength="200" class="input-item input-control" tabindex="1" title="User name" placeholder="Joe" />
 				<i class="input-item input-icon fas fa-signature"></i>
-				<span class="msg-error"><%=msgs.getMsg("nombre")%></span>
+				<span class="msg-error"><%=msgs.nombre%></span>
 			</div>
 
 			<div class="input-group">
 				<label for="correo" class="required">E-Mail</label>
 				<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
 				<i class="input-item input-icon far fa-envelope"></i>
-				<div class="msg-error"><%=msgs.getMsg("correo")%></div>
+				<div class="msg-error"><%=msgs.correo%></div>
 			</div>
 
 			<div class="input-group">
@@ -32,7 +32,7 @@
 					<input type="text" id="date" name="date" value="" size="40" maxlength="10" tabindex="3" 
 						class="input-item input-control date datepicker" placeholder="" />
 					<span class="input-group-text" id="basic-addon2"><i class="fa fa-calendar"></i></span>
-					<div class="msg-error"><%=msgs.getMsg("date")%></div>
+					<div class="msg-error"><%=msgs.date%></div>
 				</div>
 			</div>
 
@@ -41,7 +41,7 @@
 				<div class="input-group">
 					<input id="number" name="number" type="text" value="" tabindex="4" class="input-item input-control float tr" />
 					<span class="input-group-text" id="basic-addon2">&euro;</span>
-					<div class="msg-error"><%=msgs.getMsg("number")%></div>
+					<div class="msg-error"><%=msgs.number%></div>
 				</div>
 			</div>
 
@@ -57,7 +57,7 @@
 			<div class="input-group">
 				<label for="asunto" class="required">Subject:</label>
 				<input type="text" id="asunto" name="asunto" value="" size="40" maxlength="200" class="input-item input-control" tabindex="7" placeholder="Type a resume" />
-				<span class="msg-error"><%=msgs.getMsg("asunto")%></span>
+				<span class="msg-error"><%=msgs.asunto%></span>
 			</div>
 
 			<div class="input-group">
@@ -68,7 +68,7 @@
 			</div>
 
 			<hr/>
-			<button type="submit" class="btn btn-primary" tabindex="100"><%=i18n.lblSend%> &raquo;</button>
+			<button type="submit" class="btn btn-primary" tabindex="100"><%=i18n.lblEnviar%> &raquo;</button>
 			<button type="reset" class="btn btn-light ml-2" tabindex="101">&olarr; <%=i18n.lblLimpiar%></button>
 
 			<!-- Example single danger button -->

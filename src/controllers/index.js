@@ -9,6 +9,7 @@ const valid = require("app/lib/validator-box.js")
 const login = require("./web/public/login.js");
 const i18n = require("../i18n/i18n.js"); //languages
 
+const BODY = {};
 const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: path.join(__dirname, "../public/files/"),
@@ -22,18 +23,16 @@ exports.lang = function(req, res, next) {
 	let lang = req.query.lang || req.session.lang;
 	if (!lang || (lang !== req.session.lang)) {
 		//user has changed current language or first access
-		let ac = req.headers["accept-language"] || "es"; //default laguage = es
+		let ac = req.headers["accept-language"] || i18n.default; //default laguage = es
 		lang = (i18n[lang]) ? lang : ac.substr(0, 5); //search region language es-ES
 		lang = (i18n[lang]) ? lang : lang.substr(0, 2); //search type language es
-		lang = (i18n[lang]) ? lang : "es"; //default language = es
+		lang = (i18n[lang]) ? lang : i18n.default; //default language = es
 		req.session.lang = lang; //save language on session
 	}
 	res.locals.lang = lang; //lang id
-	res.locals.msgs = valid; //init messages
-	//init non-ajax body forms, pointer to messages
-	res.locals.body = valid.getMsgs(); //ojo! colisiones poco probables
-
-	// Load specific user menus or load public
+	res.locals.body = BODY; //init non-ajax body forms
+	res.locals.msgs = valid.getMsgs(); //init messages
+	// Load specific user menus or load publics
 	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic(); //public menu
 	res.locals.menus = req.session.menus; //set menus on view
 	next(); //go next middleware
