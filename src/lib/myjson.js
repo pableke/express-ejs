@@ -158,6 +158,9 @@ function Collections(dbs, pathname) {
 		let table = db[name] || new Collection(self, tablepath);
 		return self.set(name, table.flush());
 	}
+	this.buildTable = function(name) {
+		return self.createTable(name).get(name);
+	}
 	this.drop = function() {
 		Object.keys(db).forEach(self.dropTable);
 		fs.rmdir(pathname, { recursive: true }, fnError);
@@ -187,6 +190,9 @@ function MyJson() {
 		fs.mkdir(dbpath, 511, fnMkdirError); //511 = 0777
 		return self.set(name, db);
 	}
+	this.buildDB = function(name) {
+		return self.createDB(name).get(name);
+	}
 	this.drop = function() {
 		for (let db in DBS) {
 			DBS[db].drop();
@@ -203,12 +209,11 @@ function MyJson() {
 			let dbpath = path.join(pathname, dir);
 			let stat = fs.statSync(dbpath);
 			if (stat && stat.isDirectory()) { //load DB
-				let bd = self.createDB(dir).get(dir);
+				let bd = self.buildDB(dir);
 				let tables = fs.readdirSync(dbpath);
 				tables.forEach(function(file) { //tables iterator
-					let name = path.parse(file).name;
-					let table = bd.createTable(name).get(name);
-					table.load(); //load data async
+					// Build structure sync but load data async
+					bd.buildTable(path.parse(file).name).load();
 				});
 				DBS[dir] = bd;
 			}
