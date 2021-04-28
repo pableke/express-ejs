@@ -14,7 +14,6 @@ function JsBox() {
 			sibling.matches(selector) && results.push(sibling);
 		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
 			sibling.matches(selector) && results.push(sibling);
-		return results;
 	}
 
 	this.getLang = function() {
@@ -47,10 +46,9 @@ function JsBox() {
 	this.siblings = function(list, selector) {
 		let results = []; //elem container
 		if (isElem(list))
-			return addSiblings(list, selector, results);
-		self.each(list, el => {
 			addSiblings(list, selector, results);
-		});
+		else
+			self.each(list, el => addSiblings(list, selector, results));
 		return results;
 	}
 
