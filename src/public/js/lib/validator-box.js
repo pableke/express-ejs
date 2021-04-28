@@ -323,10 +323,6 @@ function ValidatorBox() {
 		inputs = data;
 		return self;
 	}
-	this.getLang = function() {
-		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
-		return lang || navigator.language || navigator.userLanguage; //default browser language
-	}
 
 	this.fails = function() { return errors > 0; }
 	this.isValid = function() { return errors == 0; }
