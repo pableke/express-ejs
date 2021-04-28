@@ -29,7 +29,7 @@ exports.lang = function(req, res, next) {
 		lang = (i18n[lang]) ? lang : i18n.default; //default language = es
 		req.session.lang = lang; //save language on session
 	}
-	res.locals.lang = lang; //lang id
+	res.locals.lang = lang; //set lang id on view
 	res.locals.body = BODY; //init non-ajax body forms
 	res.locals.msgs = valid.getMsgs(); //init messages
 	// Load specific user menus or load publics
