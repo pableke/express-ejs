@@ -76,8 +76,9 @@ gulp.task("copy-modules", () => {
 
 // Tasks to copy files once
 gulp.task("copy-files", () => {
-	if (!fs.existsSync("dist/dbs")) //initialize data once
-		gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
+	if (fs.existsSync("dist/dbs"))
+		return gulp; //initialize statics once
+	gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
