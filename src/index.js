@@ -112,7 +112,7 @@ app.set("port", port); //set port as express variable
 const server = app.listen(port, () => console.log("Server listening on http://localhost:" + port));
 
 //capture Node.js Signals and Events
-function fnExit(signal) { //exit handler
+/*function fnExit(signal) { //exit handler
 	console.log("\n--------------------");
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
@@ -131,3 +131,4 @@ process.on("SIGHUP", function() { fnExit("SIGHUP"); }); //generated on Windows w
 process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D keys to exit
 process.on("SIGTERM", function() { fnExit("SIGTERM"); }); //kill the server using command kill [PID_number] or killall node
 process.stdin.on("data", function(data) { (data == "exit\n") && fnExit("exit"); }); //console exit
+*/
