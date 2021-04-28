@@ -1,5 +1,6 @@
 
 // Extends config
+const js = new JsBox();
 const sb = new StringBox();
 const i18n = new MessageBox();
 const valid = new ValidatorBox();
