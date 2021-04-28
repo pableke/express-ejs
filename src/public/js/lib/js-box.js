@@ -36,11 +36,11 @@ function JsBox() {
 
 	// Filters
 	this.getAll = function(selector, el) {
-		el = el || document;
+		el = el || document; //query by el
 		return el.querySelectorAll(selector);
 	}
 	this.get = function(selector, el) {
-		el = el || document;
+		el = el || document; //query by el
 		return el.querySelector(selector);
 	}
 	this.find = function(list, selector) {
@@ -70,10 +70,11 @@ function JsBox() {
 
 	// Contents
 	this.focus = function(list) {
+		const selector = "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])";
 		if (isElem(list))
-			list.focus();
+			list.matches(selector) && list.focus();
 		else {
-			let el = self.find(list, "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])");
+			let el = self.find(list, selector);
 			el && el.focus();
 		}
 		return self;
