@@ -35,6 +35,14 @@ function JsBox() {
 	}
 
 	// Filters
+	this.getAll = function(selector, el) {
+		el = el || document;
+		return el.querySelectorAll(selector);
+	}
+	this.get = function(selector, el) {
+		el = el || document;
+		return el.querySelector(selector);
+	}
 	this.find = function(list, selector) {
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
@@ -107,11 +115,11 @@ function JsBox() {
 			self.each(list, el => el.classList.remove(name));
 		return self;
 	}
-	this.toggle = function(list, name) {
+	this.toggle = function(list, name, display) {
 		if (isElem(list))
-			list.classList.toggle(name);
+			list.classList.toggle(name, display);
 		else
-			self.each(list, el => el.classList.toggle(name));
+			self.each(list, el => el.classList.toggle(name, display));
 		return self;
 	}
 
