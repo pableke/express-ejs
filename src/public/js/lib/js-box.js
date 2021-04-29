@@ -35,6 +35,14 @@ function JsBox() {
 	}
 
 	// Filters
+	this.getAll = function(selector, el) {
+		el = el || document; //query by el
+		return el.querySelectorAll(selector);
+	}
+	this.get = function(selector, el) {
+		el = el || document; //query by el
+		return el.querySelector(selector);
+	}
 	this.find = function(list, selector) {
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
@@ -62,10 +70,11 @@ function JsBox() {
 
 	// Contents
 	this.focus = function(list) {
+		const selector = "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])";
 		if (isElem(list))
-			list.focus();
+			list.matches(selector) && list.focus();
 		else {
-			let el = self.find(list, "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])");
+			let el = self.find(list, selector);
 			el && el.focus();
 		}
 		return self;
@@ -107,11 +116,11 @@ function JsBox() {
 			self.each(list, el => el.classList.remove(name));
 		return self;
 	}
-	this.toggle = function(list, name) {
+	this.toggle = function(list, name, display) {
 		if (isElem(list))
-			list.classList.toggle(name);
+			list.classList.toggle(name, display);
 		else
-			self.each(list, el => el.classList.toggle(name));
+			self.each(list, el => el.classList.toggle(name, display));
 		return self;
 	}
 

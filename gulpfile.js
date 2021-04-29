@@ -65,19 +65,20 @@ gulp.task("copy-modules", () => {
 });
 
 // Task to create symlink in root => node_modules
-gulp.task("symlinks", () => {
+/*gulp.task("symlinks", () => {
 	//ln -s ../../src/controllers/web/public node_modules/app
 	//mv node_modules/app/controllers node_modules/app/ctrl
 	//cp -r node_modules/app/controllers node_modules/app/ctrl
 	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/lib").pipe(gulp.symlink("node_modules/app"));
 	return gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
-});
+});*/
 
 // Tasks to copy files once
 gulp.task("copy-files", () => {
-	if (!fs.existsSync("dist/dbs")) //initialize data once
-		gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
+	if (fs.existsSync("dist/dbs"))
+		return gulp; //initialize statics once
+	gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
 	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
@@ -93,5 +94,5 @@ gulp.task("watch", () => {
 });
 
 gulp.task("default", gulp.parallel("minify-html", "minify-css", "minify-js", 
-									"copy-modules", "symlinks", "copy-files", 
+									"copy-modules", /*"symlinks",*/ "copy-files", 
 									"watch"));
