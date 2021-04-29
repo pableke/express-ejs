@@ -1,6 +1,6 @@
 
-$(document).ready(function() {
-	const lang = valid.getLang(); //default language
+js.ready(function() {
+	const lang = js.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 
 	// Alerts handlers
@@ -39,18 +39,6 @@ $(document).ready(function() {
 	function fnUnloading() { $(_loading).fadeOut(); }
 	// End loading div
 
-	// Clearable text inputs
-	function tog(v) { return v ? "addClass" : "removeClass"; }
-	$(document).on("input", ".clearable", function() {
-		$(this)[tog(this.value)]("x");
-	}).on("mousemove", ".x", function(ev) {
-		$(this)[tog((this.offsetWidth-28) < (ev.clientX-this.getBoundingClientRect().left))]("onX");
-	}).on("touchstart click", ".onX", function(ev) {
-		$(this).removeClass("x onX").val("").change();
-		ev.preventDefault();
-	});
-	// End clearable text inputs
-
 	/*********************************************/
 	/*************** validator-cli ***************/
 	/*********************************************/
@@ -60,37 +48,29 @@ $(document).ready(function() {
 	const COUNTER_SELECTOR = "textarea[maxlength]";
 	const XHR = { "x-requested-with": "XMLHttpRequest" };
 
-	valid.focus = function(form) { //focus first active input
-		var inputs = Array.prototype.slice.call(form.elements);
-		let first = inputs.find(input => input.matches(":not([type=hidden][readonly][disabled])[tabindex]"));
-		first && first.focus();
+	valid.clean = function(inputs) { //reset message and state inputs
+		js.removeClass(inputs, CLS_INVALID)
+			.text(js.siblings(inputs, CLS_FEED_BACK), "")
+			.focus(inputs);
 		return valid;
 	}
-	valid.clean = function(form) { //reset message and state inputs
-		$(form.elements).removeClass(CLS_INVALID).siblings(CLS_FEED_BACK).text("");
-		return valid.focus(form); //focus on first
-	}
 	valid.loadInputs = function(inputs) {
-		let size = sb.size(inputs); //length
-		for (let i = 0; i < size; i++) {
-			let el = inputs[i]; //element
+		js.each(inputs, el => {
 			el.name && valid.setInput(el.name, el.value);
-		}
+		});
 		return valid;
 	}
 	valid.showErrors = function(inputs, errors) {
-		let _last = sb.size(inputs) - 1; //last input
-		for (let i = _last; (i > -1); i--) { //reverse
-			let el = inputs[i]; //element
+		js.reverse(inputs, el => {
 			let msg = el.name && errors[el.name]; //exists message error?
-			msg && $(el).focus().addClass(CLS_INVALID).siblings(CLS_FEED_BACK).html(msg);
-		}
+			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
+		});
 		showAlerts(errors);
 		return valid;
 	}
 	valid.validateForm = function(form) {
 		let inputs = form.elements; //list
-		valid.clean(form).loadInputs(inputs); //input list to object
+		valid.clean(inputs).loadInputs(inputs); //input list to object
 		return valid.validate(form.getAttribute("action"), msgs)
 				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
@@ -166,24 +146,24 @@ $(document).ready(function() {
 	let forms = document.querySelectorAll("form");
 	for (let i = forms.length - 1; (i > -1); i--) {
 		let form = forms[i]; //element
-		let inputs = form.elements; //list
+		let $inputs = $(form.elements); //list
 
-		$(inputs).filter(".integer").change(function() { this.value = msgs.intHelper(this.value); });
-		$(inputs).filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
-		$(inputs).filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
-		$(inputs).filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
+		$inputs.filter(".integer").change(function() { this.value = msgs.intHelper(this.value); });
+		$inputs.filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
+		$inputs.filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
+		$inputs.filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
 
 		// Initialize all textarea counter
 		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
-		$(inputs).filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
+		$inputs.filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
 		let _search = false; //call source indicator
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
 		function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
-		$(inputs).filter(".ac-user").keydown(ev => { //reduce server calls
-			_search = (ev.keyCode == 8) || (ev.keyCode > 45); //backspace or alfanum
+		$inputs.filter(".ac-user").keydown(ev => { //reduce server calls
+			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224)); //backspace or alfanum
 		}).autocomplete({ //autocomplete for users
 			minLength: 3,
 			source: function(req, res) {
@@ -201,26 +181,26 @@ $(document).ready(function() {
 		});
 		// End autocomplete inputs
 
-		$(inputs).filter("[type=reset]").click(ev => {
+		$inputs.filter("[type=reset]").click(ev => {
 			//Do what you need before reset the form
 			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			valid.clean(form); //reset message and state inputs
-			$(inputs).filter(COUNTER_SELECTOR).each(fnCounter);
+			valid.clean(form.elements); //reset message and state inputs
+			$inputs.filter(COUNTER_SELECTOR).each(fnCounter);
 		});
-		$(inputs).filter("a.duplicate").click(ev => {
+		$inputs.filter("a.duplicate").click(ev => {
 			valid.submit(form, ev, this.href, (data) => {
-				$(inputs).filter(".duplicate").val(""); //clean input values
+				$inputs.filter(".duplicate").val(""); //clean input values
 				showOk(data); //show ok message
 			});
 		});
 
-		valid.focus(form); //focus on first
+		js.focus(form.elements); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax")) {
 				valid.submit(form, ev, null, (data) => {
-					$(inputs).val(""); //clean input values
+					$inputs.val(""); //clean input values
 					showOk(data); //show ok message
 				});
 			}
