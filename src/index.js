@@ -1,8 +1,8 @@
 
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
-const http = require("http"); //http server
-const https = require("https"); //secure server
+//const http = require("http"); //http server
+//const https = require("https"); //secure server
 
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
@@ -106,12 +106,13 @@ app.use("*", (req, res) => { //error 404 page not found
 });
 
 // Start servers (bd's and http)
-dao.open(); //open db factories
 const port = process.env.PORT || 3000;
-const httpServer = http.createServer(app);
+app.set("port", port); //set port as express variable
+dao.open(); //open db's factories
+//const httpServer = http.createServer(app);
 //const httpsServer = https.createServer(HTTPS, app);
-httpServer.listen(port);
-//httpsServer.listen(3443);
+const server = app.listen(port, () => console.log("Server listening on port http://localhost:" + port));
+//httpsServer.listen(3443, () => console.log("Secure Server listening on port https://localhost:3443"));
 
 //capture Node.js Signals and Events
 function fnExit(signal) { //exit handler
@@ -120,7 +121,7 @@ function fnExit(signal) { //exit handler
 	console.log("--------------------");
 
 	dao.close();
-	httpServer.close();
+	server.close();
 	//httpsServer.close();
 
 	console.log("> Http server closed.");
@@ -128,13 +129,10 @@ function fnExit(signal) { //exit handler
 	console.log("--------------------\n");
 	process.exit(0);
 };
-httpServer.on("close", fnExit); //close server event
+server.on("close", fnExit); //close server event
 //httpsServer.on("close", fnExit); //close server event
 process.on("exit", function() { fnExit("exit"); }); //common exit signal = SIGINT
 process.on("SIGHUP", function() { fnExit("SIGHUP"); }); //generated on Windows when the console window is closed
 process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D keys to exit
 process.on("SIGTERM", function() { fnExit("SIGTERM"); }); //kill the server using command kill [PID_number] or killall node
 process.stdin.on("data", function(data) { (data == "exit\n") && fnExit("exit"); }); //console exit
-
-console.log("Server listening on port http://localhost:" + port);
-console.log("Secure Server listening on port https://localhost:3443");
