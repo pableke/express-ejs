@@ -169,25 +169,35 @@ function ValidatorBox() {
 	}
 
 	this.iban = function(name, IBAN) {
-		IBAN = minify(IBAN);
-		if (fnSize(IBAN) != 24)
-			return false;
-		self.setData(name, IBAN); //save reformat
-		// Se coge las primeras dos letras y se pasan a números
-		const LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		let num1 = LETRAS.search(IBAN.substring(0, 1)) + 10;
-		let num2 = LETRAS.search(IBAN.substring(1, 2)) + 10;
-		//Se sustituye las letras por números.
-		let aux = String(num1) + String(num2) + IBAN.substring(2);
-		// Se mueve los 6 primeros caracteres al final de la cadena.
-		aux = aux.substring(6) + aux.substring(0,6);
+		const CODE_LENGTHS = {
+			AD: 24, AE: 23, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BR: 29,
+			CH: 21, CR: 21, CY: 28, CZ: 24, DE: 22, DK: 18, DO: 28, EE: 20, ES: 24,
+			FI: 18, FO: 18, FR: 27, GB: 22, GI: 23, GL: 18, GR: 27, GT: 28, HR: 21,
+			HU: 28, IE: 22, IL: 23, IS: 26, IT: 27, JO: 30, KW: 30, KZ: 20, LB: 28,
+			LI: 21, LT: 20, LU: 20, LV: 21, MC: 27, MD: 24, ME: 22, MK: 19, MR: 27,
+			MT: 31, MU: 30, NL: 18, NO: 15, PK: 24, PL: 28, PS: 29, PT: 25, QA: 29,
+			RO: 24, RS: 22, SA: 24, SE: 24, SI: 19, SK: 24, SM: 27, TN: 24, TR: 26,   
+			AL: 28, BY: 28, CR: 22, EG: 29, GE: 22, IQ: 23, LC: 32, SC: 31, ST: 25,
+			SV: 28, TL: 23, UA: 29, VA: 22, VG: 24, XK: 20
+		};
 
-		//Se calcula el resto modulo 97
-		let resto = EMPTY;
-		let parts = Math.ceil(aux.length/7);
-		for (let i = 1; i <= parts; i++)
-			resto = String(parseFloat(resto + aux.substr((i-1)*7, 7))%97);
-		return (1 == resto);
+		IBAN = minify(IBAN);
+		let code = IBAN && IBAN.match(/^([A-Z]{2})(\d{2})([A-Z\d]+)$/);
+		if (!code || (fnSize(IBAN) !== CODE_LENGTHS[code[1]]))
+			return false;
+
+		let digits = (code[3] + code[1] + code[2]).replace(/[A-Z]/g, (letter) => {
+			return letter.charCodeAt(0) - 55;
+		});
+
+		let fragment = EMPTY;
+		let digital = digits.toString();
+		let checksum = digital.slice(0, 2);
+		for (let offset = 2; offset < digital.length; offset += 7) {
+			fragment = checksum + digital.substring(offset, offset + 7);
+			checksum = parseInt(fragment, 10) % 97;
+		}
+		return (checksum === 1) && self.setData(name, IBAN); //save reformat
 	}
 
 	this.creditCardNumber = function(name, cardNo) { //Luhn check algorithm

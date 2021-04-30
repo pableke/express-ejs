@@ -17,26 +17,6 @@ const HTTPS = { //credentials
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };
 
-// Template engines
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// Express configurations
-app.use("/public", express.static(path.join(__dirname, "public"))); // static files
-app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
-app.use(express.json({ limit: "90mb" }));
-
-app.set("trust proxy", 1) // trust first proxy
-app.use(session({ //session config
-	resave: false,
-	saveUninitialized: false,
-	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
-	cookie: {
-		secure: false, //require https
-		maxAge: 60*60*1000 //1h
-	}
-}));
-
 // Extends validators
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
@@ -74,6 +54,25 @@ valid.set("required", function(name, value, msgs) {
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
 
+// Template engines
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Express configurations
+app.use("/public", express.static(path.join(__dirname, "public"))); // static files
+app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
+app.use(express.json({ limit: "90mb" }));
+
+app.set("trust proxy", 1) // trust first proxy
+app.use(session({ //session config
+	resave: false,
+	saveUninitialized: false,
+	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
+	cookie: {
+		secure: false, //require https
+		maxAge: 60*60*1000 //1h
+	}
+}));
 // Routes
 app.use((req, res, next) => {
 	// Initialize response helpers
@@ -105,14 +104,14 @@ app.use("*", (req, res) => { //error 404 page not found
 	return res.status(404).build("web/errors/404"); //show 404 page
 });
 
-// Start servers (bd's and http)
+// Start servers (db's and http)
 dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
 app.set("port", port); //set port as express variable
 const server = app.listen(port, () => console.log("Server listening on http://localhost:" + port));
 
 //capture Node.js Signals and Events
-/*function fnExit(signal) { //exit handler
+function fnExit(signal) { //exit handler
 	console.log("\n--------------------");
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
@@ -131,4 +130,3 @@ process.on("SIGHUP", function() { fnExit("SIGHUP"); }); //generated on Windows w
 process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D keys to exit
 process.on("SIGTERM", function() { fnExit("SIGTERM"); }); //kill the server using command kill [PID_number] or killall node
 process.stdin.on("data", function(data) { (data == "exit\n") && fnExit("exit"); }); //console exit
-*/
