@@ -8,15 +8,13 @@ js.ready(function() {
 	function showAlert(el) { el.parentNode.classList.remove("d-none");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 
-	let texts = document.querySelectorAll(".alert-text");
-	texts.forEach(el => {
+	let texts = js.getAll(".alert-text");
+	js.each(texts, el => {
 		el.firstChild ? showAlert(el) : hideAlert(el);
 	});
 
-	let buttons = document.querySelectorAll(".alert-close");
-	buttons.forEach(el => {
-		el.addEventListener("click", () => hideAlert(el));
-	});
+	let buttons = js.getAll(".alert-close");
+	js.click(buttons, el => hideAlert(el));
 
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
@@ -145,15 +143,15 @@ js.ready(function() {
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
-		js.change(js.filter(inputs, ".integer"), (ev, el) => { el.value = msgs.intHelper(el.value); });
-		js.change(js.filter(inputs, ".float"), (ev, el) => { el.value = msgs.floatHelper(el.value); });
+		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.intHelper(el.value); });
+		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.floatHelper(el.value); });
 
 		let dates = js.filter(inputs, ".date");
-		js.keyup(dates, (ev, el) => { el.value = msgs.acDate(el.value); })
-			.change(dates, (ev, el) => { el.value = msgs.dateHelper(el.value); });
+		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
+			.change(dates, el => { el.value = msgs.dateHelper(el.value); });
 		let times = js.filter(inputs, ".time");
-		js.keyup(times, (ev, el) => { el.value = msgs.acTime(el.value); })
-			.change(times, (ev, el) => { el.value = msgs.timeHelper(el.value); });
+		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
+			.change(times, el => { el.value = msgs.timeHelper(el.value); });
 
 		// Initialize all textarea counter
 		let textareas = js.filter(inputs, COUNTER_SELECTOR);
@@ -161,7 +159,7 @@ js.ready(function() {
 			let txt = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
 			js.text(form.querySelector("#counter-" + el.id), txt);
 		}
-		js.keyup(textareas, (ev, el) => { fnCounter(el); }).each(textareas, fnCounter);
+		js.keyup(textareas, fnCounter).each(textareas, fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
@@ -196,7 +194,7 @@ js.ready(function() {
 			js.each(textareas, fnCounter); //recount all textareas
 		});
 		js.click(js.filter(inputs, "a.duplicate"), ev => {
-			valid.submit(form, ev, this.href, (data) => {
+			valid.submit(form, ev, this.href, data => {
 				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
 				showOk(data); //show ok message
 			});
@@ -205,7 +203,7 @@ js.ready(function() {
 		js.focus(form.elements); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax")) {
-				valid.submit(form, ev, null, (data) => {
+				valid.submit(form, ev, null, data => {
 					js.val(inputs, ""); //clean input values
 					showOk(data); //show ok message
 				});

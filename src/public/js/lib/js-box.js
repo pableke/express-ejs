@@ -148,6 +148,7 @@ function JsBox() {
 			else
 				requestAnimationFrame(fade);
 		})();
+		return self;
 	};
 	this.fadeIn = function(el, display) {
 		el.style.display = display || "block";
@@ -159,11 +160,15 @@ function JsBox() {
 				requestAnimationFrame(fade);
 			}
 		})();
+		return self;
+	};
+	this.fadeToggle = function(el) {
+		return (el.style.opacity < .1) ? self.fadeIn(el) : self.fadeOut(el);
 	};
 
 	// Events
 	function fnEvent(el, name, fn) {
-		el.addEventListener(name, ev => fn(ev, el));
+		el.addEventListener(name, ev => fn(el, ev));
 		return self;
 	}
 	this.ready = function(fn) {
