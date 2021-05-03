@@ -35,8 +35,8 @@ js.ready(function() {
 
 	// Loading div
 	let _loading = document.querySelector(".loading");
-	function fnLoading() { $(_loading).show(); closeAlerts(); }
-	function fnUnloading() { $(_loading).fadeOut(); }
+	function fnLoading() { js.show(_loading); closeAlerts(); }
+	function fnUnloading() { js.fadeOut(_loading); }
 	// End loading div
 
 	/*********************************************/
@@ -114,7 +114,7 @@ js.ready(function() {
 		return valid;
 	}
 	valid.update = function(data) { //update partial
-		data.update && $(data.update).html(data.html); //selector
+		js.html(js.getAll(data.update), data.html); //selector
 		showAlerts(data); //show alerts
 		return valid;
 	}
@@ -157,14 +157,17 @@ js.ready(function() {
 
 		// Initialize all textarea counter
 		let textareas = js.filter(inputs, COUNTER_SELECTOR);
-		function fnCounter(el) { js.text(form.querySelector("#counter-" + el.id), Math.abs(el.getAttribute("maxlength") - sb.size(el.value))); }
+		function fnCounter(el) {
+			let txt = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
+			js.text(form.querySelector("#counter-" + el.id), txt);
+		}
 		js.keyup(textareas, (ev, el) => { fnCounter(el); }).each(textareas, fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
 		let _search = false; //call source indicator
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
-		function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
+		function fnAcLoad(el, id, txt) { return !js.val(el, txt).val(js.siblings(el, "[type=hidden]"), id); }
 		$(form.elements).filter(".ac-user").keydown(ev => { //reduce server calls
 			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224)); //backspace or alfanum
 		}).autocomplete({ //autocomplete for users

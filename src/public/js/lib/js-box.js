@@ -37,11 +37,11 @@ function JsBox() {
 	// Filters
 	this.getAll = function(selector, el) {
 		el = el || document; //query by el
-		return el.querySelectorAll(selector);
+		return selector && el.querySelectorAll(selector);
 	}
 	this.get = function(selector, el) {
 		el = el || document; //query by el
-		return el.querySelector(selector);
+		return selector && el.querySelector(selector);
 	}
 	this.find = function(list, selector) {
 		let size = fnSize(list);
@@ -102,6 +102,21 @@ function JsBox() {
 	}
 
 	// Styles
+	this.show = function(list, display) {
+		display = display || "block";
+		if (isElem(list))
+			list.style.display = display;
+		else
+			self.each(list, el => { el.style.display = display; });
+		return self;
+	}
+	this.hide = function(list) {
+		if (isElem(list))
+			list.style.display = "none";
+		else
+			self.each(list, el => { el.style.display = "none"; });
+		return self;
+	}
 	this.addClass = function(list, name) {
 		if (isElem(list))
 			list.classList.add(name);
@@ -123,6 +138,28 @@ function JsBox() {
 			self.each(list, el => el.classList.toggle(name, display));
 		return self;
 	}
+
+	// Efects Fade
+	this.fadeOut = function(el) {
+		el.style.opacity = 1;
+		(function fade() {
+			if ((el.style.opacity -= .1) < 0)
+				el.style.display = "none";
+			else
+				requestAnimationFrame(fade);
+		})();
+	};
+	this.fadeIn = function(el, display) {
+		el.style.display = display || "block";
+		el.style.opacity = 0;
+		(function fade() {
+			var val = parseFloat(el.style.opacity);
+			if (!((val += .1) > 1)) {
+				el.style.opacity = val;
+				requestAnimationFrame(fade);
+			}
+		})();
+	};
 
 	// Events
 	function fnEvent(el, name, fn) {
