@@ -126,7 +126,7 @@ function JsBox() {
 
 	// Events
 	function fnEvent(el, name, fn) {
-		el.addEventListener(name, fn);
+		el.addEventListener(name, ev => fn(ev, el));
 		return self;
 	}
 	this.ready = function(fn) {
@@ -135,5 +135,13 @@ function JsBox() {
 	this.click = function(list, fn) {
 		return isElem(list) ? fnEvent(list, "click", fn) 
 							: self.each(list, el => fnEvent(el, "click", fn));
+	}
+	this.change = function(list, fn) {
+		return isElem(list) ? fnEvent(list, "change", fn) 
+							: self.each(list, el => fnEvent(el, "change", fn));
+	}
+	this.keyup = function(list, fn) {
+		return isElem(list) ? fnEvent(list, "keyup", fn) 
+							: self.each(list, el => fnEvent(el, "keyup", fn));
 	}
 }

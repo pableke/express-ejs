@@ -143,26 +143,29 @@ js.ready(function() {
 		});
 	}
 
-	let forms = document.querySelectorAll("form");
-	for (let i = forms.length - 1; (i > -1); i--) {
-		let form = forms[i]; //element
-		let $inputs = $(form.elements); //list
+	js.reverse(js.getAll("form"), form => {
+		let inputs = form.elements; //inputs list
+		js.change(js.filter(inputs, ".integer"), (ev, el) => { el.value = msgs.intHelper(el.value); });
+		js.change(js.filter(inputs, ".float"), (ev, el) => { el.value = msgs.floatHelper(el.value); });
 
-		$inputs.filter(".integer").change(function() { this.value = msgs.intHelper(this.value); });
-		$inputs.filter(".float").change(function() { this.value = msgs.floatHelper(this.value); });
-		$inputs.filter(".date").keyup(function() { this.value = msgs.acDate(this.value); }).change(function() { this.value = msgs.dateHelper(this.value); });
-		$inputs.filter(".time").keyup(function() { this.value = msgs.acTime(this.value); }).change(function() { this.value = msgs.timeHelper(this.value); });
+		let dates = js.filter(inputs, ".date");
+		js.keyup(dates, (ev, el) => { el.value = msgs.acDate(el.value); })
+			.change(dates, (ev, el) => { el.value = msgs.dateHelper(el.value); });
+		let times = js.filter(inputs, ".time");
+		js.keyup(times, (ev, el) => { el.value = msgs.acTime(el.value); })
+			.change(times, (ev, el) => { el.value = msgs.timeHelper(el.value); });
 
 		// Initialize all textarea counter
-		function fnCounter() { $("#counter-" + this.id, form).text(Math.abs(this.getAttribute("maxlength") - sb.size(this.value))); }
-		$inputs.filter(COUNTER_SELECTOR).keyup(fnCounter).each(fnCounter);
+		let textareas = js.filter(inputs, COUNTER_SELECTOR);
+		function fnCounter(el) { js.text(form.querySelector("#counter-" + el.id), Math.abs(el.getAttribute("maxlength") - sb.size(el.value))); }
+		js.keyup(textareas, (ev, el) => { fnCounter(el); }).each(textareas, fnCounter);
 		// End initialize all textarea counter
 
 		// Autocomplete inputs
 		let _search = false; //call source indicator
 		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
 		function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
-		$inputs.filter(".ac-user").keydown(ev => { //reduce server calls
+		$(form.elements).filter(".ac-user").keydown(ev => { //reduce server calls
 			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224)); //backspace or alfanum
 		}).autocomplete({ //autocomplete for users
 			minLength: 3,
@@ -181,17 +184,17 @@ js.ready(function() {
 		});
 		// End autocomplete inputs
 
-		$inputs.filter("[type=reset]").click(ev => {
+		js.click(js.filter(inputs, "[type=reset]"), ev => {
 			//Do what you need before reset the form
 			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			valid.clean(form.elements); //reset message and state inputs
-			$inputs.filter(COUNTER_SELECTOR).each(fnCounter);
+			js.each(textareas, fnCounter); //recount all textareas
 		});
-		$inputs.filter("a.duplicate").click(ev => {
+		js.click(js.filter(inputs, "a.duplicate"), ev => {
 			valid.submit(form, ev, this.href, (data) => {
-				$inputs.filter(".duplicate").val(""); //clean input values
+				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
 				showOk(data); //show ok message
 			});
 		});
@@ -200,13 +203,13 @@ js.ready(function() {
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax")) {
 				valid.submit(form, ev, null, (data) => {
-					$inputs.val(""); //clean input values
+					js.val(inputs, ""); //clean input values
 					showOk(data); //show ok message
 				});
 			}
 			else
 				valid.validateForm(form) || ev.preventDefault();
 		});
-	}
+	});
 	// End AJAX links and forms
 });
