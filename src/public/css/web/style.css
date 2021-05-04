@@ -22,21 +22,21 @@ body {
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media screen and (max-width: 575.98px) {
-	.d-pc, .d-none-phone, .d-none-tablet { display: none; }
+	.d-pc, .hide-phone, .hide-tablet { display: none; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
-	.d-pc, .d-none-phone, .d-none-tablet { display: none; }
+	.d-pc, .hide-phone, .hide-tablet { display: none; }
 }
 /* Medium devices (tablets, 768px and up) */
 @media screen and (min-width: 768px) and (max-width: 991.98px) {
-	.d-pc, .d-none-tablet, .d-phone { display: none; }
+	.d-pc, .hide-tablet, .d-phone { display: none; }
 }
 /* Large devices (desktops, 992px and up) */
 @media screen and (min-width: 992px) and (max-width: 1199.98px) {
-	.d-none-pc, .d-phone { display: none; }
+	.hide-pc, .d-phone { display: none; }
 }
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.d-none-pc, .d-phone { display: none; }
+	.hide-pc, .d-phone { display: none; }
 }
