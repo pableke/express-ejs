@@ -6,6 +6,7 @@
 function JsBox() {
 	const self = this; //self instance
 
+	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
@@ -43,13 +44,13 @@ function JsBox() {
 	this.fetch = function(opts) {
 		opts = opts || {}; //default config
 		opts.headers = opts.headers || {}; //init. headers
+		opts.reject = opts.reject || fnLog;
+		opts.resolve = opts.resolve || fnLog;
 		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
 		return fetch(opts.action, opts).then(res => {
 			let contentType = res.headers.get("content-type") || ""; //response type
-			let isJson = (contentType.indexOf("application/json") > -1);
-			if (res.ok) //response = 200 ok!
-				return (isJson ? res.json() : res.text()).then(opts.resolve);
-			return (isJson ? res.json() : res.text()).then(opts.reject);
+			let promise = (contentType.indexOf("application/json") > -1) ? res.json() : res.text(); //response
+			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
 	}
 
@@ -176,32 +177,31 @@ function JsBox() {
 	}
 
 	// Efects Fade
-	let fadeId = null;
 	const FADE_INC = .03;
 	this.fadeOut = function(el) {
-		window.cancelAnimationFrame(fadeId);
+		let val = parseFloat(el.style.opacity) || 0;
 		(function fade() {
-			if ((el.style.opacity -= FADE_INC) < 0)
+			if ((val -= FADE_INC) < 0)
 				el.style.display = "none";
 			else
-				fadeId = requestAnimationFrame(fade);
+				requestAnimationFrame(fade);
+			el.style.opacity = val;
 		})();
 		return self;
 	};
 	this.fadeIn = function(el, display) {
-		window.cancelAnimationFrame(fadeId);
 		el.style.display = display || "block";
-		let val = parseFloat(el.style.opacity);
+		let val = parseFloat(el.style.opacity) || 0;
 		(function fade() {
-			if ((val += FADE_INC) < 1) {
-				el.style.opacity = val;
-				fadeId = requestAnimationFrame(fade);
-			}
+			if ((val += FADE_INC) < 1)
+				requestAnimationFrame(fade);
+			el.style.opacity = val;
 		})();
 		return self;
 	};
 	this.fadeToggle = function(el) {
-		return (el.style.opacity < FADE_INC) ? self.fadeIn(el) : self.fadeOut(el);
+		let val = parseFloat(el.style.opacity) || 0;
+		return (val < FADE_INC) ? self.fadeIn(el) : self.fadeOut(el);
 	};
 
 	// Events
