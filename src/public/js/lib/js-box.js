@@ -102,6 +102,9 @@ function JsBox() {
 	}
 
 	// Styles
+	this.isVisible = function(el) {
+		return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+	}
 	this.show = function(list, display) {
 		display = display || "block";
 		if (isElem(list))
@@ -152,10 +155,10 @@ function JsBox() {
 	};
 	this.fadeIn = function(el, display) {
 		el.style.display = display || "block";
-		el.style.opacity = 0;
+		let val = el.style.opacity = 0;
 		(function fade() {
-			var val = parseFloat(el.style.opacity);
-			if (!((val += .1) > 1)) {
+			val += .1;
+			if (val < 1) {
 				el.style.opacity = val;
 				requestAnimationFrame(fade);
 			}

@@ -102,6 +102,9 @@ function JsBox() {
 	}
 
 	// Styles
+	this.isVisible = function(el) {
+		return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+	}
 	this.show = function(list, display) {
 		display = display || "block";
 		if (isElem(list))
@@ -152,10 +155,10 @@ function JsBox() {
 	};
 	this.fadeIn = function(el, display) {
 		el.style.display = display || "block";
-		el.style.opacity = 0;
+		let val = el.style.opacity = 0;
 		(function fade() {
-			var val = parseFloat(el.style.opacity);
-			if (!((val += .1) > 1)) {
+			val += .1;
+			if (val < 1) {
 				el.style.opacity = val;
 				requestAnimationFrame(fade);
 			}
@@ -850,8 +853,8 @@ js.ready(function() {
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 
 	// Alerts handlers
-	function hideAlert(el) { el.parentNode.classList.add("d-none");  }
-	function showAlert(el) { el.parentNode.classList.remove("d-none");  }
+	function hideAlert(el) { js.fadeOut(el.parentNode);  }
+	function showAlert(el) { js.fadeIn(el.parentNode, "flex");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 
 	let texts = js.getAll(".alert-text");
