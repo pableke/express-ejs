@@ -29,6 +29,29 @@ function JsBox() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
 	}
+	this.scrollTop = function(time) {
+		time = time || 600; //default duration
+		var scrollStep = -window.scrollY / (time / 15);
+		var scrollInterval = setInterval(() => {
+			if (window.scrollY > 0)
+				window.scrollBy(0, scrollStep);
+			else
+				clearInterval(scrollInterval);
+		}, 15);
+		return self;
+	}
+	this.fetch = function(opts) {
+		opts = opts || {}; //default config
+		opts.headers = opts.headers || {}; //init. headers
+		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
+		return fetch(opts.action, opts).then(res => {
+			let contentType = res.headers.get("content-type") || ""; //response type
+			let isJson = (contentType.indexOf("application/json") > -1);
+			if (res.ok) //response = 200 ok!
+				return (isJson ? res.json() : res.text()).then(opts.resolve);
+			return (isJson ? res.json() : res.text()).then(opts.reject);
+		});
+	}
 
 	// Iterators
 	this.each = function(list, cb) {
@@ -45,16 +68,18 @@ function JsBox() {
 
 	// Filters
 	this.matches = function(el, selector) {
-		return selector && fnMatch(el);
+		return selector && fnMatch(el, selector);
 	}
 	this.find = function(list, selector) {
-		if (self.matches(list, selector))
-			return list; //only one element
-		let size = fnSize(list);
-		for (let i = 0; i < size; i++) {
-			let el = list[i]; //get element
-			if (fnMatch(el, selector))
-				return el;
+		if (selector) {
+			if (fnMatch(list, selector))
+				return list; //only one element
+			let size = fnSize(list);
+			for (let i = 0; i < size; i++) {
+				let el = list[i]; //get element
+				if (fnMatch(el, selector))
+					return el;
+			}
 		}
 		return null;
 	}
@@ -151,24 +176,26 @@ function JsBox() {
 	}
 
 	// Efects Fade
+	let fadeId = null;
 	const FADE_INC = .03;
 	this.fadeOut = function(el) {
-		el.style.opacity = 1;
+		window.cancelAnimationFrame(fadeId);
 		(function fade() {
 			if ((el.style.opacity -= FADE_INC) < 0)
 				el.style.display = "none";
 			else
-				requestAnimationFrame(fade);
+				fadeId = requestAnimationFrame(fade);
 		})();
 		return self;
 	};
 	this.fadeIn = function(el, display) {
+		window.cancelAnimationFrame(fadeId);
 		el.style.display = display || "block";
-		let val = el.style.opacity = 0;
+		let val = parseFloat(el.style.opacity);
 		(function fade() {
 			if ((val += FADE_INC) < 1) {
 				el.style.opacity = val;
-				requestAnimationFrame(fade);
+				fadeId = requestAnimationFrame(fade);
 			}
 		})();
 		return self;
@@ -196,5 +223,9 @@ function JsBox() {
 	this.keyup = function(list, fn) {
 		return isElem(list) ? fnEvent(list, "keyup", fn) 
 							: self.each(list, el => fnEvent(el, "keyup", fn));
+	}
+	this.keydown = function(list, fn) {
+		return isElem(list) ? fnEvent(list, "keydown", fn) 
+							: self.each(list, el => fnEvent(el, "keydown", fn));
 	}
 }
