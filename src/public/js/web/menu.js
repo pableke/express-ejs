@@ -50,8 +50,11 @@ $(document).ready(function() {
 	});
 
 	//Scroll body to top on click and toggle back-to-top arrow
-	let top = $("#back-to-top").click(function() { return !$("body,html").animate({ scrollTop: 0 }, 400); });
-	$(window).scroll(function() { ($(this).scrollTop() > 50) ? top.fadeIn() : top.fadeOut(); });
+	let top = js.get("#back-to-top");
+	js.click(top, () => { js.scrollTop(400); });
+	window.onscroll = function() {
+		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
+	};
 
 	//Scroll anchors to its destination with a slow effect
 	document.querySelectorAll('a[href^="#"]').forEach(anchor => {

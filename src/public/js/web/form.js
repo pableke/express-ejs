@@ -13,14 +13,6 @@ js.ready(function() {
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
 	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
 	function showError(txt) { txt && setAlert(texts[3], txt); } //red
-	function closeAlerts() { js.hide(alerts); } //hide alerts
-	function showAlerts(msgs) {
-		//show posible multiple messages types
-		showOk(msgs.msgOk); //green
-		showInfo(msgs.msgInfo); //blue
-		showWarn(msgs.msgWarn); //yellow
-		showError(msgs.msgError); //red
-	}
 
 	js.each(texts, el => { el.firstChild && showAlert(el); });
 	js.click(buttons, el => { js.fadeOut(el.parentNode); });
@@ -28,62 +20,97 @@ js.ready(function() {
 
 	// Loading div
 	let _loading = document.querySelector(".loading");
-	function fnLoading() { js.show(_loading); closeAlerts(); valid.initMsgs(); }
+	function fnLoading() { js.show(_loading).closeAlerts(); valid.initMsgs(); }
 	function fnUnloading() { js.fadeOut(_loading); }
 	// End loading div
+
+	/*********************************************/
+	/****************** js-box *******************/
+	/*********************************************/
+	// Extends js-box module
+	const CLS_INVALID = "input-error";
+	const CLS_FEED_BACK = ".msg-error";
+
+	js.showAlerts = function(msgs) {
+		//show posible multiple messages types
+		showOk(msgs.msgOk); //green
+		showInfo(msgs.msgInfo); //blue
+		showWarn(msgs.msgWarn); //yellow
+		showError(msgs.msgError); //red
+		return js;
+	}
+	js.closeAlerts = function() {
+		return js.hide(alerts); //hide alerts
+	}
+	js.update = function(data) { //update partial and show alerts
+		return js.html(js.getAll(data.update), data.html).showAlerts(data);
+	}
+	js.clean = function(inputs) { //reset message and state inputs
+		return js.closeAlerts().removeClass(inputs, CLS_INVALID)
+				.text(js.siblings(inputs, CLS_FEED_BACK), "")
+				.focus(inputs);
+	}
+	js.showErrors = function(inputs, errors) {
+		return js.showAlerts(errors).reverse(inputs, el => {
+			let msg = el.name && errors[el.name]; //exists message error?
+			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
+		});
+	}
+
+	js.ajax = function(action, resolve, reject) {
+		fnLoading(); //show loading frame
+		return js.fetch({
+			action: action,
+			resolve: resolve || showOk,
+			reject: reject || showError
+		}).catch(showError) //error handler
+			.finally(fnUnloading); //allways
+	}
+	js.autocomplete = function(opts) { // Autocomplete inputs
+		opts = opts || {}; //default config
+		function fnAcLoad(el, id, txt) {
+			return !js.val(el, txt).val(js.siblings(el, "[type=hidden]"), id);
+		}
+
+		let _search = false; //call source indicator
+		opts.action = opts.action || "#"; //request
+		opts.minLength = opts.minLength || 3; //length
+		opts.render = opts.render || function() { return "-"; };
+		opts.focus = function() { return false; }; //no change focus on select
+		opts.search = function(ev, ui) { return _search; }; //lunch source
+		opts.select = function(ev, ui) { return fnAcLoad(this, ui.item[opts.id], opts.render(ui.item)); };
+		opts.source = function(req, res) {
+			this.element.autocomplete("instance")._renderItem = function(ul, item) {
+				let label = sb.iwrap(opts.render(item), req.term); //decore matches
+				return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
+			}
+			js.ajax(opts.action + "?term=" + req.term, data => res(data.slice(0, 10)));
+		};
+		$(opts.inputs).autocomplete(opts);
+
+		//reduce server calls = backspace or alfanum
+		return js.keydown(opts.inputs, (el, ev) => {
+			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224));
+		}).change(opts.inputs, el => {
+			el.value || fnAcLoad(el, "", "");
+		});
+	}
+	// End extends js-box module
+	/*********************************************/
+	/****************** js-box *******************/
+	/*********************************************/
 
 	/*********************************************/
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	const CLS_INVALID = "input-error";
-	const CLS_FEED_BACK = ".msg-error";
-	const COUNTER_SELECTOR = "textarea[maxlength]";
-	const XHR = { "x-requested-with": "XMLHttpRequest" };
-
-	valid.clean = function(inputs) { //reset message and state inputs
-		closeAlerts(); //close previous messages
-		js.removeClass(inputs, CLS_INVALID)
-			.text(js.siblings(inputs, CLS_FEED_BACK), "")
-			.focus(inputs);
-		return valid;
-	}
-	valid.loadInputs = function(inputs) {
-		js.each(inputs, el => {
+	valid.validateForm = function(form) {
+		let inputs = form.elements;
+		js.clean(inputs).each(inputs, el => {
 			el.name && valid.setInput(el.name, el.value);
 		});
-		return valid;
-	}
-	valid.showErrors = function(inputs, errors) {
-		js.reverse(inputs, el => {
-			let msg = el.name && errors[el.name]; //exists message error?
-			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
-		});
-		showAlerts(errors);
-		return valid;
-	}
-	valid.validateForm = function(form) {
-		let inputs = form.elements; //list
-		valid.clean(inputs).loadInputs(inputs); //input list to object
 		return valid.validate(form.getAttribute("action"), msgs)
-				|| !valid.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
-	}
-
-	function fnResponse(res) { //response = 200 read type
-		res.ok || valid.setMsgError(msgs.errAjax); //server response ok?
-		let contentType = res.headers.get("content-type") || ""; //response type
-		return (contentType.indexOf("application/json") > -1) ? res.json() : res.text();
-	}
-	valid.ajax = function(action, ev, resolve) {
-		fnLoading(); //show loading frame
-		ev && ev.preventDefault(); //stop default
-		resolve = resolve || showOk; //default ok
-		return fetch(action, { headers: XHR }) //get call
-					.then(fnResponse) //detect response
-					// Only call resolve function if is valid otherwise showError
-					.then(data => valid.isValid() ? resolve(data) : showError(data))
-					.catch(showError) //error handler
-					.finally(fnUnloading); //allways
+				|| !js.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 	valid.submit = function(form, ev, action, resolve) {
 		ev.preventDefault(); //stop default
@@ -92,24 +119,15 @@ js.ready(function() {
 			let fd = new FormData(form); //build pair key/value
 			for (let field in valid.getInputs()) //add extra data
 				fd.has(field) || fd.append(field, valid.getInput(field));
-			const CONFIG = { //init call options
+			js.fetch({ //init call options
 				method: form.method,
+				action: action || form.action,
 				body: (form.enctype === "multipart/form-data") ? fd : new URLSearchParams(fd),
-				headers: XHR
-			}
-			resolve = resolve || showOk; //default ok
-			fetch(action || form.action, CONFIG)
-					.then(fnResponse) //detect response
-					// Only call resolve function if is valid otherwise showErrors
-					.then(data => valid.isValid() ? resolve(data) : valid.showErrors(form.elements, data))
-					.catch(showError)
-					.finally(fnUnloading);
+				reject: function(data) { js.showErrors(form.elements, data); },
+				resolve: resolve || showOk //default ok
+			}).catch(showError)
+				.finally(fnUnloading);
 		}
-		return valid;
-	}
-	valid.update = function(data) { //update partial
-		js.html(js.getAll(data.update), data.html); //selector
-		showAlerts(data); //show alerts
 		return valid;
 	}
 	// End extends validator-box for clients
@@ -119,20 +137,20 @@ js.ready(function() {
 
 	// AJAX links and forms
 	/*$("a.ajax.remove").click(function(ev) {
-		return confirm(msgs.remove) && valid.ajax(this.href, ev);
+		confirm(msgs.remove) && js.ajax(this.href);
+		ev.preventDefault();
 	});
 	$("a.ajax.reload").click(function(ev) {
-		valid.ajax(this.href, ev, valid.update);
+		js.ajax(this.href, js.update);
+		ev.preventDefault();
 	});*/
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
-			document.querySelectorAll(".captcha").forEach(el => {
-				el.addEventListener("click", ev => {
-					grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
-						.then(token => valid.setInput("token", token).submit(el.closest("form"), ev))
-						.catch(showError);
-					ev.preventDefault();
-				});
+			js.click(js.getAll(".captcha"), (el, ev) => {
+				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
+					.then(token => valid.setInput("token", token).submit(el.closest("form"), ev))
+					.catch(showError);
+				ev.preventDefault();
 			});
 		});
 	}
@@ -150,7 +168,7 @@ js.ready(function() {
 			.change(times, el => { el.value = msgs.timeHelper(el.value); });
 
 		// Initialize all textarea counter
-		let textareas = js.filter(inputs, COUNTER_SELECTOR);
+		let textareas = js.filter(inputs, "textarea[maxlength]");
 		function fnCounter(el) {
 			let txt = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
 			js.text(form.querySelector("#counter-" + el.id), txt);
@@ -158,44 +176,26 @@ js.ready(function() {
 		js.keyup(textareas, fnCounter).each(textareas, fnCounter);
 		// End initialize all textarea counter
 
-		// Autocomplete inputs
-		let _search = false; //call source indicator
-		function fnRenderUser(item) { return item.nif + " - " + item.nombre; }
-		function fnAcLoad(el, id, txt) { return !js.val(el, txt).val(js.siblings(el, "[type=hidden]"), id); }
-		$(form.elements).filter(".ac-user").keydown(ev => { //reduce server calls
-			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224)); //backspace or alfanum
-		}).autocomplete({ //autocomplete for users
-			minLength: 3,
-			source: function(req, res) {
-				this.element.autocomplete("instance")._renderItem = function(ul, item) {
-					let label = sb.iwrap(fnRenderUser(item), req.term); //decore matches
-					return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
-				}
-				valid.ajax("/tests/usuarios.html?term=" + req.term, null, data => res(data.slice(0, 10)));
-			},
-			focus: function() { return false; }, //no change focus on select
-			search: function(ev, ui) { return _search; }, //lunch source
-			select: function(ev, ui) { return fnAcLoad(this, ui.item.nif, fnRenderUser(ui.item)); }
-		}).change(function(ev) {
-			this.value || fnAcLoad(this, "", "");
+		js.autocomplete({
+			inputs: js.filter(inputs, ".ac-user"),
+			id: "nif", action: "/tests/usuarios.html",
+			render: function(item) { return item.nif + " - " + item.nombre; }
 		});
-		// End autocomplete inputs
 
-		js.click(js.filter(inputs, "[type=reset]"), ev => {
+		js.click(js.filter(inputs, "[type=reset]"), () => {
 			//Do what you need before reset the form
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
-			valid.clean(form.elements); //reset message and state inputs
-			js.each(textareas, fnCounter); //recount all textareas
-		});
-		js.click(js.filter(inputs, "a.duplicate"), ev => {
-			valid.submit(form, ev, this.href, data => {
+			//reset message, state inputs and recount textareas
+			js.clean(inputs).each(textareas, fnCounter);
+		}).click(js.filter(inputs, "a.duplicate"), (el, ev) => {
+			valid.submit(form, ev, el.href, data => {
 				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
 				showOk(data); //show ok message
 			});
 		});
 
-		js.focus(form.elements); //focus on first
+		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax")) {
 				valid.submit(form, ev, null, data => {
