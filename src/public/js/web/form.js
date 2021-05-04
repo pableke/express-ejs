@@ -4,36 +4,31 @@ js.ready(function() {
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 
 	// Alerts handlers
-	function hideAlert(el) { js.fadeOut(el.parentNode);  }
+	let alerts = js.getAll("div.alert");
+	let texts = js.getAll(".alert-text");
+	let buttons = js.getAll(".alert-close");
 	function showAlert(el) { js.fadeIn(el.parentNode, "flex");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
-
-	let texts = js.getAll(".alert-text");
-	js.each(texts, el => {
-		el.firstChild ? showAlert(el) : hideAlert(el);
-	});
-
-	let buttons = js.getAll(".alert-close");
-	js.click(buttons, el => hideAlert(el));
-
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
 	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
 	function showError(txt) { txt && setAlert(texts[3], txt); } //red
-	function closeAlerts() { buttons.forEach(el => hideAlert(el)); }
+	function closeAlerts() { js.hide(alerts); } //hide alerts
 	function showAlerts(msgs) {
-		closeAlerts(); //close previous messages
 		//show posible multiple messages types
 		showOk(msgs.msgOk); //green
 		showInfo(msgs.msgInfo); //blue
 		showWarn(msgs.msgWarn); //yellow
 		showError(msgs.msgError); //red
 	}
+
+	js.each(texts, el => { el.firstChild && showAlert(el); });
+	js.click(buttons, el => { js.fadeOut(el.parentNode); });
 	// End alerts handlers
 
 	// Loading div
 	let _loading = document.querySelector(".loading");
-	function fnLoading() { js.show(_loading); closeAlerts(); }
+	function fnLoading() { js.show(_loading); closeAlerts(); valid.initMsgs(); }
 	function fnUnloading() { js.fadeOut(_loading); }
 	// End loading div
 
@@ -47,6 +42,7 @@ js.ready(function() {
 	const XHR = { "x-requested-with": "XMLHttpRequest" };
 
 	valid.clean = function(inputs) { //reset message and state inputs
+		closeAlerts(); //close previous messages
 		js.removeClass(inputs, CLS_INVALID)
 			.text(js.siblings(inputs, CLS_FEED_BACK), "")
 			.focus(inputs);
@@ -187,7 +183,6 @@ js.ready(function() {
 
 		js.click(js.filter(inputs, "[type=reset]"), ev => {
 			//Do what you need before reset the form
-			closeAlerts(); //close previous messages
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			valid.clean(form.elements); //reset message and state inputs

@@ -9,11 +9,20 @@ function JsBox() {
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
+	function fnGet(el, selector) { return selector && el.querySelector(selector); }
+	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
+	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 	function addSiblings(el, selector, results) {
 		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
-			sibling.matches(selector) && results.push(sibling);
+			addMatch(sibling, selector, results);
 		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
-			sibling.matches(selector) && results.push(sibling);
+			addMatch(sibling, selector, results);
+	}
+	function addAllSiblings(el, results) {
+		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
+			results.push(sibling);
+		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
+			results.push(sibling);
 	}
 
 	this.getLang = function() {
@@ -35,15 +44,12 @@ function JsBox() {
 	}
 
 	// Filters
-	this.getAll = function(selector, el) {
-		el = el || document; //query by el
-		return selector && el.querySelectorAll(selector);
-	}
-	this.get = function(selector, el) {
-		el = el || document; //query by el
-		return selector && el.querySelector(selector);
+	this.matches = function(el, selector) {
+		return selector && fnMatch(el);
 	}
 	this.find = function(list, selector) {
+		if (self.matches(list, selector))
+			return list; //only one element
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
 			let el = list[i]; //get element
@@ -54,29 +60,31 @@ function JsBox() {
 	}
 	this.filter = function(list, selector) {
 		let results = []; //elem container
-		self.each(list, el => {
-			el.matches(selector) && results.push(el);
-		});
+		selector && self.each(list, el => { addMatch(el, selector, results); });
 		return results;
+	}
+	this.get = function(selector, el) {
+		return fnGet(el || document, selector);
+	}
+	this.getAll = function(selector, el) {
+		return fnGetAll(el || document, selector);
 	}
 	this.siblings = function(list, selector) {
 		let results = []; //elem container
 		if (isElem(list))
-			addSiblings(list, selector, results);
+			selector ? addSiblings(list, selector, results)
+					: addAllSiblings(list, results);
 		else
-			self.each(list, el => addSiblings(el, selector, results));
+			selector ? self.each(list, el => addSiblings(el, selector, results))
+					: self.each(list, el => addAllSiblings(el, results));
 		return results;
 	}
 
 	// Contents
 	this.focus = function(list) {
 		const selector = "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])";
-		if (isElem(list))
-			list.matches(selector) && list.focus();
-		else {
-			let el = self.find(list, selector);
-			el && el.focus();
-		}
+		const el = self.find(list, selector);
+		el && el.focus();
 		return self;
 	}
 	this.val = function(list, value) {
@@ -143,10 +151,11 @@ function JsBox() {
 	}
 
 	// Efects Fade
+	const FADE_INC = .03;
 	this.fadeOut = function(el) {
 		el.style.opacity = 1;
 		(function fade() {
-			if ((el.style.opacity -= .1) < 0)
+			if ((el.style.opacity -= FADE_INC) < 0)
 				el.style.display = "none";
 			else
 				requestAnimationFrame(fade);
@@ -157,8 +166,7 @@ function JsBox() {
 		el.style.display = display || "block";
 		let val = el.style.opacity = 0;
 		(function fade() {
-			val += .1;
-			if (val < 1) {
+			if ((val += FADE_INC) < 1) {
 				el.style.opacity = val;
 				requestAnimationFrame(fade);
 			}
@@ -166,7 +174,7 @@ function JsBox() {
 		return self;
 	};
 	this.fadeToggle = function(el) {
-		return (el.style.opacity < .1) ? self.fadeIn(el) : self.fadeOut(el);
+		return (el.style.opacity < FADE_INC) ? self.fadeIn(el) : self.fadeOut(el);
 	};
 
 	// Events
