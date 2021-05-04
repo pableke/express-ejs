@@ -408,8 +408,10 @@ function StringBox() {
 	this.indexOf = function(str1, str2) { return str1 ? str1.indexOf(str2) : -1; }
 	this.iIndexOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
 	this.prevIndexOf = function(str1, str2, i) { return str1 ? str1.substr(0, i).lastIndexOf(str2) : -1; }
-	this.prefix = function(str1, str2) { return str1.startsWith(str2) ? str1 : (str2 + str1); }
-	this.suffix = function(str1, str2) { return str1.endsWith(str2) ? str1 : (str1 + str2); }
+	this.starts = function(str1, str2) { return str1 && str1.startsWith(str2); }
+	this.ends = function(str1, str2) { return str1 && str1.endsWith(str2); }
+	this.prefix = function(str1, str2) { return self.starts(str1, str2) ? str1 : (str2 + str1); }
+	this.suffix = function(str1, str2) { return self.ends(str1, str2) ? str1 : (str1 + str2); }
 	this.trunc = function(str, size) { return (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str; }
 	this.itrunc = function(str, size) {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
@@ -1099,7 +1101,7 @@ js.ready(function() {
 });
 
 
-$(document).ready(function() {
+js.ready(function() {
 	// Build all menus as UL > Li
 	$("ul.menu").each(function(i, menu) {
 		// Build menuu as tree
@@ -1155,16 +1157,6 @@ $(document).ready(function() {
 	window.onscroll = function() {
 		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
 	};
-
-	//Scroll anchors to its destination with a slow effect
-	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-		anchor.addEventListener("click", function(ev) {
-			ev.preventDefault();
-			try {
-				document.querySelector(this.href).scrollIntoView({ behavior: "smooth" });
-			} catch (ex) {}
-		});
-	});
 });
 
 
@@ -1173,25 +1165,33 @@ js.ready(function() {
 	let index = 0; //current step
 
 	//activate next step on progressbar
-	js.click(js.getAll(".next-tab"), ev => {
+	js.click(js.getAll(".next-tab"), () => {
 		(index < (steps.length - 1)) && js.addClass(steps[++index], "active");
 		return false;
 	});
 
 	//de-activate current step on progressbar
-	js.click(js.getAll(".prev-tab"), ev => {
+	js.click(js.getAll(".prev-tab"), () => {
 		index && js.removeClass(steps[index--], "active");
 		return false;
 	});
 
 	//go to a specific step on progressbar
-	js.click(js.getAll("a[href^='#tab-']"), ev => {
+	let anchors = js.getAll("a[href^='#']");
+	js.click(js.filter(anchors, "[href^='#tab-']"), () => {
 		let step = +this.href.substr(this.href.lastIndexOf("-") + 1);
 		if ((0 <= step) && (step != index) && (step < steps.length)) {
 			steps.forEach((el, i) => { js.toggle(el, "active", i <= step); });
 			index = step;
 		}
 		return false;
+	});
+
+	//Scroll anchors to its destination with a slow effect
+	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
+		ev.preventDefault();
+		let dest = document.querySelector(el.href);
+		dest && dest.scrollIntoView({ behavior: "smooth" });
 	});
 });
 

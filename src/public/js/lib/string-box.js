@@ -33,8 +33,10 @@ function StringBox() {
 	this.indexOf = function(str1, str2) { return str1 ? str1.indexOf(str2) : -1; }
 	this.iIndexOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
 	this.prevIndexOf = function(str1, str2, i) { return str1 ? str1.substr(0, i).lastIndexOf(str2) : -1; }
-	this.prefix = function(str1, str2) { return str1.startsWith(str2) ? str1 : (str2 + str1); }
-	this.suffix = function(str1, str2) { return str1.endsWith(str2) ? str1 : (str1 + str2); }
+	this.starts = function(str1, str2) { return str1 && str1.startsWith(str2); }
+	this.ends = function(str1, str2) { return str1 && str1.endsWith(str2); }
+	this.prefix = function(str1, str2) { return self.starts(str1, str2) ? str1 : (str2 + str1); }
+	this.suffix = function(str1, str2) { return self.ends(str1, str2) ? str1 : (str1 + str2); }
 	this.trunc = function(str, size) { return (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str; }
 	this.itrunc = function(str, size) {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;

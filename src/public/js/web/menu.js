@@ -1,5 +1,5 @@
 
-$(document).ready(function() {
+js.ready(function() {
 	// Build all menus as UL > Li
 	$("ul.menu").each(function(i, menu) {
 		// Build menuu as tree
@@ -55,14 +55,4 @@ $(document).ready(function() {
 	window.onscroll = function() {
 		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
 	};
-
-	//Scroll anchors to its destination with a slow effect
-	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-		anchor.addEventListener("click", function(ev) {
-			ev.preventDefault();
-			try {
-				document.querySelector(this.href).scrollIntoView({ behavior: "smooth" });
-			} catch (ex) {}
-		});
-	});
 });
