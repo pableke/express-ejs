@@ -1,5 +1,20 @@
 
 <nav class="navbar">
+	<img src="/public/img/svg/book.svg" class="sidebar-icon sidebar-toggle" width="32" height="32" />
+	<img src="/public/img/svg/arrow-left.svg" class="sidebar-icon sidebar-toggle d-none" width="32" height="32" />
+	<a href="/" class="logo simple"><%=i18n.lblEmpresaNombre%></a>
+
+	<div id="sidebar">
+		<ul class="menu menu-left">
+			<% menus.forEach(menu => { %>
+				<li id="<%=menu._id%>" parent="<%=menu.id_padre%>"><a href="<%=menu.href%>"><%=menu.nombre%></a></li>
+			<% }); %>
+			<li class="disabled">
+				<a href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+			</li>
+		</ul>
+	</div>
+
 	<ul class="menu menu-top">
 		<% menus.forEach(menu => { %>
 			<li id="<%=menu._id%>" parent="<%=menu.id_padre%>"><a href="<%=menu.href%>"><%=menu.nombre%></a></li>

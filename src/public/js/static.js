@@ -178,30 +178,47 @@ function JsBox() {
 
 	// Efects Fade
 	const FADE_INC = .03;
-	this.fadeOut = function(el) {
-		let val = parseFloat(el.style.opacity) || 0;
-		(function fade() {
-			if ((val -= FADE_INC) < 0)
-				el.style.display = "none";
-			else
-				requestAnimationFrame(fade);
-			el.style.opacity = val;
-		})();
+	this.fadeOut = function(list) {
+		function fnFadeOut(el) {
+			let val = parseFloat(el.style.opacity) || 0;
+			function fade() {
+				if ((val -= FADE_INC) < 0)
+					el.style.display = "none";
+				else
+					requestAnimationFrame(fade);
+				el.style.opacity = val;
+			}
+			fade();
+		}
+
+		if (isElem(list))
+			fnFadeOut(list);
+		else
+			self.each(list, fnFadeOut);
 		return self;
 	};
-	this.fadeIn = function(el, display) {
-		el.style.display = display || "block";
-		let val = parseFloat(el.style.opacity) || 0;
-		(function fade() {
-			if ((val += FADE_INC) < 1)
-				requestAnimationFrame(fade);
-			el.style.opacity = val;
-		})();
+	this.fadeIn = function(list, display) {
+		function fnFadeIn(el) {
+			el.style.display = display || "block";
+			let val = parseFloat(el.style.opacity) || 0;
+			function fade() {
+				if ((val += FADE_INC) < 1)
+					requestAnimationFrame(fade);
+				el.style.opacity = val;
+			}
+			fade();
+		}
+
+		if (isElem(list))
+			fnFadeIn(list);
+		else
+			self.each(list, fnFadeIn);
 		return self;
 	};
-	this.fadeToggle = function(el) {
-		let val = parseFloat(el.style.opacity) || 0;
-		return (val < FADE_INC) ? self.fadeIn(el) : self.fadeOut(el);
+	this.fadeToggle = function(list, display) {
+		let el = fnSize(list) ? list[0] : list;
+		let val = parseFloat(el && el.style.opacity) || 0;
+		return (val < FADE_INC) ? self.fadeIn(list, display) : self.fadeOut(list);
 	};
 
 	// Events
@@ -858,34 +875,6 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
-}).setForm("/login.html", {
-	usuario: valid.usuario,
-	clave: valid.clave
-}).setForm("/contact.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	asunto: valid.required,
-	info: valid.required
-}).setForm("/signup.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
-	nombre: valid.required,
-	ap1: valid.required,
-	nif: valid.nif,
-	correo: valid.correo
-}).setForm("/reactive.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
-	correo: valid.correo
-}).setForm("/tests/email.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	date: function(name, value, msgs) { //optional input
-		return !value || valid.ltNow(name, value, msgs);
-	},
-	number: valid.gt0,
-	asunto: valid.required,
-	info: function(name, value, msgs) {
-		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
-	}
 });
 
 
@@ -994,6 +983,28 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
+	function fnTocken(name, value, msgs) {
+		return valid.size(value, 200, 800);
+	}
+	valid.setForm("/login.html", {
+		usuario: valid.usuario,
+		clave: valid.clave
+	}).setForm("/contact.html", {
+		nombre: valid.required,
+		correo: valid.correo,
+		asunto: valid.required,
+		info: valid.required
+	}).setForm("/signup.html", {
+		token: fnTocken,
+		nombre: valid.required,
+		ap1: valid.required,
+		nif: valid.nif,
+		correo: valid.correo
+	}).setForm("/reactive.html", {
+		token: fnTocken,
+		correo: valid.correo
+	});
+
 	valid.validateForm = function(form) {
 		let inputs = form.elements;
 		js.clean(inputs).each(inputs, el => {
@@ -1103,9 +1114,9 @@ js.ready(function() {
 
 js.ready(function() {
 	// Build all menus as UL > Li
-	$("ul.menu").each(function(i, menu) {
-		// Build menuu as tree
-		$(menu.children).filter("[parent][parent!='']").each((i, child) => {
+	js.getAll("ul.menu").forEach(function(menu) {
+		// Build menu as tree
+		js.filter(menu.children, "[parent]:not([parent=''])").forEach(child => {
 			let node = $("#" + $(child).attr("parent"), menu); //get parent node
 			node.children().last().is(menu.tagName)
 				|| node.append('<ul class="sub-menu"></ul>').children("a").append('<b class="nav-tri">&rtrif;</b>');
@@ -1113,10 +1124,10 @@ js.ready(function() {
 		});
 
 		// Remove empty sub-levels and empty icons
-		$(menu.children).remove("[parent][parent!='']");
+		/*$(menu.children).remove("[parent][parent!='']");
 		menu.querySelectorAll("i").forEach(i => {
 			(i.classList.length <= 1) && i.parentNode.removeChild(i);
-		});
+		});*/
 
 		// Add triangles mark for submenu items
 		let triangles = $("b.nav-tri", menu); //find all marks
@@ -1135,21 +1146,24 @@ js.ready(function() {
 			let mask = parseInt(this.getAttribute("disabled")) || 0;
 			$(this).toggleClass("disabled", (mask & 3) !== 3);
 		}).removeAttr("disabled");
-	}).children().fadeIn(200); //show level=1
+
+		js.fadeIn(menu.children);
+	});
 
 	// Show/Hide sidebar
-	$(".sidebar-toggle").click(ev => {
-		$("#sidebar").toggleClass("active");
-		$(".sidebar-icon", this.parentNode).toggleClass("d-none");
+	js.click(js.getAll(".sidebar-toggle"), (el, ev) => {
+		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "d-none");
+		js.toggle(js.get("#sidebar", el.parentNode), "active");
 		ev.preventDefault();
 	});
 
 	// Menu Toggle Script
-	let toggles = $(".menu-toggle").click(ev => {
+	/*let toggles = $(".menu-toggle").click(ev => {
 		ev.preventDefault();
 		toggles.toggleClass("d-none");
+		console.log("toggles", toggles);
 		$("#wrapper").toggleClass("toggled");
-	});
+	});*/
 
 	//Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
@@ -1189,23 +1203,25 @@ js.ready(function() {
 
 	//Scroll anchors to its destination with a slow effect
 	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
-		ev.preventDefault();
-		let dest = document.querySelector(el.href);
+		let dest = document.querySelector(el.getAttribute("href"));
 		dest && dest.scrollIntoView({ behavior: "smooth" });
+		ev.preventDefault();
 	});
 });
 
 
-// Tests form validators
-valid.setForm("/tests/email.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	date: function(name, value, msgs) { //optional input
-		return !value || valid.ltNow(name, value, msgs);
-	},
-	number: valid.gt0,
-	asunto: valid.required,
-	info: function(name, value, msgs) {
-		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
-	}
+js.ready(function() {
+	// Tests form validators
+	valid.setForm("/tests/email.html", {
+		nombre: valid.required,
+		correo: valid.correo,
+		date: function(name, value, msgs) { //optional input
+			return !value || valid.ltNow(name, value, msgs);
+		},
+		number: valid.gt0,
+		asunto: valid.required,
+		info: function(name, value, msgs) {
+			return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
+		}
+	});
 });

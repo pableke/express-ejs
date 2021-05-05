@@ -28,8 +28,8 @@ js.ready(function() {
 
 	//Scroll anchors to its destination with a slow effect
 	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
-		ev.preventDefault();
-		let dest = document.querySelector(el.href);
+		let dest = document.querySelector(el.getAttribute("href"));
 		dest && dest.scrollIntoView({ behavior: "smooth" });
+		ev.preventDefault();
 	});
 });
