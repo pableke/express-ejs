@@ -1,11 +1,12 @@
 
-//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename
-//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename
+//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const merge = require("merge-stream");
 const gulp = require("gulp");
 const htmlmin = require("gulp-htmlmin");
+const minifyejs = require("gulp-minify-ejs");
 const jsmin = require("gulp-minify");
 const concat = require("gulp-concat");
 const cssmin = require("gulp-clean-css");
@@ -28,7 +29,7 @@ gulp.task("minify-html", () => {
 		removeRedundantAttributes: true //remove attr with default value
 	};
 	return gulp.src(HTML_PATH)
-				.pipe(strip()).pipe(htmlmin(config)).pipe(cssInline())
+				.pipe(strip()).pipe(htmlmin(config)).pipe(cssInline()).pipe(minifyejs())
 				//.pipe(replace('<base href="src/">', '<base href="dist/">'))
 				.pipe(gulp.dest("dist/views"));
 });
