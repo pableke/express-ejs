@@ -1,17 +1,17 @@
 
 /* Navbars */
 .navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+	position: sticky;
+	top: 0;
+	z-index: 1;
 
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
 
-  padding: .5rem .8rem;
-  background-color: #f8f9fa;
+	padding: .5rem .8rem;
+	background-color: #f8f9fa;
 }
 .nav-item { display: inline-block; margin-left: 5px; padding: .5rem .8rem; white-space: nowrap; color: rgba(0, 0, 0, .9); }
 .nav-main { font-size: 1.3rem; text-decoration: none; }
@@ -40,20 +40,19 @@ ul.menu-top ul ul { top: 1%; left: 99%; }
 
 /* Sidebar left */
 #sidebar {
-  position: fixed;
-  z-index: 1;
-  top: 50px;
-  left: -240px;
-  width: 240px;
-  height: 100%;
-  padding: 1px;
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  transition: all 500ms linear;
+	position: fixed;
+	z-index: 1;
+	top: 50px;
+	left: -240px;
+	width: 240px;
+	height: 100%;
+	padding: 1px;
+	min-height: 100vh;
+	background-color: #f8f9fa;
+	transition: all 500ms linear;
 }
-#sidebar.active {
-  left: 0px;
-}
+#sidebar.active { left: 0px; }
+.sidebar-toggle { margin-right: 4px; cursor: pointer; }
 /* Sidebar left */
 
 /* Menu-Left dropdown */

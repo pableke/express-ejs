@@ -178,30 +178,47 @@ function JsBox() {
 
 	// Efects Fade
 	const FADE_INC = .03;
-	this.fadeOut = function(el) {
-		let val = parseFloat(el.style.opacity) || 0;
-		(function fade() {
-			if ((val -= FADE_INC) < 0)
-				el.style.display = "none";
-			else
-				requestAnimationFrame(fade);
-			el.style.opacity = val;
-		})();
+	this.fadeOut = function(list) {
+		function fnFadeOut(el) {
+			let val = parseFloat(el.style.opacity) || 0;
+			function fade() {
+				if ((val -= FADE_INC) < 0)
+					el.style.display = "none";
+				else
+					requestAnimationFrame(fade);
+				el.style.opacity = val;
+			}
+			fade();
+		}
+
+		if (isElem(list))
+			fnFadeOut(list);
+		else
+			self.each(list, fnFadeOut);
 		return self;
 	};
-	this.fadeIn = function(el, display) {
-		el.style.display = display || "block";
-		let val = parseFloat(el.style.opacity) || 0;
-		(function fade() {
-			if ((val += FADE_INC) < 1)
-				requestAnimationFrame(fade);
-			el.style.opacity = val;
-		})();
+	this.fadeIn = function(list, display) {
+		function fnFadeIn(el) {
+			el.style.display = display || "block";
+			let val = parseFloat(el.style.opacity) || 0;
+			function fade() {
+				if ((val += FADE_INC) < 1)
+					requestAnimationFrame(fade);
+				el.style.opacity = val;
+			}
+			fade();
+		}
+
+		if (isElem(list))
+			fnFadeIn(list);
+		else
+			self.each(list, fnFadeIn);
 		return self;
 	};
-	this.fadeToggle = function(el) {
-		let val = parseFloat(el.style.opacity) || 0;
-		return (val < FADE_INC) ? self.fadeIn(el) : self.fadeOut(el);
+	this.fadeToggle = function(list, display) {
+		let el = fnSize(list) ? list[0] : list;
+		let val = parseFloat(el && el.style.opacity) || 0;
+		return (val < FADE_INC) ? self.fadeIn(list, display) : self.fadeOut(list);
 	};
 
 	// Events

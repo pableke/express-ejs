@@ -39,32 +39,4 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
-}).setForm("/login.html", {
-	usuario: valid.usuario,
-	clave: valid.clave
-}).setForm("/contact.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	asunto: valid.required,
-	info: valid.required
-}).setForm("/signup.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
-	nombre: valid.required,
-	ap1: valid.required,
-	nif: valid.nif,
-	correo: valid.correo
-}).setForm("/reactive.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
-	correo: valid.correo
-}).setForm("/tests/email.html", {
-	nombre: valid.required,
-	correo: valid.correo,
-	date: function(name, value, msgs) { //optional input
-		return !value || valid.ltNow(name, value, msgs);
-	},
-	number: valid.gt0,
-	asunto: valid.required,
-	info: function(name, value, msgs) {
-		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
-	}
 });
