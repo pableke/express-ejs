@@ -12,10 +12,10 @@ const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
 const valid = require("app/lib/validator-box.js"); //validators
 
-const HTTPS = { //credentials
+/*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
-};
+};*/
 
 // Extends validators
 valid.set("required", function(name, value, msgs) {
