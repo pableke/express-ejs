@@ -12,7 +12,7 @@ valid.set("required", function(name, value, msgs) {
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
 	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
 }).set("token", function(name, value, msgs) {
-	return valid.size(value, 200, 800);
+	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
 }).set("usuario", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {
