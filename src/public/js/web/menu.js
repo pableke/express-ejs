@@ -44,14 +44,6 @@ js.ready(function() {
 		ev.preventDefault();
 	});
 
-	// Menu Toggle Script
-	/*let toggles = $(".menu-toggle").click(ev => {
-		ev.preventDefault();
-		toggles.toggleClass("d-none");
-		console.log("toggles", toggles);
-		$("#wrapper").toggleClass("toggled");
-	});*/
-
 	//Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
 	js.click(top, () => { js.scrollTop(400); });

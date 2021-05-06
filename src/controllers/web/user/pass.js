@@ -19,7 +19,6 @@ exports.save = function(req, res) {
 	if (dao.web.myjson.users.updateNewPass(user._id, req.body.oldPass, req.body.clave, res.locals.i18n)) {
 		valid.setMsgOk(res.locals.i18n.msgUpdateOk);
 		res.build("web/list/index");
-		//res.redirect("/user");
 	}
 	else
 		res.status(500).build("web/forms/pass");

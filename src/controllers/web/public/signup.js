@@ -3,13 +3,15 @@ const dao = require("app/dao/factory.js");
 const mailer = require("app/lib/mailer.js");
 const valid = require("app/lib/validator-box.js")
 
-valid.setForm("/signup.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+const FORM = {
+	token: valid.token,
 	nombre: valid.required,
 	ap1: valid.required,
 	nif: valid.nif,
 	correo: valid.correo
-});
+};
+valid.setForm("/signup.html", FORM)
+	.setForm("/register.html", FORM);
 
 exports.view = function(req, res) {
 	res.build("web/forms/signup");

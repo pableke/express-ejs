@@ -845,6 +845,10 @@ valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
 	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
+}).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
+	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
+}).set("token", function(name, value, msgs) {
+	return valid.size(value, 200, 800);
 }).set("usuario", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {
@@ -984,9 +988,6 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	function fnToken(name, value, msgs) {
-		return valid.size(value, 200, 800);
-	}
 	valid.setForm("/login.html", {
 		usuario: valid.usuario,
 		clave: valid.clave
@@ -996,18 +997,24 @@ js.ready(function() {
 		asunto: valid.required,
 		info: valid.required
 	}).setForm("/signup.html", {
-		token: fnToken,
+		token: valid.token,
 		nombre: valid.required,
 		ap1: valid.required,
 		nif: valid.nif,
 		correo: valid.correo
 	}).setForm("/reactive.html", {
-		token: fnToken,
+		token: valid.token,
 		correo: valid.correo
 	}).setForm("/user/pass.html", {
 		oldPass: valid.min8,
 		clave: valid.min8,
 		reclave: valid.reclave
+	}).setForm("/user/profile.html", {
+		nombre: valid.required,
+		ap1: valid.required,
+		ap2: valid.max200, //optional
+		nif: valid.nif,
+		correo: valid.correo
 	});
 
 	valid.validateForm = function(form) {
@@ -1161,14 +1168,6 @@ js.ready(function() {
 		js.toggle(js.get("#sidebar", el.parentNode), "active");
 		ev.preventDefault();
 	});
-
-	// Menu Toggle Script
-	/*let toggles = $(".menu-toggle").click(ev => {
-		ev.preventDefault();
-		toggles.toggleClass("d-none");
-		console.log("toggles", toggles);
-		$("#wrapper").toggleClass("toggled");
-	});*/
 
 	//Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
