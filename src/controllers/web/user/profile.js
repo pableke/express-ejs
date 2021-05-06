@@ -13,18 +13,24 @@ valid.setForm("/user/profile.html", FORM)
 	.setForm("/user/perfil.html", FORM);
 
 exports.view = function(req, res) {
-	res.locals.body = req.session.user;
+	let i18n = res.locals.i18n;
+	// sessions save dates as string (as JSON)
+	let user = Object.assign({}, req.session.user);
+	user.alta = i18n.isoDate(new Date(user.alta));
+	res.locals.body = user;
 	res.build("web/forms/profile");
 }
 
 exports.save = function(req, res) {
+	let i18n = res.locals.i18n;
 	let user = req.session.user;
-	user.nombre = req.body.nombre;
-	user.ap1 = req.body.ap1;
-	user.ap2 = req.body.ap2;
-	user.correo = req.body.correo;
+	user.nombre = req.data.nombre;
+	user.ap1 = req.data.ap1;
+	user.ap2 = req.data.ap2;
+	user.correo = req.data.correo;
+
 	if (dao.web.myjson.users.save(user)) {
-		valid.setMsgOk(res.locals.i18n.msgUpdateOk);
+		valid.setMsgOk(i18n.msgUpdateOk);
 		res.build("web/list/index");
 	}
 	else

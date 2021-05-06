@@ -6,9 +6,12 @@ const valid = require("app/lib/validator-box.js");
 module.exports = function(table) {
 	function fnError(msg) { return !valid.setMsgError(msg); }
 
+	table.onload = function(users) { // build date types
+		users.each(user => { user.alta = new Date(user.alta); });
+	}
+
 	table.findByNif = function(nif) { return table.find(user => (user.nif == nif)); }
 	table.findByMail = function(email) { return table.find(user => (user.correo == email)); }
-
 	table.findLogin = function(nif, email) {
 		return table.find(user => ((user.nif == nif) || (user.correo == email)));
 	}
@@ -40,5 +43,5 @@ module.exports = function(table) {
 	}
 
 	return table.setField("nif").setField("nombre").setField("ap1").setField("ap2")
-				.setField("correo").setField("clave").setField("mask").setField("fecha");
+				.setField("correo").setField("clave").setField("mask").setField("alta");
 }

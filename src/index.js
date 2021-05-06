@@ -6,6 +6,7 @@ const path = require("path"); //file and directory paths
 
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
+const uuid = require("uuid"); //generate random ids
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
@@ -30,6 +31,7 @@ app.set("trust proxy", 1) // trust first proxy
 app.use(session({ //session config
 	resave: false,
 	saveUninitialized: false,
+	genid: req => uuid.v1(), //use UUIDs for session IDs
 	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
 	cookie: {
 		secure: false, //require https
