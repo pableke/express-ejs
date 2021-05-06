@@ -341,6 +341,7 @@ module.exports = {
 	msgProcesando: "Procesando información...",
 
 	errForm: "Error al validar los campos del formulario",
+	errFormNotFound: "Formulario no encontrado en el sistema",
 	errEjecutar: "Error al ejecutar la operación solicitada",
 	errInsert: "Error al guardar los datos",
 	errUpdate: "Error al actualizar los datos",

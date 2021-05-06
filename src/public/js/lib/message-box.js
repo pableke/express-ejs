@@ -18,7 +18,6 @@ function MessageBox() {
 		en: { //english
 			lang: "en", //id iso
 			//inputs errors messages
-			errAjax: "Error on ajax call",
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
 			errMinlength8: "The minimum required length is 8 characters",
@@ -51,7 +50,6 @@ function MessageBox() {
 		es: { //spanish
 			lang: "es", //id iso
 			//inputs errors messages
-			errAjax: "Error en la llamada al servidor",
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",

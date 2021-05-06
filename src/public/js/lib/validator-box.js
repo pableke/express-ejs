@@ -345,6 +345,7 @@ function ValidatorBox() {
 			data[field] = inputs[field];
 			fn(field, inputs[field], i18n);
 		}
-		return self.isValid();
+		// Form must be registered
+		return validators && self.isValid();
 	}
 }
