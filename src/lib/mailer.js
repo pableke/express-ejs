@@ -25,10 +25,11 @@ transporter.verify(function(err, success) {
 
 const MESSAGE = {
 	from: "info@gmail.com", // sender address
-	//to: "pablo.rosique@upct.es", // list of receivers
-	//subject: "Email de prueba", // Subject line
-	text: "Email submitted by XXXX"//, // plain text body
-	//html: res.build("dist/mails/index.html").getValue(), // html
+	to: "pablo.rosique@upct.es", // list of receivers
+	tpl: "tests/emails/test.ejs", // default template
+	subject: "", // Subject line
+	text: "Email submitted", // plain text body
+	html: "<html><body>Email submitted</body></html>" // html contents
 	/*attachments: [ // array of attachment objects
 		{ filename: "text1.txt", content: "hello world!" }, // utf-8 string as an attachment
 		{ filename: "test.zip", content: fs.createReadStream("src/public/temp/test.zip") }, //stream as an attachment
@@ -46,18 +47,24 @@ function fnShowError(type, err) {
 	return err;
 }
 
-exports.send = function(to, subject, tpl, data, attachments) {
-	MESSAGE.to = to;
-	MESSAGE.subject = subject;
-	MESSAGE.attachments = attachments;
+exports.send = function(mail) {
+	mail = mail || MESSAGE;
+	mail.to = mail.to || MESSAGE.to;
+	mail.tpl = mail.tpl || MESSAGE.tpl;
+	mail.subject = mail.subject || MESSAGE.subject;
+	mail.attachments = mail.attachments || MESSAGE.attachments;
 
-	tpl = path.join(__dirname, "../views", tpl);
+	// Email template path base = /views
+	let tpl = path.join(__dirname, "../views", "web/emails/index.ejs");
+	mail.data._tplBody = path.join(__dirname, "../views", mail.tpl);
+
+	// Return promise to send email
 	return new Promise(function(resolve, reject) {
-		ejs.renderFile(tpl, data, function(err, result) {
+		ejs.renderFile(tpl, mail.data, function(err, result) {
 			if (err)
 				return reject(fnShowError("EJS", err));
-			MESSAGE.html = result;
-			transporter.sendMail(MESSAGE, function(err, info) {
+			mail.html = result;
+			transporter.sendMail(mail, function(err, info) {
 				return err ? reject(fnShowError("NODEMAILER", err)) : resolve(info);
 			});
 		});

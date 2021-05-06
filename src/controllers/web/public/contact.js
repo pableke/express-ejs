@@ -16,9 +16,11 @@ exports.view = function(req, res) {
 }
 
 exports.send = function(req, res) {
-	let tpl = "web/emails/reactive.ejs"; //email template path base = /views
-	res.locals.pass = valid.generatePassword(); //generate new password
-	mailer.send("pableke@gmail.com", "Email de contacto", tpl, res.locals)
-		.then(info => res.send(res.locals.i18n.msgCorreo))
+	mailer.send({
+		to: "pableke@gmail.com",
+		subject: res.locals.i18n.lblFormContact,
+		tpl: "web/emails/contact.ejs",
+		data: res.locals
+	}).then(info => res.send(res.locals.i18n.msgCorreo))
 		.catch(err => fnError(res, res.locals.i18n.errSendMail));
 }

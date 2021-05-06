@@ -92,6 +92,7 @@ app.use((req, res, next) => {
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
+	console.log("> Log:", err); // show log on console
 	valid.setMsgError("" + err); //set message error on view
 	if (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(500).json(valid.getMsgs()); //ajax response
