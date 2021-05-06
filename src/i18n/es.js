@@ -34,7 +34,7 @@ module.exports = {
 	titNewClave: "Nueva clave asociada al usuario", titReClave: "Repita la clave indicada en el campo anterior",
 	errClave: "Clave incorrecta", errReclave: "Las claves introducidas no coinciden",
 	lblClaveOlvida: "¿Ha olvidado su clave?", lblFormClave: "Modifique su clave de acceso", 
-	lblReactivar: "Reactivar clave",
+	lblReactivar: "Reactivar cuenta",
 	msgChangePassOk: "Clave modificada correctamente",
 
 	lblNif: "NIF", lblCif: "CIF", lblNie: "NIE", lblNifCif: "NIF / CIF", 
@@ -197,7 +197,7 @@ module.exports = {
 	lblNumUsuarios: "Nº Usu",
 
 	lblFormRecordar: "Recordatorio de su calve de acceso",
-	lblFormContact: "Formulario de contacto Web",
+	lblFormContact: "Formulario de contacto",
 	lblFormLogin: "Formulario de acceso",
 	lblFormCliente: "Formulario de gestión de clientes",
 	lblFormGrupo: "Formulario de gupos",

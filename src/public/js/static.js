@@ -953,14 +953,15 @@ js.ready(function() {
 
 		let _search = false; //call source indicator
 		opts.action = opts.action || "#"; //request
-		opts.minLength = opts.minLength || 3; //length
-		opts.render = opts.render || function() { return "-"; };
+		opts.minLength = opts.minLength || 3; //length to start
+		opts.render = opts.render || function() { return "-"; }; //render on input
+		opts.renderItem = opts.renderItem || opts.render; //render on item list
 		opts.focus = function() { return false; }; //no change focus on select
 		opts.search = function(ev, ui) { return _search; }; //lunch source
 		opts.select = function(ev, ui) { return fnAcLoad(this, ui.item[opts.id], opts.render(ui.item)); };
 		opts.source = function(req, res) {
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
-				let label = sb.iwrap(opts.render(item), req.term); //decore matches
+				let label = sb.iwrap(opts.renderItem(item), req.term); //decore matches
 				return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
 			js.ajax(opts.action + "?term=" + req.term, data => res(data.slice(0, 10)));
@@ -1105,7 +1106,7 @@ js.ready(function() {
 				});
 			}
 			else
-				valid.validateForm(form) || ev.preventDefault();
+				valid.validateForm(form) ? fnLoading() : ev.preventDefault();
 		});
 	});
 	// End AJAX links and forms

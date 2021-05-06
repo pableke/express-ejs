@@ -31,19 +31,22 @@ exports.email = (req, res) => {
 	res.build("tests/forms/email");
 };
 exports.send = (req, res, next) => {
-	let tpl = "tests/emails/test.ejs"; //email template path base = /views
-	mailer.send("pableke@gmail.com", req.body.asunto, tpl, res.locals)
-		.then(info => res.send(res.locals.i18n.msgCorreo))
+	mailer.send({
+		to: "pableke@gmail.com",
+		subject: req.body.asunto,
+		tpl: "tests/emails/test.ejs",
+		data: res.locals //data
+	}).then(info => res.send(res.locals.i18n.msgCorreo))
 		.catch(err => next(res.locals.i18n.errSendMail));
-};
+}
 
 exports.files = (req, res) => {
 	res.build("tests/forms/files");
-};
+}
 exports.upload = (req, res) => {
 	console.log("upload", req.body);
 	res.send("file uploaded!");
-};
+}
 
 exports.zip = function(req, res) {
 	// Options -r recursive -j ignore directory info - redirect to stdout

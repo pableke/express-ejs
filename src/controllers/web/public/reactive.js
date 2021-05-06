@@ -10,7 +10,8 @@ valid.setForm("/reactive.html", {
 });
 
 function fnError(res, msg) {
-	res.status(500).json(valid.setMsgError(msg).getMsgs());
+	valid.setMsgError(msg);
+	res.status(500).send(msg);
 }
 
 exports.view = function(req, res) {
@@ -23,16 +24,20 @@ exports.send = function(req, res) {
 	fetch(url, { method: "post" })
 		.then(res => res.json())
 		.then(gresponse => {
-			let tpl = "web/emails/reactive.ejs"; //email template path base = /views
-			if (gresponse.success && (gresponse.score > 0.5)) { //is a boot?
-				res.locals.pass = valid.generatePassword(); //generate new random password
-				dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, res.locals.i18n);
-				mailer.send("pableke@gmail.com", "Reactivar cuenta", tpl, res.locals)
-					.then(info => res.send(res.locals.i18n.msgReactive))
-					.catch(err => fnError(res, res.locals.i18n.errSendMail));
-			}
-			else
-				fnError(res, res.locals.i18n.errCaptcha);
+			if (!gresponse.success || (gresponse.score < 0.51)) //is a boot?
+				return fnError(res, res.locals.i18n.errCaptcha);
+
+			res.locals.pass = valid.generatePassword(); //generate new random password
+			if (!dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, res.locals.i18n))
+				return fnError(res, valid.getMsgError());
+
+			mailer.send({
+				to: req.body.correo,
+				subject: res.locals.i18n.lblReactivar,
+				tpl: "web/emails/reactive.ejs",
+				data: res.locals
+			}).then(info => res.send(res.locals.i18n.msgReactive))
+				.catch(err => fnError(res, res.locals.i18n.errSendMail));
 		})
 		.catch(err => fnError(res, res.locals.i18n.errCaptcha));
 }
