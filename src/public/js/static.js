@@ -271,6 +271,7 @@ function MessageBox() {
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
 			errMinlength8: "The minimum required length is 8 characters",
+			errMaxlength: "Max length exceded",
 			errNif: "Wrong ID format",
 			errCorreo: "Wrong Mail format",
 			errDate: "Wrong date format",
@@ -303,6 +304,7 @@ function MessageBox() {
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
+			errMaxlength: "Longitud máxima excedida",
 			errNif: "Formato de NIF / CIF incorrecto",
 			errCorreo: "Formato de E-Mail incorrecto",
 			errDate: "Formato de fecha incorrecto",
@@ -848,7 +850,7 @@ valid.set("required", function(name, value, msgs) {
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
 	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
 }).set("token", function(name, value, msgs) {
-	return valid.size(value, 200, 800);
+	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
 }).set("usuario", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {

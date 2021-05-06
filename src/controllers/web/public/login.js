@@ -11,7 +11,7 @@ valid.set("required", function(name, value, msgs) {
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
 	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
 }).set("token", function(name, value, msgs) {
-	return valid.size(value, 200, 800);
+	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
 }).set("usuario", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {
@@ -74,12 +74,20 @@ exports.check = function(req, res) {
 	res.build("web/list/index");
 }
 
+function fnLogout(req) {
+	delete req.session.user;
+	delete req.session.time;
+	delete req.session.click;
+	req.session.destroy(); //remove session: regenerated next request
+	delete req.session; //full destroy
+}
+
 exports.auth = function(req, res, next) {
 	res.setBody("web/forms/login"); //if error => go login
 	if (!req.session || !req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
-		req.session.destroy();  //remove session => regenerated next request
+		fnLogout(req);
 		return next(res.locals.i18n.endSession);
 	}
 	//nuevo instante del ultimo click
@@ -92,7 +100,7 @@ exports.home = function(req, res) {
 }
 
 exports.logout = function(req, res) {
-	req.session.destroy(); //remove session => regenerated next request
+	fnLogout(req);
 	valid.setMsgOk(res.locals.i18n.msgLogout);
 	res.build("web/forms/login");
 }
