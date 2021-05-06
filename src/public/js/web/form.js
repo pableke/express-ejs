@@ -105,9 +105,6 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	function fnTocken(name, value, msgs) {
-		return valid.size(value, 200, 800);
-	}
 	valid.setForm("/login.html", {
 		usuario: valid.usuario,
 		clave: valid.clave
@@ -117,13 +114,23 @@ js.ready(function() {
 		asunto: valid.required,
 		info: valid.required
 	}).setForm("/signup.html", {
-		token: fnTocken,
+		token: valid.token,
 		nombre: valid.required,
 		ap1: valid.required,
 		nif: valid.nif,
 		correo: valid.correo
 	}).setForm("/reactive.html", {
-		token: fnTocken,
+		token: valid.token,
+		correo: valid.correo
+	}).setForm("/user/pass.html", {
+		oldPass: valid.min8,
+		clave: valid.min8,
+		reclave: valid.reclave
+	}).setForm("/user/profile.html", {
+		nombre: valid.required,
+		ap1: valid.required,
+		ap2: valid.max200, //optional
+		nif: valid.nif,
 		correo: valid.correo
 	});
 
