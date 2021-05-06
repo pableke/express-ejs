@@ -17,43 +17,6 @@ const valid = require("app/lib/validator-box.js"); //validators
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };*/
 
-// Extends validators
-valid.set("required", function(name, value, msgs) {
-	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
-}).set("min8", function(name, value, msgs) {
-	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
-}).set("usuario", function(name, value, msgs) {
-	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
-}).set("clave", function(name, value, msgs) {
-	return valid.min8(name, value, msgs) && (valid.login(name, value) || !valid.setError(name, msgs.errRegex));
-}).set("reclave", function(name, value, msgs) {
-	return valid.clave(name, value, msgs) && ((value == valid.getData("clave")) || !valid.setError(name, msgs.errReclave));
-}).set("nif", function(name, value, msgs) {
-	return valid.required(name, value, msgs) && (valid.idES(name, value) || !valid.setError(name, msgs.errNif));
-}).set("correo", function(name, value, msgs) {
-	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
-}).set("ltNow", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
-}).set("leToday", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
-}).set("gtNow", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
-}).set("geToday", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
-			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
-}).set("gt0", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
-			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
-});
-
 // Template engines
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -96,7 +59,7 @@ app.use((err, req, res, next) => { //global handler error
 	valid.setMsgError("" + err); //set message error on view
 	if (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(500).json(valid.getMsgs()); //ajax response
-	return res.status(500).render("index");
+	return res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found
 	valid.setMsgError(res.locals.i18n.err404); //set message error on view
@@ -109,7 +72,7 @@ app.use("*", (req, res) => { //error 404 page not found
 dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
 app.set("port", port); //set port as express variable
-const server = app.listen(port, () => console.log("Server listening on http://localhost:" + port));
+const server = app.listen(port, () => console.log("> Server listening on http://localhost:" + port));
 
 //capture Node.js Signals and Events
 function fnExit(signal) { //exit handler

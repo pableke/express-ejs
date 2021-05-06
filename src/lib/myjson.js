@@ -14,14 +14,17 @@ function fnMkdirError(err) { return (err && (err.code != "EEXIST")) ? fnLogError
 
 function Collection(db, pathname) {
 	const self = this; //self instance
-	let table = { seq: 1, fields: [], data: [] };
+	const table = { seq: 1, fields: [], data: [] };
 
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
 				if (err)
 					return reject(fnLogError(err));
-				table = JSON.parse(data); //parse json
+				let aux = JSON.parse(data); //parse json
+				table.seq = aux.seq || table.seq;
+				table.fields = aux.fields || table.fields;
+				table.data = aux.data || table.data;
 				self.onload && self.onload(self);
 				resolve(self);
 			});
