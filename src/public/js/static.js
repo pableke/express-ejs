@@ -849,8 +849,8 @@ valid.set("required", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
 }).set("clave", function(name, value, msgs) {
 	return valid.min8(name, value, msgs) && (valid.login(name, value) || !valid.setError(name, msgs.errRegex));
-}).set("reclave", function(name, value, msgs, data) {
-	return valid.clave(name, value, msgs) && ((value == data.clave) || !valid.setError(name, msgs.errReclave));
+}).set("reclave", function(name, value, msgs) {
+	return valid.clave(name, value, msgs) && ((value == valid.getData("clave")) || !valid.setError(name, msgs.errReclave));
 }).set("nif", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.idES(name, value) || !valid.setError(name, msgs.errNif));
 }).set("correo", function(name, value, msgs) {
@@ -984,7 +984,7 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	function fnTocken(name, value, msgs) {
+	function fnToken(name, value, msgs) {
 		return valid.size(value, 200, 800);
 	}
 	valid.setForm("/login.html", {
@@ -996,14 +996,18 @@ js.ready(function() {
 		asunto: valid.required,
 		info: valid.required
 	}).setForm("/signup.html", {
-		token: fnTocken,
+		token: fnToken,
 		nombre: valid.required,
 		ap1: valid.required,
 		nif: valid.nif,
 		correo: valid.correo
 	}).setForm("/reactive.html", {
-		token: fnTocken,
+		token: fnToken,
 		correo: valid.correo
+	}).setForm("/user/pass.html", {
+		oldPass: valid.min8,
+		clave: valid.min8,
+		reclave: valid.reclave
 	});
 
 	valid.validateForm = function(form) {
