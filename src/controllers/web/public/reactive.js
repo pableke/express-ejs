@@ -5,7 +5,7 @@ const mailer = require("app/lib/mailer.js");
 const valid = require("app/lib/validator-box.js")
 
 valid.setForm("/reactive.html", {
-	token: function(name, value, msgs) { return valid.size(value, 200, 800); },
+	token: valid.token,
 	correo: valid.correo
 });
 
