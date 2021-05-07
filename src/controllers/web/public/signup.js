@@ -18,7 +18,7 @@ exports.view = function(req, res) {
 }
 
 exports.save = function(req, res) {
-	req.data.alta = new Date();
+	req.data.alta = new Date(); //set insert date time
 	if (dao.web.myjson.users.insertUser(req.data, res.locals.i18n))
 		res.send(res.locals.i18n.msgUsuario);
 	else

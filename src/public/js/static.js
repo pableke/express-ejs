@@ -53,6 +53,20 @@ function JsBox() {
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
 	}
+	this.mask = function(list, mask) {
+		return self.each(list, (el, i) => { //hide elements by mask
+			(((mask>>i)&1)==0) ? self.addClass(el, "hide") : self.removeClass(el, "hide");
+		});
+	}
+	this.select = function(el, mask) {
+		self.mask(el.querySelectorAll("option"), mask);
+		let option = el.querySelector("option[value='" + el.value + "']");
+		if (self.hasClass(option, "hide")) { //current option is hidden => change
+			let newopt = self.find(el.children, "option:not(.hide)");
+			el.value = newopt ? newopt.value : null;
+		}
+		return self;
+	}
 
 	// Iterators
 	this.each = function(list, cb) {
@@ -154,6 +168,10 @@ function JsBox() {
 			self.each(list, el => { el.style.display = "none"; });
 		return self;
 	}
+	this.hasClass = function(list, name) {
+		let el = fnSize(list) ? list[0] : list;
+		return el && el.classList.contains(name);
+	};
 	this.addClass = function(list, name) {
 		if (isElem(list))
 			list.classList.add(name);
@@ -495,6 +513,7 @@ function ValidatorBox() {
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
 
+	let i18n = {}; //error messages
 	let data = {}; //data parsed
 	let inputs = {}; //inputs container
 	let errors = 0; //counter
@@ -736,6 +755,15 @@ function ValidatorBox() {
 	/************************ FIN VALIDADORES ************************/
 	/*****************************************************************/
 
+	// Error messages
+	this.getI18n = function() {
+		return i18n;
+	}
+	this.setI18n = function(data) {
+		i18n = data;
+		return self;
+	}
+
 	// Messages for response
 	this.initMsgs = function() {
 		for (let k in MSGS) //clear prev msgs
@@ -821,7 +849,7 @@ function ValidatorBox() {
 
 	this.fails = function() { return errors > 0; }
 	this.isValid = function() { return errors == 0; }
-	this.validate = function(form, i18n) {
+	this.validate = function(form) {
 		data = {}; //new data output
 		sysdate.setTime(Date.now()); //update time
 		let validators = self.initMsgs().getForm(form);
@@ -844,6 +872,8 @@ const valid = new ValidatorBox();
 
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("required50", function(name, value, msgs) { //usefull for codes, refs, etc.
+	return valid.size(value, 1, 50) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
 	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
@@ -886,6 +916,7 @@ valid.set("required", function(name, value, msgs) {
 js.ready(function() {
 	const lang = js.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
+	valid.setI18n(msgs); //init error messages
 
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
@@ -1023,7 +1054,7 @@ js.ready(function() {
 		js.clean(inputs).each(inputs, el => {
 			el.name && valid.setInput(el.name, el.value);
 		});
-		return valid.validate(form.getAttribute("action"), msgs)
+		return valid.validate(form.getAttribute("action"))
 				|| !js.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 	valid.submit = function(form, ev, action, resolve) {
@@ -1118,7 +1149,7 @@ js.ready(function() {
 				});
 			}
 			else
-				valid.validateForm(form) ? fnLoading() : ev.preventDefault();
+				valid.validateForm(form) || ev.preventDefault();
 		});
 	});
 	// End AJAX links and forms

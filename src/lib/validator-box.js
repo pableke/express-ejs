@@ -10,6 +10,7 @@ function ValidatorBox() {
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
 
+	let i18n = {}; //error messages
 	let data = {}; //data parsed
 	let inputs = {}; //inputs container
 	let errors = 0; //counter
@@ -251,6 +252,15 @@ function ValidatorBox() {
 	/************************ FIN VALIDADORES ************************/
 	/*****************************************************************/
 
+	// Error messages
+	this.getI18n = function() {
+		return i18n;
+	}
+	this.setI18n = function(data) {
+		i18n = data;
+		return self;
+	}
+
 	// Messages for response
 	this.initMsgs = function() {
 		for (let k in MSGS) //clear prev msgs
@@ -336,7 +346,7 @@ function ValidatorBox() {
 
 	this.fails = function() { return errors > 0; }
 	this.isValid = function() { return errors == 0; }
-	this.validate = function(form, i18n) {
+	this.validate = function(form) {
 		data = {}; //new data output
 		sysdate.setTime(Date.now()); //update time
 		let validators = self.initMsgs().getForm(form);

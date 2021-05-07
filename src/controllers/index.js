@@ -47,7 +47,8 @@ exports.web = function(req, res, next) {
 }
 
 exports.post = function(req, res, next) { //validate all form post
-	if (!valid.setInputs(req.body).validate(req.path, res.locals.i18n))
+	valid.setI18n(res.locals.i18n); //i18n error messages
+	if (!valid.setInputs(req.body).validate(req.path)) //load inputs
 		return next(res.locals.i18n.errForm); //validate form values
 	// Returns inputs and parsed data to view
 	res.locals.body = req.body; //preserve client inputs
