@@ -62,8 +62,8 @@ function JsBox() {
 		self.mask(el.querySelectorAll("option"), mask);
 		let option = el.querySelector("option[value='" + el.value + "']");
 		if (self.hasClass(option, "hide")) { //current option is hidden => change
-			let newopt = self.find(el.children, "option:not(.hide)");
-			el.value = newopt ? newopt.value : null;
+			option = self.find(el.children, "option:not(.hide)");
+			el.value = option ? option.value : null;
 		}
 		return self;
 	}
@@ -946,13 +946,16 @@ js.ready(function() {
 	const CLS_INVALID = "input-error";
 	const CLS_FEED_BACK = ".msg-error";
 
+	js.showError = function(msg) {
+		showError(msg); //red
+		return js;
+	}
 	js.showAlerts = function(msgs) {
 		//show posible multiple messages types
 		showOk(msgs.msgOk); //green
 		showInfo(msgs.msgInfo); //blue
 		showWarn(msgs.msgWarn); //yellow
-		showError(msgs.msgError); //red
-		return js;
+		return js.showError(msgs.msgError); //red
 	}
 	js.closeAlerts = function() {
 		return js.hide(alerts); //hide alerts
