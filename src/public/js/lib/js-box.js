@@ -62,8 +62,8 @@ function JsBox() {
 		self.mask(el.querySelectorAll("option"), mask);
 		let option = el.querySelector("option[value='" + el.value + "']");
 		if (self.hasClass(option, "hide")) { //current option is hidden => change
-			let newopt = self.find(el.children, "option:not(.hide)");
-			el.value = newopt ? newopt.value : null;
+			option = self.find(el.children, "option:not(.hide)");
+			el.value = option ? option.value : null;
 		}
 		return self;
 	}
