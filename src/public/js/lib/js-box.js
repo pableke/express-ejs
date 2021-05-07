@@ -53,6 +53,20 @@ function JsBox() {
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
 	}
+	this.mask = function(list, mask) {
+		return self.each(list, (el, i) => { //hide elements by mask
+			(((mask>>i)&1)==0) ? self.addClass(el, "hide") : self.removeClass(el, "hide");
+		});
+	}
+	this.select = function(el, mask) {
+		self.mask(el.querySelectorAll("option"), mask);
+		let option = el.querySelector("option[value='" + el.value + "']");
+		if (self.hasClass(option, "hide")) { //current option is hidden => change
+			let newopt = self.find(el.children, "option:not(.hide)");
+			el.value = newopt ? newopt.value : null;
+		}
+		return self;
+	}
 
 	// Iterators
 	this.each = function(list, cb) {
@@ -154,6 +168,10 @@ function JsBox() {
 			self.each(list, el => { el.style.display = "none"; });
 		return self;
 	}
+	this.hasClass = function(list, name) {
+		let el = fnSize(list) ? list[0] : list;
+		return el && el.classList.contains(name);
+	};
 	this.addClass = function(list, name) {
 		if (isElem(list))
 			list.classList.add(name);

@@ -6,6 +6,8 @@ const valid = require("app/lib/validator-box.js")
 // Extends validators
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("required50", function(name, value, msgs) { //usefull for codes, refs, etc.
+	return valid.size(value, 1, 50) || !valid.setError(name, msgs.errRequired);
 }).set("min8", function(name, value, msgs) {
 	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)

@@ -2,6 +2,7 @@
 js.ready(function() {
 	const lang = js.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
+	valid.setI18n(msgs); //init error messages
 
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
@@ -139,7 +140,7 @@ js.ready(function() {
 		js.clean(inputs).each(inputs, el => {
 			el.name && valid.setInput(el.name, el.value);
 		});
-		return valid.validate(form.getAttribute("action"), msgs)
+		return valid.validate(form.getAttribute("action"))
 				|| !js.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
 	}
 	valid.submit = function(form, ev, action, resolve) {
@@ -234,7 +235,7 @@ js.ready(function() {
 				});
 			}
 			else
-				valid.validateForm(form) ? fnLoading() : ev.preventDefault();
+				valid.validateForm(form) || ev.preventDefault();
 		});
 	});
 	// End AJAX links and forms
