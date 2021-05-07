@@ -1204,12 +1204,17 @@ js.ready(function() {
 		ev.preventDefault();
 	});
 
-	//Scroll body to top on click and toggle back-to-top arrow
+	// Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
 	js.click(top, () => { js.scrollTop(400); });
 	window.onscroll = function() {
 		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
 	};
+
+	// Onclose event tab/browser of client user
+	window.addEventListener("unload", function(ev) {
+		js.ajax("/session/destroy.html");
+	});
 });
 
 

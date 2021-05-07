@@ -32,7 +32,7 @@ app.use(session({ //session config
 	resave: false,
 	saveUninitialized: false,
 	genid: req => uuid.v1(), //use UUIDs for session IDs
-	secret: "v@Ge*UfKmLm5QRGg6kQB61dqT6Rj##F*me!vG",
+	secret: process.env.SESSION_SECRET,
 	cookie: {
 		secure: false, //require https
 		maxAge: 60*60*1000 //1h

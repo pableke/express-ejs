@@ -89,7 +89,7 @@ exports.auth = function(req, res, next) {
 	if (!req.session || !req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
-		fnLogout(req);
+		fnLogout(req); //time session expired
 		return next(res.locals.i18n.endSession);
 	}
 	//nuevo instante del ultimo click
@@ -102,7 +102,12 @@ exports.home = function(req, res) {
 }
 
 exports.logout = function(req, res) {
-	fnLogout(req);
+	fnLogout(req); //click logout user
 	valid.setMsgOk(res.locals.i18n.msgLogout);
 	res.build("web/forms/login");
+}
+
+exports.destroy = function(req, res) {
+	fnLogout(req); //onclose even client
+    res.status(200).send("ok");
 }
