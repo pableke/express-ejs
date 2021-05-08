@@ -13,4 +13,8 @@ js.ready(function() {
 			return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
 		}
 	});
+
+	const DATE_FMT = i18n.get("dateFormat");
+	const f1 = $("#f1").on("change", function() { f2.datepicker("option", "minDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
+	const f2 = $("#f2").on("change", function() { f1.datepicker("option", "maxDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
 });

@@ -4,11 +4,15 @@ js.ready(function() {
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 	valid.setI18n(msgs); //init error messages
 
+	// Configure datepicker
+	$.datepicker.regional["es"] = i18n.getI18n("es");
+	$.datepicker.setDefaults(i18n.getLang());
+
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
 	let texts = js.getAll(".alert-text");
 	let buttons = js.getAll(".alert-close");
-	function showAlert(el) { js.fadeIn(el.parentNode, "flex");  }
+	function showAlert(el) { js.fadeIn(el.parentNode, "grid");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
@@ -170,14 +174,14 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	/*$("a.ajax.remove").click(function(ev) {
-		confirm(msgs.remove) && js.ajax(this.href);
+	js.click(js.getAll("a.ajax.remove"), (el, ev) => {
+		confirm(msgs.remove) && js.ajax(el.href);
 		ev.preventDefault();
 	});
-	$("a.ajax.reload").click(function(ev) {
-		js.ajax(this.href, js.update);
+	js.click(js.getAll("a.ajax.reload"), (el, ev) => {
+		js.ajax(el.href, js.update);
 		ev.preventDefault();
-	});*/
+	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
 			js.click(js.getAll(".captcha"), (el, ev) => {
@@ -200,6 +204,10 @@ js.ready(function() {
 		let times = js.filter(inputs, ".time");
 		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
 			.change(times, el => { el.value = msgs.timeHelper(el.value); });
+		$(inputs).filter(".datepicker").datepicker({
+			dateFormat: i18n.get("dateFormat"),
+			changeMonth: true
+		});
 
 		// Initialize all textarea counter
 		let textareas = js.filter(inputs, "textarea[maxlength]");

@@ -1,7 +1,7 @@
 
-<div class="jumbotron m-4">
-	<h5><%=i18n.lblFormContact%></h5>
-	<hr class="my-4"/>
+<div class="wrapper">
+	<h1><%=i18n.lblFormContact%></h1>
+	<hr/>
 
 	<form id="contact" action="/contact.html" method="post" class="ajax">
 		<div class="input-group">
@@ -34,17 +34,6 @@
 		<hr/>
 		<button type="submit" class="btn btn-primary ajax-submit" tabindex="100" title="@titAcceder;">@lblEnviar; &raquo;</button>
 		<button type="reset" class="btn btn-light ml-2" tabindex="101" title="@titRestaurar;">&olarr; @lblLimpiar;</button>
-		<!-- Example single danger button -->
-		<div class="btn-group ml-2">
-			<button type="button" class="btn btn-danger dropdown-toggle" tabindex="102" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</button>
-			<div class="dropdown-menu">
-				<a class="dropdown-item" href="#">Action</a>
-				<a class="dropdown-item" href="#">Another action</a>
-				<a class="dropdown-item" href="#">Something else here</a>
-				<div class="dropdown-divider"></div>
-				<a class="dropdown-item" href="#">Separated link</a>
-			</div>
-		</div>
 		<button href="contact.html?number=14,63" class="ajax btn btn-success ml-2" tabindex="103">Ajax Send &raquo;</button>
 	</form>
 </div>

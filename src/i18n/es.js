@@ -9,7 +9,7 @@ module.exports = {
 	lblSemana: "Semana", lblSemana_1: "La semana pasada", lblSemana0: "Esta semana", lblSemana1: "La semana que viene", 
 	lblDia: "Día", lblAyer2: "Antes de ayer", lblAyer: "Ayer", lblHoy: "Hoy", lblDia1: "Mañana", lblDia2: "Pasado mañana",
 
-	lblFecha: "Fecha", lblF_validacion: "F. Valid.", lblF_creacion: "F. Creación", lblF_pago: "F. Pago", lblF_inicio: "F. Inicio", lblF_fin: "F. Fin",
+	lblFecha: "Fecha", lblFValid: "F. Valid.", lblFCreacion: "F. Creación", lblFAlta: "F. Alta", lblFPago: "F. Pago", lblF1: "F. Inicio", lblF2: "F. Fin",
 	errDate: "Formato de fecha incorrecto", phDate: "dd/mm/aa", titDate: "Formato de fecha dd/mm/aaaa",
 	errDateLe: "La fecha debe ser menor o igual a la actual", errDateGe: "La fecha debe ser mayor o igual a la actual",
 
@@ -56,7 +56,6 @@ module.exports = {
 	errGt0: "El importe debe ser mayor de 0,00 &euro;", 
 
 	//texts views
-	lblEmpresaNombre: "La Casa del Bosque",
 	lblEmpresa: "Empresa", lblEmpresas: "Empresas",
 	lblInicio: "Inicio", lblHome: "Inicio", lblIndex: "Inicio",
 	lblGoInicio: "Ir a la página de inicio", lblAdmin: "Panel de control",
@@ -307,8 +306,6 @@ module.exports = {
 	titRecargar: "Refresca los datos mostrados",
 	titCaptcha: "¿Es un robot?",
 
-	msgMetaKeywords: "decoración,decorar,interiorismo,mueble,mueble auxiliar,vintage",
-	msgMetaDescription: "La Casa del Bosque es una tienda de decoración original, donde se cuidan todos los pequeños detalles con un servicio personal que captura el estilo de cada uno",
 	msgAccOk: "Acción ejecutada correctamente",
 	msgObligatorio: "Los campos marcados con un <span class=\"required\">@CONST_OBLIG;</span> son obligatorios",
 	msgLogin: "Acceso realizado correctamente",

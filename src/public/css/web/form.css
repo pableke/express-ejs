@@ -30,6 +30,7 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 .input-control:focus { border: 2px solid #80bdff; outline: 0; }
 .input-icon { padding: .6rem .75rem; text-align: center; border: 1px solid #ced4da; background-color: #e9ecef; }
 .input-error { border-color: #dc3545; }
+.input-error:focus { border: 2px solid #dc3545; outline: 0; }
 .msg-error { width: 100%; color: #dc3545; }
 /* Inputs */
 
@@ -38,11 +39,15 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 	display: inline-block;
 	margin: .1em;
 	padding: .3em 1.2em;
+	cursor: pointer;
 	border-radius: 6px;
 	box-sizing: border-box;
 	text-decoration: none;
 	text-align: center;
-	transition: all 0.2s;
+	vertical-align: middle;
+	font-size: 1rem;
+	line-height: 1.5;
+	border: 1px solid transparent;
 }
 
 .btn-primary { color: #fff; background-color: #007bff; border-color: #007bff; }
@@ -82,17 +87,18 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 
 /* Alerts */
 .alerts { position: relative; }
-.alert { display: flex; margin: 1rem; border: 1px solid transparent; border-radius: .25rem; }
-.alert-icon { margin-right: 1rem; max-height: 50px; }
-.alert-text { padding-right: 2rem; width: auto; }
-.alert-close {
-	position: absolute;
-	display: block;
-	top: 0;
-	right: 0;
-	padding: .6rem 1rem;
-	cursor: pointer;
+.alert {
+	display: none; /* fadeIn/fadeOut => grid*/
+	grid-gap: 5px;
+	grid-template-columns: 50px auto 10px;
+	margin: 1rem;
+	padding: .7rem;
+	border: 1px solid transparent;
+	border-radius: .25rem;
 }
+.alert-icon > img { max-height: 50px; }
+.alert-text {  }
+.alert-close { font-weight: bold; text-align: right; cursor: pointer; }
 .alert-close:hover { color: #000; }
 .alert-primary { color: #004085; background-color: #cce5ff; border-color: #b8daff; }
 .alert-secondary { color: #383d41; background-color: #e2e3e5; border-color: #d6d8db; }
@@ -104,7 +110,12 @@ legend { padding: 4px; margin-left: 5px; font-weight: bold; }
 .alert-dark { color: #1b1e21; background-color: #d6d8d9; border-color: #c6c8ca; }
 /* Alerts */
 
+/* Extra small devices (portrait phones, less than 576px) */
+@media screen and (max-width: 575.98px) {
+	.alert { grid-gap: 5px; grid-template-columns: auto 10px; }
+	.alert-icon { display: none; }
+}
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.alerts { position: fixed; top: 50px; right: 1.1em; width: 45%; z-index: 2; }
+	.alerts { position: fixed; top: 45px; right: 1.1em; width: 45%; z-index: 2; }
 }

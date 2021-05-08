@@ -50,7 +50,6 @@ module.exports = {
 	errAsunto: "Debe indicar el asunto y la información requerida",
 
 	//texts views
-	lblEmpresaNombre: "La Casa del Bosque",
 	lblEmpresa: "Empresa", lblEmpresas: "Empresas",
 	lblInicio: "Inicio", lblHome: "Inicio", lblIndex: "Inicio",
 	lblGoInicio: "Ir a la página de inicio", lblAdmin: "Panel de control",
@@ -306,8 +305,6 @@ module.exports = {
 	titRecargar: "Refresca los datos mostrados",
 	titCaptcha: "¿Es un robot?",
 
-	msgMetaKeywords: "decoración,decorar,interiorismo,mueble,mueble auxiliar,vintage",
-	msgMetaDescription: "La Casa del Bosque es una tienda de decoración original, donde se cuidan todos los pequeños detalles con un servicio personal que captura el estilo de cada uno",
 	msgAccOk: "Acción ejecutada correctamente",
 	msgObligatorio: "Los campos marcados con un <span class=\"required\">@CONST_OBLIG;</span> son obligatorios",
 	msgLogin: "Acceso realizado correctamente",

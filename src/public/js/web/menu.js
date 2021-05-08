@@ -39,7 +39,7 @@ js.ready(function() {
 
 	// Show/Hide sidebar
 	js.click(js.getAll(".sidebar-toggle"), (el, ev) => {
-		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "d-none");
+		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "hide");
 		js.toggle(js.get("#sidebar", el.parentNode), "active");
 		ev.preventDefault();
 	});
