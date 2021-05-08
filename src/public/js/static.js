@@ -304,6 +304,15 @@ function MessageBox() {
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?",
 
+			//datepicker language
+			closeText: "close", prevText: "prev", nextText: "next", currentText: "current",
+			monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+			dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+			dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+			dateFormat: "yy-mm-dd", firstDay: 0,
+
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
 			intHelper: function(str, d) { return str && integer(str, COMMA); },
@@ -335,6 +344,15 @@ function MessageBox() {
 			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?",
+
+			//datepicker language
+			closeText: "close", prevText: "prev.", nextText: "sig.", currentText: "current",
+			monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+			monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+			dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+			dayNamesShort: ["Dom", "Lun", "Mar", "Mié", "Juv", "Vie", "Sáb"],
+			dayNamesMin: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+			dateFormat: "dd/mm/yy", firstDay: 1,
 
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator
@@ -918,11 +936,15 @@ js.ready(function() {
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
 	valid.setI18n(msgs); //init error messages
 
+	// Configure datepicker
+	$.datepicker.regional["es"] = i18n.getI18n("es");
+	$.datepicker.setDefaults(i18n.getLang());
+
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
 	let texts = js.getAll(".alert-text");
 	let buttons = js.getAll(".alert-close");
-	function showAlert(el) { js.fadeIn(el.parentNode, "flex");  }
+	function showAlert(el) { js.fadeIn(el.parentNode, "grid");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
@@ -1084,14 +1106,14 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	/*$("a.ajax.remove").click(function(ev) {
-		confirm(msgs.remove) && js.ajax(this.href);
+	js.click(js.getAll("a.ajax.remove"), (el, ev) => {
+		confirm(msgs.remove) && js.ajax(el.href);
 		ev.preventDefault();
 	});
-	$("a.ajax.reload").click(function(ev) {
-		js.ajax(this.href, js.update);
+	js.click(js.getAll("a.ajax.reload"), (el, ev) => {
+		js.ajax(el.href, js.update);
 		ev.preventDefault();
-	});*/
+	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
 			js.click(js.getAll(".captcha"), (el, ev) => {
@@ -1114,6 +1136,10 @@ js.ready(function() {
 		let times = js.filter(inputs, ".time");
 		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
 			.change(times, el => { el.value = msgs.timeHelper(el.value); });
+		$(inputs).filter(".datepicker").datepicker({
+			dateFormat: i18n.get("dateFormat"),
+			changeMonth: true
+		});
 
 		// Initialize all textarea counter
 		let textareas = js.filter(inputs, "textarea[maxlength]");
@@ -1199,7 +1225,7 @@ js.ready(function() {
 
 	// Show/Hide sidebar
 	js.click(js.getAll(".sidebar-toggle"), (el, ev) => {
-		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "d-none");
+		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "hide");
 		js.toggle(js.get("#sidebar", el.parentNode), "active");
 		ev.preventDefault();
 	});
@@ -1268,4 +1294,8 @@ js.ready(function() {
 			return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
 		}
 	});
+
+	const DATE_FMT = i18n.get("dateFormat");
+	const f1 = $("#f1").on("change", function() { f2.datepicker("option", "minDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
+	const f2 = $("#f2").on("change", function() { f1.datepicker("option", "maxDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
 });

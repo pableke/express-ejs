@@ -37,6 +37,15 @@ function MessageBox() {
 			remove: "Are you sure to delete element?",
 			cancel: "Are you sure to cancel element?",
 
+			//datepicker language
+			closeText: "close", prevText: "prev", nextText: "next", currentText: "current",
+			monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+			dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+			dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+			dateFormat: "yy-mm-dd", firstDay: 0,
+
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
 			intHelper: function(str, d) { return str && integer(str, COMMA); },
@@ -68,6 +77,15 @@ function MessageBox() {
 			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
 			cancel: "¿Confirma que desea cancelar este registro?",
+
+			//datepicker language
+			closeText: "close", prevText: "prev.", nextText: "sig.", currentText: "current",
+			monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+			monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+			dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+			dayNamesShort: ["Dom", "Lun", "Mar", "Mié", "Juv", "Vie", "Sáb"],
+			dayNamesMin: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+			dateFormat: "dd/mm/yy", firstDay: 1,
 
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator

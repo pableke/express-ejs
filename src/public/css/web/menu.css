@@ -43,7 +43,7 @@ ul.menu-top ul ul { top: 1%; left: 99%; }
 	position: fixed;
 	z-index: 1;
 	top: 50px;
-	left: -240px;
+	left: -242px; /* width + padding-left + padding-right*/
 	width: 240px;
 	height: 100%;
 	padding: 1px;

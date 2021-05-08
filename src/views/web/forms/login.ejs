@@ -1,19 +1,19 @@
 
-<div class="jumbotron m-4">
-	<h5><%=i18n.msgFormLogin%></h5>
-	<hr class="my-4"/>
+<div class="wrapper">
+	<h1><%=i18n.msgFormLogin%></h1>
+	<hr/>
 
 	<form id="login" method="post" action="/login.html">
 		<div class="input-group">
 			<label for="usuario" class="required"><%=i18n.lblUsuario%>:</label>
-			<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" size="35" maxlength="200" class="form-control" tabindex="1" title="@titUsuario;" placeholder="<%=i18n.phUsuario%>" />
-			<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fas fa-key"></i></span></div>
+			<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titUsuario;" placeholder="<%=i18n.phUsuario%>" />
+			<i class="input-item input-icon fas fa-key"></i>
 			<span class="msg-error"><%=msgs.usuario%></span>
 		</div>
 		<div class="input-group">
 			<label for="clave" class="required"><%=i18n.lblClave%>:</label>
-			<input type="password" id="clave" name="clave" value="" size="35" maxlength="200" class="form-control" tabindex="2" title="@titClave;" placeholder="********" />
-			<div class="input-group-append"><span class="input-group-text" id="basic-addon2"><i class="fas fa-ellipsis-h"></i></span></div>
+			<input type="password" id="clave" name="clave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="@titClave;" placeholder="********" />
+			<i class="input-item input-icon fas fa-ellipsis-h"></i>
 			<span class="msg-error"><%=msgs.clave%></span>
 		</div>
 
