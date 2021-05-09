@@ -73,18 +73,13 @@ function ValidatorBox() {
 		return self.regex(RE_MAIL, value) && self.setData(name, value.toLowerCase());
 	}
 
-	function setDate(date, yyyy, mm, dd) { date.setFullYear(+yyyy, +mm - 1, +dd); }
-	function setTime(date, hh, mm, ss, ms) { date.setHours(+hh || 0, +mm || 0, +ss || 0, +ms || 0); }
+	function isValid(date) {
+		return date && date.getTime && !isNaN(date.getTime());
+	}
 	this.date = function(name, value, msgs) {
-		let parts = value && value.split(RE_NO_DIGITS); //parts = string
-		if (parts[0] && parts[1] && parts[2]) { //year, month and day required
-			let date = new Date(); //object date
-			if (msgs.lang == "en")
-				setDate(date, parts[0], parts[1], parts[2]);
-			else
-				setDate(date, parts[2], parts[1], parts[0]);
-			setTime(date, parts[3], parts[4], parts[5], parts[6]);
-			return isNaN(date.getTime()) ? false : self.setData(name, date);
+		if (value) { //year, month and day required
+			let date = msgs.toDate(value); //build object date
+			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
@@ -92,8 +87,8 @@ function ValidatorBox() {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
-			setTime(date, parts[0], parts[1], parts[2], parts[3]);
-			return isNaN(date.getTime()) ? false : self.setData(name, date);
+			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
+			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
@@ -257,7 +252,8 @@ function ValidatorBox() {
 		return i18n;
 	}
 	this.setI18n = function(data) {
-		i18n = data;
+		i18n = data || i18n;
+		i18n.toDate = i18n.toDate || function(str) { return new Date(str); };
 		return self;
 	}
 

@@ -206,7 +206,7 @@ js.ready(function() {
 			.change(times, el => { el.value = msgs.timeHelper(el.value); });
 		$(inputs).filter(".datepicker").datepicker({
 			dateFormat: i18n.get("dateFormat"),
-			changeMonth: true
+			changeMonth: false
 		});
 
 		// Initialize all textarea counter

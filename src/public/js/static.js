@@ -317,9 +317,10 @@ function MessageBox() {
 			decimals: DOT, //decimal separator
 			intHelper: function(str, d) { return str && integer(str, COMMA); },
 			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, 2); },
+			toDate: function(str) { return str && toDateTime(fnDateHelper(splitDate(str))); },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			dateHelper: function(str) { return str && fnDateHelper(splitDate(str)).join("-"); },
+			dateHelper: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
 			timeHelper: function(str) { return str && fnTimeHelper(str); }
 		},
 
@@ -358,34 +359,50 @@ function MessageBox() {
 			decimals: COMMA, //decimal separator
 			intHelper: function(str, d) { return str && integer(str, DOT); },
 			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, 2); },
+			toDate: function(str) { return str && toDateTime(fnDateHelper(swap(splitDate(str)))); },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			dateHelper: function(str) { return str && swap(fnDateHelper(swap(splitDate(str)))).join("/"); },
+			dateHelper: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
 			timeHelper: function(str) { return str && fnTimeHelper(str); }
 		}
 	}
 
 	let _lang = langs.es; //default
-	function lpad(val) { return (+val < 10) ? (ZERO + val) : val; } //always 2 digits
+	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
 	function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
 	function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
-	function range(val, min, max) { return Math.min(Math.max(+val, min), max); } //force range
-	function rangeYear(yy) { return (yy < 100) ? (EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
+	function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
+	function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
+	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+
+	function setDate(date, yyyy, mm, dd) {
+		date.setFullYear(yyyy, mm - 1, dd);
+		return date;
+	}
+	function setTime(date, hh, mm, ss, ms) {
+		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
+		return date;
+	}
+	function toDateTime(parts) {
+		let date = new Date();
+		setDate(date, parts[0], parts[1], parts[2]);
+		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+	}
 
 	function fnDateHelper(parts) {
 		parts[0] = rangeYear(parts[0]); //year
 		parts[1] = range(parts[1], 1, 12); //months
 		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
-		return parts.map(lpad);
+		return parts;
 	}
 	function fnTimeHelper(str) {
 		let parts = splitDate(str);
 		parts[0] = range(parts[0], 0, 23); //hours
-		parts[1] = range(parts[1], 0, 59); //minutes
-		parts[2] = range(parts[2], 0, 59); //seconds
+		parts[1] = range59(parts[1]); //minutes
+		parts[2] = range59(parts[2]); //seconds
 		return parts.map(lpad).join(":");
 	}
 
@@ -594,18 +611,13 @@ function ValidatorBox() {
 		return self.regex(RE_MAIL, value) && self.setData(name, value.toLowerCase());
 	}
 
-	function setDate(date, yyyy, mm, dd) { date.setFullYear(+yyyy, +mm - 1, +dd); }
-	function setTime(date, hh, mm, ss, ms) { date.setHours(+hh || 0, +mm || 0, +ss || 0, +ms || 0); }
+	function isValid(date) {
+		return date && date.getTime && !isNaN(date.getTime());
+	}
 	this.date = function(name, value, msgs) {
-		let parts = value && value.split(RE_NO_DIGITS); //parts = string
-		if (parts[0] && parts[1] && parts[2]) { //year, month and day required
-			let date = new Date(); //object date
-			if (msgs.lang == "en")
-				setDate(date, parts[0], parts[1], parts[2]);
-			else
-				setDate(date, parts[2], parts[1], parts[0]);
-			setTime(date, parts[3], parts[4], parts[5], parts[6]);
-			return isNaN(date.getTime()) ? false : self.setData(name, date);
+		if (value) { //year, month and day required
+			let date = msgs.toDate(value); //build object date
+			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
@@ -613,8 +625,8 @@ function ValidatorBox() {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
-			setTime(date, parts[0], parts[1], parts[2], parts[3]);
-			return isNaN(date.getTime()) ? false : self.setData(name, date);
+			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
+			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
@@ -778,7 +790,8 @@ function ValidatorBox() {
 		return i18n;
 	}
 	this.setI18n = function(data) {
-		i18n = data;
+		i18n = data || i18n;
+		i18n.toDate = i18n.toDate || function(str) { return new Date(str); };
 		return self;
 	}
 
@@ -1138,7 +1151,7 @@ js.ready(function() {
 			.change(times, el => { el.value = msgs.timeHelper(el.value); });
 		$(inputs).filter(".datepicker").datepicker({
 			dateFormat: i18n.get("dateFormat"),
-			changeMonth: true
+			changeMonth: false
 		});
 
 		// Initialize all textarea counter
@@ -1281,6 +1294,8 @@ js.ready(function() {
 
 
 js.ready(function() {
+	const msgs = i18n.getLang(); //messages container
+
 	// Tests form validators
 	valid.setForm("/tests/email.html", {
 		nombre: valid.required,
@@ -1295,7 +1310,6 @@ js.ready(function() {
 		}
 	});
 
-	const DATE_FMT = i18n.get("dateFormat");
-	const f1 = $("#f1").on("change", function() { f2.datepicker("option", "minDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
-	const f2 = $("#f2").on("change", function() { f1.datepicker("option", "maxDate", $.datepicker.parseDate(DATE_FMT, this.value)); });
+	const f1 = $("#f1").on("change", function() { f2.datepicker("option", "minDate", msgs.toDate(this.value)); });
+	const f2 = $("#f2").on("change", function() { f1.datepicker("option", "maxDate", msgs.toDate(this.value)); });
 });

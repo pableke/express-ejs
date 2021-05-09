@@ -7,7 +7,8 @@ const FORM = {
 	ap1: valid.required,
 	ap2: valid.max200, //optional
 	nif: valid.nif,
-	correo: valid.correo
+	correo: valid.correo,
+	alta: valid.ltNow
 };
 valid.setForm("/user/profile.html", FORM)
 	.setForm("/user/perfil.html", FORM);
@@ -15,9 +16,8 @@ valid.setForm("/user/profile.html", FORM)
 exports.view = function(req, res) {
 	let i18n = res.locals.i18n;
 	// sessions save dates as string (as JSON)
-	let user = Object.assign({}, req.session.user);
-	user.alta = i18n.isoDate(new Date(user.alta));
-	res.locals.body = user;
+	res.locals.body = req.session.user; //set data on view
+	res.locals.body.alta = i18n.isoDate(new Date(req.session.user.alta));
 	res.build("web/forms/profile");
 }
 
@@ -28,6 +28,7 @@ exports.save = function(req, res) {
 	user.ap1 = req.data.ap1;
 	user.ap2 = req.data.ap2;
 	user.correo = req.data.correo;
+	user.alta = req.data.alta;
 
 	if (dao.web.myjson.users.save(user)) {
 		valid.setMsgOk(i18n.msgUpdateOk);
