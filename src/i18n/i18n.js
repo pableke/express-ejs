@@ -15,7 +15,31 @@ const i18n = {
 };
 
 // Date conversors
+const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 function lpad(val) { return (val < 10) ? ("0" + val) : val; } //always 2 digits
+function splitDate(str) { return str.split(/\D+/g).map(v => +v); } //int array
+function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
+function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
+function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
+function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
+function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
+function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+
+function setDate(date, yyyy, mm, dd) {
+	mm = range(mm, 1, 12) - 1; //[january = 0 ... december = 11]
+	date.setFullYear(rangeYear(yyyy), mm, range(dd, 1, daysInMonth(yyyy, mm)));
+	return date;
+}
+function setTime(date, hh, mm, ss, ms) {
+	date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
+	return date;
+}
+function toDateTime(parts) {
+	let date = new Date();
+	setDate(date, parts[0], parts[1], parts[2]);
+	return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+}
+
 function minTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
 function isoTime(date) { return minTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
 
@@ -28,11 +52,13 @@ i18n.es.isoDate = esDate;
 i18n.es.minTime = minTime;
 i18n.es.isoTime = isoTime;
 i18n.es.isoDateTime = esDateTime;
+i18n.es.toDate = function(str) { return str && toDateTime(swap(splitDate(str))); };
 
 i18n.en.isoDate = enDate;
 i18n.en.minTime = minTime;
 i18n.en.isoTime = isoTime;
 i18n.en.isoDateTime = enDateTime;
+i18n.en.toDate = function(str) { return str && toDateTime(splitDate(str)); };
 
 // Specific laguage list for modules
 Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));
