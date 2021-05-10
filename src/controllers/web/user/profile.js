@@ -16,7 +16,7 @@ valid.setForm("/user/profile.html", FORM)
 exports.view = function(req, res) {
 	let i18n = res.locals.i18n;
 	// sessions save dates as string (as JSON)
-	res.locals.body = req.session.user; //set data on view
+	res.locals.body = Object.assign({}, req.session.user); //set data on view
 	res.locals.body.alta = i18n.isoDate(new Date(req.session.user.alta));
 	res.build("web/forms/profile");
 }
