@@ -195,15 +195,15 @@ js.ready(function() {
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
-		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.intHelper(el.value); });
-		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.floatHelper(el.value); });
+		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
+		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
 
 		let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
-			.change(dates, el => { el.value = msgs.dateHelper(el.value); });
+			.change(dates, el => { el.value = msgs.isoDate(el.value); });
 		let times = js.filter(inputs, ".time");
 		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
-			.change(times, el => { el.value = msgs.timeHelper(el.value); });
+			.change(times, el => { el.value = msgs.isoTime(el.value); });
 		$(inputs).filter(".datepicker").datepicker({
 			dateFormat: i18n.get("dateFormat"),
 			changeMonth: false

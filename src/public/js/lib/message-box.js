@@ -49,14 +49,14 @@ function MessageBox() {
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
 			toInt: function(str) { return str && toInt(str); },
-			intHelper: function(str) { return str && integer(str, COMMA); },
+			fmtInt: function(str) { return str && fmtInt(str, COMMA); },
 			toFloat: function(str) { return str && toFloat(str, DOT); },
-			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, d || 2); },
+			fmtFloat: function(str, n) { return str && fmtFloat(str, COMMA, DOT, n); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(splitDate(str))); },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			dateHelper: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
-			timeHelper: function(str) { return str && fnTimeHelper(str); }
+			isoDate: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
+			isoTime: function(str) { return str && fnTimeHelper(str); }
 		},
 
 		es: { //spanish
@@ -93,18 +93,20 @@ function MessageBox() {
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator
 			toInt: function(str) { return str && toInt(str); },
-			intHelper: function(str) { return str && integer(str, DOT); },
+			fmtInt: function(str) { return str && fmtInt(str, DOT); },
 			toFloat: function(str) { return str && toFloat(str, COMMA); },
-			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, d || 2); },
+			fmtFloat: function(str, n) { return str && fmtFloat(str, DOT, COMMA, n); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(swap(splitDate(str)))); },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			dateHelper: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
-			timeHelper: function(str) { return str && fnTimeHelper(str); }
+			isoDate: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
+			isoTime: function(str) { return str && fnTimeHelper(str); }
 		}
 	}
 
 	let _lang = langs.es; //default
+
+	// Dates
 	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
 	function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
@@ -139,10 +141,12 @@ function MessageBox() {
 		let parts = splitDate(str);
 		parts[0] = range(parts[0], 0, 23); //hours
 		parts[1] = range59(parts[1]); //minutes
-		parts[2] = range59(parts[2]); //seconds
+		if (parts.length > 2) //seconds optionals
+			parts[2] = range59(parts[2]);
 		return parts.map(lpad).join(":");
 	}
 
+	// Numbers
 	function rtl(str, size) {
 		var result = []; //parts container
 		for (var i = str.length; i > size; i -= size)
@@ -154,7 +158,7 @@ function MessageBox() {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
 	}
-	function integer(str, s) {
+	function fmtInt(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY);
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
@@ -166,7 +170,8 @@ function MessageBox() {
 		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
 		return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 	}
-	function float(str, s, d, n) {
+	function fmtFloat(str, s, d, n) {
+		n = isNaN(n) || 2; //number of decimals
 		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
@@ -178,6 +183,7 @@ function MessageBox() {
 		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 	}
 
+	// Exports
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
 	this.getI18n = function(lang) { return (lang) ? (langs[lang] || langs[lang.substr(0, 2)] || langs.es) : langs.es; }
