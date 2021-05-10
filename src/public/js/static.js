@@ -273,9 +273,9 @@ function JsBox() {
 function MessageBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
-	const ZERO = "0";
-	const DOT = ".";
-	const COMMA = ",";
+	const ZERO = "0"; //left decimals zeros
+	const DOT = "."; //floats separator
+	const COMMA = ","; //floats separator
 
 	const sysdate = new Date(); //global sysdate
 	const RE_NO_DIGITS = /\D+/g; //split no digits
@@ -315,8 +315,10 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
-			intHelper: function(str, d) { return str && integer(str, COMMA); },
-			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, 2); },
+			toInt: function(str) { return str && toInt(str); },
+			intHelper: function(str) { return str && integer(str, COMMA); },
+			toFloat: function(str) { return str && toFloat(str, DOT); },
+			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, d || 2); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(splitDate(str))); },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
@@ -357,8 +359,10 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator
-			intHelper: function(str, d) { return str && integer(str, DOT); },
-			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, 2); },
+			toInt: function(str) { return str && toInt(str); },
+			intHelper: function(str) { return str && integer(str, DOT); },
+			toFloat: function(str) { return str && toFloat(str, COMMA); },
+			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, d || 2); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(swap(splitDate(str)))); },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
@@ -413,13 +417,24 @@ function MessageBox() {
 		(i > 0) && result.unshift(str.substr(0, i));
 		return result;
 	}
+	function toInt(str) {
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+	}
 	function integer(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY);
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
 	}
+	function toFloat(str, d) {
+		let separator = str.lastIndexOf(d);
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
+		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
+		return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+	}
 	function float(str, s, d, n) {
-		let separator = str.lastIndexOf(_lang.decimals);
+		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
 						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
@@ -614,14 +629,14 @@ function ValidatorBox() {
 	function isValid(date) {
 		return date && date.getTime && !isNaN(date.getTime());
 	}
-	this.date = function(name, value, msgs) {
+	this.date = function(name, value) {
 		if (value) { //year, month and day required
-			let date = msgs.toDate(value); //build object date
+			let date = i18n.toDate(value); //build object date
 			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
-	this.time = function(name, value, msgs) {
+	this.time = function(name, value) {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
@@ -631,21 +646,16 @@ function ValidatorBox() {
 		return false
 	}
 
-	this.integer = function(name, value, msgs) {
+	this.integer = function(name, value) {
 		if (value) {
-			let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-			let whole = str.replace(RE_NO_DIGITS, EMPTY);
-			return isNaN(whole) ? false : self.setData(name, parseInt(sing + whole));
+			let integer = i18n.toInt(value);
+			return isNaN(integer) ? false : self.setData(name, integer);
 		}
 		return false
 	}
-	this.float = function(name, value, msgs) {
+	this.float = function(name, value) {
 		if (value) {
-			let separator = value.lastIndexOf(msgs.decimals);
-			let sign = (value.charAt(0) == "-") ? "-" : EMPTY;
-			let whole = (separator < 0) ? value : value.substr(0, separator); //extract whole part
-			let decimal = (separator < 0) ? EMPTY : ("." + value.substr(separator + 1)); //decimal part
-			let float = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+			let float = i18n.toFloat(value); //float value
 			return isNaN(float) ? false : self.setData(name, float);
 		}
 		return false
@@ -791,6 +801,8 @@ function ValidatorBox() {
 	}
 	this.setI18n = function(data) {
 		i18n = data || i18n;
+		i18n.toInt = i18n.toInt || parseInt;
+		i18n.toFloat = i18n.toFloat || parseFloat;
 		i18n.toDate = i18n.toDate || function(str) { return new Date(str); };
 		return self;
 	}

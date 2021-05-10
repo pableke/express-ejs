@@ -6,9 +6,9 @@
 function MessageBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
-	const ZERO = "0";
-	const DOT = ".";
-	const COMMA = ",";
+	const ZERO = "0"; //left decimals zeros
+	const DOT = "."; //floats separator
+	const COMMA = ","; //floats separator
 
 	const sysdate = new Date(); //global sysdate
 	const RE_NO_DIGITS = /\D+/g; //split no digits
@@ -48,8 +48,10 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
-			intHelper: function(str, d) { return str && integer(str, COMMA); },
-			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, 2); },
+			toInt: function(str) { return str && toInt(str); },
+			intHelper: function(str) { return str && integer(str, COMMA); },
+			toFloat: function(str) { return str && toFloat(str, DOT); },
+			floatHelper: function(str, d) { return str && float(str, COMMA, DOT, d || 2); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(splitDate(str))); },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
@@ -90,8 +92,10 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator
-			intHelper: function(str, d) { return str && integer(str, DOT); },
-			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, 2); },
+			toInt: function(str) { return str && toInt(str); },
+			intHelper: function(str) { return str && integer(str, DOT); },
+			toFloat: function(str) { return str && toFloat(str, COMMA); },
+			floatHelper: function(str, d) { return str && float(str, DOT, COMMA, d || 2); },
 			toDate: function(str) { return str && toDateTime(fnDateHelper(swap(splitDate(str)))); },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
@@ -146,13 +150,24 @@ function MessageBox() {
 		(i > 0) && result.unshift(str.substr(0, i));
 		return result;
 	}
+	function toInt(str) {
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+	}
 	function integer(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY);
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
 	}
+	function toFloat(str, d) {
+		let separator = str.lastIndexOf(d);
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
+		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
+		return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+	}
 	function float(str, s, d, n) {
-		let separator = str.lastIndexOf(_lang.decimals);
+		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
 						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
