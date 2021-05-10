@@ -76,14 +76,14 @@ function ValidatorBox() {
 	function isValid(date) {
 		return date && date.getTime && !isNaN(date.getTime());
 	}
-	this.date = function(name, value, msgs) {
+	this.date = function(name, value) {
 		if (value) { //year, month and day required
-			let date = msgs.toDate(value); //build object date
+			let date = i18n.toDate(value); //build object date
 			return isValid(date) && self.setData(name, date);
 		}
 		return false
 	}
-	this.time = function(name, value, msgs) {
+	this.time = function(name, value) {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
@@ -93,21 +93,16 @@ function ValidatorBox() {
 		return false
 	}
 
-	this.integer = function(name, value, msgs) {
+	this.integer = function(name, value) {
 		if (value) {
-			let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-			let whole = str.replace(RE_NO_DIGITS, EMPTY);
-			return isNaN(whole) ? false : self.setData(name, parseInt(sing + whole));
+			let integer = i18n.toInt(value);
+			return isNaN(integer) ? false : self.setData(name, integer);
 		}
 		return false
 	}
-	this.float = function(name, value, msgs) {
+	this.float = function(name, value) {
 		if (value) {
-			let separator = value.lastIndexOf(msgs.decimals);
-			let sign = (value.charAt(0) == "-") ? "-" : EMPTY;
-			let whole = (separator < 0) ? value : value.substr(0, separator); //extract whole part
-			let decimal = (separator < 0) ? EMPTY : ("." + value.substr(separator + 1)); //decimal part
-			let float = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+			let float = i18n.toFloat(value); //float value
 			return isNaN(float) ? false : self.setData(name, float);
 		}
 		return false
@@ -253,6 +248,8 @@ function ValidatorBox() {
 	}
 	this.setI18n = function(data) {
 		i18n = data || i18n;
+		i18n.toInt = i18n.toInt || parseInt;
+		i18n.toFloat = i18n.toFloat || parseFloat;
 		i18n.toDate = i18n.toDate || function(str) { return new Date(str); };
 		return self;
 	}

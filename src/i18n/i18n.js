@@ -14,10 +14,28 @@ const i18n = {
 	default: "es"
 };
 
-// Date conversors
+const EMPTY = ""; //empty string
+const DOT = "."; //floats separator
+const COMMA = ","; //floats separator
+const RE_NO_DIGITS = /\D+/g; //split no digits
 const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
+
+// Numbers
+function toInt(str) {
+	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+	return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+}
+function toFloat(str, d) {
+	let separator = str.lastIndexOf(d);
+	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+	let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
+	let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
+	return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+}
+
+// Date conversors
 function lpad(val) { return (val < 10) ? ("0" + val) : val; } //always 2 digits
-function splitDate(str) { return str.split(/\D+/g).map(v => +v); } //int array
+function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
 function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
 function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
 function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
@@ -53,12 +71,16 @@ i18n.es.minTime = minTime;
 i18n.es.isoTime = isoTime;
 i18n.es.isoDateTime = esDateTime;
 i18n.es.toDate = function(str) { return str && toDateTime(swap(splitDate(str))); };
+i18n.es.toInt = function(str) { return str && toInt(str); };
+i18n.es.toFloat = function(str) { return str && toFloat(str, COMMA); };
 
 i18n.en.isoDate = enDate;
 i18n.en.minTime = minTime;
 i18n.en.isoTime = isoTime;
 i18n.en.isoDateTime = enDateTime;
 i18n.en.toDate = function(str) { return str && toDateTime(splitDate(str)); };
+i18n.en.toInt = function(str) { return str && toInt(str); };
+i18n.en.toFloat = function(str) { return str && toFloat(str, DOT); };
 
 // Specific laguage list for modules
 Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));
