@@ -21,9 +21,9 @@ function Collection(db, pathname) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
 				if (err)
 					return reject(fnLogError(err));
-				let aux = JSON.parse(data); //parse json
+				let aux = data ? JSON.parse(data) : table; //parse json
+				//only load data not structure (fields)
 				table.seq = aux.seq || table.seq;
-				table.fields = aux.fields || table.fields;
 				table.data = aux.data || table.data;
 				self.onload && self.onload(self);
 				resolve(self);
@@ -33,6 +33,16 @@ function Collection(db, pathname) {
 	this.commit = function() {
 		fs.writeFile(pathname, self.stringify(), fnError);
 		return self;
+	}
+	this.clean = function(row) {
+		for (let k in row) {
+			if (table.fields.indexOf(k) < 0)
+				delete row[k];
+		}
+		return self;
+	}
+	this.cleanAll = function() {
+		return self.each(self.clean);
 	}
 	this.flush = function() {
 		table.seq = 1; //restart sequence
@@ -49,6 +59,9 @@ function Collection(db, pathname) {
 	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
+	this.clone = function(row) {
+		return Object.assign({}, row);
+	}
 	this.merge = function(item1, item2) {
 		table.fields.forEach(field => {
 			item1[field] = item2[field];
