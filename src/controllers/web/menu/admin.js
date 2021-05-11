@@ -1,12 +1,15 @@
 
-exports.list = function(req, res) {
+exports.list = function(req, res, next) {
 }
 
-exports.view = function(req, res) {
+exports.view = function(req, res, next) {
 }
 
-exports.save = function(req, res) {
+exports.save = function(req, res, next) {
 }
 
-exports.delete = function(req, res) {
+exports.delete = function(req, res, next) {
+}
+
+exports.error = function(err, req, res, next) {
 }
