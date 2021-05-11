@@ -41,23 +41,23 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
 }).set("ltNow", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
 }).set("leToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
 }).set("gtNow", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
 }).set("geToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
 }).set("gt0", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
+			&& (valid.float(name, value) || !valid.setError(name, msgs.errNumber)) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
 
@@ -90,9 +90,9 @@ exports.web = function(req, res, next) {
 
 exports.post = function(req, res, next) { //validate all form post
 	res.locals.body = req.body; //preserve client inputs
-	valid.setI18n(res.locals.i18n); //i18n error messages
-	//if (!valid.setInputs(req.body).validate(req.path)) //load inputs
-		return next(res.locals.i18n.errForm); //validate form values
+	valid.setInputs(req.body).setI18n(res.locals.i18n); //load inputs and messages
+	if (!valid.validate(req.originalUrl)) //validate inputs form
+		return next(res.locals.i18n.errForm); //set error message
 	// Returns inputs and parsed data to view
 	req.data = valid.getData(); //build data from inputs
 	// Inputs values are valids => process POST request

@@ -14,17 +14,17 @@ exports.view = function(req, res) {
 	res.build("web/forms/login");
 }
 
-exports.check = function(req, res) {
+exports.check = function(req, res, next) {
 	let fields = req.data;
 	let msgs = res.locals.i18n;
 	let user = dao.web.myjson.users.findByLogin(fields.usuario);
-	if (!user) { //validate user exists
-		valid.setError("usuario", msgs.errUsuario).setMsgError(msgs.errUserNotFound);
-		return res.build("web/forms/login"); //stay at login
+	if (!user) { //validate if user exists
+		valid.setError("usuario", msgs.errUsuario);//.setMsgError(msgs.errUserNotFound);
+		return next(msgs.errUserNotFound); //go login error
 	}
 	if (!bcrypt.compareSync(fields.clave, user.clave)) { //validate password
-		valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
-		return res.build("web/forms/login"); //stay at login
+		valid.setError("clave", msgs.errClave);//.setMsgError(msgs.errUserNotFound);
+		return next(msgs.errUserNotFound); //go login error
 	}
 	req.session.user = user;
 	req.session.time = Date.now();
@@ -71,6 +71,5 @@ exports.destroy = function(req, res) {
 
 exports.error = function(err, req, res, next) {
 	res.setBody("web/forms/login"); //same body
-	console.log("web/forms/login", "web/forms/login");
 	next(err); //go next error handler
 }

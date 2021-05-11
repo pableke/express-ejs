@@ -13,7 +13,7 @@ const FORM = {
 valid.setForm("/user/profile.html", FORM)
 	.setForm("/user/perfil.html", FORM);
 
-exports.view = function(req, res) {
+exports.view = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	// sessions save dates as string (as JSON)
 	res.locals.body = req.session.user; //set data on view
@@ -21,7 +21,7 @@ exports.view = function(req, res) {
 	res.build("web/forms/profile");
 }
 
-exports.save = function(req, res) {
+exports.save = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	let user = req.session.user;
 	user.nombre = req.data.nombre;
@@ -35,10 +35,11 @@ exports.save = function(req, res) {
 		res.build("web/list/index");
 	}
 	else
-		res.status(500).build("web/forms/profile");
+		next(valid.getMsgError());
 }
 
 exports.error = function(err, req, res, next) {
+	res.locals.body.fmtAlta = res.locals.body.alta;
 	res.setBody("web/forms/profile"); //same body
 	next(err); //go next error handler
 }
