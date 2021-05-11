@@ -29,6 +29,7 @@ function range59(val) { return range(val, 0, 59); } //range for minutes and seco
 function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 
 function setDate(date, yyyy, mm, dd) {
 	mm = range(mm, 1, 12) - 1; //[january = 0 ... december = 11]
@@ -62,7 +63,10 @@ function toInt(str) {
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
 }
-function fmtInt(str, s) {
+function fmtInt(val, s) {
+	if ((typeof(val) === "undefined") || (val === null))
+		return val; //not formateable
+	let str = "" + val; //parse to string
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = str.replace(RE_NO_DIGITS, EMPTY);
 	return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
@@ -74,8 +78,11 @@ function toFloat(str, d) {
 	let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
 	return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 }
-function fmtFloat(str, s, d, n) {
+function fmtFloat(val, s, d, n) {
+	if ((typeof(val) === "undefined") || (val === null))
+		return val; //not formateable
 	n = isNaN(n) || 2; //number of decimals
+	let str = "" + val; //parse to string
 	let separator = str.lastIndexOf(d);
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = ((separator < 0) ? str : str.substr(0, separator))
@@ -83,30 +90,30 @@ function fmtFloat(str, s, d, n) {
 	let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
 	let num = parseFloat(sign + whole + DOT + decimal); //float value
 	if (isNaN(num)) //is a valida number?
-		return str;
+		return val; //format fails
 	return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 }
 
 // Exports
-i18n.es.isoDate = esDate; //dd/mm/yyyy
-i18n.es.minTime = minTime; //hh:MM
-i18n.es.isoTime = isoTime; //hh:MM:ss
-i18n.es.isoDateTime = function(date) { return esDate(date) + " " + isoTime(date); }; //dd/mm/yyyy hh:MM:ss
+i18n.es.isoDate = function(date) { return isDate(date) ? esDate(date) : date; } //dd/mm/yyyy
+i18n.es.minTime = function(date) { return isDate(date) ? minTime(date) : date; } //hh:MM
+i18n.es.isoTime = function(date) { return isDate(date) ? isoTime(date) : date; } //hh:MM:ss
+i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : date; }; //dd/mm/yyyy hh:MM:ss
 i18n.es.toDate = function(str) { return str && toDateTime(swap(splitDate(str))); };
 i18n.es.toInt = function(str) { return str && toInt(str); };
-i18n.es.fmtInt = function(str) { return str && fmtInt(str, DOT); };
+i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
 i18n.es.toFloat = function(str) { return str && toFloat(str, COMMA); };
-i18n.es.fmtFloat = function(str, n) { return str && fmtFloat(str, DOT, COMMA, n); };
+i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
 
-i18n.en.isoDate = enDate; //yyyy-mm-dd
-i18n.en.minTime = minTime; //hh:MM
-i18n.en.isoTime = isoTime; //hh:MM:ss
-i18n.en.isoDateTime = function(date) { return enDate(date) + " " + isoTime(date); } //yyyy-mm-dd hh:MM:ss
+i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : date; } //yyyy-mm-dd
+i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : date; } //hh:MM
+i18n.en.isoTime = function(date) { return isDate(date) ? isoTime(date) : date; } //hh:MM:ss
+i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : date; } //yyyy-mm-dd hh:MM:ss
 i18n.en.toDate = function(str) { return str && toDateTime(splitDate(str)); };
 i18n.en.toInt = function(str) { return str && toInt(str); };
-i18n.en.fmtInt = function(str) { return str && fmtInt(str, COMMA); };
+i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };
 i18n.en.toFloat = function(str) { return str && toFloat(str, DOT); };
-i18n.en.fmtFloat = function(str, n) { return str && fmtFloat(str, COMMA, DOT, n); };
+i18n.en.fmtFloat = function(str, n) { return fmtFloat(str, COMMA, DOT, n); };
 
 // Specific laguage list for modules
 Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));
