@@ -12,7 +12,7 @@ valid.setForm("/contact.html", FORM)
 	.setForm("/contacto.html", FORM);
 
 exports.view = function(req, res) {
-	res.build("web/forms/contact");
+	res.build("web/forms/public/contact");
 }
 
 exports.send = function(req, res) {

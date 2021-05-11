@@ -11,7 +11,7 @@ valid.setForm("/user/pass.html", FORM)
 	.setForm("/user/password.html", FORM);
 
 exports.view = function(req, res, next) {
-	res.build("web/forms/pass");
+	res.build("web/forms/user/pass");
 }
 
 exports.save = function(req, res, next) {
@@ -25,6 +25,6 @@ exports.save = function(req, res, next) {
 }
 
 exports.error = function(err, req, res, next) {
-	res.setBody("web/forms/pass"); //same body
+	res.setBody("web/forms/user/pass"); //same body
 	next(err); //go next error handler
 }

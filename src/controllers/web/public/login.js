@@ -11,7 +11,7 @@ valid.setForm("/login.html", FORM)
 	.setForm("/signin.html", FORM);
 
 exports.view = function(req, res) {
-	res.build("web/forms/login");
+	res.build("web/forms/public/login");
 }
 
 exports.check = function(req, res, next) {
@@ -42,7 +42,7 @@ function fnLogout(req) {
 }
 
 exports.auth = function(req, res, next) {
-	res.setBody("web/forms/login"); //if error => go login
+	res.setBody("web/forms/public/login"); //if error => go login
 	if (!req.session || !req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
@@ -61,7 +61,7 @@ exports.home = function(req, res) {
 exports.logout = function(req, res) {
 	fnLogout(req); //click logout user
 	valid.setMsgOk(res.locals.i18n.msgLogout);
-	res.build("web/forms/login");
+	res.build("web/forms/public/login");
 }
 
 exports.destroy = function(req, res) {
@@ -70,6 +70,6 @@ exports.destroy = function(req, res) {
 }
 
 exports.error = function(err, req, res, next) {
-	res.setBody("web/forms/login"); //same body
+	res.setBody("web/forms/public/login"); //same body
 	next(err); //go next error handler
 }
