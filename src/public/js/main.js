@@ -27,22 +27,22 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
 }).set("ltNow", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
 }).set("leToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
 }).set("gtNow", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
 }).set("geToday", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
 }).set("gt0", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
-			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
+			&& (valid.float(name, value) || !valid.setError(name, msgs.errNumber)) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
