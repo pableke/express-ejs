@@ -1,0 +1,30 @@
+
+<div class="wrapper">
+	<h1>menus</h1>
+	<hr/>
+
+	<table>
+		<thead>
+			<tr>
+				<th>N&#186;</th><th><%=i18n.lblIcono%></th><th><%=i18n.lblNombre%></th><th><%=i18n.lblFecha%></th><th></th>
+			</tr>
+		</thead>
+		<% userMenus.forEach(function(menu, i) { %>
+			<tr>
+				<td><%=i+1%></td>
+				<td><i class="<%=menu.icon%>"></i></td>
+				<td><%=menu.nombre%></td>
+				<td><%=i18n.isoDate(menu.alta)%></td>
+				<td><a href="/menu/delete.html?k=<%=menu._id%>">&times;</a></td>
+			</tr>
+		<% }) %>
+		<tfoot>
+			<tr>
+				<td colspan="2">Menus: <%=menus.length%></td>
+			</tr>
+		</tfoot>
+	</table>
+
+	<hr/>
+	<a href="/user/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+</div>

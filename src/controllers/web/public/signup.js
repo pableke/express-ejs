@@ -14,7 +14,7 @@ valid.setForm("/signup.html", FORM)
 	.setForm("/register.html", FORM);
 
 exports.view = function(req, res) {
-	res.build("web/forms/signup");
+	res.build("web/forms/public/signup");
 }
 
 exports.save = function(req, res) {

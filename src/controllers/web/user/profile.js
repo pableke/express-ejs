@@ -19,7 +19,7 @@ exports.view = function(req, res, next) {
 	res.locals.body = req.session.user; //set data on view
 	let alta = new Date(req.session.user.alta); //build date object
 	res.locals.body.fmtAlta = i18n.isoDate(alta); //format date
-	res.build("web/forms/profile");
+	res.build("web/forms/user/profile");
 }
 
 exports.save = function(req, res, next) {
@@ -42,6 +42,6 @@ exports.save = function(req, res, next) {
 exports.error = function(err, req, res, next) {
 	// Reload formated fields on error
 	res.locals.body.fmtAlta = res.locals.body.alta;
-	res.setBody("web/forms/profile"); //same body
+	res.setBody("web/forms/user/profile"); //same body
 	next(err); //go next error handler
 }

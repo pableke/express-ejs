@@ -15,7 +15,7 @@ function fnError(res, msg) {
 }
 
 exports.view = function(req, res) {
-	res.build("web/forms/reactive");
+	res.build("web/forms/public/reactive");
 }
 
 exports.send = function(req, res) {
