@@ -6,7 +6,6 @@ const sharp = require("sharp"); //image resizer
 
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js")
-const login = require("./web/public/login.js");
 const i18n = require("../i18n/i18n.js"); //languages
 
 const BODY = {};
@@ -18,6 +17,49 @@ const UPLOADS = {
 	maxFields: 1000,
 	multiples: true
 };
+
+// Extends validators
+valid.set("required", function(name, value, msgs) {
+	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
+}).set("required50", function(name, value, msgs) { //usefull for codes, refs, etc.
+	return valid.size(value, 1, 50) || !valid.setError(name, msgs.errRequired);
+}).set("min8", function(name, value, msgs) {
+	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
+}).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
+	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
+}).set("token", function(name, value, msgs) {
+	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
+}).set("usuario", function(name, value, msgs) {
+	return valid.min8(name, value, msgs) && (valid.idES(name, value) || valid.email(name, value) || !valid.setError(name, msgs.errRegex));
+}).set("clave", function(name, value, msgs) {
+	return valid.min8(name, value, msgs) && (valid.login(name, value) || !valid.setError(name, msgs.errRegex));
+}).set("reclave", function(name, value, msgs) {
+	return valid.clave(name, value, msgs) && ((value == valid.getData("clave")) || !valid.setError(name, msgs.errReclave));
+}).set("nif", function(name, value, msgs) {
+	return valid.required(name, value, msgs) && (valid.idES(name, value) || !valid.setError(name, msgs.errNif));
+}).set("correo", function(name, value, msgs) {
+	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
+}).set("ltNow", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
+}).set("leToday", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
+}).set("gtNow", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
+}).set("geToday", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.date(name, value, msgs) || !valid.setError(name, msgs.errDate)) 
+			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
+}).set("gt0", function(name, value, msgs) {
+	return valid.required(name, value, msgs) 
+			&& (valid.float(name, value, msgs) || !valid.setError(name, msgs.errNumber)) 
+			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
+});
 
 exports.lang = function(req, res, next) {
 	let lang = req.query.lang || req.session.lang;
@@ -47,11 +89,11 @@ exports.web = function(req, res, next) {
 }
 
 exports.post = function(req, res, next) { //validate all form post
+	res.locals.body = req.body; //preserve client inputs
 	valid.setI18n(res.locals.i18n); //i18n error messages
-	if (!valid.setInputs(req.body).validate(req.path)) //load inputs
+	//if (!valid.setInputs(req.body).validate(req.path)) //load inputs
 		return next(res.locals.i18n.errForm); //validate form values
 	// Returns inputs and parsed data to view
-	res.locals.body = req.body; //preserve client inputs
 	req.data = valid.getData(); //build data from inputs
 	// Inputs values are valids => process POST request
 	let enctype = req.headers["content-type"] || ""; //get content-type
@@ -85,5 +127,3 @@ exports.post = function(req, res, next) { //validate all form post
 	else
 		next();
 }
-
-exports.auth = login.auth;
