@@ -30,6 +30,7 @@ function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : y
 function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
 function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 
 function setDate(date, yyyy, mm, dd) {
 	mm = range(mm, 1, 12) - 1; //[january = 0 ... december = 11]

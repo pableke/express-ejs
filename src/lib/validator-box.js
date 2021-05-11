@@ -40,6 +40,8 @@ function ValidatorBox() {
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
+	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 
 	// Date validators helpers
 	this.sysdate = function() { return sysdate; }
@@ -73,13 +75,10 @@ function ValidatorBox() {
 		return self.regex(RE_MAIL, value) && self.setData(name, value.toLowerCase());
 	}
 
-	function isValid(date) {
-		return date && date.getTime && !isNaN(date.getTime());
-	}
 	this.date = function(name, value) {
 		if (value) { //year, month and day required
 			let date = i18n.toDate(value); //build object date
-			return isValid(date) && self.setData(name, date);
+			return isDate(date) && self.setData(name, date);
 		}
 		return false
 	}
@@ -88,7 +87,7 @@ function ValidatorBox() {
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
 			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
-			return isValid(date) && self.setData(name, date);
+			return isDate(date) && self.setData(name, date);
 		}
 		return false
 	}
