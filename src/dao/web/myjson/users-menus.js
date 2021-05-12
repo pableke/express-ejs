@@ -1,12 +1,6 @@
 
 // Menus DAO
 module.exports = function(table, users, menus) {
-	function getSubtree(menu) {
-		let submenus = menus.getSubmenus(menu);
-		submenus.push(menu); //add selected menu (parent)
-		return submenus;
-	}
-
 	table.onload = function(data) {
 		data.each(um => { um.alta = new Date(um.alta); });
 	}

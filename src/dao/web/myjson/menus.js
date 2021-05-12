@@ -29,6 +29,11 @@ module.exports = function(table) {
 		_submenus.splice(0); //init container
 		return hasChildren(menu) ? addSubmenus(menu) : _submenus; //sub-tree
 	}
+	table.getSubtree = function(menu) {
+		let submenus = table.getSubmenus(menu);
+		submenus.push(menu); //add selected menu (parent)
+		return submenus;
+	}
 	table.getSiblings = function(menu) {
 		return hasParent(menu) ? table.filter(row => (row.padre == menu.padre)) : [];
 	}
