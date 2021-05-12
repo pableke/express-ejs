@@ -15,7 +15,10 @@
 				<td><i class="<%=menu.icon%>"></i></td>
 				<td><%=menu.nombre%></td>
 				<td><%=i18n.isoDate(menu.alta)%></td>
-				<td><a href="/menu/delete.html?k=<%=menu._id%>">&times;</a></td>
+				<td>
+					<a href="/menu/view.html?k=<%=menu._id%>"><i class="fas fa-search"></i></a>
+					<a href="/menu/delete.html?k=<%=menu._id%>">&times;</a>
+				</td>
 			</tr>
 		<% }) %>
 		<tfoot>

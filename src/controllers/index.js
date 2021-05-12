@@ -63,19 +63,14 @@ valid.set("required", function(name, value, msgs) {
 
 exports.lang = function(req, res, next) {
 	let lang = req.query.lang || req.session.lang;
-	if (!lang || (lang !== req.session.lang)) {
-		//user has changed current language or first access
-		let ac = req.headers["accept-language"] || i18n.default; //default laguage = es
-		lang = (i18n[lang]) ? lang : ac.substr(0, 5); //search region language es-ES
-		lang = (i18n[lang]) ? lang : lang.substr(0, 2); //search type language es
-		lang = (i18n[lang]) ? lang : i18n.default; //default language = es
-		req.session.lang = lang; //save language on session
-	}
-	res.locals.lang = lang; //set lang id on view
-	res.locals.body = BODY; //init non-ajax body forms
+	if (!lang || (lang !== req.session.lang)) //user change language or first access
+		lang = i18n.get(lang, req.headers["accept-language"]); //get language
+	req.session.lang = res.locals.lang = lang; //set lang id on session and view
 	res.locals.msgs = valid.getMsgs(); //init messages
-	// Load specific user menus or load publics
-	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic(); //public menu
+	res.locals.body = BODY; //init non-ajax body forms
+
+	// Load specific user menus or public menus on view and session
+	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic();
 	res.locals.menus = req.session.menus; //set menus on view
 	next(); //go next middleware
 }

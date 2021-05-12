@@ -9,7 +9,7 @@ valid.setForm("/menu/filter.html", FORM)
 
 exports.list = function(req, res, next) {
 	res.locals.userMenus = dao.web.myjson.menus.getAll();
-	res.build("web/forms/menu/list");
+	res.build("web/list/menus");
 }
 
 exports.view = function(req, res, next) {
@@ -22,7 +22,7 @@ exports.delete = function(req, res, next) {
 	//console.log(req.query.k);
 	valid.setMsgOk(res.locals.i18n.msgBorrarOk);
 	res.locals.userMenus = dao.web.myjson.menus.getAll();
-	res.build("web/forms/menu/list");
+	res.build("web/list/menus");
 }
 
 exports.error = function(err, req, res, next) {

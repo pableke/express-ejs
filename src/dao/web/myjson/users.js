@@ -18,6 +18,14 @@ module.exports = function(table) {
 	table.findByLogin = (login) => { 
 		return table.find(user => ((user.nif == login) || (user.correo == login)));
 	}
+	table.getUser = function(login, pass, msgs) {
+		let user = table.findByLogin(login);
+		if (!user) // Search for user
+			return !valid.setError("usuario", msgs.errUsuario).setMsgError(msgs.errUserNotFound);
+		if (!bcrypt.compareSync(pass, user.clave)) // Validate user password
+			return !valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
+		return user;
+	}
 
 	function cryptPass(user, pass) {
 		user.clave = bcrypt.hashSync(pass, bcrypt.genSaltSync(10));

@@ -101,6 +101,7 @@ function Collection(db, pathname) {
 	this.getById = function(id) { return self.find(row => (row._id == id)); }
 	this.findById = function(id) { return self.getById(id); }
 	this.filter = function(cb) { return table.data.filter(cb); }
+	this.filterById = function(id) { return self.filter(row => (row._id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.unsort = function() { delete table.sort; return self; }
 	this.sort = function(name, cmp) {
@@ -111,11 +112,14 @@ function Collection(db, pathname) {
 		return self.commit();
 	}
 
-	this.insert = function(item) {
+	this.push = function(item) {
 		delete table.sort;
 		item._id = table.seq++;
 		table.data.push(item);
-		return self.commit();
+		return self;
+	}
+	this.insert = function(item) {
+		return self.push(item).commit();
 	}
 	this.update = function(cb, item) {
 		let updates = 0; //counter
@@ -127,12 +131,12 @@ function Collection(db, pathname) {
 		});
 		return updates ? self.commit() : self;
 	}
-	this.updateById = function(item) {
-		let row = self.find(row => (row._id == item._id));
+	this.updateItem = function(item) {
+		let row = self.getById(item._id); //search row
 		return row ? self.assign(row, item).commit() : self;
 	}
 	this.save = function(item) {
-		return item._id ? self.updateById(item) : self.insert(item);
+		return item._id ? self.updateItem(item) : self.insert(item);
 	}
 
 	this.delete = function(cb) {
@@ -147,12 +151,24 @@ function Collection(db, pathname) {
 		table.data = results; //new container
 		return deletes ? self.commit() : self; //save data
 	}
+	this.extract = function(i) {
+		(i > -1) && table.data.splice(i, 1);
+		return self;
+	}
+	this.extractById = function(id) {
+		return self.extract(self.findIndex(id));
+	}
+	this.extractItem = function(item) {
+		return self.extractById(item._id);
+	}
+	this.deleteByIndex = function(i) {
+		return self.extract(i).commit();
+	}
 	this.deleteById = function(id) {
-		let i = self.findIndex(id);
-		if (i < 0) //table modified?
-			return self;
-		table.data.splice(i, 1);
-		return self.commit();
+		return self.deleteByIndex(self.findIndex(id));
+	}
+	this.deleteItem = function(item) {
+		return self.deleteById(item._id);
 	}
 }
 
