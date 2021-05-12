@@ -1,5 +1,4 @@
 
-const bcrypt = require("bcrypt"); //encrypt
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js")
 
@@ -15,28 +14,28 @@ exports.view = function(req, res) {
 }
 
 exports.check = function(req, res, next) {
-	let fields = req.data;
 	let msgs = res.locals.i18n;
-	let user = dao.web.myjson.users.findByLogin(fields.usuario);
-	if (!user) { //validate if user exists
-		valid.setError("usuario", msgs.errUsuario);//.setMsgError(msgs.errUserNotFound);
-		return next(msgs.errUserNotFound); //go login error
+	let { usuario, clave } = req.data;
+	let user = dao.web.myjson.users.getUser(usuario, clave, msgs);
+	if (user) { //validate if user exists
+		req.session.user = user;
+		req.session.time = Date.now();
+		req.session.click = Date.now();
+		let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
+		req.session.menus = res.locals.menus = menus; //update user menus on view and session
+		valid.setMsgOk(msgs.msgLogin);
+		res.build("web/list/index");
 	}
-	if (!bcrypt.compareSync(fields.clave, user.clave)) { //validate password
-		valid.setError("clave", msgs.errClave);//.setMsgError(msgs.errUserNotFound);
-		return next(msgs.errUserNotFound); //go login error
-	}
-	req.session.user = user;
-	req.session.time = Date.now();
-	req.session.click = Date.now();
-	valid.setMsgOk(res.locals.i18n.msgLogin);
-	res.build("web/list/index");
+	else
+		next(msgs.errUserNotFound); //go login error
 }
 
 function fnLogout(req) {
+	//delete all session data
 	delete req.session.user;
 	delete req.session.time;
 	delete req.session.click;
+	delete req.session.menus;
 	req.session.destroy(); //remove session: regenerated next request
 	delete req.session; //full destroy
 }

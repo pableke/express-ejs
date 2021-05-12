@@ -11,7 +11,14 @@ const i18n = {
 	//aviable languages list
 	es: require("./es.js"),
 	en: require("./en.js"),
-	default: "es"
+	default: "es",
+
+	get: function(lang, alt) {
+		alt = alt || i18n.default;
+		lang = i18n[lang] ? lang : alt.substr(0, 5); //search region language es-ES
+		lang = i18n[lang] ? lang : lang.substr(0, 2); //search id language es
+		return i18n[lang] ? lang : i18n.default; //default language = es
+	}
 };
 
 const EMPTY = ""; //empty string
@@ -96,20 +103,20 @@ function fmtFloat(val, s, d, n) {
 }
 
 // Exports
-i18n.es.isoDate = function(date) { return isDate(date) ? esDate(date) : date; } //dd/mm/yyyy
-i18n.es.minTime = function(date) { return isDate(date) ? minTime(date) : date; } //hh:MM
-i18n.es.isoTime = function(date) { return isDate(date) ? isoTime(date) : date; } //hh:MM:ss
-i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : date; }; //dd/mm/yyyy hh:MM:ss
+i18n.es.isoDate = function(date) { return isDate(date) ? esDate(date) : EMPTY; } //dd/mm/yyyy
+i18n.es.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; } //hh:MM
+i18n.es.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
+i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : EMPTY; }; //dd/mm/yyyy hh:MM:ss
 i18n.es.toDate = function(str) { return str && toDateTime(swap(splitDate(str))); };
 i18n.es.toInt = function(str) { return str && toInt(str); };
 i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
 i18n.es.toFloat = function(str) { return str && toFloat(str, COMMA); };
 i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
 
-i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : date; } //yyyy-mm-dd
-i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : date; } //hh:MM
-i18n.en.isoTime = function(date) { return isDate(date) ? isoTime(date) : date; } //hh:MM:ss
-i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : date; } //yyyy-mm-dd hh:MM:ss
+i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : EMPTY; } //yyyy-mm-dd
+i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; } //hh:MM
+i18n.en.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
+i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : EMPTY; } //yyyy-mm-dd hh:MM:ss
 i18n.en.toDate = function(str) { return str && toDateTime(splitDate(str)); };
 i18n.en.toInt = function(str) { return str && toInt(str); };
 i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };

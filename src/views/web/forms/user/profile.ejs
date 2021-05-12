@@ -37,12 +37,13 @@
 		<div class="input-group">
 			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
 			<input type="text" id="alta" name="alta" value="<%=body.fmtAlta%>" size="35" maxlength="10" class="input-item input-control date" tabindex="6" title="@titNif;" placeholder="<%=i18n.phDate%>" />
-			<i class="input-item input-icon fa fa-calendar"></i>
+			<i class="input-item input-icon far fa-calendar-alt"></i>
 			<div class="msg-error"><%=msgs.alta%></div>
 		</div>
 
 		<hr/>
-		<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=i18n.lblGuardar%> &raquo;</button>
-		<button type="reset" class="btn btn-light ml-2" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		<a href="/user/index.html" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
 	</form>
 </div>
