@@ -1144,13 +1144,18 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	js.click(js.getAll("a.ajax.remove"), (el, ev) => {
-		confirm(msgs.remove) && js.ajax(el.href);
-		ev.preventDefault();
-	});
-	js.click(js.getAll("a.ajax.reload"), (el, ev) => {
-		js.ajax(el.href, js.update);
-		ev.preventDefault();
+	function fnAjaxCall(el, ev) {
+		if (js.hasClass(el, "ajax")) {
+			js.ajax(el.href, js.update);
+			ev.preventDefault();
+		}
+	}
+	js.click(js.getAll("a.reload"), fnAjaxCall);
+	js.click(js.getAll("a.remove"), (el, ev) => {
+		if (confirm(msgs.remove))
+			fnAjaxCall(el, ev);
+		else
+			ev.preventDefault();
 	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
@@ -1225,25 +1230,24 @@ js.ready(function() {
 
 js.ready(function() {
 	// Build all tree menus as UL > Li
-	const opts = { className: "sub-menu" };
 	js.getAll("ul.menu").forEach(function(menu) {
 		for (let i = 0; i < menu.children.length; ) {
 			let child = menu.children[i];
 			let mask = child.dataset.mask;
 			if ((mask&8) == 8) { // Is parent => add triangle
-				child.lastElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
-				js.click(child.lastElementChild, (el, ev) => { //usfull on sidebar
+				child.innerHTML += '<ul class="sub-menu"></ul>';
+				child.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
+				js.click(child.firstElementChild, (el, ev) => { //usfull on sidebar
 					js.toggle(child, "active");
 					ev.preventDefault();
 				});
 			}
 			if ((mask&4) == 0) // Disables links
-				js.addClass(child.lastElementChild, "disabled");
+				js.addClass(child, "disabled");
 			let padre = child.dataset.padre;
 			if (padre) {
 				let li = js.get("li[id='" + padre + "']", menu);
-				let submenu = (li.lastElementChild.tagName == "UL") ? li.lastElementChild : js.create("ul", opts);
-				li.appendChild(submenu).appendChild(child);
+				li && li.lastElementChild.appendChild(child);
 			}
 			else
 				i++;

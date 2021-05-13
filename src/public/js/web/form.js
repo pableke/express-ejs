@@ -174,13 +174,18 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	js.click(js.getAll("a.ajax.remove"), (el, ev) => {
-		confirm(msgs.remove) && js.ajax(el.href);
-		ev.preventDefault();
-	});
-	js.click(js.getAll("a.ajax.reload"), (el, ev) => {
-		js.ajax(el.href, js.update);
-		ev.preventDefault();
+	function fnAjaxCall(el, ev) {
+		if (js.hasClass(el, "ajax")) {
+			js.ajax(el.href, js.update);
+			ev.preventDefault();
+		}
+	}
+	js.click(js.getAll("a.reload"), fnAjaxCall);
+	js.click(js.getAll("a.remove"), (el, ev) => {
+		if (confirm(msgs.remove))
+			fnAjaxCall(el, ev);
+		else
+			ev.preventDefault();
 	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
