@@ -1,6 +1,7 @@
 
 // Menus DAO
 module.exports = function(table) {
+	const _parents = [];
 	const _submenus = [];
 	let _publicMenus = [];
 
@@ -36,6 +37,18 @@ module.exports = function(table) {
 	}
 	table.getSiblings = function(menu) {
 		return hasParent(menu) ? table.filter(row => (row.padre == menu.padre)) : [];
+	}
+	table.getParent = function(menu) {
+		return menu.padre && table.findById(menu.padre);
+	}
+	table.getParents = function(menu) {
+		_parents.splice(0); //init container
+		let parent = table.getParent(menu);
+		while (parent) { //has parent
+			_parents.push(parent);
+			parent = table.getParent(menu);
+		}
+		return _parents;
 	}
 
 	table.insertMenu = function(menu, msgs) {

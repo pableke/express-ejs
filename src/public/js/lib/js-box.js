@@ -9,6 +9,7 @@ function JsBox() {
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
+	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
 	function fnGet(el, selector) { return selector && el.querySelector(selector); }
 	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
@@ -26,6 +27,13 @@ function JsBox() {
 			results.push(sibling);
 	}
 
+	this.create = function(name, attrs) {
+		attrs = attrs || {}; //extra attributes
+		let elem = document.createElement(name);
+		elem.className = attrs.className || "none";
+		elem.id = attrs.id || fnId();
+		return elem;
+	}
 	this.getLang = function() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
