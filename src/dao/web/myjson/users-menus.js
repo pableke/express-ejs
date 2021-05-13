@@ -8,25 +8,45 @@ module.exports = function(table, users, menus) {
 	table.getUserMenu = function(user, menu) { //find by UK
 		return table.find(um => ((um.user == user._id) && (um.menu == menu._id)));
 	}
+	table.getPrivateMenus = function(user) {
+		let aux = table.filter(um => (um.user == user._id));
+		return menus.filter(menu => (aux.indexOf(menu._id) > -1));
+	}
 	table.getMenus = function(user) {
 		let aux = table.filter(um => (um.user == user._id));
 		return menus.filter(menu => ((aux.indexOf(menu._id) > -1) || menus.isPublic(menu)));
 	}
 
 	table.newUserMenu = function(user, menu, date) {
-		return { user: user._id, menu: menu._id, mask: menu.mask, alta: date };
+		return { user: user._id, menu: menu._id, alta: date };
 	}
 	table.addUserMenu = function(user, menu, date) { //push menus once
 		table.getUserMenu(user, menu) || table.push(newUserMenu(user, menu, fecha));
 		return table;
 	}
+
+	function fnAddUser(user, parents, submenus, fecha) {
+		parents.forEach(menu => { // Go up in menu tree
+			table.addUserMenu(user, menu, fecha);
+		});
+		submenus.forEach(menu => { // Go down in menu tree
+			table.addUserMenu(user, menu, fecha);
+		});
+	}
+	table.addUser = function(menu, user) {
+		if (!user)
+			return table; //user not found
+		fnAddUser(user, menus.getParents(menu), menus.getSubtree(menu), new Date());
+		return table.commit();
+	}
 	table.addUsers = function(menu, users) {
+		if (!users || (users.length < 1))
+			return table; //empty users
 		let fecha = new Date(); //sysdate
+		let parents = menus.getParents(menu);
 		let submenus = menus.getSubtree(menu);
 		users.forEach(user => {
-			submenus.forEach(menu => {
-				table.addUserMenu(user, menu, fecha);
-			});
+			fnAddUser(user, parents, submenus, fecha);
 		});
 		return table.commit();
 	}
@@ -47,5 +67,5 @@ module.exports = function(table, users, menus) {
 		return table;
 	}
 
-	return table.setField("user").setField("menu").setField("mask").setField("alta");
+	return table.setField("user").setField("menu").setField("alta");
 }

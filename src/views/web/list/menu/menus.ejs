@@ -1,0 +1,43 @@
+
+<div class="wrapper">
+	<h1>menus</h1>
+	<hr/>
+
+	<table>
+		<thead>
+			<tr>
+				<th>N&#186;</th><th><%=i18n.lblIcono%></th><th><%=i18n.lblNombre%></th><th>Orden</th><th><%=i18n.lblFecha%></th><th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% if (_menus.length == 0) { %>
+				<tr>
+					<td colspan="6"><p>No existen menus dados de alta en el sistema.</p></td>
+				</tr>
+			<% } else { %>
+			<% _menus.forEach(function(menu, i) { %>
+				<tr>
+					<td><%=i+1%></td>
+					<td class="tc"><i class="<%=menu.icon%>"></i></td>
+					<td><%=menu.nombre%></td>
+					<td><%=menu.orden%></td>
+					<td><%=i18n.isoDate(menu.alta)%></td>
+					<td>
+						<a href="/menu/view.html?k=<%=menu._id%>"><i class="fas fa-search fa-lg text-info icon"></i></a>
+						<a href="/menu/users.html?k=<%=menu._id%>"><i class="fas fa-user-plus fa-lg text-ok icon"></i></a>
+						<a href="/menu/delete.html?k=<%=menu._id%>"><i class="fas fa-times fa-lg text-error icon"></i></a>
+					</td>
+				</tr>
+			<% }); %>
+			<% } %>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2">Menus: <%=_menus.length%></td>
+			</tr>
+		</tfoot>
+	</table>
+
+	<hr/>
+	<a href="/user/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+</div>

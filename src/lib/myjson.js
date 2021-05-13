@@ -59,10 +59,10 @@ function Collection(db, pathname) {
 	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
-	this.clone = function(row) {
-		return Object.assign({}, row);
+	this.get = function(i) {
+		return table.data[i];
 	}
-	this.merge = function(item1, item2) {
+	this.set = function(item1, item2) {
 		table.fields.forEach(field => {
 			item1[field] = item2[field];
 		});
@@ -74,20 +74,14 @@ function Collection(db, pathname) {
 		});
 		return self;
 	}
+	this.clone = function(row) {
+		return Object.assign({}, row);
+	}
 
-	this.get = function(i) { return table.data[i]; }
-	this.set = function(i, item) {
-		return ((i > -1) && (i < table.data.length)) ? self.merge(table.data[i], item).commit() : self;
-	}
-	this.setById = function(item) {
-		let row = self.find(row => (row._id == item._id));
-		return row ? self.merge(row, item).commit() : self;
-	}
 	this.name = function() {
 		let name = path.basename(pathname); //file.json
 		return name.substr(0, name.lastIndexOf("."));
 	}
-
 	this.getFields = function() { return table.fields; }
 	this.setField = function(field) {
 		table.fields.push(field);

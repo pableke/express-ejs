@@ -17,21 +17,28 @@
 .nav-main { font-size: 1.3rem; text-decoration: none; }
 .nav-main:hover { text-decoration: none; color: rgba(0, 0, 0, .9); }
 
+/* Menu commons styles */
+ul.menu { margin: 0; padding: 0; }
+/* This hides all dropdowns */
+ul.menu ul { display: none; margin: 0; padding: 0; background: #f8f9fa; }
+/* First li level: starts hide and after fadeIn by JS */
+ul.menu li { list-style: none; color: rgba(0, 0, 0, .9); }
+ul.menu li:hover { background: #2c3e50; color: #fff; text-decoration: none; }
+ul.menu li:hover > a > .nav-tri { transform: rotate(90deg); }
+/* All nav-links elements:; inherit from li (a same state as it's li) */
+ul.menu a { display: block; padding: .5rem .8rem; color: inherit; white-space: nowrap; text-decoration: none; }
+ul.menu a:hover { color: inherit; text-decoration: none; }
+ul.menu .nav-icon { display: inline-block; margin-right: 6px; }
+ul.menu .nav-tri { display: inline-block; margin-left: 10px; }
+
 /* Menu-Top dropdown */
-ul.menu-top { margin: 0; margin-left: 5px; margin-right: auto!important; padding: 0; z-index: 3; }
+ul.menu-top { margin-left: 5px; margin-right: auto; z-index: 3; }
+ul.menu-top ul { position: absolute; left: 0; }
 /* First li level: starts hide and after fadeIn by JS */
 ul.menu-top > li { display: none; float: left; z-index: 3; }
 /* Next deep level in tree */
-ul.menu-top ul li { width: 100%!important; } /* Sublines expand over all ul parent space */
-ul.menu-top li { position: relative; list-style: none; color: rgba(0, 0, 0, .9); }
-ul.menu-top li:hover { background: #2c3e50; color: #fff; text-decoration: none; color: #fff; }
-/* All nav-links elements:; inherit from li (a same state as it's li) */
-ul.menu-top a { display: block; padding: .5rem .8rem; color: inherit!important; white-space: nowrap; text-decoration: none; }
-ul.menu-top a:hover { color: inherit!important; text-decoration: none; }
-ul.menu-top .nav-icon { display: inline-block; margin-right: 6px; }
-ul.menu-top .nav-tri { display: inline-block; margin-left: 10px; }
-/* This hides all dropdowns */
-ul.menu-top ul { display: none; position: absolute; left: 0; margin: 0; padding: 0; background: #f8f9fa; }
+ul.menu-top ul li { width: 100%; } /* Sublines expand over all ul parent space */
+ul.menu-top li { position: relative; }
 /* Display the next dropdown */
 ul.menu-top li:hover > ul { display: block; border-left: 2px solid #2c3e50; }
 /* Displays second level dropdowns to the right of the first level dropdown */
@@ -56,18 +63,14 @@ ul.menu-top ul ul { top: 1%; left: 99%; }
 /* Sidebar left */
 
 /* Menu-Left dropdown */
-ul.menu-left { margin: 0; padding: 0; }
-ul.menu-left li { max-width: 240px; list-style: none; color: rgba(0, 0, 0, .9); }
-ul.menu-left li:hover { background: #2c3e50; color: #fff; text-decoration: none; }
-/* All nav-links elements:; inherit from li (a same state as it's li) */
-ul.menu-left a { display: block; padding: .5rem .8rem; color: inherit!important; white-space: nowrap; }
-ul.menu-left a:hover { color: inherit!important; text-decoration: none; }
-ul.menu-left .nav-icon { display: inline-block; margin-right: 6px; }
-ul.menu-left .nav-tri { display: inline-block; float: right; margin-left: 10px; }
-/* This hides all dropdowns */
-ul.menu-left ul { display: none; margin: 0; padding: 0; background: #f8f9fa; }
+ul.menu-left li { max-width: 240px; }
+ul.menu-left .nav-tri { float: right; }
 /* Display the next dropdown */
-ul.menu-left li.active > ul { display: block; border: 1px solid rgba(100, 100, 100, .3); border-bottom: 2px solid #2c3e50; }
+ul.menu-left li.active > ul {
+	display: block;
+	border: 1px solid rgba(100, 100, 100, .3);
+	border-bottom: 2px solid #2c3e50;
+}
 /* Menu-Left dropdown */
 
 /* Breadcrumb pagination */

@@ -1,39 +1,29 @@
 
 js.ready(function() {
-	// Build all menus as UL > Li
+	// Build all tree menus as UL > Li
+	const opts = { className: "sub-menu" };
 	js.getAll("ul.menu").forEach(function(menu) {
-		// Build menu as tree
-		js.filter(menu.children, "[parent]:not([parent=''])").forEach(child => {
-			let node = $("#" + $(child).attr("parent"), menu); //get parent node
-			node.children().last().is(menu.tagName)
-				|| node.append('<ul class="sub-menu"></ul>').children("a").append('<b class="nav-tri">&rtrif;</b>');
-			node.children().last().append(child);
-		});
-
-		// Remove empty sub-levels and empty icons
-		/*$(menu.children).remove("[parent][parent!='']");
-		menu.querySelectorAll("i").forEach(i => {
-			(i.classList.length <= 1) && i.parentNode.removeChild(i);
-		});*/
-
-		// Add triangles mark for submenu items
-		let triangles = $("b.nav-tri", menu); //find all marks
-		triangles.parent().click(function(ev) {
-			$(this.parentNode).toggleClass("active");
-			ev.preventDefault(); //not navigate when click on parent
-		});
-		$("li", menu).hover(function() {
-			triangles.html("&rtrif;"); //initialize triangles state
-			$(this).children("a").find("b.nav-tri").html("&dtrif;"); //down
-			$(this).parents("ul.sub-menu").prev().find("b.nav-tri").html("&dtrif;"); //up
-		});
-
-		// Disables links
-		$("[disabled]", menu).each(function() {
-			let mask = parseInt(this.getAttribute("disabled")) || 0;
-			$(this).toggleClass("disabled", (mask & 3) !== 3);
-		}).removeAttr("disabled");
-
+		for (let i = 0; i < menu.children.length; ) {
+			let child = menu.children[i];
+			let mask = child.dataset.mask;
+			if ((mask&8) == 8) { // Is parent => add triangle
+				child.lastElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
+				js.click(child.lastElementChild, (el, ev) => { //usfull on sidebar
+					js.toggle(child, "active");
+					ev.preventDefault();
+				});
+			}
+			if ((mask&4) == 0) // Disables links
+				js.addClass(child.lastElementChild, "disabled");
+			let padre = child.dataset.padre;
+			if (padre) {
+				let li = js.get("li[id='" + padre + "']", menu);
+				let submenu = (li.lastElementChild.tagName == "UL") ? li.lastElementChild : js.create("ul", opts);
+				li.appendChild(submenu).appendChild(child);
+			}
+			else
+				i++;
+		}
 		js.fadeIn(menu.children);
 	});
 
