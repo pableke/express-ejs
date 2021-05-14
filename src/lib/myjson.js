@@ -77,6 +77,11 @@ function Collection(db, pathname) {
 	this.clone = function(row) {
 		return Object.assign({}, row);
 	}
+	this.duplicate = function(row) {
+		let item = self.clone(row);
+		delete item._id;
+		return item;
+	}
 
 	this.name = function() {
 		let name = path.basename(pathname); //file.json

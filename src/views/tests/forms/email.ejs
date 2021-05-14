@@ -28,12 +28,10 @@
 
 			<div class="input-group">
 				<label for="date" class="required">Date:</label>
-				<div class="input-group">
-					<input type="text" id="date" name="date" value="" size="40" maxlength="10" tabindex="3" 
-						class="input-item input-control date datepicker" placeholder="" />
-					<i class="input-item input-icon fa fa-calendar"></i>
-					<div class="msg-error"><%=msgs.date%></div>
-				</div>
+				<input type="text" id="date" name="date" value="" size="40" maxlength="10" tabindex="3" 
+					class="input-item input-control date datepicker" placeholder="<%=i18n.phDate%>" />
+				<i class="input-item input-icon fa fa-calendar"></i>
+				<div class="msg-error"><%=msgs.date%></div>
 			</div>
 
 			<div class="input-group">

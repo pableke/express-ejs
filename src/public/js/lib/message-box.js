@@ -156,7 +156,7 @@ function MessageBox() {
 	}
 	function toInt(str) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+		return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 	}
 	function fmtInt(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;

@@ -25,18 +25,15 @@ module.exports = function(table, users, menus) {
 		return table;
 	}
 
-	function fnAddUser(user, parents, submenus, fecha) {
+	function fnAddUser(user, parents, fecha) {
 		parents.forEach(menu => { // Go up in menu tree
-			table.addUserMenu(user, menu, fecha);
-		});
-		submenus.forEach(menu => { // Go down in menu tree
 			table.addUserMenu(user, menu, fecha);
 		});
 	}
 	table.addUser = function(menu, user) {
 		if (!user)
 			return table; //user not found
-		fnAddUser(user, menus.getParents(menu), menus.getSubtree(menu), new Date());
+		fnAddUser(user, menus.getParents(menu), new Date());
 		return table.commit();
 	}
 	table.addUsers = function(menu, users) {
@@ -44,9 +41,8 @@ module.exports = function(table, users, menus) {
 			return table; //empty users
 		let fecha = new Date(); //sysdate
 		let parents = menus.getParents(menu);
-		let submenus = menus.getSubtree(menu);
 		users.forEach(user => {
-			fnAddUser(user, parents, submenus, fecha);
+			fnAddUser(user, parents, fecha);
 		});
 		return table.commit();
 	}

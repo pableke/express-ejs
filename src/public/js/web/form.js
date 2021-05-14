@@ -113,35 +113,6 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	valid.setForm("/login.html", {
-		usuario: valid.usuario,
-		clave: valid.clave
-	}).setForm("/contact.html", {
-		nombre: valid.required,
-		correo: valid.correo,
-		asunto: valid.required,
-		info: valid.required
-	}).setForm("/signup.html", {
-		token: valid.token,
-		nombre: valid.required,
-		ap1: valid.required,
-		nif: valid.nif,
-		correo: valid.correo
-	}).setForm("/reactive.html", {
-		token: valid.token,
-		correo: valid.correo
-	}).setForm("/user/pass.html", {
-		oldPass: valid.min8,
-		clave: valid.min8,
-		reclave: valid.reclave
-	}).setForm("/user/profile.html", {
-		nombre: valid.required,
-		ap1: valid.required,
-		ap2: valid.max200, //optional
-		nif: valid.nif,
-		correo: valid.correo
-	});
-
 	valid.validateForm = function(form) {
 		let inputs = form.elements;
 		js.clean(inputs).each(inputs, el => {
@@ -235,8 +206,8 @@ js.ready(function() {
 			//Do what you need after reset the form
 			//reset message, state inputs and recount textareas
 			js.clean(inputs).each(textareas, fnCounter);
-		}).click(js.filter(inputs, "a.duplicate"), (el, ev) => {
-			valid.submit(form, ev, el.href, data => {
+		}).click(js.getAll("a.duplicate", form), (el, ev) => {
+			valid.submit(form, ev, el.href, data => { //ajax form submit
 				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
 				showOk(data); //show ok message
 			});
