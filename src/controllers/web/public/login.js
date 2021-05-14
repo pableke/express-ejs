@@ -17,17 +17,22 @@ exports.check = function(req, res, next) {
 	let msgs = res.locals.i18n;
 	let { usuario, clave } = req.data;
 	let user = dao.web.myjson.users.getUser(usuario, clave, msgs);
-	if (user) { //validate if user exists
-		req.session.user = user;
-		req.session.time = Date.now();
-		req.session.click = Date.now();
-		let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
-		req.session.menus = res.locals.menus = menus; //update user menus on view and session
+	if (!user) //validate if user exists
+		return next(msgs.errUserNotFound); //go login error
+	// Build session data
+	req.session.user = user;
+	req.session.time = Date.now();
+	req.session.click = Date.now();
+	let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
+	req.session.menus = res.locals.menus = menus; //update user menus on view and session
+	if (req.session.redirTo) { //session helper
+		res.redirect(req.session.redirTo);
+		delete req.session.redirTo;
+	}
+	else {
 		valid.setMsgOk(msgs.msgLogin);
 		res.build("web/list/index");
 	}
-	else
-		next(msgs.errUserNotFound); //go login error
 }
 
 function fnLogout(req) {
@@ -42,12 +47,16 @@ function fnLogout(req) {
 
 exports.auth = function(req, res, next) {
 	res.setBody("web/forms/public/login"); //if error => go login
-	if (!req.session || !req.session.time) //no hay sesion
+	if (!req.session) //no hay sesion
+		return next(res.locals.i18n.err401);
+	req.session.redirTo = (req.method == "GET") && req.originalUrl;
+	if (!req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {
 		fnLogout(req); //time session expired
 		return next(res.locals.i18n.endSession);
 	}
+	delete req.session.redirTo;
 	//nuevo instante del ultimo click
 	req.session.click = Date.now();
 	next(); //next middleware
