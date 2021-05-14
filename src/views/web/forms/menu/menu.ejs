@@ -1,9 +1,41 @@
 
 <div class="wrapper">
 	<h1>Menu</h1>
-	<hr/>
 
+	<form id="menu" method="post" action="/menu/save.html">
+		<input type="hidden" id="_id" name="_id" value="<%=menu._id%>" class="duplicate" />
+		<div class="input-group">
+			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nombre" name="nombre" value="<%=menu.nombre%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.nombre%></span>
+		</div>
+		<div class="input-group">
+			<label for="nombre_en" class="required"><%=i18n.lblNombre%> (<%=i18n.lblEn%>):</label>
+			<input type="text" id="nombre_en" name="nombre_en" value="<%=menu.nombre_en%>" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titNombre%> (<%=i18n.lblEn%>)" placeholder="<%=i18n.phNombre%>" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.nombre_en%></span>
+		</div>
+		<div class="input-group">
+			<label for="icon"><%=i18n.lblIcono%>:</label>
+			<input type="text" id="icon" name="icon" value="<%=menu.icon%>" size="35" maxlength="200" class="input-item input-control" tabindex="3" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.icon%></span>
+		</div>
 
-	<hr/>
-	<a href="/menu/list.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<div class="input-group">
+			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
+			<input type="text" id="alta" name="alta" value="<%=i18n.isoDate(menu.alta)%>" size="15" maxlength="10" tabindex="3" 
+				class="input-item input-control date" placeholder="<%=i18n.phDate%>" />
+			<i class="input-item input-icon fa fa-calendar"></i>
+			<div class="msg-error"><%=msgs.alta%></div>
+		</div>
+
+		<hr/>
+		<a href="/menu/list.html" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+		<a href="/menu/duplicate.html" tabindex="102" class="btn btn-warn duplicate"><i class="far fa-copy"></i> <%=i18n.lblDuplicar%></a>
+		<button type="reset" class="btn btn-light" tabindex="103">&olarr; <%=i18n.lblLimpiar%></button>
+		<a href="/menu/delete.html?k=<%=menu._id%>" tabindex="104" class="btn btn-danger remove"><i class="far fa-trash-alt"></i> <%=i18n.lblEliminar%></a>
+	</form>
 </div>

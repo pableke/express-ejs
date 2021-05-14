@@ -27,6 +27,8 @@ valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
 	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
+}).set("max50", function(name, value, msgs) { //empty or length le than 50 (optional)
+	return valid.size(value, 0, 50) || !valid.setError(name, msgs.errMaxlength);
 }).set("token", function(name, value, msgs) {
 	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
 }).set("usuario", function(name, value, msgs) {
@@ -55,6 +57,12 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
+}).set("pk", function(name, value, msgs) {
+	if  (!value) //optional for inserts
+		return true;
+	if (valid.integer(name, value)) //is update
+		return (valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0);
+	return !valid.setError(name, msgs.errNumber);
 }).set("gt0", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value) || !valid.setError(name, msgs.errNumber)) 

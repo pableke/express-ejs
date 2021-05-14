@@ -9,7 +9,7 @@ function JsBox() {
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
-	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
+	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
 	function fnGet(el, selector) { return selector && el.querySelector(selector); }
 	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
@@ -27,13 +27,6 @@ function JsBox() {
 			results.push(sibling);
 	}
 
-	this.create = function(name, attrs) {
-		attrs = attrs || {}; //extra attributes
-		let elem = document.createElement(name);
-		elem.className = attrs.className || "none";
-		elem.id = attrs.id || fnId();
-		return elem;
-	}
 	this.getLang = function() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
@@ -431,7 +424,7 @@ function MessageBox() {
 	}
 	function toInt(str) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+		return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 	}
 	function fmtInt(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
@@ -934,6 +927,8 @@ valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 8, 200) || !valid.setError(name, msgs.errMinlength8);
 }).set("max200", function(name, value, msgs) { //empty or length le than 200 (optional)
 	return valid.size(value, 0, 200) || !valid.setError(name, msgs.errMaxlength);
+}).set("max50", function(name, value, msgs) { //empty or length le than 50 (optional)
+	return valid.size(value, 0, 50) || !valid.setError(name, msgs.errMaxlength);
 }).set("token", function(name, value, msgs) {
 	return valid.size(value, 200, 800) || !valid.setError(name, msgs.errRegex);
 }).set("usuario", function(name, value, msgs) {
@@ -962,6 +957,12 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
 			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
+}).set("pk", function(name, value, msgs) {
+	if  (!value) //optional for inserts
+		return true;
+	if (valid.integer(name, value)) //is update
+		return (valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0);
+	return !valid.setError(name, msgs.errNumber);
 }).set("gt0", function(name, value, msgs) {
 	return valid.required(name, value, msgs) 
 			&& (valid.float(name, value) || !valid.setError(name, msgs.errNumber)) 
@@ -1083,35 +1084,6 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	valid.setForm("/login.html", {
-		usuario: valid.usuario,
-		clave: valid.clave
-	}).setForm("/contact.html", {
-		nombre: valid.required,
-		correo: valid.correo,
-		asunto: valid.required,
-		info: valid.required
-	}).setForm("/signup.html", {
-		token: valid.token,
-		nombre: valid.required,
-		ap1: valid.required,
-		nif: valid.nif,
-		correo: valid.correo
-	}).setForm("/reactive.html", {
-		token: valid.token,
-		correo: valid.correo
-	}).setForm("/user/pass.html", {
-		oldPass: valid.min8,
-		clave: valid.min8,
-		reclave: valid.reclave
-	}).setForm("/user/profile.html", {
-		nombre: valid.required,
-		ap1: valid.required,
-		ap2: valid.max200, //optional
-		nif: valid.nif,
-		correo: valid.correo
-	});
-
 	valid.validateForm = function(form) {
 		let inputs = form.elements;
 		js.clean(inputs).each(inputs, el => {
@@ -1205,8 +1177,8 @@ js.ready(function() {
 			//Do what you need after reset the form
 			//reset message, state inputs and recount textareas
 			js.clean(inputs).each(textareas, fnCounter);
-		}).click(js.filter(inputs, "a.duplicate"), (el, ev) => {
-			valid.submit(form, ev, el.href, data => {
+		}).click(js.getAll("a.duplicate", form), (el, ev) => {
+			valid.submit(form, ev, el.href, data => { //ajax form submit
 				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
 				showOk(data); //show ok message
 			});
@@ -1226,6 +1198,51 @@ js.ready(function() {
 	});
 	// End AJAX links and forms
 });
+
+
+// Define form validators to web module
+// Public validators
+valid.setForm("/login.html", {
+	usuario: valid.usuario,
+	clave: valid.clave
+}).setForm("/contact.html", {
+	nombre: valid.required,
+	correo: valid.correo,
+	asunto: valid.required,
+	info: valid.required
+}).setForm("/signup.html", {
+	token: valid.token,
+	nombre: valid.required,
+	ap1: valid.required,
+	nif: valid.nif,
+	correo: valid.correo
+}).setForm("/reactive.html", {
+	token: valid.token,
+	correo: valid.correo
+});
+
+// User validators
+valid.setForm("/user/pass.html", {
+	oldPass: valid.min8,
+	clave: valid.min8,
+	reclave: valid.reclave
+}).setForm("/user/profile.html", {
+	nombre: valid.required,
+	ap1: valid.required,
+	ap2: valid.max200, //optional
+	nif: valid.nif,
+	correo: valid.correo
+});
+
+// Menu validators
+const MENU = {
+	_id: valid.pk,
+	nombre: valid.required,
+	nombre_en: valid.max200,
+	icon: valid.max50,
+	alta: valid.ltNow
+};
+valid.setForm("/menu/save.html", MENU).setForm("/menu/duplicate.html", MENU);
 
 
 js.ready(function() {

@@ -1,6 +1,6 @@
 
 <nav class="navbar">
-	<img src="/public/img/svg/book.svg" class="sidebar-icon sidebar-toggle" width="32" height="32" />
+	<img src="/public/img/svg/book.svg" class="sidebar-icon sidebar-toggle" width="32" height="32" title="<%=i18n.lblEmpresaNombre%>" />
 	<img src="/public/img/svg/arrow-left.svg" class="sidebar-icon sidebar-toggle hide" width="32" height="32" />
 	<a href="/" class="logo simple"><%=i18n.lblEmpresaNombre%></a>
 
@@ -8,7 +8,7 @@
 		<ul class="menu menu-left">
 			<% menus.forEach(menu => { %>
 				<li id="<%=menu._id%>" data-padre="<%=menu.padre%>" data-mask="<%=menu.mask%>">
-					<a href="<%=menu.href%>"><i class="nav-icon <%=menu.icon%>"></i><%=menu.nombre%></a>
+					<a href="<%=menu.href%>"><i class="nav-icon <%=menu.icon%>"></i><%=i18n.get(menu, "nombre")%></a>
 				</li>
 			<% }); %>
 			<li class="disabled">
@@ -20,11 +20,15 @@
 	<ul class="menu menu-top">
 		<% menus.forEach(menu => { %>
 			<li id="<%=menu._id%>" data-padre="<%=menu.padre%>" data-mask="<%=menu.mask%>">
-				<a href="<%=menu.href%>"><i class="nav-icon <%=menu.icon%>"></i><%=menu.nombre%></a>
+				<a href="<%=menu.href%>"><i class="nav-icon <%=menu.icon%>"></i><%=i18n.get(menu, "nombre")%></a>
 			</li>
 		<% }); %>
 		<li class="disabled">
 			<a href="#" tabindex="-1">Disabled</a>
 		</li>
 	</ul>
+	<div>
+		<a href="?lang=es" title="<%=i18n.lblEs%>"><img src="/public/img/flags/spain.png" width="24px"></a>
+		<a href="?lang=en" title="<%=i18n.lblEn%>"><img src="/public/img/flags/england.png" width="24px"></a>
+	</div>
 </nav>

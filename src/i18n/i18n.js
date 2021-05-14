@@ -69,7 +69,7 @@ function rtl(str, size) {
 }
 function toInt(str) {
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-	return parseInt(sing + str.replace(RE_NO_DIGITS, EMPTY));
+	return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 }
 function fmtInt(val, s) {
 	if ((typeof(val) === "undefined") || (val === null))
@@ -112,6 +112,7 @@ i18n.es.toInt = function(str) { return str && toInt(str); };
 i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
 i18n.es.toFloat = function(str) { return str && toFloat(str, COMMA); };
 i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
+i18n.es.get = function(obj, name) { return obj[name]; };
 
 i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : EMPTY; } //yyyy-mm-dd
 i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; } //hh:MM
@@ -122,6 +123,7 @@ i18n.en.toInt = function(str) { return str && toInt(str); };
 i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };
 i18n.en.toFloat = function(str) { return str && toFloat(str, DOT); };
 i18n.en.fmtFloat = function(str, n) { return fmtFloat(str, COMMA, DOT, n); };
+i18n.en.get = function(obj, name) { return obj[name + "_en"] || obj[name]; };
 
 // Specific laguage list for modules
 Object.assign(i18n.tests.es, i18n.es, require("./tests/es.js"));

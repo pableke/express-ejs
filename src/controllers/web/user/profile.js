@@ -14,11 +14,9 @@ valid.setForm("/user/profile.html", FORM)
 	.setForm("/user/perfil.html", FORM);
 
 exports.view = function(req, res, next) {
-	let i18n = res.locals.i18n;
 	// sessions save dates as iso string (as JSON)
 	res.locals.body = req.session.user; //set data on view
-	let alta = new Date(req.session.user.alta); //build date object
-	res.locals.body.fmtAlta = i18n.isoDate(alta); //format date
+	res.locals.body.alta = new Date(req.session.user.alta); //build date object
 	res.build("web/forms/user/profile");
 }
 
@@ -40,8 +38,6 @@ exports.save = function(req, res, next) {
 }
 
 exports.error = function(err, req, res, next) {
-	// Reload formated fields on error
-	res.locals.body.fmtAlta = res.locals.body.alta;
 	res.setBody("web/forms/user/profile"); //same body
 	next(err); //go next error handler
 }
