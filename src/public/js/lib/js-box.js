@@ -31,10 +31,16 @@ function JsBox() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
 	}
+	this.buildPath = function(parts) {
+		let aux = new URLSearchParams(parts);
+		let params = new URLSearchParams(window.location.search);
+		aux.forEach((v, k) => params.set(k, v));
+		return window.location.pathname + "?" + params.toString();
+	}
 	this.scrollTop = function(time) {
 		time = time || 600; //default duration
-		var scrollStep = -window.scrollY / (time / 15);
-		var scrollInterval = setInterval(() => {
+		let scrollStep = -window.scrollY / (time / 15);
+		let scrollInterval = setInterval(() => {
 			if (window.scrollY > 0)
 				window.scrollBy(0, scrollStep);
 			else
