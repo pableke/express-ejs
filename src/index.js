@@ -59,13 +59,13 @@ app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
 	valid.setMsgError("" + err); //set message error on view
-	if (req.headers["x-requested-with"] == "XMLHttpRequest")
+	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(500).json(valid.getMsgs()); //ajax response
 	return res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found
 	valid.setMsgError(res.locals.i18n.err404); //set message error on view
-	if (req.headers["x-requested-with"] == "XMLHttpRequest")
+	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(404).send(valid.getMsgError()); //ajax response
 	return res.status(404).build("web/errors/404"); //show 404 page
 });
@@ -73,8 +73,12 @@ app.use("*", (req, res) => { //error 404 page not found
 // Start servers (db's and http)
 dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
-app.set("port", port); //set port as express variable
-const server = app.listen(port, () => console.log("> Server listening on http://localhost:" + port));
+const server = app.listen(port, err => {
+	if (err)
+		console.log(err);
+	else
+		console.log("> Server listening on http://localhost:" + port);
+});
 
 //capture Node.js Signals and Events
 function fnExit(signal) { //exit handler

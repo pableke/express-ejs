@@ -36,22 +36,22 @@ js.ready(function() {
 	const CLS_INVALID = "input-error";
 	const CLS_FEED_BACK = ".msg-error";
 
+	js.showOk = function(msg) {
+		showOk(msg); //green
+		return js;
+	}
 	js.showError = function(msg) {
 		showError(msg); //red
 		return js;
 	}
 	js.showAlerts = function(msgs) {
 		//show posible multiple messages types
-		showOk(msgs.msgOk); //green
 		showInfo(msgs.msgInfo); //blue
 		showWarn(msgs.msgWarn); //yellow
-		return js.showError(msgs.msgError); //red
+		return js.showOk(msgs.msgOk).showError(msgs.msgError); //red
 	}
 	js.closeAlerts = function() {
 		return js.hide(alerts); //hide alerts
-	}
-	js.update = function(data) { //update partial and show alerts
-		return js.html(js.getAll(data.update), data.html).showAlerts(data);
 	}
 	js.clean = function(inputs) { //reset message and state inputs
 		return js.closeAlerts().removeClass(inputs, CLS_INVALID)
@@ -145,19 +145,6 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	function fnAjaxCall(el, ev) {
-		if (js.hasClass(el, "ajax")) {
-			js.ajax(el.href, js.update);
-			ev.preventDefault();
-		}
-	}
-	js.click(js.getAll("a.reload"), fnAjaxCall);
-	js.click(js.getAll("a.remove"), (el, ev) => {
-		if (confirm(msgs.remove))
-			fnAjaxCall(el, ev);
-		else
-			ev.preventDefault();
-	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
 			js.click(js.getAll(".captcha"), (el, ev) => {
@@ -208,7 +195,7 @@ js.ready(function() {
 			js.clean(inputs).each(textareas, fnCounter);
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
 			valid.submit(form, ev, el.href, data => { //ajax form submit
-				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
+				js.val(js.filter(inputs, "[name='_id'],.dup-clear"), ""); //clean input values
 				showOk(data); //show ok message
 			});
 		});

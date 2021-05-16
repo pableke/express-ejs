@@ -1,0 +1,21 @@
+
+<% if (rows.length == 0) { %>
+	<tr class="no-data">
+		<td colspan="99">No existen menus dados de alta en el sistema.</td>
+	</tr>
+<% } else { %>
+	<% rows.forEach(function(menu, i) { %>
+		<tr class="data">
+			<td><%=i+1%></td>
+			<td class="tc"><i class="<%=menu.icon%>"></i></td>
+			<td><%=i18n.get(menu, "nombre")%></td>
+			<td><%=menu.orden%></td>
+			<td class="tc"><%=i18n.isoDate(menu.alta)%></td>
+			<td class="tr">
+				<a href="/menu/view.html?k=<%=menu._id%>"><i class="fas fa-search fa-lg text-info icon"></i></a>
+				<a href="/menu/users.html?k=<%=menu._id%>"><i class="fas fa-user-plus fa-lg text-ok icon"></i></a>
+				<a href="/menu/delete.html?k=<%=menu._id%>" class="remove-row"><i class="fas fa-times fa-lg text-error icon"></i></a>
+			</td>
+		</tr>
+	<% }); %>
+<% } %>

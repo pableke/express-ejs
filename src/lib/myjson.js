@@ -14,7 +14,7 @@ function fnMkdirError(err) { return (err && (err.code != "EEXIST")) ? fnLogError
 
 function Collection(db, pathname) {
 	const self = this; //self instance
-	const table = { seq: 1, fields: [], data: [] };
+	const table = { seq: 1, sort: "", fields: [], data: [] };
 
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
@@ -24,6 +24,7 @@ function Collection(db, pathname) {
 				let aux = data ? JSON.parse(data) : table; //parse json
 				//only load data not structure (fields)
 				table.seq = aux.seq || table.seq;
+				table.sort = aux.sort || table.sort;
 				table.data = aux.data || table.data;
 				self.onload && self.onload(self);
 				resolve(self);
@@ -46,9 +47,8 @@ function Collection(db, pathname) {
 	}
 	this.flush = function() {
 		table.seq = 1; //restart sequence
-		delete table.sort; //remove sort id
 		table.data.splice(0); //remove data array
-		return self;
+		return self.unsort();
 	}
 	this.drop = function() {
 		fs.unlink(pathname, fnError);
@@ -109,6 +109,17 @@ function Collection(db, pathname) {
 		table.sort = name;
 		table.data.sort(cmp);
 		return self.commit();
+	}
+	this.orderBy = function(name, dir) {
+		function fnSortAsc(a, b) {
+			if (a[name] == b[name]) return 0;
+			return (a[name] < b[name]) ? -1 : 1;
+		}
+		function fnSortDesc(a, b) {
+			if (a[name] == b[name]) return 0;
+			return (a[name] < b[name]) ? 1 : -1;
+		}
+		return self.sort(name + dir, (dir == "desc") ? fnSortDesc : fnSortAsc);
 	}
 
 	this.push = function(item) {
