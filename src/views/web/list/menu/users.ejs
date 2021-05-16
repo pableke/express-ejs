@@ -1,6 +1,6 @@
 
 <div class="wrapper">
-	<h1>Private users menus</h1>
+	<h1>User Private menus</h1>
 	<hr/>
 
 	<table>
@@ -10,13 +10,13 @@
 			</tr>
 		</thead>
 		<tbody>
-			<% if (_menus.length == 0) { %>
-				<tr>
-					<td colspan="5"><p>No existen usuarios asociados a este menu.</p></td>
+			<% if (rows.length == 0) { %>
+				<tr class="no-data">
+					<td colspan="100">No existen usuarios asociados a este menu.</td>
 				</tr>
 			<% } else { %>
-			<% _menus.forEach(function(menu, i) { %>
-				<tr>
+			<% rows.forEach(function(menu, i) { %>
+				<tr class="data">
 					<td><%=i+1%></td>
 					<td class="tc"><i class="<%=menu.icon%>"></i></td>
 					<td><%=menu.nombre%></td>
@@ -30,7 +30,7 @@
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="2">Menus: <%=_menus.length%></td>
+				<td colspan="2">Menus: <%=rows.length%></td>
 			</tr>
 		</tfoot>
 	</table>

@@ -3,7 +3,7 @@
 	<h1>Menu</h1>
 
 	<form id="menu" method="post" action="/menu/save.html">
-		<input type="hidden" id="_id" name="_id" value="<%=menu._id%>" class="duplicate" />
+		<input type="hidden" id="_id" name="_id" value="<%=menu._id%>" />
 		<div class="input-group">
 			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
 			<input type="text" id="nombre" name="nombre" value="<%=menu.nombre%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />

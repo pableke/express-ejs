@@ -35,7 +35,12 @@ function MessageBox() {
 
 			//confirm cuestions
 			remove: "Are you sure to delete element?",
+			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
+			cancelOk: "Element canceled successfully!",
+			unlink: "Are you sure to unlink those elements?",
+			unlinkOk: "Elements unlinked successfully!",
+			linkOk: "Elements linked successfully!",
 
 			//datepicker language
 			closeText: "close", prevText: "prev", nextText: "next", currentText: "current",
@@ -79,7 +84,12 @@ function MessageBox() {
 
 			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
+			removeOk: "Registro eliminado correctamente.",
 			cancel: "¿Confirma que desea cancelar este registro?",
+			cancelOk: "Elemento cancelado correctamente.",
+			unlink: "¿Confirma que desea desasociar estos registros?",
+			unlinkOk: "Registros desasociados correctamente",
+			linkOk: "Registros asociados correctamente.",
 
 			//datepicker language
 			closeText: "close", prevText: "prev.", nextText: "sig.", currentText: "current",
@@ -186,6 +196,7 @@ function MessageBox() {
 	// Exports
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
+	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
 	this.getI18n = function(lang) { return (lang) ? (langs[lang] || langs[lang.substr(0, 2)] || langs.es) : langs.es; }
 	this.setI18n = function(lang) { _lang = self.getI18n(lang); return self; }
 

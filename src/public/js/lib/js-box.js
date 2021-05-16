@@ -10,6 +10,7 @@ function JsBox() {
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
+	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
 	function fnGet(el, selector) { return selector && el.querySelector(selector); }
 	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
@@ -31,11 +32,12 @@ function JsBox() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
 	}
-	this.buildPath = function(parts) {
+	this.buildPath = function(parts, url) {
+		url = url || window.location.pathname;
 		let aux = new URLSearchParams(parts);
 		let params = new URLSearchParams(window.location.search);
 		aux.forEach((v, k) => params.set(k, v));
-		return window.location.pathname + "?" + params.toString();
+		return url + "?" + params.toString();
 	}
 	this.scrollTop = function(time) {
 		time = time || 600; //default duration
@@ -180,24 +182,36 @@ function JsBox() {
 		return el && el.classList.contains(name);
 	};
 	this.addClass = function(list, name) {
+		function fnAdd(el, names) {
+			names.forEach(name => el.classList.add(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.add(name);
+			fnAdd(list, names);
 		else
-			self.each(list, el => el.classList.add(name));
+			self.each(list, el => fnAdd(el, names));
 		return self;
 	}
 	this.removeClass = function(list, name) {
+		function fnRemove(el, names) {
+			names.forEach(name => el.classList.remove(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.remove(name);
+			fnRemove(list, names);
 		else
-			self.each(list, el => el.classList.remove(name));
+			self.each(list, el => fnRemove(el, names));
 		return self;
 	}
 	this.toggle = function(list, name, display) {
+		function fnToggle(el, names) {
+			names.forEach(name => el.classList.toggle(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.toggle(name, display);
+			fnToggle(list, names);
 		else
-			self.each(list, el => el.classList.toggle(name, display));
+			self.each(list, el => fnToggle(el, names));
 		return self;
 	}
 

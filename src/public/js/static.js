@@ -10,6 +10,7 @@ function JsBox() {
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
+	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
 	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
 	function fnGet(el, selector) { return selector && el.querySelector(selector); }
 	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
@@ -31,11 +32,12 @@ function JsBox() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
 	}
-	this.buildPath = function(parts) {
+	this.buildPath = function(parts, url) {
+		url = url || window.location.pathname;
 		let aux = new URLSearchParams(parts);
 		let params = new URLSearchParams(window.location.search);
 		aux.forEach((v, k) => params.set(k, v));
-		return window.location.pathname + "?" + params.toString();
+		return url + "?" + params.toString();
 	}
 	this.scrollTop = function(time) {
 		time = time || 600; //default duration
@@ -180,24 +182,36 @@ function JsBox() {
 		return el && el.classList.contains(name);
 	};
 	this.addClass = function(list, name) {
+		function fnAdd(el, names) {
+			names.forEach(name => el.classList.add(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.add(name);
+			fnAdd(list, names);
 		else
-			self.each(list, el => el.classList.add(name));
+			self.each(list, el => fnAdd(el, names));
 		return self;
 	}
 	this.removeClass = function(list, name) {
+		function fnRemove(el, names) {
+			names.forEach(name => el.classList.remove(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.remove(name);
+			fnRemove(list, names);
 		else
-			self.each(list, el => el.classList.remove(name));
+			self.each(list, el => fnRemove(el, names));
 		return self;
 	}
 	this.toggle = function(list, name, display) {
+		function fnToggle(el, names) {
+			names.forEach(name => el.classList.toggle(name));
+		}
+		let names = fnSplit(name);
 		if (isElem(list))
-			list.classList.toggle(name, display);
+			fnToggle(list, names);
 		else
-			self.each(list, el => el.classList.toggle(name, display));
+			self.each(list, el => fnToggle(el, names));
 		return self;
 	}
 
@@ -309,7 +323,12 @@ function MessageBox() {
 
 			//confirm cuestions
 			remove: "Are you sure to delete element?",
+			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
+			cancelOk: "Element canceled successfully!",
+			unlink: "Are you sure to unlink those elements?",
+			unlinkOk: "Elements unlinked successfully!",
+			linkOk: "Elements linked successfully!",
 
 			//datepicker language
 			closeText: "close", prevText: "prev", nextText: "next", currentText: "current",
@@ -353,7 +372,12 @@ function MessageBox() {
 
 			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
+			removeOk: "Registro eliminado correctamente.",
 			cancel: "¿Confirma que desea cancelar este registro?",
+			cancelOk: "Elemento cancelado correctamente.",
+			unlink: "¿Confirma que desea desasociar estos registros?",
+			unlinkOk: "Registros desasociados correctamente",
+			linkOk: "Registros asociados correctamente.",
 
 			//datepicker language
 			closeText: "close", prevText: "prev.", nextText: "sig.", currentText: "current",
@@ -460,6 +484,7 @@ function MessageBox() {
 	// Exports
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
+	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
 	this.getI18n = function(lang) { return (lang) ? (langs[lang] || langs[lang.substr(0, 2)] || langs.es) : langs.es; }
 	this.setI18n = function(lang) { _lang = self.getI18n(lang); return self; }
 
@@ -1013,22 +1038,22 @@ js.ready(function() {
 	const CLS_INVALID = "input-error";
 	const CLS_FEED_BACK = ".msg-error";
 
+	js.showOk = function(msg) {
+		showOk(msg); //green
+		return js;
+	}
 	js.showError = function(msg) {
 		showError(msg); //red
 		return js;
 	}
 	js.showAlerts = function(msgs) {
 		//show posible multiple messages types
-		showOk(msgs.msgOk); //green
 		showInfo(msgs.msgInfo); //blue
 		showWarn(msgs.msgWarn); //yellow
-		return js.showError(msgs.msgError); //red
+		return js.showOk(msgs.msgOk).showError(msgs.msgError); //red
 	}
 	js.closeAlerts = function() {
 		return js.hide(alerts); //hide alerts
-	}
-	js.update = function(data) { //update partial and show alerts
-		return js.html(js.getAll(data.update), data.html).showAlerts(data);
 	}
 	js.clean = function(inputs) { //reset message and state inputs
 		return js.closeAlerts().removeClass(inputs, CLS_INVALID)
@@ -1122,19 +1147,6 @@ js.ready(function() {
 	/*********************************************/
 
 	// AJAX links and forms
-	function fnAjaxCall(el, ev) {
-		if (js.hasClass(el, "ajax")) {
-			js.ajax(el.href, js.update);
-			ev.preventDefault();
-		}
-	}
-	js.click(js.getAll("a.reload"), fnAjaxCall);
-	js.click(js.getAll("a.remove"), (el, ev) => {
-		if (confirm(msgs.remove))
-			fnAjaxCall(el, ev);
-		else
-			ev.preventDefault();
-	});
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
 			js.click(js.getAll(".captcha"), (el, ev) => {
@@ -1185,7 +1197,7 @@ js.ready(function() {
 			js.clean(inputs).each(textareas, fnCounter);
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
 			valid.submit(form, ev, el.href, data => { //ajax form submit
-				js.val(js.filter(inputs, ".duplicate"), ""); //clean input values
+				js.val(js.filter(inputs, "[name='_id'],.dup-clear"), ""); //clean input values
 				showOk(data); //show ok message
 			});
 		});
@@ -1203,6 +1215,42 @@ js.ready(function() {
 		});
 	});
 	// End AJAX links and forms
+});
+
+
+js.ready(function() {
+	const msgs = i18n.getLang(); //messages container
+
+	js.getAll("table").forEach(table => {
+		let links = js.getAll("a.sort", table.thead);
+		js.click(links, (el, ev) => {
+			ev.preventDefault();
+			let dir = js.hasClass(el, "asc") ? "desc" : "asc";
+			js.removeClass(links, "asc desc");
+			js.addClass(el, dir);
+			js.ajax(el.href + "&dir=" + dir, data => {
+				table.tBodies[0].innerHTML = data;
+			}, js.showAlerts);
+		});
+
+		for (let i = 0; i < table.tBodies.length; i++) {
+			let tbody = table.tBodies[i];
+			js.click(js.getAll("a.remove-row", tbody), (el, ev) => {
+				confirm(msgs.remove) && js.ajax(el.href, data => {
+					let num = js.get("#rows", table.tfoot);
+					if (num)
+						num.innerText = isNaN(num.innerText) ? 0 : (+num.innerText - 1);
+					tbody.innerHTML = data;
+					js.showOk(msgs.msgOk);
+				}, js.showAlerts);
+				ev.preventDefault();
+			});
+		}
+	});
+
+	js.click(js.getAll("a.remove"), (el, ev) => {
+		confirm(msgs.remove) || ev.preventDefault();
+	});
 });
 
 
