@@ -15,11 +15,15 @@ const FORM = {
 valid.setForm("/menu/save.html", FORM)
 	.setForm("/menu/duplicate.html", FORM);
 
-function fnGoList(res) {
-	res.locals.rows = dao.web.myjson.menus.getAll();
+function fnGoList(req, res, next) {
+	let { page, size } = req.query;
+	size = isNaN(size) ? 10 : +size;
+	page = isNaN(page) ? (+req.session.page || 0) : +page;
+	res.locals.rows = dao.web.myjson.menus.getAll().slice(page, size);
+	req.session.page = page;
 	res.build(TPL_LIST);
 }
-function fnGoUsers(req, res) {
+function fnGoUsers(req, res, next) {
 	let user = req.session.user;
 	res.locals.rows = dao.web.myjson.um.getPrivateMenus(user);
 	res.build("web/list/menu/users");
@@ -32,16 +36,14 @@ function fnLoadTbody(req, res, next) {
 	});
 }
 
-exports.list = function(req, res, next) {
-	fnGoList(res);
-}
+exports.list = fnGoList;
 exports.sort = function(req, res, next) {
 	let { by, dir } = req.query;
 	dao.web.myjson.menus.orderBy(by, dir);
 	if (req.xhr) // is ajax call?
 		fnLoadTbody(req, res, next);
 	else
-		fnGoList(res);
+		fnGoList(req, res, next);
 }
 
 exports.view = function(req, res, next) {
@@ -65,7 +67,7 @@ exports.unlink = function(req, res, next) {
 exports.save = function(req, res, next) {
 	dao.web.myjson.menus.save(req.data);
 	valid.setMsgOk(res.locals.i18n.msgGuardarOk);
-	fnGoList(res);
+	fnGoList(req, res, next);
 }
 
 exports.duplicate = function(req, res, next) {
@@ -80,7 +82,7 @@ exports.delete = function(req, res, next) {
 		fnLoadTbody(req, res, next);
 	else {
 		valid.setMsgOk(res.locals.i18n.msgBorrarOk);
-		fnGoList(res);
+		fnGoList(req, res, next);
 	}
 }
 
