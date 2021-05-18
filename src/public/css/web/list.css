@@ -24,7 +24,7 @@ tr.data:hover { background-color: #E6E6FA; }
 }
 
 .pagination {
-	margin: auto;
+	margin: 10px;
 	padding: 16px;
 }
 
@@ -35,6 +35,7 @@ tr.data:hover { background-color: #E6E6FA; }
 	text-decoration: none;
 	transition: background-color .3s;
 	border: 1px solid #ddd;
+	border-radius: 4px;
 }
 
 .pagination a.active {
