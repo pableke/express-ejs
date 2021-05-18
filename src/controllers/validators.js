@@ -1,10 +1,7 @@
 
-// Extends config
-const js = new JsBox();
-const sb = new StringBox();
-const i18n = new MessageBox();
-const valid = new ValidatorBox();
+const valid = require("app/lib/validator-box.js")
 
+// Extends validators
 valid.set("required", function(name, value, msgs) {
 	return valid.size(value, 1, 200) || !valid.setError(name, msgs.errRequired);
 }).set("required50", function(name, value, msgs) { //usefull for codes, refs, etc.
@@ -54,3 +51,5 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && valid.floatval(name, value, msgs) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
+
+module.exports = valid;

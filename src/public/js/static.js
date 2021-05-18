@@ -137,6 +137,12 @@ function JsBox() {
 		return self;
 	}
 	this.val = function(list, value) {
+		let el = fnSize(list) ? list[0] : list;
+		if (el.tagName === "SELECT") {
+			value = value || el.getAttribute("value");
+			let i = Array.from(el.options).findIndex(opt => (opt.value == value));
+			return self.each(list, select => { select.selectedIndex = i; });
+		}
 		if (isElem(list))
 			list.value = value;
 		else
@@ -972,31 +978,31 @@ valid.set("required", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.idES(name, value) || !valid.setError(name, msgs.errNif));
 }).set("correo", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.email(name, value) || !valid.setError(name, msgs.errCorreo));
+}).set("dateval", function(name, value, msgs) {
+	return valid.date(name, value) || !valid.setError(name, msgs.errDate);
 }).set("ltNow", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
+	return valid.required(name, value, msgs) && valid.dateval(name, value, msgs)
 			&& ((valid.getData(name).getTime() < Date.now()) || !valid.setError(name, msgs.errDateLe));
 }).set("leToday", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
+	return valid.required(name, value, msgs) && valid.dateval(name, value, msgs)
 			&& ((valid.toISODateString(valid.getData(name)) <= valid.toISODateString()) || !valid.setError(name, msgs.errDateLe));
 }).set("gtNow", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
+	return valid.required(name, value, msgs) && valid.dateval(name, value, msgs)
 			&& ((valid.getData(name).getTime() > Date.now()) || !valid.setError(name, msgs.errDateGe));
 }).set("geToday", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.date(name, value) || !valid.setError(name, msgs.errDate)) 
+	return valid.required(name, value, msgs) && valid.dateval(name, value, msgs)
 			&& ((valid.toISODateString(valid.getData(name)) >= valid.toISODateString()) || !valid.setError(name, msgs.errDateGe));
+}).set("intval", function(name, value, msgs) { //required
+	return valid.integer(name, value) || !valid.setError(name, msgs.errNumber);
+}).set("floatval", function(name, value, msgs) { //required
+	return valid.float(name, value) || !valid.setError(name, msgs.errNumber);
 }).set("pk", function(name, value, msgs) {
 	if  (!value) //optional for inserts
 		return true;
-	if (valid.integer(name, value)) //is update
-		return (valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0);
-	return !valid.setError(name, msgs.errNumber);
+	return valid.intval(name, value, msgs) //required>0 for udates
+			&& (valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0);
 }).set("gt0", function(name, value, msgs) {
-	return valid.required(name, value, msgs) 
-			&& (valid.float(name, value) || !valid.setError(name, msgs.errNumber)) 
+	return valid.required(name, value, msgs) && valid.floatval(name, value, msgs) 
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
 
@@ -1251,6 +1257,13 @@ js.ready(function() {
 	js.click(js.getAll("a.remove"), (el, ev) => {
 		confirm(msgs.remove) || ev.preventDefault();
 	});
+
+	js.getAll(".pagination").forEach(pag => {
+		let list = js.getAll("select", pag);
+		js.val(list).change(list, (el) => {
+			window.location.href = "?page=0&size=" + el.value;
+		});
+	});
 });
 
 
@@ -1291,9 +1304,10 @@ valid.setForm("/user/pass.html", {
 // Menu validators
 const MENU = {
 	_id: valid.pk,
+	icon: valid.max50,
 	nombre: valid.required,
 	nombre_en: valid.max200,
-	icon: valid.max50,
+	orden: valid.intval,
 	alta: valid.ltNow
 };
 valid.setForm("/menu/save.html", MENU).setForm("/menu/duplicate.html", MENU);
@@ -1302,8 +1316,9 @@ valid.setForm("/menu/save.html", MENU).setForm("/menu/duplicate.html", MENU);
 js.ready(function() {
 	// Build all tree menus as UL > Li
 	js.getAll("ul.menu").forEach(function(menu) {
-		for (let i = 0; i < menu.children.length; ) {
-			let child = menu.children[i];
+		let children = Array.from(menu.children);
+		children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
+		children.forEach(child => {
 			let mask = child.dataset.mask;
 			if ((mask&8) == 8) { // Is parent => add triangle
 				child.innerHTML += '<ul class="sub-menu"></ul>';
@@ -1314,9 +1329,13 @@ js.ready(function() {
 				});
 			}
 			if ((mask&4) == 0) // Disables links
-				js.addClass(child, "disabled");
+				js.addClass(child.firstElementChild, "disabled");
+		});
+
+		for (let i = 0; i < menu.children.length; ) {
+			let child = menu.children[i];
 			let padre = child.dataset.padre;
-			if (padre) {
+			if (padre) { // Move child with his parent
 				let li = js.get("li[id='" + padre + "']", menu);
 				li && li.lastElementChild.appendChild(child);
 			}

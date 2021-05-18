@@ -18,9 +18,9 @@
 		<thead>
 			<tr>
 				<th>N&#186;</th><th><%=i18n.lblIcono%></th>
-				<th><%=i18n.lblNombre%><a href="/menu/sort.html?by=nombre" class="sort"></a>
-				</th><th><%=i18n.lblOrden%><a href="/menu/sort.html?by=orden" class="sort"></a></th>
-				<th><%=i18n.lblFecha%><a href="/menu/sort.html?by=fecha" class="sort"></a></th>
+				<th><%=i18n.lblNombre%><a href="/menu/sort.html?by=nombre" class="sort <%=list.nombre%>"></a>
+				</th><th><%=i18n.lblOrden%><a href="/menu/sort.html?by=orden" class="sort <%=list.orden%>"></a></th>
+				<th><%=i18n.lblFecha%><a href="/menu/sort.html?by=fecha" class="sort <%=list.fecha%>"></a></th>
 				<th></th>
 			</tr>
 		</thead>
@@ -33,24 +33,7 @@
 			</tr>
 		</tfoot>
 	</table>
-
-	<div class="pagination">
-		<select value="40" class="input-item">
-			<option value="20">20</option>
-			<option value="40">40</option>
-			<option value="80">80</option>
-			<option value="100">100</option>
-		</select>
-
-		<a href="?page=0&size=20">&laquo;</a>
-		<a href="?page=0&size=20">1</a>
-		<a href="?page=1&size=20" class="active">2</a>
-		<a href="?page=2&size=20">3</a>
-		<a href="?page=3&size=20">4</a>
-		<a href="?page=4&size=20">5</a>
-		<a href="?page=5&size=20">6</a>
-		<a href="?page=5&size=20">&raquo;</a>
-	</div>
+	<%-include("../pagination")%>
 
 	<hr/>
 	<a href="/user/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>

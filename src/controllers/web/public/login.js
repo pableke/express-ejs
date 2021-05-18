@@ -2,6 +2,8 @@
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js")
 
+const TPL_LOGIN = "web/forms/public/login";
+const TPL_ADMIN = "web/list/index";
 const FORM = {
 	usuario: valid.usuario,
 	clave: valid.clave
@@ -10,7 +12,7 @@ valid.setForm("/login.html", FORM)
 	.setForm("/signin.html", FORM);
 
 exports.view = function(req, res) {
-	res.build("web/forms/public/login");
+	res.build(TPL_LOGIN);
 }
 
 exports.check = function(req, res, next) {
@@ -23,6 +25,7 @@ exports.check = function(req, res, next) {
 	req.session.user = user;
 	req.session.time = Date.now();
 	req.session.click = Date.now();
+	req.session.list = { page: 0, size: 40 };
 	let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
 	req.session.menus = res.locals.menus = menus; //update user menus on view and session
 	if (req.session.redirTo) { //session helper
@@ -31,12 +34,13 @@ exports.check = function(req, res, next) {
 	}
 	else {
 		valid.setMsgOk(msgs.msgLogin);
-		res.build("web/list/index");
+		res.build(TPL_ADMIN);
 	}
 }
 
 function fnLogout(req) {
 	//delete all session data
+	delete req.session.list;
 	delete req.session.user;
 	delete req.session.time;
 	delete req.session.click;
@@ -46,7 +50,7 @@ function fnLogout(req) {
 }
 
 exports.auth = function(req, res, next) {
-	res.setBody("web/forms/public/login"); //if error => go login
+	res.setBody(TPL_LOGIN); //if error => go login
 	if (!req.session) //no hay sesion
 		return next(res.locals.i18n.err401);
 	req.session.redirTo = (req.method == "GET") && req.originalUrl;
@@ -63,13 +67,14 @@ exports.auth = function(req, res, next) {
 }
 
 exports.home = function(req, res) {
-	res.build("web/list/index");
+	req.session.list = { page: 0, size: 40 }; //reset list values
+	res.build(TPL_ADMIN);
 }
 
 exports.logout = function(req, res) {
 	fnLogout(req); //click logout user
 	valid.setMsgOk(res.locals.i18n.msgLogout);
-	res.build("web/forms/public/login");
+	res.build(TPL_LOGIN);
 }
 
 exports.destroy = function(req, res) {
@@ -78,6 +83,6 @@ exports.destroy = function(req, res) {
 }
 
 exports.error = function(err, req, res, next) {
-	res.setBody("web/forms/public/login"); //same body
+	res.setBody(TPL_LOGIN); //same body
 	next(err); //go next error handler
 }

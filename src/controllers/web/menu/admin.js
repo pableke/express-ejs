@@ -7,9 +7,10 @@ const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
 const FORM = {
 	_id: valid.pk,
+	icon: valid.max50,
 	nombre: valid.required,
 	nombre_en: valid.max200,
-	icon: valid.max50,
+	orden: valid.intval,
 	alta: valid.ltNow
 };
 valid.setForm("/menu/save.html", FORM)
@@ -17,10 +18,16 @@ valid.setForm("/menu/save.html", FORM)
 
 function fnGoList(req, res, next) {
 	let { page, size } = req.query;
-	size = isNaN(size) ? 10 : +size;
-	page = isNaN(page) ? (+req.session.page || 0) : +page;
-	res.locals.rows = dao.web.myjson.menus.getAll().slice(page, size);
-	req.session.page = page;
+
+	let list = req.session.list;
+	let rows = dao.web.myjson.menus.getAll();
+	list.page = isNaN(page) ? +list.page : +page;
+	list.size = isNaN(size) ? +list.size : +size;
+	list.pages = Math.floor(rows.length / list.size);
+	res.locals.list = list;
+
+	let i = list.page * list.size;
+	res.locals.rows = rows.slice(i, i + list.size);
 	res.build(TPL_LIST);
 }
 function fnGoUsers(req, res, next) {
@@ -40,6 +47,10 @@ exports.list = fnGoList;
 exports.sort = function(req, res, next) {
 	let { by, dir } = req.query;
 	dao.web.myjson.menus.orderBy(by, dir);
+
+	req.session.list[by] = dir;
+	res.locals.list = req.session.list;
+
 	if (req.xhr) // is ajax call?
 		fnLoadTbody(req, res, next);
 	else

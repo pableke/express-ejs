@@ -137,6 +137,12 @@ function JsBox() {
 		return self;
 	}
 	this.val = function(list, value) {
+		let el = fnSize(list) ? list[0] : list;
+		if (el.tagName === "SELECT") {
+			value = value || el.getAttribute("value");
+			let i = Array.from(el.options).findIndex(opt => (opt.value == value));
+			return self.each(list, select => { select.selectedIndex = i; });
+		}
 		if (isElem(list))
 			list.value = value;
 		else
