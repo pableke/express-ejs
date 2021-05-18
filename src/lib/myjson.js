@@ -14,7 +14,7 @@ function fnMkdirError(err) { return (err && (err.code != "EEXIST")) ? fnLogError
 
 function Collection(db, pathname) {
 	const self = this; //self instance
-	const table = { seq: 1, sort: "", fields: [], data: [] };
+	const table = { seq: 1, fields: [], data: [] };
 
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
@@ -24,7 +24,6 @@ function Collection(db, pathname) {
 				let aux = data ? JSON.parse(data) : table; //parse json
 				//only load data not structure (fields)
 				table.seq = aux.seq || table.seq;
-				table.sort = aux.sort || table.sort;
 				table.data = aux.data || table.data;
 				self.onload && self.onload(self);
 				resolve(self);
@@ -48,7 +47,7 @@ function Collection(db, pathname) {
 	this.flush = function() {
 		table.seq = 1; //restart sequence
 		table.data.splice(0); //remove data array
-		return self.unsort();
+		return self;
 	}
 	this.drop = function() {
 		fs.unlink(pathname, fnError);
@@ -56,6 +55,7 @@ function Collection(db, pathname) {
 	}
 
 	this.db = function() { return db; }
+	this.config = function() { return table; }
 	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
@@ -102,24 +102,24 @@ function Collection(db, pathname) {
 	this.filter = function(cb) { return table.data.filter(cb); }
 	this.filterById = function(id) { return self.filter(row => (row._id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
-	this.unsort = function() { delete table.sort; return self; }
-	this.sort = function(name, cmp) {
-		if (table.sort == name)
-			return self;
-		table.sort = name;
-		table.data.sort(cmp);
-		return self.commit();
-	}
+	this.sort = function(cmp) { table.data.sort(cmp); return self; }
+
+	function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
+	function fnDesc(a, b) { return (a == b) ? 0 : ((a < b) ? 1 : -1); };
 	this.orderBy = function(name, dir) {
-		function fnSortAsc(a, b) {
-			if (a[name] == b[name]) return 0;
-			return (a[name] < b[name]) ? -1 : 1;
+		function fnSortAsc(a, b) { return fnAsc(a[name], b[name]); }
+		function fnSortDesc(a, b) { return fnDesc(a[name], b[name]); }
+		return self.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
+	}
+	this.multisort = function(columns, orderby) {
+		let index = 0;
+		orderby = orderby || [];
+		function fnMultisort(a, b) {
+			let name = columns[index];
+			let value = (orderby[index] == "desc") ? fnDesc(a[name], b[name]) :  fnAsc(a[name], b[name]);
+			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b) : value;
 		}
-		function fnSortDesc(a, b) {
-			if (a[name] == b[name]) return 0;
-			return (a[name] < b[name]) ? 1 : -1;
-		}
-		return self.sort(name + dir, (dir == "desc") ? fnSortDesc : fnSortAsc);
+		return self.sort(fnMultisort);
 	}
 
 	this.push = function(item) {

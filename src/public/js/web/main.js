@@ -36,9 +36,10 @@ valid.setForm("/user/pass.html", {
 // Menu validators
 const MENU = {
 	_id: valid.pk,
+	icon: valid.max50,
 	nombre: valid.required,
 	nombre_en: valid.max200,
-	icon: valid.max50,
+	orden: valid.intval,
 	alta: valid.ltNow
 };
 valid.setForm("/menu/save.html", MENU).setForm("/menu/duplicate.html", MENU);

@@ -4,28 +4,35 @@
 
 	<form id="menu" method="post" action="/menu/save.html">
 		<input type="hidden" id="_id" name="_id" value="<%=menu._id%>" />
+
+		<div class="input-group">
+			<label for="icon"><%=i18n.lblIcono%>:</label>
+			<input type="text" id="icon" name="icon" value="<%=menu.icon%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.icon%></span>
+		</div>
 		<div class="input-group">
 			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
-			<input type="text" id="nombre" name="nombre" value="<%=menu.nombre%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<input type="text" id="nombre" name="nombre" value="<%=menu.nombre%>" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
 			<i class="input-item input-icon fas fa-signature"></i>
 			<span class="msg-error"><%=msgs.nombre%></span>
 		</div>
 		<div class="input-group">
 			<label for="nombre_en" class="required"><%=i18n.lblNombre%> (<%=i18n.lblEn%>):</label>
-			<input type="text" id="nombre_en" name="nombre_en" value="<%=menu.nombre_en%>" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titNombre%> (<%=i18n.lblEn%>)" placeholder="<%=i18n.phNombre%>" />
+			<input type="text" id="nombre_en" name="nombre_en" value="<%=menu.nombre_en%>" size="35" maxlength="200" class="input-item input-control" tabindex="3" title="<%=i18n.titNombre%> (<%=i18n.lblEn%>)" placeholder="<%=i18n.phNombre%>" />
 			<i class="input-item input-icon fas fa-signature"></i>
 			<span class="msg-error"><%=msgs.nombre_en%></span>
 		</div>
-		<div class="input-group">
-			<label for="icon"><%=i18n.lblIcono%>:</label>
-			<input type="text" id="icon" name="icon" value="<%=menu.icon%>" size="35" maxlength="200" class="input-item input-control" tabindex="3" />
-			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.icon%></span>
-		</div>
 
 		<div class="input-group">
+			<label for="orden"><%=i18n.lblOrden%>:</label>
+			<input type="text" id="orden" name="orden" value="<%=menu.orden%>" size="35" maxlength="200" class="input-item input-control" tabindex="4" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.orden%></span>
+		</div>
+		<div class="input-group">
 			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
-			<input type="text" id="alta" name="alta" value="<%=i18n.isoDate(menu.alta)%>" size="15" maxlength="10" tabindex="3" 
+			<input type="text" id="alta" name="alta" value="<%=i18n.isoDate(menu.alta)%>" size="15" maxlength="10" tabindex="5" 
 				class="input-item input-control date" placeholder="<%=i18n.phDate%>" />
 			<i class="input-item input-icon fa fa-calendar"></i>
 			<div class="msg-error"><%=msgs.alta%></div>

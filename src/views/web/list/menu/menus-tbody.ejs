@@ -8,7 +8,9 @@
 		<tr class="data">
 			<td><%=i+1%></td>
 			<td class="tc"><i class="<%=menu.icon%>"></i></td>
-			<td><%=i18n.get(menu, "nombre")%></td>
+			<td>
+				<a href="/menu/view.html?k=<%=menu._id%>"><%=i18n.get(menu, "nombre")%></a>
+			</td>
 			<td><%=menu.orden%></td>
 			<td class="tc"><%=i18n.isoDate(menu.alta)%></td>
 			<td class="tr">
