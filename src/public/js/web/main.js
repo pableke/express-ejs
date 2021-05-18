@@ -1,5 +1,5 @@
 
-// Define form validators to web module
+// Web module validators
 // Public validators
 valid.setForm("/login.html", {
 	usuario: valid.usuario,

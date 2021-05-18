@@ -1254,7 +1254,7 @@ js.ready(function() {
 });
 
 
-// Define form validators to web module
+// Web module validators
 // Public validators
 valid.setForm("/login.html", {
 	usuario: valid.usuario,
@@ -1376,8 +1376,10 @@ js.ready(function() {
 
 	//Scroll anchors to its destination with a slow effect
 	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
-		let dest = document.querySelector(el.getAttribute("href"));
-		dest && dest.scrollIntoView({ behavior: "smooth" });
+		try { //is anchor well build
+			let dest = document.querySelector(el.getAttribute("href"));
+			dest && dest.scrollIntoView({ behavior: "smooth" });
+		} catch(ex) {}
 		ev.preventDefault();
 	});
 });
@@ -1386,20 +1388,22 @@ js.ready(function() {
 js.ready(function() {
 	const msgs = i18n.getLang(); //messages container
 
-	// Tests form validators
-	valid.setForm("/tests/email.html", {
-		nombre: valid.required,
-		correo: valid.correo,
-		date: function(name, value, msgs) { //optional input
-			return !value || valid.ltNow(name, value, msgs);
-		},
-		number: valid.gt0,
-		asunto: valid.required,
-		info: function(name, value, msgs) {
-			return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
-		}
-	});
-
+	// Range datepickers
 	const f1 = $("#f1").on("change", function() { f2.datepicker("option", "minDate", msgs.toDate(this.value)); });
 	const f2 = $("#f2").on("change", function() { f1.datepicker("option", "maxDate", msgs.toDate(this.value)); });
+});
+
+
+// Test module validators
+valid.setForm("/tests/email.html", {
+	nombre: valid.required,
+	correo: valid.correo,
+	date: function(name, value, msgs) { //optional input
+		return !value || valid.ltNow(name, value, msgs);
+	},
+	number: valid.gt0,
+	asunto: valid.required,
+	info: function(name, value, msgs) {
+		return valid.size(value, 1, 600) || !valid.setError(name, msgs.errRequired);
+	}
 });
