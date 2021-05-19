@@ -7,7 +7,7 @@
 	<div id="sidebar">
 		<ul class="menu menu-left">
 			<% menus.forEach(menu => { %>
-				<li id="<%=menu._id%>" data-padre="<%=menu.padre%>" data-mask="<%=menu.mask%>">
+				<li id="<%=menu._id%>" data-padre="<%=menu.padre%>" data-orden="<%=menu.orden%>" data-mask="<%=menu.mask%>">
 					<a href="<%=menu.href%>"><i class="nav-icon <%=menu.icon%>"></i><%=i18n.get(menu, "nombre")%></a>
 				</li>
 			<% }); %>

@@ -103,13 +103,23 @@ function Collection(db, pathname) {
 	this.filterById = function(id) { return self.filter(row => (row._id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.sort = function(cmp) { table.data.sort(cmp); return self; }
+	this.slice = function(i, j) { return table.data.slice(i, j); }
 
 	function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
 	function fnDesc(a, b) { return (a == b) ? 0 : ((a < b) ? 1 : -1); };
-	this.orderBy = function(name, dir) {
+	this.order = function(name, dir) {
+		if (!name) return self; //no field to sort by
 		function fnSortAsc(a, b) { return fnAsc(a[name], b[name]); }
 		function fnSortDesc(a, b) { return fnDesc(a[name], b[name]); }
 		return self.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
+	}
+	this.orderBy = function(cfg) {
+		return self.order(cfg.sort, cfg[cfg.sort]);
+	}
+	this.sortBy = function(cfg, name, dir) {
+		cfg.sort = name;
+		cfg[name] = dir;
+		return self.orderBy(cfg);
 	}
 	this.multisort = function(columns, orderby) {
 		let index = 0;
@@ -120,6 +130,18 @@ function Collection(db, pathname) {
 			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b) : value;
 		}
 		return self.sort(fnMultisort);
+	}
+	this.paginate = function(cfg) {
+		return self.slice(cfg.index, cfg.index + cfg.size);
+	}
+	this.pagination = function(cfg, page, size) {
+		cfg.page = isNaN(page) ? +cfg.page : +page;
+		cfg.size = isNaN(size) ? +cfg.size : +size;
+		cfg.pages = Math.floor(table.data.length / cfg.size);
+		cfg.end = Math.min(cfg.page + 4, cfg.pages);
+		cfg.start = Math.max(cfg.end - 7, 0);
+		cfg.index = cfg.page * cfg.size;
+		return self.paginate(cfg);
 	}
 
 	this.push = function(item) {

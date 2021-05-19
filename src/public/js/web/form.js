@@ -185,6 +185,11 @@ js.ready(function() {
 			inputs: js.filter(inputs, ".ac-user"),
 			id: "nif", action: "/tests/usuarios.html",
 			render: function(item) { return item.nif + " - " + item.nombre; }
+		}).autocomplete({
+			inputs: js.filter(inputs, ".ac-menu"),
+			id: "_id", action: "/menu/padre.html",
+			renderItem: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nombre"); },
+			render: function(item) { return msgs.get(item, "nombre"); }
 		});
 
 		js.click(js.filter(inputs, "[type=reset]"), () => {

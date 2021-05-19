@@ -67,7 +67,7 @@ app.use("*", (req, res) => { //error 404 page not found
 	valid.setMsgError(res.locals.i18n.err404); //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return res.status(404).send(valid.getMsgError()); //ajax response
-	return res.status(404).build("web/errors/404"); //show 404 page
+	return res.status(404).build("errors/404"); //show 404 page
 });
 
 // Start servers (db's and http)

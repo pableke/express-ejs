@@ -61,7 +61,8 @@ function MessageBox() {
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
-			isoTime: function(str) { return str && fnTimeHelper(str); }
+			isoTime: function(str) { return str && fnTimeHelper(str); },
+			get: function(obj, name) { return obj[name + "_en"] || obj[name]; }
 		},
 
 		es: { //spanish
@@ -110,7 +111,8 @@ function MessageBox() {
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
-			isoTime: function(str) { return str && fnTimeHelper(str); }
+			isoTime: function(str) { return str && fnTimeHelper(str); },
+			get: function(obj, name) { return obj[name]; }
 		}
 	}
 

@@ -5,7 +5,8 @@ js.ready(function() {
 		let children = Array.from(menu.children);
 		children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
 		children.forEach(child => {
-			let mask = child.dataset.mask;
+			menu.appendChild(child); // force reorder
+			let mask = child.dataset.mask; // get mask
 			if ((mask&8) == 8) { // Is parent => add triangle
 				child.innerHTML += '<ul class="sub-menu"></ul>';
 				child.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';

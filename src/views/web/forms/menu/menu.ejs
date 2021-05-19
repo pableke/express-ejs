@@ -8,7 +8,7 @@
 		<div class="input-group">
 			<label for="icon"><%=i18n.lblIcono%>:</label>
 			<input type="text" id="icon" name="icon" value="<%=menu.icon%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" />
-			<i class="input-item input-icon fas fa-signature"></i>
+			<i class="input-item input-icon fas fa-icons"></i>
 			<span class="msg-error"><%=msgs.icon%></span>
 		</div>
 		<div class="input-group">
@@ -25,14 +25,27 @@
 		</div>
 
 		<div class="input-group">
+			<label for="np"><%=i18n.lblPadre%>:</label>
+			<input type="text" id="np" name="np" value="<%=menu.np%>" size="15" maxlength="200" class="input-item input-control ac-menu" tabindex="4" />
+			<input type="hidden" id="padre" name="padre" value="<%=menu.padre%>" />
+			<i class="input-item input-icon fas fa-arrow-alt-circle-up"></i>
+			<span class="msg-error"><%=msgs.padre%></span>
+		</div>
+		<div class="input-group">
 			<label for="orden"><%=i18n.lblOrden%>:</label>
-			<input type="text" id="orden" name="orden" value="<%=menu.orden%>" size="35" maxlength="200" class="input-item input-control" tabindex="4" />
-			<i class="input-item input-icon fas fa-signature"></i>
+			<input type="text" id="orden" name="orden" value="<%=menu.orden%>" size="15" maxlength="200" class="input-item input-control tr" tabindex="5" />
+			<i class="input-item input-icon fas fa-sort-alpha-down"></i>
 			<span class="msg-error"><%=msgs.orden%></span>
 		</div>
 		<div class="input-group">
+			<label for="mask"><%=i18n.lblMask%>:</label>
+			<input type="text" id="mask" name="mask" value="<%=menu.mask%>" size="15" maxlength="200" class="input-item input-control tr" tabindex="6" />
+			<i class="input-item input-icon fas fa-theater-masks"></i>
+			<span class="msg-error"><%=msgs.mask%></span>
+		</div>
+		<div class="input-group">
 			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
-			<input type="text" id="alta" name="alta" value="<%=i18n.isoDate(menu.alta)%>" size="15" maxlength="10" tabindex="5" 
+			<input type="text" id="alta" name="alta" value="<%=i18n.isoDate(menu.alta)%>" size="15" maxlength="10" tabindex="7" 
 				class="input-item input-control date" placeholder="<%=i18n.phDate%>" />
 			<i class="input-item input-icon fa fa-calendar"></i>
 			<div class="msg-error"><%=msgs.alta%></div>
