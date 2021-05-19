@@ -40,12 +40,11 @@ exports.check = function(req, res, next) {
 
 function fnLogout(req) {
 	//delete all session data
-	delete req.session.list;
-	delete req.session.user;
-	delete req.session.time;
-	delete req.session.click;
-	delete req.session.menus;
-	req.session.destroy(); //remove session: regenerated next request
+	valid.clear(req.session.list);
+	valid.clear(req.session.user);
+	valid.clear(req.session);
+	//remove session: regenerated next request
+	req.session.destroy();
 	delete req.session; //full destroy
 }
 
@@ -67,7 +66,10 @@ exports.auth = function(req, res, next) {
 }
 
 exports.home = function(req, res) {
-	req.session.list = { page: 0, size: 40 }; //reset list values
+	// Reset list configuration
+	valid.clear(req.session.list);
+	req.session.list.page = 0;
+	req.session.list.size = 40;
 	res.build(TPL_ADMIN);
 }
 

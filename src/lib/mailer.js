@@ -55,7 +55,7 @@ exports.send = function(mail) {
 	mail.attachments = mail.attachments || MESSAGE.attachments;
 
 	// Email template path base = /views
-	let tpl = path.join(__dirname, "../views", "web/emails/index.ejs");
+	let tpl = path.join(__dirname, "../views/email.ejs");
 	mail.data._tplBody = path.join(__dirname, "../views", mail.tpl);
 
 	// Return promise to send email

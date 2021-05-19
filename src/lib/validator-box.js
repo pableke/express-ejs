@@ -254,9 +254,13 @@ function ValidatorBox() {
 	}
 
 	// Messages for response
+	this.clear = function(obj) {
+		for (let k in obj) //clear object
+			delete obj[k]; //delete keys
+		return obj;
+	}
 	this.initMsgs = function() {
-		for (let k in MSGS) //clear prev msgs
-			delete MSGS[k]; //delete message
+		self.clear(MSGS); //clear prev msgs
 		errors = 0; //error counter
 		return self;
 	}

@@ -10,7 +10,7 @@
 	<% if (list.page > 0) { %>
 		<a href="?page=0&size=<%=list.size%>">&laquo;</a>
 	<% } %>
-	<% for (let i = 0; i <= list.pages; i++) { %>
+	<% for (let i = list.start; i <= list.end; i++) { %>
 		<% if (list.page == i) { %>
 			<a href="#" class="active"><%=(i+1)%></a>
 		<% } else { %>
