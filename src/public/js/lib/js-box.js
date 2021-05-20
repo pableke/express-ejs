@@ -97,7 +97,7 @@ function JsBox() {
 	}
 	this.filter = function(list, selector) {
 		let results = []; //elem container
-		selector && self.each(list, el => { addMatch(el, selector, results); });
+		selector && self.each(list, el => addMatch(el, selector, results));
 		return results;
 	}
 	this.get = function(selector, el) {
