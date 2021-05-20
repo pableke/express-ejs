@@ -56,7 +56,10 @@ exports.view = function(req, res, next) {
 	let msgs = res.locals.i18n; // get language messages
 	let menu = id ? dao.web.myjson.menus.getById(id) : { alta: new Date() };
 	let padre = menu.padre && dao.web.myjson.menus.getById(menu.padre);
-	menu.np = padre && msgs.get(padre, "nombre");
+	if (padre) { // update parent info
+		menu.np = msgs.get(padre, "nombre");
+		menu.ip = padre.icon;
+	}
 	res.locals.menu = menu;
 	res.build(TPL_FORM);
 }

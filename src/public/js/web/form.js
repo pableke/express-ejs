@@ -76,32 +76,42 @@ js.ready(function() {
 	}
 	js.autocomplete = function(opts) { // Autocomplete inputs
 		opts = opts || {}; //default config
-		function fnAcLoad(el, id, txt) {
-			return !js.val(el, txt).val(js.siblings(el, "[type=hidden]"), id);
-		}
+		function fnFalse() { return false; }
+		function getIdElem(el) { return js.siblings(el, "[type=hidden]")[0]; }
 
 		let _search = false; //call source indicator
+		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
 		opts.action = opts.action || "#"; //request
 		opts.minLength = opts.minLength || 3; //length to start
+		opts.open = opts.open || fnFalse; //triggered if the value has changed
+		opts.focus = opts.focus || fnFalse; //no change focus on select
+		opts.load = opts.load || fnFalse; //triggered when select an item
+		opts.remove = opts.remove || fnFalse; //triggered when no item selected
 		opts.render = opts.render || function() { return "-"; }; //render on input
-		opts.renderItem = opts.renderItem || opts.render; //render on item list
-		opts.focus = function() { return false; }; //no change focus on select
 		opts.search = function(ev, ui) { return _search; }; //lunch source
-		opts.select = function(ev, ui) { return fnAcLoad(this, ui.item[opts.id], opts.render(ui.item)); };
+		opts.select = function(ev, ui) { //triggered when select an item
+			opts.load(ui.item, this, getIdElem(this)); //update inputs
+			return false; //preserve inputs values from load event
+		};
 		opts.source = function(req, res) {
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
-				let label = sb.iwrap(opts.renderItem(item), req.term); //decore matches
-				return $("<li></li>").append("<div>" + label + "</div>").appendTo(ul);
+				let label = sb.iwrap(opts.render(item), req.term); //decore matches
+				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
 			js.ajax(opts.action + "?term=" + req.term, data => res(data.slice(0, 10)));
+		};
+		// Triggered when the field is blurred, if the value has changed
+		opts.change = function(ev, ui) {
+			if (!ui.item) { //item selected?
+				js.val(this, "").val(getIdElem(this), "");
+				opts.remove(this);
+			}
 		};
 		$(opts.inputs).autocomplete(opts);
 
 		//reduce server calls = backspace or alfanum
 		return js.keydown(opts.inputs, (el, ev) => {
 			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224));
-		}).change(opts.inputs, el => {
-			el.value || fnAcLoad(el, "", "");
 		});
 	}
 	// End extends js-box module
@@ -181,15 +191,25 @@ js.ready(function() {
 		js.keyup(textareas, fnCounter).each(textareas, fnCounter);
 		// End initialize all textarea counter
 
+		function fnUpdateIcon(el, value) { return !js.setClass(js.next(el, "i"), value); }
 		js.autocomplete({
-			inputs: js.filter(inputs, ".ac-user"),
-			id: "nif", action: "/tests/usuarios.html",
-			render: function(item) { return item.nif + " - " + item.nombre; }
+			inputs: js.filter(inputs, ".ac-user"), action: "/tests/usuarios.html",
+			load: function(item, el, idElem) {
+				el.value = item.nif + " - " + item.nombre;
+				idElem.value = item.nif;
+			}
 		}).autocomplete({
-			inputs: js.filter(inputs, ".ac-menu"),
-			id: "_id", action: "/menu/padre.html",
-			renderItem: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nombre"); },
-			render: function(item) { return msgs.get(item, "nombre"); }
+			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/padre.html",
+			focus: function(ev, ui) {
+				let icon = ui.item && ui.item.icon;
+				return fnUpdateIcon(this, "input-item input-icon " + (icon || "fas fa-arrow-alt-circle-up"));
+			},
+			remove: function(el) { return fnUpdateIcon(el, "input-item input-icon fas fa-arrow-alt-circle-up"); },
+			render: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nombre"); },
+			load: function(item, el, idElem) {
+				el.value = msgs.get(item, "nombre");
+				idElem.value = item._id;
+			}
 		});
 
 		js.click(js.filter(inputs, "[type=reset]"), () => {

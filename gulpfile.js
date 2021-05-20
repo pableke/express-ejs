@@ -1,13 +1,13 @@
 
-//npm remove merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
-//npm install -D merge-stream gulp gulp-concat gulp-minify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm remove gulp gulp-util gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm install -D gulp gulp-util gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
-const merge = require("merge-stream");
 const gulp = require("gulp");
+const gutil = require("gulp-util");
 const htmlmin = require("gulp-htmlmin");
 const minifyejs = require("gulp-minify-ejs");
-const jsmin = require("gulp-minify");
+const uglify = require('gulp-uglify');
 const concat = require("gulp-concat");
 const cssmin = require("gulp-clean-css");
 const cssInline = require('gulp-minify-inline');
@@ -46,10 +46,10 @@ gulp.task("minify-css", () => {
 
 // Tasks to minify JS's
 gulp.task("minify-js", () => {
-	const config = {level: {1: {specialComments: 0}}};
+	const config = {/*level: {1: {specialComments: 0}}*/};
 	return gulp.src(JS_FILES)
-				.pipe(concat("static.js"))
-				.pipe(jsmin(config))
+				.pipe(concat("static-min.js"))
+				.pipe(uglify(config))
 				.pipe(gulp.dest("src/public/js"))
 				.pipe(gulp.dest("dist/public/js"));
 });
