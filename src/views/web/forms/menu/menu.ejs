@@ -26,9 +26,9 @@
 
 		<div class="input-group">
 			<label for="np"><%=i18n.lblPadre%>:</label>
-			<input type="text" id="np" name="np" value="<%=menu.np%>" size="15" maxlength="200" class="input-item input-control ac-menu" tabindex="4" />
+			<input type="text" id="np" name="np" value="<%=menu.np%>" size="20" maxlength="200" class="input-item input-control ac-menu" tabindex="4" />
 			<input type="hidden" id="padre" name="padre" value="<%=menu.padre%>" />
-			<i class="input-item input-icon fas fa-arrow-alt-circle-up"></i>
+			<i class="input-item input-icon <%=menu.ip || "fas fa-arrow-alt-circle-up"%>"></i>
 			<span class="msg-error"><%=msgs.padre%></span>
 		</div>
 		<div class="input-group">

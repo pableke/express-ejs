@@ -15,18 +15,6 @@ function JsBox() {
 	function fnGet(el, selector) { return selector && el.querySelector(selector); }
 	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
-	function addSiblings(el, selector, results) {
-		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
-			addMatch(sibling, selector, results);
-		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
-			addMatch(sibling, selector, results);
-	}
-	function addAllSiblings(el, results) {
-		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
-			results.push(sibling);
-		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
-			results.push(sibling);
-	}
 
 	this.getLang = function() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
@@ -118,6 +106,49 @@ function JsBox() {
 	this.getAll = function(selector, el) {
 		return fnGetAll(el || document, selector);
 	}
+
+	function addPrev(el, selector, results) {
+		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
+			addMatch(sibling, selector, results);
+	}
+	function addNext(el, selector, results) {
+		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
+			addMatch(sibling, selector, results);
+	}
+	function addSiblings(el, selector, results) {
+		addPrev(el, selector, results);
+		addNext(el, selector, results);
+	}
+	function addAllPrev(el, results) {
+		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
+			results.push(sibling);
+	}
+	function addAllNext(el, results) {
+		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
+			results.push(sibling);
+	}
+	function addAllSiblings(el, results) {
+		addAllPrev(el, results);
+		addAllNext(el, results);
+	}
+	this.prev = function(list, selector) {
+		let results = []; //elem container
+		if (isElem(list))
+			selector ? addPrev(list, selector, results) : addAllPrev(list, results);
+		else
+			selector ? self.each(list, el => addPrev(el, selector, results))
+					: self.each(list, el => addAllPrev(el, results));
+		return results;
+	}
+	this.next = function(list, selector) {
+		let results = []; //elem container
+		if (isElem(list))
+			selector ? addNext(list, selector, results) : addAllNext(list, results);
+		else
+			selector ? self.each(list, el => addNext(el, selector, results))
+					: self.each(list, el => addAllNext(el, results));
+		return results;
+	}
 	this.siblings = function(list, selector) {
 		let results = []; //elem container
 		if (isElem(list))
@@ -187,37 +218,39 @@ function JsBox() {
 		let el = fnSize(list) ? list[0] : list;
 		return el && el.classList.contains(name);
 	};
-	this.addClass = function(list, name) {
-		function fnAdd(el, names) {
-			names.forEach(name => el.classList.add(name));
-		}
-		let names = fnSplit(name);
+	this.setClass = function(list, value) {
+		function fnSet(el) { el.className = value; }
 		if (isElem(list))
-			fnAdd(list, names);
+			fnSet(list);
 		else
-			self.each(list, el => fnAdd(el, names));
+			self.each(list, fnSet);
+		return self;
+	}
+	this.addClass = function(list, name) {
+		let names = fnSplit(name); // Split value by " " (class separator)
+		function fnAdd(el) { names.forEach(name => el.classList.add(name)); }
+		if (isElem(list))
+			fnAdd(list);
+		else
+			self.each(list, fnAdd);
 		return self;
 	}
 	this.removeClass = function(list, name) {
-		function fnRemove(el, names) {
-			names.forEach(name => el.classList.remove(name));
-		}
-		let names = fnSplit(name);
+		let names = fnSplit(name); // Split value by " " (class separator)
+		function fnRemove(el) { names.forEach(name => el.classList.remove(name)); }
 		if (isElem(list))
-			fnRemove(list, names);
+			fnRemove(list);
 		else
-			self.each(list, el => fnRemove(el, names));
+			self.each(list, fnRemove);
 		return self;
 	}
 	this.toggle = function(list, name, display) {
-		function fnToggle(el, names) {
-			names.forEach(name => el.classList.toggle(name));
-		}
-		let names = fnSplit(name);
+		let names = fnSplit(name); // Split value by " " (class separator)
+		function fnToggle(el) { names.forEach(name => el.classList.toggle(name)); }
 		if (isElem(list))
-			fnToggle(list, names);
+			fnToggle(list);
 		else
-			self.each(list, el => fnToggle(el, names));
+			self.each(list, fnToggle);
 		return self;
 	}
 

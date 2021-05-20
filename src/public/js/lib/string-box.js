@@ -30,8 +30,9 @@ function StringBox() {
 	this.trim = fnTrim;
 	this.size = fnSize;
 	this.eq = function(str1, str2) { return tr(str1) == tr(str2); }
+	this.iiOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
 	this.indexOf = function(str1, str2) { return str1 ? str1.indexOf(str2) : -1; }
-	this.iIndexOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
+	this.lastIndexOf = function(str1, str2) { return str1 ? str1.lastIndexOf(str2) : -1; }
 	this.prevIndexOf = function(str1, str2, i) { return str1 ? str1.substr(0, i).lastIndexOf(str2) : -1; }
 	this.starts = function(str1, str2) { return str1 && str1.startsWith(str2); }
 	this.ends = function(str1, str2) { return str1 && str1.endsWith(str2); }
@@ -48,7 +49,7 @@ function StringBox() {
 	this.replaceAt = function(str1, str2, i, n) { return (i < 0) ? str1 : (str1.substr(0, i) + str2 + str1.substr(i + n)); }
 	this.replaceLast = function(str1, find, str2) { return str1 ? str1.replaceAt(str1.lastIndexOf(find), find.length, str2) : str2; }
 	this.wrapAt = function(str, i, n, open, close) { return (i < 0) ? str : self.insertAt(self.insertAt(str, open, i), close, i + open.length + n); }
-	this.iwrap = function(str1, str2, open, close) { return str1 && str2 && self.wrapAt(str1, self.iIndexOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>"); }
+	this.iwrap = function(str1, str2, open, close) { return str2 && self.wrapAt(str1, self.iiOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>"); }
 	this.rand = function(size) { return Math.random().toString(36).substr(2, size || 8); } //random char
 	this.lopd = function(str) { return str ? ("***" + str.substr(3, 4) + "**") : str; }; //hide protect chars
 
@@ -57,9 +58,14 @@ function StringBox() {
 	this.lines = function(str) { return self.split(str, /[\n\r]+/); }
 	this.words = function(str) { return self.split(str, /\s+/); }
 
-	this.ilike = function(str1, str2) { return self.iIndexOf("" + str1, str2) > -1; }; //object value type = string
-	this.olike = function(obj, names, val) { return names.some(function(k) { return self.ilike(obj[k], val); }); };
-	this.alike = function(obj, names, val) { return self.words(val).some(function(v) { return self.olike(obj, names, v); }); };
+	this.ilike = function(str1, str2) { return self.iiOf("" + str1, str2) > -1; } //object value type = string
+	this.olike = function(obj, names, val) { return names.some(function(k) { return self.ilike(obj[k], val); }); }
+	this.alike = function(obj, names, val) { return self.words(val).some(function(v) { return self.olike(obj, names, v); }); }
+	this.between = function(value, min, max) { // value into a range
+		min = min ?? value;
+		max = max ?? value;
+		return (min <= value) && (value <= max);
+	}
 
 	//chunk string in multiple parts
 	this.ltr = function(str, size) {
