@@ -1,0 +1,20 @@
+
+<% if (body.rows.length == 0) { %>
+	<tr class="no-data">
+		<td colspan="99">No existen usuarios asociados a este menu.</td>
+	</tr>
+<% } else { %>
+	<% body.rows.forEach(function(user, i) { %>
+		<tr class="data">
+			<td class="tc"><%=i+1%></td>
+			<td><i class="<%=user.nombre%>"></i></td>
+			<td><%=user.nombre%></td>
+			<td><%=user.ap1%></td>
+			<td><%=user.ap2%></td>
+			<td><%=i18n.isoDate(user.alta)%></td>
+			<td class="tc">
+				<a href="/menu/unlink.html?k=<%=user._id%>" class="remove-row"><i class="fas fa-times fa-lg text-error icon"></i></a>
+			</td>
+		</tr>
+	<% }); %>
+<% } %>

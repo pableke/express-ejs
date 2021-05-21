@@ -1,40 +1,47 @@
 
 <div class="wrapper">
-	<h1>User Private menus</h1>
+	<h1>Private Menus</h1>
 	<hr/>
 
+	<form id="menu" action="/menu/filter.html">
+		<div class="input-group">
+			<label for="ac-user" class="required"><%=i18n.lblUsuario%></label>
+			<input type="search" id="ac-user" value="" size="35" tabindex="3" class="input-item input-control ac-user" placeholder="<%=i18n.phBuscar%>" />
+			<input type="hidden" id="user" name="user" value="" />
+			<i class="input-item input-icon fa fa-search"></i>
+			<a href="" class="btn btn-success" tabindex="4"><i class="fas fa-plus"></i></a>
+		</div>
+
+		<hr/>
+		<a href="/menu/index.html" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101"><%=i18n.lblBuscar%> <i class="fas fa-search"></i></button>
+		<button type="button" class="btn btn-light clear-all" tabindex="102">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
+</div>
+
+<div class="wrapper">
 	<table>
 		<thead>
 			<tr>
-				<th>N&#186;</th><th><%=i18n.lblIcono%></th><th><%=i18n.lblNombre%></th><th><%=i18n.lblFecha%></th><th></th>
+				<th>N&#186;</th>
+				<th><%=i18n.lblNombre%><a href="/menu/sort.html?by=nombre" class="sort <%=body.nombre%>"></a>
+				</th><th><%=i18n.lblApellido1%><a href="/menu/sort.html?by=ap1" class="sort <%=body.ap1%>"></a></th>
+				</th><th><%=i18n.lblApellido2%><a href="/menu/sort.html?by=ap2" class="sort <%=body.ap2%>"></a></th>
+				<th><%=i18n.lblFecha%><a href="/menu/sort.html?by=alta" class="sort <%=body.alta%>"></a></th>
+				<th class="mw-120"></th>
 			</tr>
 		</thead>
 		<tbody>
-			<% if (rows.length == 0) { %>
-				<tr class="no-data">
-					<td colspan="100">No existen usuarios asociados a este menu.</td>
-				</tr>
-			<% } else { %>
-			<% rows.forEach(function(menu, i) { %>
-				<tr class="data">
-					<td><%=i+1%></td>
-					<td class="tc"><i class="<%=menu.icon%>"></i></td>
-					<td><%=menu.nombre%></td>
-					<td><%=i18n.isoDate(menu.alta)%></td>
-					<td>
-						<a href="/menu/delete.html?k=<%=menu._id%>"><i class="fas fa-times fa-lg text-error icon"></i></a>
-					</td>
-				</tr>
-			<% }); %>
-			<% } %>
+			<%-include("./users-tbody")%>
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="2">Menus: <%=rows.length%></td>
+				<td colspan="2">Menus: <%=body.rows.length%></td>
 			</tr>
 		</tfoot>
 	</table>
+	<%-include("../pagination")%>
 
 	<hr/>
-	<a href="/menu/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+	<a href="/menu/list.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
 </div>

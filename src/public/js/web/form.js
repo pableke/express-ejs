@@ -191,11 +191,11 @@ js.ready(function() {
 
 		function fnUpdateIcon(el, value) { return !js.setClass(js.next(el, "i"), value); }
 		js.autocomplete({
-			inputs: js.filter(inputs, ".ac-user"), action: "/tests/usuarios.html",
-			render: function(item) { return item.nif + " - " + item.nombre; },
+			inputs: js.filter(inputs, ".ac-user"), action: "/user/find.html",
+			render: function(item) { return item.nif + " - " + (item.nombre + " " + item.ap1 + " " + item.ap2).trim(); },
 			load: function(item, el, ids) { js.val(el, this.render(item)).val(ids, item.nif); }
 		}).autocomplete({
-			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/padre.html",
+			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/find.html",
 			focus: function(ev, ui) {
 				let icon = ui.item && ui.item.icon;
 				return fnUpdateIcon(this, "input-item input-icon " + (icon || "fas fa-arrow-alt-circle-up"));
