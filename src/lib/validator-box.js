@@ -339,6 +339,9 @@ function ValidatorBox() {
 		inputs = data;
 		return self;
 	}
+	this.init = function(inputs, msgs) {
+		return self.setInputs(inputs).setI18n(msgs);
+	}
 
 	this.fails = function() { return errors > 0; }
 	this.isValid = function() { return errors == 0; }
