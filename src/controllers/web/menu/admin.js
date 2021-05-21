@@ -10,20 +10,13 @@ const TPL_FORM = "web/forms/menu/menu";
 function fnLoadList(req, res, next) {
 	// page, size (pagination), by, dir (sort) + filters
 	let list = Object.assign(req.session.list, req.query);
-	let msgs = res.locals.i18n; // get language messages
-
-	// parse filter data
-	let fn = list.fn || null;
-	let o1 = msgs.toInt(list.o1);
-	let o2 = msgs.toInt(list.o2);
-	let f1 = msgs.toDate(list.f1);
-	let f2 = msgs.toDate(list.f2);
-
-	function fnFilter(menu) {
+	valid.init(list, res.locals.i18n).validate("/menu/filter.html"); // parse filter data
+	let { fn, o1, o2, f1, f2 } = valid.getData(); // declare filter data
+	function fnFilter(menu) { // menus filter function
 		return sb.ilike(menu.nombre, fn) && sb.between(menu.orden, o1, o2) && sb.between(menu.alta, f1, f2);
 	}
 
-	let body = Object.assign({}, list); //prepare view
+	let body = Object.assign(valid.getData(), list); //prepare view
 	body.rows = dao.web.myjson.menus.filter(fnFilter);
 	dao.web.myjson.menus.sortBy(body).pagination(body);
 	res.locals.body = body;
