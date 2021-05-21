@@ -18,7 +18,7 @@ const strip = require("gulp-strip-comments");
 // Settings
 const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs"];
 const CSS_FILES = [ "src/public/css/main.css", "src/public/css/web/**/*.css", "src/public/css/tests/**/*.css" ];
-const JS_FILES = [ "src/public/js/lib/**/*.js", "src/public/js/main.js", "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
+const JS_FILES = [ "src/public/js/lib/**/*.js", "src/public/js/validators.js", "src/public/js/web/**/*.js", "src/public/js/tests/**/*.js" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
 
 // Task to minify all views (HTML's and EJS's)

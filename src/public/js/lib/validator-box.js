@@ -80,7 +80,7 @@ function ValidatorBox() {
 			let date = i18n.toDate(value); //build object date
 			return isDate(date) && self.setData(name, date);
 		}
-		return false
+		return false;
 	}
 	this.time = function(name, value) {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
@@ -89,7 +89,7 @@ function ValidatorBox() {
 			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
 			return isDate(date) && self.setData(name, date);
 		}
-		return false
+		return false;
 	}
 
 	this.integer = function(name, value) {
@@ -97,14 +97,14 @@ function ValidatorBox() {
 			let integer = i18n.toInt(value);
 			return isNaN(integer) ? false : self.setData(name, integer);
 		}
-		return false
+		return false;
 	}
 	this.float = function(name, value) {
 		if (value) {
 			let float = i18n.toFloat(value); //float value
 			return isNaN(float) ? false : self.setData(name, float);
 		}
-		return false
+		return false;
 	}
 
 	this.idES = function(name, value) {
@@ -348,7 +348,7 @@ function ValidatorBox() {
 		let validators = self.initMsgs().getForm(form);
 		for (let field in validators) {
 			let fn = validators[field];
-			data[field] = inputs[field];
+			data[field] = inputs[field] || null;
 			fn(field, inputs[field], i18n);
 		}
 		// Form must be registered

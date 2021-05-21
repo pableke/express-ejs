@@ -2,15 +2,6 @@
 const mailer = require("app/lib/mailer.js");
 const valid = require("app/lib/validator-box.js")
 
-const FORM = {
-	nombre: valid.required,
-	correo: valid.correo,
-	asunto: valid.required,
-	info: valid.required
-};
-valid.setForm("/contact.html", FORM)
-	.setForm("/contacto.html", FORM);
-
 exports.view = function(req, res) {
 	res.build("web/forms/public/contact");
 }

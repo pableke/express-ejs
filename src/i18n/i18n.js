@@ -68,6 +68,7 @@ function rtl(str, size) {
 	return result;
 }
 function toInt(str) {
+	if (!str) return null; //not number
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 }
@@ -80,6 +81,7 @@ function fmtInt(val, s) {
 	return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
 }
 function toFloat(str, d) {
+	if (!str) return null; //not number
 	let separator = str.lastIndexOf(d);
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
@@ -107,10 +109,10 @@ i18n.es.isoDate = function(date) { return isDate(date) ? esDate(date) : EMPTY; }
 i18n.es.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; } //hh:MM
 i18n.es.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
 i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : EMPTY; }; //dd/mm/yyyy hh:MM:ss
-i18n.es.toDate = function(str) { return str && toDateTime(swap(splitDate(str))); };
-i18n.es.toInt = function(str) { return str && toInt(str); };
+i18n.es.toDate = function(str) { return str ? toDateTime(swap(splitDate(str))) : null; };
+i18n.es.toInt = function(str) { return toInt(str); };
 i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
-i18n.es.toFloat = function(str) { return str && toFloat(str, COMMA); };
+i18n.es.toFloat = function(str) { return toFloat(str, COMMA); };
 i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
 i18n.es.get = function(obj, name) { return obj[name]; };
 
@@ -118,10 +120,10 @@ i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : EMPTY; }
 i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; } //hh:MM
 i18n.en.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
 i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : EMPTY; } //yyyy-mm-dd hh:MM:ss
-i18n.en.toDate = function(str) { return str && toDateTime(splitDate(str)); };
-i18n.en.toInt = function(str) { return str && toInt(str); };
+i18n.en.toDate = function(str) { return str ? toDateTime(splitDate(str)) : null; };
+i18n.en.toInt = function(str) { return toInt(str); };
 i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };
-i18n.en.toFloat = function(str) { return str && toFloat(str, DOT); };
+i18n.en.toFloat = function(str) { return toFloat(str, DOT); };
 i18n.en.fmtFloat = function(str, n) { return fmtFloat(str, COMMA, DOT, n); };
 i18n.en.get = function(obj, name) { return obj[name + "_en"] || obj[name]; };
 

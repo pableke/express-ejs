@@ -4,12 +4,6 @@ const valid = require("app/lib/validator-box.js")
 
 const TPL_LOGIN = "web/forms/public/login";
 const TPL_ADMIN = "web/list/index";
-const FORM = {
-	usuario: valid.usuario,
-	clave: valid.clave
-};
-valid.setForm("/login.html", FORM)
-	.setForm("/signin.html", FORM);
 
 exports.view = function(req, res) {
 	res.build(TPL_LOGIN);
@@ -22,10 +16,10 @@ exports.check = function(req, res, next) {
 	if (!user) //validate if user exists
 		return next(msgs.errUserNotFound); //go login error
 	// Build session data
+	req.session.list = {};
 	req.session.user = user;
 	req.session.time = Date.now();
 	req.session.click = Date.now();
-	req.session.list = { page: 0, size: 40 };
 	let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
 	req.session.menus = res.locals.menus = menus; //update user menus on view and session
 	if (req.session.redirTo) { //session helper
@@ -68,8 +62,6 @@ exports.auth = function(req, res, next) {
 exports.home = function(req, res) {
 	// Reset list configuration
 	valid.clear(req.session.list);
-	req.session.list.page = 0;
-	req.session.list.size = 40;
 	res.build(TPL_ADMIN);
 }
 

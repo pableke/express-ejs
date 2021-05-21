@@ -75,14 +75,14 @@ js.ready(function() {
 			.finally(fnUnloading); //allways
 	}
 	js.autocomplete = function(opts) { // Autocomplete inputs
-		opts = opts || {}; //default config
-		function fnFalse() { return false; }
-		function getIdElem(el) { return js.siblings(el, "[type=hidden]")[0]; }
-
 		let _search = false; //call source indicator
-		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
+		function fnFalse() { return false; }
+		function fnGetIds(el) { return js.siblings(el, "[type=hidden]"); }
+
+		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
 		opts.minLength = opts.minLength || 3; //length to start
+		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
 		opts.open = opts.open || fnFalse; //triggered if the value has changed
 		opts.focus = opts.focus || fnFalse; //no change focus on select
 		opts.load = opts.load || fnFalse; //triggered when select an item
@@ -90,7 +90,7 @@ js.ready(function() {
 		opts.render = opts.render || function() { return "-"; }; //render on input
 		opts.search = function(ev, ui) { return _search; }; //lunch source
 		opts.select = function(ev, ui) { //triggered when select an item
-			opts.load(ui.item, this, getIdElem(this)); //update inputs
+			opts.load(ui.item, this, fnGetIds(this)); //update inputs
 			return false; //preserve inputs values from load event
 		};
 		opts.source = function(req, res) {
@@ -103,15 +103,13 @@ js.ready(function() {
 		// Triggered when the field is blurred, if the value has changed
 		opts.change = function(ev, ui) {
 			if (!ui.item) { //item selected?
-				js.val(this, "").val(getIdElem(this), "");
+				js.val(this, "").val(fnGetIds(this), "");
 				opts.remove(this);
 			}
 		};
 		$(opts.inputs).autocomplete(opts);
-
-		//reduce server calls = backspace or alfanum
-		return js.keydown(opts.inputs, (el, ev) => {
-			_search = (ev.keyCode == 8) || ((ev.keyCode > 45) && (ev.keyCode < 224));
+		return js.keydown(opts.inputs, (el, ev) => { // Reduce server calls, only for backspace or alfanum
+			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
 		});
 	}
 	// End extends js-box module
@@ -194,22 +192,17 @@ js.ready(function() {
 		function fnUpdateIcon(el, value) { return !js.setClass(js.next(el, "i"), value); }
 		js.autocomplete({
 			inputs: js.filter(inputs, ".ac-user"), action: "/tests/usuarios.html",
-			load: function(item, el, idElem) {
-				el.value = item.nif + " - " + item.nombre;
-				idElem.value = item.nif;
-			}
+			render: function(item) { return item.nif + " - " + item.nombre; },
+			load: function(item, el, ids) { js.val(el, this.render(item)).val(ids, item.nif); }
 		}).autocomplete({
 			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/padre.html",
 			focus: function(ev, ui) {
 				let icon = ui.item && ui.item.icon;
 				return fnUpdateIcon(this, "input-item input-icon " + (icon || "fas fa-arrow-alt-circle-up"));
 			},
-			remove: function(el) { return fnUpdateIcon(el, "input-item input-icon fas fa-arrow-alt-circle-up"); },
+			remove: function(el) { fnUpdateIcon(el, "input-item input-icon fas fa-arrow-alt-circle-up"); },
 			render: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nombre"); },
-			load: function(item, el, idElem) {
-				el.value = msgs.get(item, "nombre");
-				idElem.value = item._id;
-			}
+			load: function(item, el, ids) { js.val(el, msgs.get(item, "nombre")).val(ids, item._id); }
 		});
 
 		js.click(js.filter(inputs, "[type=reset]"), () => {
@@ -218,6 +211,8 @@ js.ready(function() {
 			//Do what you need after reset the form
 			//reset message, state inputs and recount textareas
 			js.clean(inputs).each(textareas, fnCounter);
+		}).click(js.filter(inputs, ".clear-all"), () => {
+			js.val(inputs, "").clean(inputs).each(textareas, fnCounter);
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
 			valid.submit(form, ev, el.href, data => { //ajax form submit
 				js.val(js.filter(inputs, "[name='_id'],.dup-clear"), ""); //clean input values

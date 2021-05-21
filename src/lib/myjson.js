@@ -103,40 +103,43 @@ function Collection(db, pathname) {
 	this.filterById = function(id) { return self.filter(row => (row._id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.sort = function(cmp) { table.data.sort(cmp); return self; }
-	this.slice = function(i, j) { return table.data.slice(i, j); }
 
 	function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
 	function fnDesc(a, b) { return (a == b) ? 0 : ((a < b) ? 1 : -1); };
-	this.order = function(name, dir) {
+	this.orderBy = function(name, dir, rows) {
 		if (!name) return self; //no field to sort by
+		rows = rows || table.data; //array to be ordered
 		function fnSortAsc(a, b) { return fnAsc(a[name], b[name]); }
 		function fnSortDesc(a, b) { return fnDesc(a[name], b[name]); }
-		return self.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
+		rows.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
+		return self;
 	}
-	this.orderBy = function(cfg) {
-		return self.order(cfg.sort, cfg[cfg.sort]);
+	this.sortBy = function(cfg, name) {
+		name = name || cfg.by;
+		cfg[name] = cfg.dir;
+		return self.orderBy(name, cfg.dir, cfg.rows);
 	}
-	this.sortBy = function(cfg, name, dir) {
-		cfg.sort = name;
-		cfg[name] = dir;
-		return self.orderBy(cfg);
-	}
-	this.multisort = function(columns, orderby) {
-		let index = 0;
-		orderby = orderby || [];
-		function fnMultisort(a, b) {
-			let name = columns[index];
+	this.multisort = function(cfg) {
+		let index = 0; //index columns to ordered
+		let columns = cfg.columns || []; //columns names
+		let orderby = cfg.orderby || []; //columns direction
+		let rows = cfg.rows || table.data; //array ti be ordered
+		function fnMultisort(a, b) { //recursive function
+			let name = columns[index]; //current column
 			let value = (orderby[index] == "desc") ? fnDesc(a[name], b[name]) :  fnAsc(a[name], b[name]);
 			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b) : value;
 		}
-		return self.sort(fnMultisort);
+		rows.sort(fnMultisort);
+		return self;
 	}
 	this.paginate = function(cfg) {
-		return self.slice(cfg.index, cfg.index + cfg.size);
+		let rows = cfg.rows || table.data;
+		cfg.rows = rows.slice(cfg.index, cfg.index + cfg.size);
+		return self;
 	}
-	this.pagination = function(cfg, page, size) {
-		cfg.page = isNaN(page) ? +cfg.page : +page;
-		cfg.size = isNaN(size) ? +cfg.size : +size;
+	this.pagination = function(cfg) {
+		cfg.page = isNaN(cfg.page) ? 0 : +cfg.page;
+		cfg.size = isNaN(cfg.size) ? 40 : +cfg.size;
 		cfg.pages = Math.floor(table.data.length / cfg.size);
 		cfg.end = Math.min(cfg.page + 4, cfg.pages);
 		cfg.start = Math.max(cfg.end - 7, 0);

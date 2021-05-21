@@ -40,6 +40,19 @@ exports.web = function(req, res, next) {
 	next(); //go next middleware
 }
 
+exports.get = function(req, res, next) { //validate all form post
+	res.locals.body = req.query; //preserve client inputs
+	let i = req.originalUrl.lastIndexOf("?");
+	let pathname = (i < 0) ? req.originalUrl : req.originalUrl.substr(0, i);
+	valid.setInputs(req.query).setI18n(res.locals.i18n); //load inputs and messages
+	if (valid.validate(pathname)) { //validate inputs form
+		req.data = valid.getData(); //build data from inputs
+		next(); //all inputs ok => go next middleware
+	}
+	else
+		next(res.locals.i18n.errForm); //set error message
+}
+
 exports.post = function(req, res, next) { //validate all form post
 	res.locals.body = req.body; //preserve client inputs
 	valid.setInputs(req.body).setI18n(res.locals.i18n); //load inputs and messages
