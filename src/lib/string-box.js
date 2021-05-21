@@ -58,7 +58,7 @@ function StringBox() {
 	this.lines = function(str) { return self.split(str, /[\n\r]+/); }
 	this.words = function(str) { return self.split(str, /\s+/); }
 
-	this.ilike = function(str1, str2) { return self.iiOf("" + str1, str2) > -1; } //object value type = string
+	this.ilike = function(str1, str2) { return self.iiOf(str1, str2) > -1; } //object value type = string
 	this.olike = function(obj, names, val) { return names.some(function(k) { return self.ilike(obj[k], val); }); }
 	this.alike = function(obj, names, val) { return self.words(val).some(function(v) { return self.olike(obj, names, v); }); }
 	this.between = function(value, min, max) { // value into a range

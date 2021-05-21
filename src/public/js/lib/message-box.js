@@ -53,11 +53,11 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: DOT, //decimal separator
-			toInt: function(str) { return str && toInt(str); },
-			fmtInt: function(str) { return str && fmtInt(str, COMMA); },
-			toFloat: function(str) { return str && toFloat(str, DOT); },
-			fmtFloat: function(str, n) { return str && fmtFloat(str, COMMA, DOT, n); },
-			toDate: function(str) { return str && toDateTime(fnDateHelper(splitDate(str))); },
+			toInt: function(str) { return toInt(str); },
+			fmtInt: function(str) { return fmtInt(str, COMMA); },
+			toFloat: function(str) { return toFloat(str, DOT); },
+			fmtFloat: function(str, n) { return fmtFloat(str, COMMA, DOT, n); },
+			toDate: function(str) { return str ? toDateTime(fnDateHelper(splitDate(str))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
@@ -103,11 +103,11 @@ function MessageBox() {
 
 			//inputs helpers functions
 			decimals: COMMA, //decimal separator
-			toInt: function(str) { return str && toInt(str); },
-			fmtInt: function(str) { return str && fmtInt(str, DOT); },
-			toFloat: function(str) { return str && toFloat(str, COMMA); },
-			fmtFloat: function(str, n) { return str && fmtFloat(str, DOT, COMMA, n); },
-			toDate: function(str) { return str && toDateTime(fnDateHelper(swap(splitDate(str)))); },
+			toInt: function(str) { return toInt(str); },
+			fmtInt: function(str) { return fmtInt(str, DOT); },
+			toFloat: function(str) { return toFloat(str, COMMA); },
+			fmtFloat: function(str, n) { return fmtFloat(str, DOT, COMMA, n); },
+			toDate: function(str) { return str ? toDateTime(fnDateHelper(swap(splitDate(str)))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
@@ -167,15 +167,18 @@ function MessageBox() {
 		return result;
 	}
 	function toInt(str) {
+		if (!str) return null; //not number
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 	}
 	function fmtInt(str, s) {
+		if (!str) return str; //not formateable
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY);
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
 	}
 	function toFloat(str, d) {
+		if (!str) return null; //not number
 		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
@@ -183,6 +186,7 @@ function MessageBox() {
 		return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 	}
 	function fmtFloat(str, s, d, n) {
+		if (!str) return str; //not formateable
 		n = isNaN(n) || 2; //number of decimals
 		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;

@@ -1,4 +1,6 @@
 
+const valid = require("app/lib/validator-box.js")
+
 // Web module validators
 // Public validators
 valid.setForm("/login.html", {
@@ -34,7 +36,7 @@ valid.setForm("/user/pass.html", {
 });
 
 // Menu validators
-const MENU = {
+const MENU_SAVE = {
 	_id: valid.key,
 	icon: valid.max50,
 	nombre: valid.required,
@@ -44,4 +46,12 @@ const MENU = {
 	mask: valid.intval,
 	alta: valid.ltNow
 };
-valid.setForm("/menu/save.html", MENU).setForm("/menu/duplicate.html", MENU);
+const MENU_FILTER = {
+	fn: valid.max200,
+	o1: valid.intnull,
+	o2: valid.intnull,
+	f1: valid.datenull,
+	f2: valid.datenull
+};
+valid.setForm("/menu/save.html", MENU_SAVE).setForm("/menu/duplicate.html", MENU_SAVE);
+valid.setForm("/menu/filter.html", MENU_FILTER).setForm("/menu/search.html", MENU_FILTER);

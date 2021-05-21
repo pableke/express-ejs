@@ -1,10 +1,10 @@
 
-<% if (rows.length == 0) { %>
+<% if (body.rows.length == 0) { %>
 	<tr class="no-data">
-		<td colspan="99">No existen menus dados de alta en el sistema.</td>
+		<td colspan="99">No se han encontrado menus dados de alta en el sistema.</td>
 	</tr>
 <% } else { %>
-	<% rows.forEach(function(menu, i) { %>
+	<% body.rows.forEach(function(menu, i) { %>
 		<tr class="data">
 			<td><%=i+1%></td>
 			<td class="tc"><i class="<%=menu.icon%>"></i></td>

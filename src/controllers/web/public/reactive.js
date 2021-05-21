@@ -4,11 +4,6 @@ const dao = require("app/dao/factory.js");
 const mailer = require("app/lib/mailer.js");
 const valid = require("app/lib/validator-box.js")
 
-valid.setForm("/reactive.html", {
-	token: valid.token,
-	correo: valid.correo
-});
-
 function fnError(res, msg) {
 	valid.setMsgError(msg);
 	res.status(500).send(msg);

@@ -62,4 +62,7 @@ valid.set("required", function(name, value, msgs) { //usefull for common inputs
 			&& ((valid.getData(name) > 0) || !valid.setError(name, msgs.errGt0));
 });
 
+//Add modules validators
+require("./tests/validators.js")
+require("./web/validators.js")
 module.exports = valid;
