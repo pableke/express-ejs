@@ -8,13 +8,13 @@ module.exports = function(table, users, menus) {
 	table.getUserMenu = function(user, menu) { //find by UK
 		return table.find(um => ((um.user == user._id) && (um.menu == menu._id)));
 	}
-	table.getPrivateMenus = function(user) {
-		let aux = table.filter(um => (um.user == user._id));
+	table.getMenus = function(id) {
+		let aux = table.filter(um => (um.user == id)).map(um => menu._id);
 		return menus.filter(menu => (aux.indexOf(menu._id) > -1));
 	}
-	table.getMenus = function(user) {
-		let aux = table.filter(um => (um.user == user._id));
-		return menus.filter(menu => ((aux.indexOf(menu._id) > -1) || menus.isPublic(menu)));
+	table.getUsers = function(id) {
+		let aux = table.filter(um => (um.menu == id)).map(um => user._id);
+		return users.filter(user => (aux.indexOf(user._id) > -1));
 	}
 
 	table.newUserMenu = function(user, menu, date) {

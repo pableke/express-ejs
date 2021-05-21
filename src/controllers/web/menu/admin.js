@@ -19,7 +19,7 @@ function fnLoadList(req, res, next) {
 	let body = Object.assign(valid.getData(), list); //prepare view
 	body.rows = dao.web.myjson.menus.filter(fnFilter);
 	dao.web.myjson.menus.sortBy(body).pagination(body);
-	res.locals.body = body;
+	res.locals.body = Object.assign(list, body);
 }
 function fnGoList(req, res, next) {
 	fnLoadList(req, res, next);
@@ -32,11 +32,6 @@ function fnLoadTbody(req, res, next) {
 		(err) ? next(err) : res.send(result); //ajax response
 	});
 }
-function fnGoUsers(req, res, next) {
-	//let user = req.session.user;
-	//res.locals.rows = dao.web.myjson.um.getPrivateMenus(user);
-	res.build("web/list/menu/users");
-}
 
 exports.list = fnGoList;
 exports.sort = function(req, res, next) {
@@ -44,6 +39,23 @@ exports.sort = function(req, res, next) {
 		fnLoadTbody(req, res, next);
 	else
 		fnGoList(req, res, next);
+}
+
+function fnGoUsers(req, res, next) {
+	let id = +req.query.k; // create or update
+	let list = req.session.list;
+	valid.clear(list); //remove prev config
+	list.rows = dao.web.myjson.um.getUsers(id);
+	dao.web.myjson.um.sortBy(list).pagination(list);
+	res.locals.body = list;
+	res.build("web/list/menu/users");
+}
+exports.users = fnGoUsers;
+exports.link = function(req, res, next) {
+	fnGoUsers(req, res);
+}
+exports.unlink = function(req, res, next) {
+	fnGoUsers(req, res);
 }
 
 exports.view = function(req, res, next) {
@@ -58,23 +70,11 @@ exports.view = function(req, res, next) {
 	res.locals.menu = menu;
 	res.build(TPL_FORM);
 }
-exports.padre = function(req, res, next) {
+exports.find = function(req, res, next) {
 	let term = req.query.term;
 	let msgs = res.locals.i18n;
 	function fnFilter(menu) { return sb.ilike(msgs.get(menu, "nombre"), term); }
 	res.json(dao.web.myjson.menus.filter(fnFilter));
-}
-
-exports.users = function(req, res, next) {
-	fnGoUsers(req, res);
-}
-
-exports.link = function(req, res, next) {
-	fnGoUsers(req, res);
-}
-
-exports.unlink = function(req, res, next) {
-	fnGoUsers(req, res);
 }
 
 exports.save = function(req, res, next) {
@@ -82,7 +82,6 @@ exports.save = function(req, res, next) {
 	valid.setMsgOk(res.locals.i18n.msgGuardarOk);
 	fnGoList(req, res, next);
 }
-
 exports.duplicate = function(req, res, next) {
 	dao.web.myjson.menus.save(req.data); //update data
 	res.send(res.locals.i18n.msgGuardarOk); //ajax response
@@ -100,7 +99,7 @@ exports.delete = function(req, res, next) {
 }
 
 // ERror handlers
-exports.errFilter = function(err, req, res, next) {
+exports.errList = function(err, req, res, next) {
 	fnLoadList(req, res, next); //reload list
 	res.setBody(TPL_LIST); //same body = list
 	next(err); //go next error handler

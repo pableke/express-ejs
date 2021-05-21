@@ -7,12 +7,13 @@ const admin = require("app/controllers/web/menu/admin.js");
 
 router.get("/", admin.list).get("/index.html", admin.list).get("/home.html", admin.list).get("/inicio.html", admin.list);
 router.get("/list.html", admin.list).get("/listar.html", admin.list)
-router.get("/filter.html", ctrl.get, admin.list, admin.errFilter).get("/search.html", ctrl.get, admin.list, admin.errFilter)
-router.get("/filtrar.html", ctrl.get, admin.list, admin.errFilter).get("/buscar.html", ctrl.get, admin.list, admin.errFilter)
+router.get("/filter.html", ctrl.get, admin.list, admin.errList).get("/search.html", ctrl.get, admin.list, admin.errList)
+router.get("/filtrar.html", ctrl.get, admin.list, admin.errList).get("/buscar.html", ctrl.get, admin.list, admin.errList)
 router.get("/sort.html", admin.sort).get("/order.html", admin.sort).get("/ordenar.html", admin.sort);
-router.get("/users.html", admin.users).get("/view.html", admin.view).get("/padre.html", admin.padre);
+router.get("/view.html", admin.view).get("/find.html", admin.find);
 router.get("/delete.html", admin.delete).get("/remove.html", admin.delete);
 
+router.get("/users.html", admin.users);
 router.post("/link.html", admin.link).post("/unlink.html", admin.unlink);
 router.post("/save.html", ctrl.post, admin.save, admin.error);
 router.post("/duplicate.html", ctrl.post, admin.duplicate, admin.error);

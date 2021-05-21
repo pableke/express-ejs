@@ -23,6 +23,8 @@ body {
 
 /* Specific styles */
 .hide, .d-none { display: none; }
+.mw-80 { width: 80px; max-width: 80px; }
+.mw-120 { width: 120px; max-width: 120px; }
 .mw-300 { width: 300px; max-width: 300px; }
 .disabled { opacity: 0.5; pointer-events: none; text-decoration: none; }
 .simple { background-color: transparent; border-color: transparent; text-decoration: none; color: inherit; }
