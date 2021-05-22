@@ -58,17 +58,13 @@ exports.unlink = function(req, res, next) {
 	fnGoUsers(req, res);
 }
 
-exports.view = function(req, res, next) {
-	let id = req.query.k; // create or update
-	let msgs = res.locals.i18n; // get language messages
-	let menu = id ? dao.web.myjson.menus.getById(id) : { alta: new Date() };
-	let padre = menu.padre && dao.web.myjson.menus.getById(menu.padre);
-	if (padre) { // update parent info
-		menu.np = msgs.get(padre, "nombre");
-		menu.ip = padre.icon;
-	}
+function fnView(res, menu) {
 	res.locals.menu = menu;
 	res.build(TPL_FORM);
+}
+exports.view = function(req, res, next) {
+	let id = req.query.k; // create or update
+	fnView(res, id ? dao.web.myjson.menus.getById(id) : { alta: new Date() });
 }
 exports.find = function(req, res, next) {
 	let term = req.query.term;
@@ -78,18 +74,24 @@ exports.find = function(req, res, next) {
 }
 
 exports.save = function(req, res, next) {
-	dao.web.myjson.menus.save(req.data);
-	valid.setMsgOk(res.locals.i18n.msgGuardarOk);
-	fnGoList(req, res, next);
+	let msgs = res.locals.i18n;
+	if (dao.web.myjson.menus.saveMenu(req.data, msgs)) {
+		valid.setMsgOk(res.locals.i18n.msgGuardarOk);
+		fnGoList(req, res, next);
+	}
+	else
+		fnView(res, req.data);
 }
 exports.duplicate = function(req, res, next) {
-	dao.web.myjson.menus.save(req.data); //update data
-	res.send(res.locals.i18n.msgGuardarOk); //ajax response
+	let msgs = res.locals.i18n;
+	if (dao.web.myjson.menus.saveMenu(req.data, msgs))
+		res.send(res.locals.i18n.msgGuardarOk);
+	else
+		next(valid.getMsgError());
 }
 
 exports.delete = function(req, res, next) {
-	let id = req.query.k; // create or update
-	id && dao.web.myjson.menus.deleteById(id);
+	dao.web.myjson.menus.deleteMenu(+req.query.k);
 	if (req.xhr) // is ajax call?
 		fnLoadTbody(req, res, next);
 	else {

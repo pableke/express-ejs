@@ -48,7 +48,7 @@ gulp.task("minify-css", () => {
 gulp.task("minify-js", () => {
 	const config = {/*level: {1: {specialComments: 0}}*/};
 	return gulp.src(JS_FILES)
-				.pipe(concat("static-min.js"))
+				.pipe(concat("util-min.js"))
 				.pipe(uglify(config))
 				.pipe(gulp.dest("src/public/js"))
 				.pipe(gulp.dest("dist/public/js"));

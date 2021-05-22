@@ -6,7 +6,7 @@ const valid = require("app/lib/validator-box.js");
 module.exports = function(table) {
 	function fnError(msg) { return !valid.setMsgError(msg); }
 
-	table.onload = function(users) { // build date types
+	table.onLoad = function(users) { // build date types
 		users.each(user => { user.alta = new Date(user.alta); });
 	}
 

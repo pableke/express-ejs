@@ -16,6 +16,11 @@ function Collection(db, pathname) {
 	const self = this; //self instance
 	const table = { seq: 1, fields: [], data: [] };
 
+	/* Events */
+	function fnVoid() {}
+	this.onLoad = fnVoid;
+	this.onCommit = fnVoid;
+
 	this.load = function() {
 		return new Promise(function(resolve, reject) {
 			fs.readFile(pathname, "utf-8", (err, data) => {
@@ -25,24 +30,15 @@ function Collection(db, pathname) {
 				//only load data not structure (fields)
 				table.seq = aux.seq || table.seq;
 				table.data = aux.data || table.data;
-				self.onload && self.onload(self);
+				self.onLoad(self);
 				resolve(self);
 			});
 		});
 	}
 	this.commit = function() {
+		self.onCommit(self);
 		fs.writeFile(pathname, self.stringify(), fnError);
 		return self;
-	}
-	this.clean = function(row) {
-		for (let k in row) {
-			if (table.fields.indexOf(k) < 0)
-				delete row[k];
-		}
-		return self;
-	}
-	this.cleanAll = function() {
-		return self.each(self.clean);
 	}
 	this.flush = function() {
 		table.seq = 1; //restart sequence
@@ -55,7 +51,6 @@ function Collection(db, pathname) {
 	}
 
 	this.db = function() { return db; }
-	this.config = function() { return table; }
 	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
@@ -63,15 +58,7 @@ function Collection(db, pathname) {
 		return table.data[i];
 	}
 	this.set = function(item1, item2) {
-		table.fields.forEach(field => {
-			item1[field] = item2[field];
-		});
-		return self;
-	}
-	this.assign = function(item1, item2) {
-		table.fields.forEach(field => {
-			item1[field] = item2[field] ?? item1[field];
-		});
+		Object.assign(item1, item2);
 		return self;
 	}
 	this.clone = function(row) {
@@ -160,7 +147,7 @@ function Collection(db, pathname) {
 		let updates = 0; //counter
 		table.data.forEach((row, i) => {
 			if (cb(row, i)) {
-				self.assign(row, item);
+				self.set(row, item);
 				updates++;
 			}
 		});
@@ -168,10 +155,10 @@ function Collection(db, pathname) {
 	}
 	this.updateItem = function(item) {
 		let row = self.getById(item._id); //search row
-		return row ? self.assign(row, item).commit() : self;
+		return row ? self.set(row, item).commit() : self;
 	}
-	this.save = function(item) {
-		return item._id ? self.updateItem(item) : self.insert(item);
+	this.save = function(item, data) {
+		return item._id ? self.set(item, data) : self.push(item);
 	}
 
 	this.delete = function(cb) {

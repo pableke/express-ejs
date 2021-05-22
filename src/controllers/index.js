@@ -26,9 +26,8 @@ exports.lang = function(req, res, next) {
 	res.locals.msgs = valid.getMsgs(); //init messages
 	res.locals.body = BODY; //init non-ajax body forms
 
-	// Load specific user menus or public menus on view and session
-	req.session.menus = req.session.menus || dao.web.myjson.menus.getPublic();
-	res.locals.menus = req.session.menus; //set menus on view
+	// Load specific user menus or public menus on view
+	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic();
 	next(); //go next middleware
 }
 exports.tests = function(req, res, next) {

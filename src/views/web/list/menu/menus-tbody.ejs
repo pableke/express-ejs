@@ -6,7 +6,7 @@
 <% } else { %>
 	<% body.rows.forEach(function(menu, i) { %>
 		<tr class="data">
-			<td class="tc"><%=i+1%></td>
+			<td><%=i+1%></td>
 			<td class="tc"><i class="<%=menu.icon%>"></i></td>
 			<td>
 				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nombre%></a>
@@ -14,8 +14,9 @@
 			<td>
 				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nombre_en%></a>
 			</td>
-			<td><%=menu.padre%></td>
+			<td><i class="<%=menu.pi%>"></i> <a href="/menu/view.html?k=<%=menu.padre%>"><%=i18n.get(menu, "pn")%></a></td>
 			<td class="tr"><%=menu.orden%></td>
+			<td class="tr"><%=menu.mask%></td>
 			<td class="tc"><%=i18n.isoDate(menu.alta)%></td>
 			<td class="tc">
 				<a href="/menu/view.html?k=<%=menu._id%>"><i class="fas fa-search fa-lg text-info icon"></i></a>
