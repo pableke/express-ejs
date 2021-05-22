@@ -60,7 +60,9 @@ app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
 	valid.setMsgError("" + err); //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return res.status(500).json(valid.getMsgs()); //ajax response
+		return (req.method == "POST") //ajax response
+					? res.status(500).json(valid.getMsgs())
+					: res.status(500).send(valid.getMsgError());
 	return res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found

@@ -63,7 +63,7 @@ function ValidatorBox() {
 	}
 	this.regex = function(re, value) {
 		try {
-			return re.test(value);
+			return value && re.test(value);
 		} catch(e) {}
 		return false;
 	}

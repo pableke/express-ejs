@@ -20,7 +20,7 @@ exports.check = function(req, res, next) {
 	req.session.user = user;
 	req.session.time = Date.now();
 	req.session.click = Date.now();
-	let menus = dao.web.myjson.um.getMenus(user); //get specific user menus
+	let menus = dao.web.myjson.um.getMenus(user._id); //get specific user menus
 	req.session.menus = res.locals.menus = menus; //update user menus on view and session
 	if (req.session.redirTo) { //session helper
 		res.redirect(req.session.redirTo);

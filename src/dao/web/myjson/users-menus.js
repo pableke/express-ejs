@@ -1,7 +1,7 @@
 
 // Menus DAO
 module.exports = function(table, users, menus) {
-	table.onload = function(data) {
+	table.onLoad = function(data) {
 		data.each(um => { um.alta = new Date(um.alta); });
 	}
 
@@ -9,11 +9,17 @@ module.exports = function(table, users, menus) {
 		return table.find(um => ((um.user == user._id) && (um.menu == menu._id)));
 	}
 	table.getMenus = function(id) {
-		let aux = table.filter(um => (um.user == id)).map(um => menu._id);
-		return menus.filter(menu => (aux.indexOf(menu._id) > -1));
+		let aux = table.getAll().reduce((ids, um) => {
+			(um.user == id) && ids.push(um.menu);
+			return ids;
+		}, []);
+		return menus.filter(menu => (menus.isPublic(menu) || (aux.indexOf(menu._id) > -1)));
 	}
 	table.getUsers = function(id) {
-		let aux = table.filter(um => (um.menu == id)).map(um => user._id);
+		let aux = table.getAll().reduce((ids, um) => {
+			(um.menu == id) && ids.push(um.user);
+			return ids;
+		}, []);
 		return users.filter(user => (aux.indexOf(user._id) > -1));
 	}
 

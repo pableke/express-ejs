@@ -292,11 +292,8 @@ module.exports = {
 	msgNotAllowed: "Operación no permitida",
 	msgProcesando: "Procesando información...",
 
-	errForm: "Error al validar los campos del formulario",
-	errFormNotFound: "Formulario no encontrado en el sistema",
-	errEjecutar: "Error al ejecutar la operación solicitada",
-	errInsert: "Error al guardar los datos",
-	errUpdate: "Error al actualizar los datos",
+	errForm: "Error al validar los campos del formulario", 
+	errEjecutar: "Error al ejecutar la operación solicitada", errInsert: "Error al insertar los datos", errUpdate: "Error al actualizar los datos", errSave: "Error al guardar los datos",
 	errValue: "Valor incorrecto",
 	errRequired: "¡Campo obligatorio!",
 	errMinlength8: "La longitud mínima requerida es de 8 caracteres",

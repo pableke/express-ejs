@@ -1,4 +1,6 @@
 
+const valid = require("app/lib/validator-box.js");
+
 // Menus DAO
 module.exports = function(table) {
 	const _parents = [];
@@ -8,10 +10,15 @@ module.exports = function(table) {
 	function hasParent(menu) { return menu && menu.padre; }
 	function isPublic(menu) { return ((menu.mask&1) == 1); }
 	function hasChildren(menu) { return menu && ((menu.mask&8) == 8); }
+	function setParent(menu) { menu.mask |= 8; return table; }
+	function fnSetFinal(menu) { menu.mask &= ~8; return table; }
 
-	table.onload = function(menus) {
-		menus.each(menu => { menu.alta = new Date(menu.alta); });
-		_publicMenus = menus.filter(isPublic);
+	table.onLoad = function() {
+		table.each(menu => { menu.alta = new Date(menu.alta); });
+		_publicMenus = table.filter(isPublic);
+	}
+	table.onCommit = function() {
+		_publicMenus = table.filter(isPublic);
 	}
 
 	table.isPublic = isPublic;
@@ -38,6 +45,9 @@ module.exports = function(table) {
 	table.getSiblings = function(menu) {
 		return hasParent(menu) ? table.filter(row => (row.padre == menu.padre)) : [];
 	}
+	table.getChildren = function(id) {
+		return id ? table.filter(row => (row.padre == id)) : [];
+	}
 	table.getParent = function(menu) {
 		return menu.padre && table.findById(menu.padre);
 	}
@@ -51,21 +61,38 @@ module.exports = function(table) {
 		return _parents;
 	}
 
-	table.insertMenu = function(menu, msgs) {
-		let padre = menu.padre && table.findById(menu.padre);
-		if (padre) //has parent
-			padre.mask |= 8; //update mask
-		return table.insert(menu);
+	table.loadParent = function(menu, padre) {
+		setParent(padre); //update mask
+		menu.pn = padre.nombre;
+		menu.pn_en = padre.nombre_en;
+		menu.pi = padre.icon;
+		return table;
 	}
-
-	table.deleteMenu = function(menu, msgs) {
-		let siblings = table.getSiblings(menu);
-		if (siblings.length == 1) { //has more than 1 brother?
-			let padre = table.findById(menu.padre);
-			padre.mask &= ~8; //update mask
-		}
+	table.unloadParent = function(menu) {
+		delete menu.pn;
+		delete menu.pn_en;
+		delete menu.pi;
+		return table;
+	}
+	table.setFinal = function(id) {
+		return (id && !table.getChildren(id).length) ? fnSetFinal(table.getById(id)) : table;
+	}
+	table.saveMenu = function(menu, msgs) {
+		if (menu._id && (menu._id == menu.padre))
+			return !valid.setMsgError(msgs.errSave);
+		let row = table.getById(menu._id) || menu;
+		let padre = table.getParent(menu);
+		if (padre)
+			table.loadParent(row, padre);
+		else
+			table.unloadParent(row);
+		let id = row.padre;
+		return table.save(row, menu).setFinal(id).commit();
+	}
+	table.deleteMenu = function(id) {
+		let menu = table.findById(id);
 		table.getSubmenus(menu).forEach(table.extractItem);
-		return table.deleteItem(menu); //implicit commit
+		return table.extractItem(menu).setFinal(menu.padre).commit(); //implicit commit
 	}
 
 	// mask: bit0=public, bit1=visible, bit2=activo, bit3=has children

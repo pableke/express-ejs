@@ -43,6 +43,10 @@ body {
 .tc { text-align: center; }
 .tj { text-align: justify; }
 
+/* Style the tab content */
+.tab-contents { display: none; }
+.tab-contents.active { display: block; }
+
 /* Alerts */
 .alerts { position: relative; }
 .alert {
