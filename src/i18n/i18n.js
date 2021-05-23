@@ -46,7 +46,7 @@ function setTime(date, hh, mm, ss, ms) {
 }
 function toDateTime(parts) {
 	if (!parts || !parts[0])
-		return null; //at least yeear
+		return null; //at least year required
 	let date = new Date(); //instance to be returned
 	parts[0] = (parts[0] < 100) ? +(EMPTY + century(date) + lpad(parts[0])) : parts[0];
 	parts[1] = range(parts[1], 1, 12) - 1; //months
