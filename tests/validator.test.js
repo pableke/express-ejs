@@ -5,30 +5,6 @@ const i18n = require("../src/i18n/i18n.js"); //languages
 valid.setI18n(i18n.es);
 
 describe("Type validators", () => {
-	test("Integers", () => {
-		expect(valid.integer()).toBeFalsy();
-		expect(valid.integer(null)).toBeFalsy();
-		expect(valid.integer("")).toBeFalsy();
-		expect(valid.integer("kk")).toBeFalsy();
-		expect(valid.integer("1.10")).toBeTruthy();
-		expect(valid.integer("1.10")).toBe(110);
-		expect(valid.integer("1,10")).toBe(110);
-		expect(valid.integer("kk1,10")).toBe(110);
-	});
-	test("Floats", () => {
-		expect(valid.float()).toBeFalsy();
-		expect(valid.float(null)).toBeFalsy();
-		expect(valid.float("")).toBeFalsy();
-		expect(valid.float("kk")).toBeFalsy();
-		expect(valid.float("1.10")).toBeTruthy();
-		expect(valid.float("1.10")).toBe(110);
-		expect(valid.float("1,10")).toBe(1.10);
-		expect(valid.float("kk1,10")).toBe(1.10);
-	});
-	test("Dates", () => {
-		expect(valid.date("date")).toBeFalsy();
-	});
-
 	test("Loggin RegExp", () => {
 		expect(valid.login()).toBeFalsy();
 		expect(valid.login(null)).toBeFalsy();

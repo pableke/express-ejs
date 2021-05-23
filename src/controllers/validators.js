@@ -29,12 +29,12 @@ valid.set("required", function(name, value, msgs) { //usefull for common inputs
 }).set("correo", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.email(value) || valid.addError(name, msgs.errCorreo));
 }).set("dateval", function(name, value, msgs) { //required date
-	return valid.date(value) || valid.addError(name, msgs.errDate);
+	return msgs.toDate(value) || valid.addError(name, msgs.errDate);
 }).set("datenull", function(name, value, msgs) {
-	return valid.date(value); //optional date
+	return msgs.toDate(value); //optional date
 }).set("ltNow", function(name, value, msgs) {
 	let date = valid.required(name, value, msgs) && valid.dateval(name, value, msgs);
-	return (date && (date.getTime() < Date.now())) ? value : valid.addError(name, msgs.errDateLe);
+	return (date && (date.getTime() < Date.now())) ? date : valid.addError(name, msgs.errDateLe);
 }).set("leToday", function(name, value, msgs) {
 	let date = valid.required(name, value, msgs) && valid.dateval(name, value, msgs);
 	return (date && (valid.toISODateString(date) <= valid.toISODateString()) ? date : valid.addError(name, msgs.errDateLe));
@@ -45,15 +45,15 @@ valid.set("required", function(name, value, msgs) { //usefull for common inputs
 	let date = valid.required(name, value, msgs) && valid.dateval(name, value, msgs);
 	return (date && (valid.toISODateString(date) >= valid.toISODateString()) ? date : valid.addError(name, msgs.errDateGe));
 }).set("intval", function(name, value, msgs) { //required int
-	return valid.isset(valid.integer(value), name, msgs.errNumber);
+	return valid.isset(name, msgs.toInt(value), msgs.errNumber);
 }).set("intnull", function(name, value, msgs) {
-	return valid.integer(value); //optional integer
+	return msgs.toInt(value); //optional integer
 }).set("floatval", function(name, value, msgs) { //required float
-	return valid.isset(valid.float(value), name, msgs.errNumber);
+	return valid.isset(name, msgs.toFloat(value), msgs.errNumber);
 }).set("floatnull", function(name, value, msgs) {
-	return valid.float(value); //optional float
+	return msgs.toFloat(value); //optional float
 }).set("key", function(name, value, msgs) {
-	let keyval = valid.integer(value); // Optional for inserts but required>0 for udates
+	let keyval = msgs.toInt(value); // Optional for inserts but required>0 for udates
 	return ((keyval === null) || (keyval > 0)) ? keyval : valid.addError(name, msgs.errGt0);
 }).set("gt0", function(name, value, msgs) {
 	let float = valid.required(name, value, msgs) && valid.floatval(name, value, msgs);

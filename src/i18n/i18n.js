@@ -22,36 +22,41 @@ const i18n = {
 };
 
 const EMPTY = ""; //empty string
+const ZERO = "0"; //left decimals zeros
 const DOT = "."; //floats separator
 const COMMA = ","; //floats separator
 const RE_NO_DIGITS = /\D+/g; //split no digits
 const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
 // Dates
-function lpad(val) { return (val < 10) ? ("0" + val) : val; } //always 2 digits
-function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
+function splitDate(str) { return str.split(RE_NO_DIGITS); }
+function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
+function century(date) { return parseInt(date.getFullYear() / 100); } //ej: 20
 function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
 function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
 function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
-function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+function isUnset(val) { return (typeof(val) === "undefined") || (val === null); }
 function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
-function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 
-function setDate(date, yyyy, mm, dd) {
-	mm = range(mm, 1, 12) - 1; //[january = 0 ... december = 11]
-	date.setFullYear(rangeYear(yyyy), mm, range(dd, 1, daysInMonth(yyyy, mm)));
-	return date;
-}
 function setTime(date, hh, mm, ss, ms) {
 	date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
-	return date;
+	return isDate(date) ? date : null;
 }
 function toDateTime(parts) {
-	let date = new Date();
-	setDate(date, parts[0], parts[1], parts[2]);
+	if (!parts || !parts[0])
+		return null; //at least yeear
+	let date = new Date(); //instance to be returned
+	parts[0] = (parts[0] < 100) ? +(EMPTY + century(date) + lpad(parts[0])) : parts[0];
+	parts[1] = range(parts[1], 1, 12) - 1; //months
+	parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1])); //days
+	date.setFullYear(parts[0], parts[1], parts[2]);
 	return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+}
+function toTime(str) {
+	let parts = str && splitDate(str);
+	return parts ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
 }
 
 function minTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
@@ -70,10 +75,11 @@ function rtl(str, size) {
 function toInt(str) {
 	if (!str) return null; //not number
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-	return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
+	let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
+	return isNaN(num) ? null : num;
 }
 function fmtInt(val, s) {
-	if ((typeof(val) === "undefined") || (val === null))
+	if (isUnset(val))
 		return val; //not formateable
 	let str = "" + val; //parse to string
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
@@ -86,10 +92,11 @@ function toFloat(str, d) {
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
 	let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
-	return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+	let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+	return isNaN(num) ? null : num;
 }
 function fmtFloat(val, s, d, n) {
-	if ((typeof(val) === "undefined") || (val === null))
+	if (isUnset(val))
 		return val; //not formateable
 	n = isNaN(n) || 2; //number of decimals
 	let str = "" + val; //parse to string
@@ -110,7 +117,8 @@ i18n.es.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; 
 i18n.es.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
 i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : EMPTY; }; //dd/mm/yyyy hh:MM:ss
 i18n.es.toDate = function(str) { return str ? toDateTime(swap(splitDate(str))) : null; };
-i18n.es.toInt = function(str) { return toInt(str); };
+i18n.es.toInt = toInt;
+i18n.es.toTime = toTime;
 i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
 i18n.es.toFloat = function(str) { return toFloat(str, COMMA); };
 i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
@@ -121,7 +129,8 @@ i18n.en.minTime = function(date) { return isDate(date) ? minTime(date) : EMPTY; 
 i18n.en.isoTime = function(date) { return isDate(date) ? isoTime(date) : EMPTY; } //hh:MM:ss
 i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : EMPTY; } //yyyy-mm-dd hh:MM:ss
 i18n.en.toDate = function(str) { return str ? toDateTime(splitDate(str)) : null; };
-i18n.en.toInt = function(str) { return toInt(str); };
+i18n.en.toInt = toInt;
+i18n.en.toTime = toTime;
 i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };
 i18n.en.toFloat = function(str) { return toFloat(str, DOT); };
 i18n.en.fmtFloat = function(str, n) { return fmtFloat(str, COMMA, DOT, n); };

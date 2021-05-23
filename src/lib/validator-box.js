@@ -17,7 +17,6 @@ function ValidatorBox() {
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
-	const RE_NO_DIGITS = /\D+/g;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
 	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
@@ -40,9 +39,7 @@ function ValidatorBox() {
 	function fnSize(str) { return str ? str.length : 0; }; //string o array
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
-	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
-	function isnum(val) { return (val !== null) && !isNaN(val); } //isNaN(null) = false => null = 0
 	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
 
 	// Boolean helpers function
@@ -67,29 +64,6 @@ function ValidatorBox() {
 	// isset function is usfull for integers and floats => 0 is defined (true), otherwise set text error
 	this.isset = function(name, value, err) { return isset(value) ? value : self.addError(name, err); };
 	this.close = function(value, min, max) { return Math.min(Math.max(+value, min), max); } //close number in range
-
-	this.date = function(value) {
-		let date = i18n.toDate(value); //build object date
-		return isDate(date) ? date : null; // parse result
-	}
-	this.time = function(value) {
-		let parts = value && value.split(RE_NO_DIGITS); //parts = string
-		if (parts[0] && parts[1]) { //hours and minutes required
-			let date = new Date(); //object date now
-			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
-			return isDate(date) ? date : null; // parse result
-		}
-		return null;
-	}
-
-	this.integer = function(value) {
-		let integer = i18n.toInt(value);
-		return isnum(integer) ? integer : null;
-	}
-	this.float = function(value) {
-		let float = i18n.toFloat(value); //float value
-		return isnum(float) ? float : null;
-	}
 
 	this.idES = function(value) {
 		value = minify(value);
@@ -227,9 +201,6 @@ function ValidatorBox() {
 	}
 	this.setI18n = function(data) {
 		i18n = data || i18n;
-		i18n.toInt = i18n.toInt || parseInt;
-		i18n.toFloat = i18n.toFloat || parseFloat;
-		i18n.toDate = i18n.toDate || function(str) { return new Date(str); };
 		return self;
 	}
 
