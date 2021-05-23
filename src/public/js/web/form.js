@@ -166,8 +166,8 @@ js.ready(function() {
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
-		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
-		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
+		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.isoInt(el.value); });
+		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.isoFloat(el.value); });
 
 		let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })

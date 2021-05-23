@@ -24,6 +24,7 @@ function I18nBox() {
 	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+	function isUnset(val) { return (typeof(val) === "undefined") || (val === null); }
 
 	function fnDateHelper(parts) {
 		parts[0] = rangeYear(parts[0]); //year
@@ -68,8 +69,10 @@ function I18nBox() {
 		let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 		return isNaN(num) ? null : num;
 	}
-	function fmtInt(str, s) {
-		if (!str) return str; //not formateable
+	function fmtInt(val, s) {
+		if (isUnset(val)) //is defined?
+			return val; //not formateable
+		let str = "" + val; //parse to string
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY);
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
@@ -83,17 +86,16 @@ function I18nBox() {
 		let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 		return isNaN(num) ? null : num;
 	}
-	function fmtFloat(str, s, d, n) {
-		if (!str) return str; //not formateable
-		n = isNaN(n) || 2; //number of decimals
-		let separator = str.lastIndexOf(d);
+	function fmtFloat(val, s, d, n) {
+		if (isUnset(val)) //is defined?
+			return val; //not formateable
+		n = isNaN(n) ? 2 : n; //number of decimals
+		let str = "" + val; //parse to string
+		let separator = str.lastIndexOf(DOT);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
 						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
-		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
-		let num = parseFloat(sign + whole + DOT + decimal); //float value
-		if (isNaN(num)) //is a valida number?
-			return str;
+		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 	}
 
@@ -138,6 +140,7 @@ function I18nBox() {
 			fmtInt: function(str) { return fmtInt(str, COMMA); },
 			toFloat: function(str) { return toFloat(str, DOT); },
 			fmtFloat: function(str, n) { return fmtFloat(str, COMMA, DOT, n); },
+			isoFloat: function(str, n) { return this.fmtFloat(this.toFloat(str), n); },
 			toDate: function(str) { return str ? toDateTime(fnDateHelper(splitDate(str))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
@@ -186,6 +189,7 @@ function I18nBox() {
 			fmtInt: function(str) { return fmtInt(str, DOT); },
 			toFloat: function(str) { return toFloat(str, COMMA); },
 			fmtFloat: function(str, n) { return fmtFloat(str, DOT, COMMA, n); },
+			isoFloat: function(str, n) { return this.fmtFloat(this.toFloat(str), n); },
 			toDate: function(str) { return str ? toDateTime(fnDateHelper(swap(splitDate(str)))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
