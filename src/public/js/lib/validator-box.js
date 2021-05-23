@@ -42,91 +42,73 @@ function ValidatorBox() {
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
+	function isnum(val) { return (val !== null) && !isNaN(val); } //isNaN(null) = false => null = 0
+	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
 
-	// Date validators helpers
-	this.sysdate = function() { return sysdate; }
-	this.toISODateString = function(date) { //ej: 2021-05-01
-		return (date || sysdate).toISOString().substring(0, 10);
-	}
-
-	// String validators helpers
-	this.size = function(value, min, max) {
-		let size = fnSize(value);
-		return (min <= size) && (size <= max);
-	}
-	this.range = function(value, min, max) {
-		let num = parseInt(value); //parse to a int number
-		return !isNaN(num) && (min <= num) && (num <= max);
-	}
-	this.close = function(value, min, max) { //close number in range
-		return Math.min(Math.max(value, min), max);
-	}
+	// Boolean helpers function
+	this.size = function(value, min, max) { return fnRange(fnSize(value), min, max); } // min/max string/array length
+	this.range = function(value, min, max) { return fnRange(parseFloat(value), min, max); } // NaN comparator always false
 	this.regex = function(re, value) {
 		try {
 			return value && re.test(value);
 		} catch(e) {}
 		return false;
 	}
+	// Boolean helpers function
 
-	this.login = function(name, value) { return self.regex(RE_LOGIN, value); }
-	this.digits = function(name, value) { return self.regex(RE_DIGITS, value); }
-	this.idlist = function(name, value) { return self.regex(RE_IDLIST, value); }
-	this.email = function(name, value, msgs) {
-		return self.regex(RE_MAIL, value) && self.setData(name, value.toLowerCase());
-	}
+	this.login = function(value) { return self.regex(RE_LOGIN, value) ? value : null; }
+	this.digits = function(value) { return self.regex(RE_DIGITS, value) ? value : null; }
+	this.idlist = function(value) { return self.regex(RE_IDLIST, value) ? value : null; }
+	this.email = function(value) { return self.regex(RE_MAIL, value) ? value.toLowerCase() : null; }
 
-	this.date = function(name, value) {
-		if (value) { //year, month and day required
-			let date = i18n.toDate(value); //build object date
-			return isDate(date) && self.setData(name, date);
-		}
-		return false;
+	// Date / Number helpers
+	this.sysdate = function() { return sysdate; } //current date
+	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
+	// isset function is usfull for integers and floats => 0 is defined (true), otherwise set text error
+	this.isset = function(name, value, err) { return isset(value) ? value : self.addError(name, err); };
+	this.close = function(value, min, max) { return Math.min(Math.max(+value, min), max); } //close number in range
+
+	this.date = function(value) {
+		let date = i18n.toDate(value); //build object date
+		return isDate(date) ? date : null; // parse result
 	}
-	this.time = function(name, value) {
+	this.time = function(value) {
 		let parts = value && value.split(RE_NO_DIGITS); //parts = string
 		if (parts[0] && parts[1]) { //hours and minutes required
 			let date = new Date(); //object date now
 			date.setHours(+parts[0] || 0, +parts[1] || 0, +parts[2] || 0, +parts[3] || 0);
-			return isDate(date) && self.setData(name, date);
+			return isDate(date) ? date : null; // parse result
 		}
-		return false;
+		return null;
 	}
 
-	this.integer = function(name, value) {
-		if (value) {
-			let integer = i18n.toInt(value);
-			return isNaN(integer) ? false : self.setData(name, integer);
-		}
-		return false;
+	this.integer = function(value) {
+		let integer = i18n.toInt(value);
+		return isnum(integer) ? integer : null;
 	}
-	this.float = function(name, value) {
-		if (value) {
-			let float = i18n.toFloat(value); //float value
-			return isNaN(float) ? false : self.setData(name, float);
-		}
-		return false;
+	this.float = function(value) {
+		let float = i18n.toFloat(value); //float value
+		return isnum(float) ? float : null;
 	}
 
-	this.idES = function(name, value) {
+	this.idES = function(value) {
 		value = minify(value);
 		if (value) {
 			if (self.regex(RE_DNI, value))
-				return self.dni(name, value);
+				return self.dni(value);
 			if (self.regex(RE_CIF, value))
-				return self.cif(name, value);
+				return self.cif(value);
 			if (self.regex(RE_NIE, value))
-				return self.nie(name, value);
+				return self.nie(value);
 		}
-		return false;
+		return null;
 	}
-	this.dni = function(name, value) {
-		self.setData(name, value); //save reformat
+	this.dni = function(value) {
 		var letras = "TRWAGMYFPDXBNJZSQVHLCKE";
 		var letra = letras.charAt(parseInt(value, 10) % 23);
-		return (letra == value.charAt(8));
+		return (letra == value.charAt(8)) ? value : null;
 	}
-	this.cif = function(name, value) {
-		self.setData(name, value); //save reformat
+	this.cif = function(value) {
 		var match = value.match(RE_CIF);
 		var letter = match[1];
 		var number  = match[2];
@@ -147,18 +129,18 @@ function ValidatorBox() {
 		sum %= 10;
 		var control_digit = (sum !== 0) ? 10 - sum : sum;
 		var control_letter = "JABCDEFGHI".substr(control_digit, 1);
-		return letter.match(/[ABEH]/) ? (control == control_digit) //Control must be a digit
-					: letter.match(/[KPQS]/) ? (control == control_letter) //Control must be a letter
-					: ((control == control_digit) || (control == control_letter)); //Can be either
+		var ok = letter.match(/[ABEH]/) ? (control == control_digit) //Control must be a digit
+								: letter.match(/[KPQS]/) ? (control == control_letter) //Control must be a letter
+								: ((control == control_digit) || (control == control_letter)); //Can be either
+		return ok ? value : null;
 	}
-	this.nie = function(name, value) {
-		//Change the initial letter for the corresponding number and validate as DNI
-		var prefix = value.charAt(0);
-		var p0 = (prefix == "X") ? 0 : ((prefix == "Y") ? 1 : ((prefix == "Z") ? 2 : prefix));
+	this.nie = function(value) {
+		let prefix = value.charAt(0); //Change the initial letter for the corresponding number and validate as DNI
+		let p0 = (prefix == "X") ? 0 : ((prefix == "Y") ? 1 : ((prefix == "Z") ? 2 : prefix));
 		return self.dni(p0 + value.substr(1));
 	}
 
-	this.iban = function(name, IBAN) {
+	this.iban = function(IBAN) {
 		const CODE_LENGTHS = {
 			AD: 24, AE: 23, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BR: 29,
 			CH: 21, CR: 21, CY: 28, CZ: 24, DE: 22, DK: 18, DO: 28, EE: 20, ES: 24,
@@ -174,7 +156,7 @@ function ValidatorBox() {
 		IBAN = minify(IBAN);
 		let code = IBAN && IBAN.match(/^([A-Z]{2})(\d{2})([A-Z\d]+)$/);
 		if (!code || (fnSize(IBAN) !== CODE_LENGTHS[code[1]]))
-			return false;
+			return null;
 
 		let digits = (code[3] + code[1] + code[2]).replace(/[A-Z]/g, (letter) => {
 			return letter.charCodeAt(0) - 55;
@@ -187,18 +169,16 @@ function ValidatorBox() {
 			fragment = checksum + digital.substring(offset, offset + 7);
 			checksum = parseInt(fragment, 10) % 97;
 		}
-		return (checksum === 1) && self.setData(name, IBAN); //save reformat
+		return (checksum === 1) ? IBAN : null; //save reformat
 	}
 
-	this.creditCardNumber = function(name, cardNo) { //Luhn check algorithm
+	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
 		cardNo = minify(cardNo);
 		if (fnSize(cardNo) != 16)
-			return false;
-		self.setData(name, cardNo); //save reformat
+			return null;
 
 		let s = 0;
 		let doubleDigit = false;
-		cardNo = cardNo.trim().replace(/\s+/g, EMPTY); //remove spaces
 		for (let i = 15; i >= 0; i--) {
 			let digit = +cardNo[i];
 			if (doubleDigit) {
@@ -208,7 +188,7 @@ function ValidatorBox() {
 			s += digit;
 			doubleDigit = !doubleDigit;
 		}
-		return ((s % 10) == 0);
+		return ((s % 10) == 0) ? cardNo : null;
 	}
 
 	this.generatePassword = function(size, charSet) {
@@ -301,6 +281,10 @@ function ValidatorBox() {
 		errors++; //error counter
 		return self.setMsg(name, msg);
 	}
+	this.addError = function(name, msg) {
+		self.setError(name, msg);
+		return null; //no valid data
+	}
 	this.setMsgError = function(msg) {
 		return self.setError("msgError", msg);
 	}
@@ -349,9 +333,8 @@ function ValidatorBox() {
 		sysdate.setTime(Date.now()); //update time
 		let validators = self.initMsgs().getForm(form);
 		for (let field in validators) {
-			let fn = validators[field];
-			data[field] = inputs[field] || null;
-			fn(field, inputs[field], i18n);
+			let fn = validators[field]; //validator to apply
+			data[field] = fn(field, inputs[field], i18n);
 		}
 		// Form must be registered
 		return validators && self.isValid();
