@@ -24,7 +24,6 @@ function I18nBox() {
 	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
-	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 
 	function fnDateHelper(parts) {
 		parts[0] = rangeYear(parts[0]); //year
@@ -41,10 +40,12 @@ function I18nBox() {
 	}
 	function setTime(date, hh, mm, ss, ms) {
 		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
-		return isDate(date) ? date : null;
+		return isNaN(date.getTime()) ? null : date;
 	}
 	function toDateTime(parts) {
-		let date = new Date();
+		if (!parts || !parts[0])
+			return null; //at least year required
+		let date = new Date(); //instance to be returned
 		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
 		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
 	}
