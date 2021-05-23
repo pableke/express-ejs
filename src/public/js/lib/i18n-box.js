@@ -3,7 +3,7 @@
  * Message-Box module
  * @module Message-Box
  */
-function MessageBox() {
+function I18nBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
 	const ZERO = "0"; //left decimals zeros
@@ -14,9 +14,90 @@ function MessageBox() {
 	const RE_NO_DIGITS = /\D+/g; //split no digits
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
+	// Dates
+	function splitDate(str) { return str.split(RE_NO_DIGITS); }
+	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
+	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
+	function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
+	function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
+	function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
+	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
+	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
+	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
+	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+
+	function fnDateHelper(parts) {
+		parts[0] = rangeYear(parts[0]); //year
+		parts[1] = range(parts[1], 1, 12); //months
+		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
+		return parts;
+	}
+	function fnTimeHelper(parts) {
+		parts[0] = range(parts[0], 0, 23); //hours
+		parts[1] = range59(parts[1]); //minutes
+		if (parts.length > 2) //seconds optionals
+			parts[2] = range59(parts[2]);
+		return parts;
+	}
+	function setTime(date, hh, mm, ss, ms) {
+		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
+		return isDate(date) ? date : null;
+	}
+	function toDateTime(parts) {
+		let date = new Date();
+		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
+		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+	}
+	function toTime(str) {
+		let parts = str && fnTimeHelper(splitDate(str));
+		return parts ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
+	}
+
+	// Numbers
+	function rtl(str, size) {
+		var result = []; //parts container
+		for (var i = str.length; i > size; i -= size)
+			result.unshift(str.substr(i - size, size));
+		(i > 0) && result.unshift(str.substr(0, i));
+		return result;
+	}
+	function toInt(str) {
+		if (!str) return null; //not number
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
+		return isNaN(num) ? null : num;
+	}
+	function fmtInt(str, s) {
+		if (!str) return str; //not formateable
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = str.replace(RE_NO_DIGITS, EMPTY);
+		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
+	}
+	function toFloat(str, d) {
+		if (!str) return null; //not number
+		let separator = str.lastIndexOf(d);
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
+		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
+		let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
+		return isNaN(num) ? null : num;
+	}
+	function fmtFloat(str, s, d, n) {
+		if (!str) return str; //not formateable
+		n = isNaN(n) || 2; //number of decimals
+		let separator = str.lastIndexOf(d);
+		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+		let whole = ((separator < 0) ? str : str.substr(0, separator))
+						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
+		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
+		let num = parseFloat(sign + whole + DOT + decimal); //float value
+		if (isNaN(num)) //is a valida number?
+			return str;
+		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+	}
+
 	const langs = {
 		en: { //english
-			lang: "en", //id iso
 			//inputs errors messages
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
@@ -52,8 +133,7 @@ function MessageBox() {
 			dateFormat: "yy-mm-dd", firstDay: 0,
 
 			//inputs helpers functions
-			decimals: DOT, //decimal separator
-			toInt: function(str) { return toInt(str); },
+			toInt: toInt, toTime: toTime,
 			fmtInt: function(str) { return fmtInt(str, COMMA); },
 			toFloat: function(str) { return toFloat(str, DOT); },
 			fmtFloat: function(str, n) { return fmtFloat(str, COMMA, DOT, n); },
@@ -61,12 +141,11 @@ function MessageBox() {
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
-			isoTime: function(str) { return str && fnTimeHelper(str); },
+			isoTime: function(str) { return str && fnTimeHelper(splitDate(str)).map(lpad).join(":"); },
 			get: function(obj, name) { return obj[name + "_en"] || obj[name]; }
 		},
 
 		es: { //spanish
-			lang: "es", //id iso
 			//inputs errors messages
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "Campo obligatorio!",
@@ -102,8 +181,7 @@ function MessageBox() {
 			dateFormat: "dd/mm/yy", firstDay: 1,
 
 			//inputs helpers functions
-			decimals: COMMA, //decimal separator
-			toInt: function(str) { return toInt(str); },
+			toInt: toInt, toTime: toTime,
 			fmtInt: function(str) { return fmtInt(str, DOT); },
 			toFloat: function(str) { return toFloat(str, COMMA); },
 			fmtFloat: function(str, n) { return fmtFloat(str, DOT, COMMA, n); },
@@ -111,95 +189,12 @@ function MessageBox() {
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			isoDate: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
-			isoTime: function(str) { return str && fnTimeHelper(str); },
+			isoTime: function(str) { return str && fnTimeHelper(splitDate(str)).map(lpad).join(":"); },
 			get: function(obj, name) { return obj[name]; }
 		}
 	}
-
 	let _lang = langs.es; //default
 
-	// Dates
-	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
-	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
-	function splitDate(str) { return str.split(RE_NO_DIGITS).map(v => +v); } //int array
-	function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
-	function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
-	function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
-	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
-	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
-	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
-
-	function setDate(date, yyyy, mm, dd) {
-		date.setFullYear(yyyy, mm - 1, dd);
-		return date;
-	}
-	function setTime(date, hh, mm, ss, ms) {
-		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
-		return date;
-	}
-	function toDateTime(parts) {
-		let date = new Date();
-		setDate(date, parts[0], parts[1], parts[2]);
-		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
-	}
-
-	function fnDateHelper(parts) {
-		parts[0] = rangeYear(parts[0]); //year
-		parts[1] = range(parts[1], 1, 12); //months
-		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
-		return parts;
-	}
-	function fnTimeHelper(str) {
-		let parts = splitDate(str);
-		parts[0] = range(parts[0], 0, 23); //hours
-		parts[1] = range59(parts[1]); //minutes
-		if (parts.length > 2) //seconds optionals
-			parts[2] = range59(parts[2]);
-		return parts.map(lpad).join(":");
-	}
-
-	// Numbers
-	function rtl(str, size) {
-		var result = []; //parts container
-		for (var i = str.length; i > size; i -= size)
-			result.unshift(str.substr(i - size, size));
-		(i > 0) && result.unshift(str.substr(0, i));
-		return result;
-	}
-	function toInt(str) {
-		if (!str) return null; //not number
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		return parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
-	}
-	function fmtInt(str, s) {
-		if (!str) return str; //not formateable
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let whole = str.replace(RE_NO_DIGITS, EMPTY);
-		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
-	}
-	function toFloat(str, d) {
-		if (!str) return null; //not number
-		let separator = str.lastIndexOf(d);
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
-		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
-		return parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
-	}
-	function fmtFloat(str, s, d, n) {
-		if (!str) return str; //not formateable
-		n = isNaN(n) || 2; //number of decimals
-		let separator = str.lastIndexOf(d);
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let whole = ((separator < 0) ? str : str.substr(0, separator))
-						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
-		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
-		let num = parseFloat(sign + whole + DOT + decimal); //float value
-		if (isNaN(num)) //is a valida number?
-			return str;
-		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
-	}
-
-	// Exports
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
 	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
@@ -209,7 +204,4 @@ function MessageBox() {
 	this.get = function(name) { return _lang[name]; }
 	this.set = function(name, value) { _lang[name] = value; return self; }
 	this.sysdate = function() { return sysdate; }
-	this.format = function(str) {
-		return str.replace(/@(\w+);/g, (m, k) => { return nvl(_lang[k], m); });
-	}
 }
