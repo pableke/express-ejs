@@ -1,7 +1,7 @@
 
 const i18n = require("../src/i18n/i18n.js"); //languages
 
-describe("I18N Helpers", () => {
+describe("ES I18N Helpers", () => {
 	test("ES Integers", () => {
 		expect(i18n.es.toInt()).toBeFalsy();
 		expect(i18n.es.toInt(null)).toBeFalsy();
@@ -23,6 +23,14 @@ describe("I18N Helpers", () => {
 		expect(i18n.es.toFloat("kk1,10")).toBe(1.10);
 		expect(i18n.es.toFloat("kk1.10")).toBe(110);
 	});
+	test("ES Format Floats", () => {
+		expect(i18n.es.fmtFloat()).toBe(undefined);
+		expect(i18n.es.fmtFloat(null)).toBe(null);
+		expect(i18n.es.fmtFloat(.1)).toBe("0,10");
+		expect(i18n.es.fmtFloat(0.01)).toBe("0,01");
+		expect(i18n.es.fmtFloat(123324.982734)).toBe("123.324,98");
+		expect(i18n.es.fmtFloat(21123324.982734, 3)).toBe("21.123.324,982");
+	});
 	test("ES Dates", () => {
 		expect(i18n.es.toDate()).toBeFalsy();
 		expect(i18n.es.toDate(null)).toBeFalsy();
@@ -33,7 +41,9 @@ describe("I18N Helpers", () => {
 		expect(i18n.es.toDate("kk/1/0")).toEqual(new Date(2000, 0, 1, 0, 0, 0));
 		expect(i18n.es.toDate("1/1/21T0:0:0.0")).toEqual(new Date(2021, 0, 1, 0, 0, 0));
 	});
+});
 
+describe("EN I18N Helpers", () => {
 	test("EN Integers", () => {
 		expect(i18n.en.toInt()).toBeFalsy();
 		expect(i18n.en.toInt(null)).toBeFalsy();
@@ -54,6 +64,14 @@ describe("I18N Helpers", () => {
 		expect(i18n.en.toFloat("1,10")).toBe(110);
 		expect(i18n.en.toFloat("kk1,10")).toBe(110);
 		expect(i18n.en.toFloat("kk1.10")).toBe(1.10);
+	});
+	test("EN Format Floats", () => {
+		expect(i18n.en.fmtFloat()).toBe(undefined);
+		expect(i18n.en.fmtFloat(null)).toBe(null);
+		expect(i18n.en.fmtFloat(.1)).toBe("0.10");
+		expect(i18n.en.fmtFloat(0.01)).toBe("0.01");
+		expect(i18n.en.fmtFloat(123324.982734)).toBe("123,324.98");
+		expect(i18n.en.fmtFloat(21123324.982734, 3)).toBe("21,123,324.982");
 	});
 	test("EN Dates", () => {
 		expect(i18n.en.toDate()).toBeFalsy();

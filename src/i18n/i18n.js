@@ -79,7 +79,7 @@ function toInt(str) {
 	return isNaN(num) ? null : num;
 }
 function fmtInt(val, s) {
-	if (isUnset(val))
+	if (isUnset(val)) //is defined?
 		return val; //not formateable
 	let str = "" + val; //parse to string
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
@@ -96,18 +96,15 @@ function toFloat(str, d) {
 	return isNaN(num) ? null : num;
 }
 function fmtFloat(val, s, d, n) {
-	if (isUnset(val))
+	if (isUnset(val)) //is defined?
 		return val; //not formateable
-	n = isNaN(n) || 2; //number of decimals
+	n = isNaN(n) ? 2 : n; //number of decimals
 	let str = "" + val; //parse to string
-	let separator = str.lastIndexOf(d);
+	let separator = str.lastIndexOf(DOT);
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = ((separator < 0) ? str : str.substr(0, separator))
 					.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
-	let decimal = (separator < 0) ? ZERO : str.substr(separator + 1); //extract decimal part
-	let num = parseFloat(sign + whole + DOT + decimal); //float value
-	if (isNaN(num)) //is a valida number?
-		return val; //format fails
+	let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 	return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 }
 
@@ -119,9 +116,9 @@ i18n.es.isoDateTime = function(date) { return isDate(date) ? (esDate(date) + " "
 i18n.es.toDate = function(str) { return str ? toDateTime(swap(splitDate(str))) : null; };
 i18n.es.toInt = toInt;
 i18n.es.toTime = toTime;
-i18n.es.fmtInt = function(str) { return fmtInt(str, DOT); };
+i18n.es.fmtInt = function(num) { return fmtInt(num, DOT); };
 i18n.es.toFloat = function(str) { return toFloat(str, COMMA); };
-i18n.es.fmtFloat = function(str, n) { return fmtFloat(str, DOT, COMMA, n); };
+i18n.es.fmtFloat = function(num, n) { return fmtFloat(num, DOT, COMMA, n); };
 i18n.es.get = function(obj, name) { return obj[name]; };
 
 i18n.en.isoDate = function(date) { return isDate(date) ? enDate(date) : EMPTY; } //yyyy-mm-dd
@@ -131,9 +128,9 @@ i18n.en.isoDateTime = function(date) { return isDate(date) ? (enDate(date) + " "
 i18n.en.toDate = function(str) { return str ? toDateTime(splitDate(str)) : null; };
 i18n.en.toInt = toInt;
 i18n.en.toTime = toTime;
-i18n.en.fmtInt = function(str) { return fmtInt(str, COMMA); };
+i18n.en.fmtInt = function(num) { return fmtInt(num, COMMA); };
 i18n.en.toFloat = function(str) { return toFloat(str, DOT); };
-i18n.en.fmtFloat = function(str, n) { return fmtFloat(str, COMMA, DOT, n); };
+i18n.en.fmtFloat = function(num, n) { return fmtFloat(num, COMMA, DOT, n); };
 i18n.en.get = function(obj, name) { return obj[name + "_en"] || obj[name]; };
 
 // Specific laguage list for modules
