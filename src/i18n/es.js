@@ -75,7 +75,7 @@ module.exports = {
 	lblProceso: "En proceso", lblNotificada: "Notificada", lblNotificado: "Notificado", lblPagado: "Pagado", lblPagada: "Pagada",
 	lblSinpermiso: "Sin Permisos", lblLectura: "Lectura", lblCreacion: "Creación", lblModificar: "Modificación", lblEscritura: "Escritura", lblBorrado: "Borrado",
 	lblImagen: "Imagen", lblImg: "Img.", lblIcono: "Icono", lblIco: "Ico.",
-	lblPagina: "Página", lblPaginas: "Páginas",
+	lblPagina: "Página", lblPaginas: "Páginas", lblPag: "Pag.", lblPags: "Pags.",
 	lblPrimero: "Primero", lblSiguiente: "Siguiente", lblPrev: "Prev.", lblSig: "Sig.",
 	lblAnterior: "Anterior", lblAtras: "Atras", lblVolver: "Volver", lblUltimo: "Último", 
 	lblSi: "Si", lblNo: "No",
