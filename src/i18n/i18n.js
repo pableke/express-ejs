@@ -78,9 +78,9 @@ function toInt(str) { //String to Integer
 function fnInt(str, s) {
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 	let whole = str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1");
-	return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
+	return whole ? (sign + rtl(whole, 3).join(s)) : null;
 }
-function isoInt(val, s) { return isset(val) ? fnInt("" + val, s) : null; } //Integer to String
+function isoInt(val, s) { return isset(val) ? fnInt(EMPTY + val, s) : null; } //Integer to String
 function fmtInt(str, s) { return str && fnInt(str, s); } //String (representing int) to String
 
 function toFloat(str, d) { //String to Float
@@ -96,12 +96,15 @@ function fnFloat(str, s, d, n, dIn) {
 	n = isNaN(n) ? 2 : n; //number of decimals
 	let separator = str.lastIndexOf(dIn); //decimal separator
 	let sign = (str.charAt(0) == "-") ? "-" : EMPTY; //+ or -
-	let whole = ((separator < 0) ? str : str.substr(0, separator))
-					.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
-	let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
-	return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+	let whole = (separator > 0) ? str.substr(0, separator) : str;
+	whole = (separator == 0) ? ZERO : whole.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
+	if (whole) { //exists whole part?
+		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
+		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+	}
+	return null;
 }
-function isoFloat(val, s, d, n) { return isset(val) ? fnFloat("" + val, s, d, n, DOT) : null; }
+function isoFloat(val, s, d, n) { return isset(val) ? fnFloat(EMPTY + val, s, d, n, DOT) : null; }
 function fmtFloat(str, s, d, n) { return str && fnFloat(str, s, d, n, d); }
 
 // Exports
