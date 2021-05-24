@@ -92,16 +92,17 @@ function toFloat(str, d) { //String to Float
 	let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 	return isNaN(num) ? null : num;
 }
-function fnFloat(str, s, d, n, separator) {
+function fnFloat(str, s, d, n, dIn) {
 	n = isNaN(n) ? 2 : n; //number of decimals
-	let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
+	let separator = str.lastIndexOf(dIn); //decimal separator
+	let sign = (str.charAt(0) == "-") ? "-" : EMPTY; //+ or -
 	let whole = ((separator < 0) ? str : str.substr(0, separator))
 					.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
 	let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 	return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 }
-function isoFloat(val, s, d, n) { return isset(val) ? fnFloat("" + val, s, d, n, str.lastIndexOf(DOT)) : null; } //Float to String
-function fmtFloat(str, s, d, n) { return str && fnFloat(str, s, d, n, str.lastIndexOf(d)); } //String (representing float) to String
+function isoFloat(val, s, d, n) { return isset(val) ? fnFloat("" + val, s, d, n, DOT) : null; }
+function fmtFloat(str, s, d, n) { return str && fnFloat(str, s, d, n, d); }
 
 // Exports
 const i18n = {
