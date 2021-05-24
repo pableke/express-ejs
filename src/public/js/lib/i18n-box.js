@@ -10,11 +10,11 @@ function I18nBox() {
 	const DOT = "."; //floats separator
 	const COMMA = ","; //floats separator
 
+	// Dates
 	const sysdate = new Date(); //global sysdate
 	const RE_NO_DIGITS = /\D+/g; //split no digits
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
-	// Dates
 	function splitDate(str) { return str.split(RE_NO_DIGITS); }
 	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
@@ -24,19 +24,15 @@ function I18nBox() {
 	function rangeYear(yy) { return (yy < 100) ? +(EMPTY + century() + lpad(yy)) : yy; } //autocomplete year=yyyy
 	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
 	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
-	function isUnset(val) { return (typeof(val) === "undefined") || (val === null); }
+	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
+	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 
-	function fnDateHelper(parts) {
+	function rangeDate(parts) {
+		if (!parts || !parts[0])
+			return null; //at least year required
 		parts[0] = rangeYear(parts[0]); //year
 		parts[1] = range(parts[1], 1, 12); //months
 		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
-		return parts;
-	}
-	function fnTimeHelper(parts) {
-		parts[0] = range(parts[0], 0, 23); //hours
-		parts[1] = range59(parts[1]); //minutes
-		if (parts.length > 2) //seconds optionals
-			parts[2] = range59(parts[2]);
 		return parts;
 	}
 	function setTime(date, hh, mm, ss, ms) {
@@ -44,16 +40,32 @@ function I18nBox() {
 		return isNaN(date.getTime()) ? null : date;
 	}
 	function toDateTime(parts) {
-		if (!parts || !parts[0])
-			return null; //at least year required
-		let date = new Date(); //instance to be returned
-		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
-		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+		if (rangeDate(parts)) { //parts ok?
+			let date = new Date(); //instance to be returned
+			date.setFullYear(parts[0], parts[1] - 1, parts[2]);
+			return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+		}
+		return null;
 	}
 	function toTime(str) {
-		let parts = str && fnTimeHelper(splitDate(str));
+		let parts = str && splitDate(str);
 		return parts ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
 	}
+	function fmtTime(str) {
+		let parts = str && splitDate(str);
+		if (!parts || !parts[0])
+			return null; //at least hours required
+		parts[0] = range(parts[0], 0, 23); //hours
+		parts[1] = range59(parts[1]); //minutes
+		if (parts[2]) //seconds optionals
+			parts[2] = range59(parts[2]);
+		return parts.map(lpad).join(":");
+	}
+
+	function esDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
+	function enDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
+	function minTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
+	function isoTime(date) { return minTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
 
 	// Numbers
 	function rtl(str, size) {
@@ -69,14 +81,14 @@ function I18nBox() {
 		let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 		return isNaN(num) ? null : num;
 	}
-	function fmtInt(val, s) {
-		if (isUnset(val)) //is defined?
-			return val; //not formateable
-		let str = "" + val; //parse to string
+	function fnInt(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let whole = str.replace(RE_NO_DIGITS, EMPTY);
+		let whole = str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1");
 		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
 	}
+	function isoInt(val, s) { return isset(val) ? fnInt("" + val, s) : null; }
+	function fmtInt(str, s) { return str && fnInt(str, s); }
+
 	function toFloat(str, d) {
 		if (!str) return null; //not number
 		let separator = str.lastIndexOf(d);
@@ -86,18 +98,16 @@ function I18nBox() {
 		let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 		return isNaN(num) ? null : num;
 	}
-	function fmtFloat(val, s, d, n) {
-		if (isUnset(val)) //is defined?
-			return val; //not formateable
+	function fnFloat(str, s, d, n, separator) {
 		n = isNaN(n) ? 2 : n; //number of decimals
-		let str = "" + val; //parse to string
-		let separator = str.lastIndexOf(DOT);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = ((separator < 0) ? str : str.substr(0, separator))
 						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
 		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 	}
+	function isoFloat(val, s, d, n) { return isset(val) ? fnFloat("" + val, s, d, n, str.lastIndexOf(DOT)) : null; }
+	function fmtFloat(str, s, d, n) { return str && fnFloat(str, s, d, n, str.lastIndexOf(d)); }
 
 	const langs = {
 		en: { //english
@@ -136,16 +146,22 @@ function I18nBox() {
 			dateFormat: "yy-mm-dd", firstDay: 0,
 
 			//inputs helpers functions
-			toInt: toInt, toTime: toTime,
+			toInt: toInt,
+			isoInt: function(num) { return isoInt(num, COMMA); },
 			fmtInt: function(str) { return fmtInt(str, COMMA); },
 			toFloat: function(str) { return toFloat(str, DOT); },
+			isoFloat: function(num, n) { return isoFloat(num, COMMA, DOT, n); },
 			fmtFloat: function(str, n) { return fmtFloat(str, COMMA, DOT, n); },
-			isoFloat: function(str, n) { return this.fmtFloat(this.toFloat(str), n); },
-			toDate: function(str) { return str ? toDateTime(fnDateHelper(splitDate(str))) : null; },
+			toDate: function(str) { return str ? toDateTime(splitDate(str)) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
+			isoDate: function(date) { return isDate(date) ? enDate(date) : null; } //yyyy-mm-dd
+			fmtDate: function(str) { return str && rangeDate(splitDate(str)).map(lpad).join("-"); },
+			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			isoDate: function(str) { return str && fnDateHelper(splitDate(str)).map(lpad).join("-"); },
-			isoTime: function(str) { return str && fnTimeHelper(splitDate(str)).map(lpad).join(":"); },
+			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM
+			isoTime: function(date) { return isDate(date) ? isoTime(date) : null; }, //hh:MM:ss
+			fmtTime: fmtTime,
+			isoDateTime: function(date) { return isDate(date) ? (enDate(date) + " " + isoTime(date)) : null; }, //yyyy-mm-dd hh:MM:ss
 			get: function(obj, name) { return obj[name + "_en"] || obj[name]; }
 		},
 
@@ -185,21 +201,27 @@ function I18nBox() {
 			dateFormat: "dd/mm/yy", firstDay: 1,
 
 			//inputs helpers functions
-			toInt: toInt, toTime: toTime,
+			toInt: toInt,
+			isoInt: function(num) { return isoInt(num, DOT); },
 			fmtInt: function(str) { return fmtInt(str, DOT); },
 			toFloat: function(str) { return toFloat(str, COMMA); },
+			isoFloat: function(num, n) { return isoFloat(num, DOT, COMMA, n); },
 			fmtFloat: function(str, n) { return fmtFloat(str, DOT, COMMA, n); },
-			isoFloat: function(str, n) { return this.fmtFloat(this.toFloat(str), n); },
-			toDate: function(str) { return str ? toDateTime(fnDateHelper(swap(splitDate(str)))) : null; },
+			toDate: function(str) { return str ? toDateTime(swap(splitDate(str))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
+			isoDate: function(date) { return isDate(date) ? esDate(date) : null; }, //dd/mm/yyyy
+			fmtDate: function(str) { return str && swap(rangeDate(swap(splitDate(str))).map(lpad)).join("/"); },
+			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
-			isoDate: function(str) { return str && swap(fnDateHelper(swap(splitDate(str))).map(lpad)).join("/"); },
-			isoTime: function(str) { return str && fnTimeHelper(splitDate(str)).map(lpad).join(":"); },
+			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM
+			isoTime: function(date) { return isDate(date) ? isoTime(date) : null; }, //hh:MM:ss
+			fmtTime: fmtTime,
+			isoDateTime: function(date) { return isDate(date) ? (esDate(date) + " " + isoTime(date)) : null; }, //dd/mm/yyyy hh:MM:ss
 			get: function(obj, name) { return obj[name]; }
 		}
 	}
-	let _lang = langs.es; //default
 
+	let _lang = langs.es; //default
 	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
 	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
