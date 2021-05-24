@@ -12,6 +12,14 @@ describe("ES I18N Helpers", () => {
 		expect(i18n.es.toInt("1,10")).toBe(110);
 		expect(i18n.es.toInt("kk1,10")).toBe(110);
 	});
+	test("ES Format Integer", () => {
+		expect(i18n.es.isoInt()).toBe(undefined);
+		expect(i18n.es.isoInt(null)).toBe(null);
+		expect(i18n.es.isoInt(.1)).toBe("1");
+		expect(i18n.es.isoInt(0.01)).toBe("1");
+		expect(i18n.es.isoInt(123324.982734)).toBe("123.324.982.734");
+		expect(i18n.es.isoInt(21123324.982734)).toBe("21.123.324.982.734");
+	});
 	test("ES Floats", () => {
 		expect(i18n.es.toFloat()).toBeFalsy();
 		expect(i18n.es.toFloat(null)).toBeFalsy();
@@ -24,12 +32,12 @@ describe("ES I18N Helpers", () => {
 		expect(i18n.es.toFloat("kk1.10")).toBe(110);
 	});
 	test("ES Format Floats", () => {
-		expect(i18n.es.fmtFloat()).toBe(undefined);
-		expect(i18n.es.fmtFloat(null)).toBe(null);
-		expect(i18n.es.fmtFloat(.1)).toBe("0,10");
-		expect(i18n.es.fmtFloat(0.01)).toBe("0,01");
-		expect(i18n.es.fmtFloat(123324.982734)).toBe("123.324,98");
-		expect(i18n.es.fmtFloat(21123324.982734, 3)).toBe("21.123.324,982");
+		expect(i18n.es.isoFloat()).toBe(undefined);
+		expect(i18n.es.isoFloat(null)).toBe(null);
+		expect(i18n.es.isoFloat(.1)).toBe("0,10");
+		expect(i18n.es.isoFloat(0.01)).toBe("0,01");
+		expect(i18n.es.isoFloat(123324.982734)).toBe("123.324,98");
+		expect(i18n.es.isoFloat(21123324.982734, 3)).toBe("21.123.324,982");
 	});
 	test("ES Dates", () => {
 		expect(i18n.es.toDate()).toBeFalsy();
@@ -66,12 +74,12 @@ describe("EN I18N Helpers", () => {
 		expect(i18n.en.toFloat("kk1.10")).toBe(1.10);
 	});
 	test("EN Format Floats", () => {
-		expect(i18n.en.fmtFloat()).toBe(undefined);
-		expect(i18n.en.fmtFloat(null)).toBe(null);
-		expect(i18n.en.fmtFloat(.1)).toBe("0.10");
-		expect(i18n.en.fmtFloat(0.01)).toBe("0.01");
-		expect(i18n.en.fmtFloat(123324.982734)).toBe("123,324.98");
-		expect(i18n.en.fmtFloat(21123324.982734, 3)).toBe("21,123,324.982");
+		expect(i18n.en.isoFloat()).toBe(undefined);
+		expect(i18n.en.isoFloat(null)).toBe(null);
+		expect(i18n.en.isoFloat(.1)).toBe("0.10");
+		expect(i18n.en.isoFloat(0.01)).toBe("0.01");
+		expect(i18n.en.isoFloat(123324.982734)).toBe("123,324.98");
+		expect(i18n.en.isoFloat(21123324.982734, 3)).toBe("21,123,324.982");
 	});
 	test("EN Dates", () => {
 		expect(i18n.en.toDate()).toBeFalsy();
