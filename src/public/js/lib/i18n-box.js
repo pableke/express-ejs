@@ -75,8 +75,8 @@ function I18nBox() {
 		(i > 0) && result.unshift(str.substr(0, i));
 		return result;
 	}
-	function toInt(str) {
-		if (!str) return null; //not number
+	function toInt(str) { //String to Integer
+		if (!str) return null; // not number
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
 		return isNaN(num) ? null : num;
@@ -84,13 +84,13 @@ function I18nBox() {
 	function fnInt(str, s) {
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1");
-		return isNaN(whole) ? str : (sign + rtl(whole, 3).join(s));
+		return whole ? (sign + rtl(whole, 3).join(s)) : null;
 	}
-	function isoInt(val, s) { return isset(val) ? fnInt("" + val, s) : null; }
-	function fmtInt(str, s) { return str && fnInt(str, s); }
+	function isoInt(val, s) { return isset(val) ? fnInt(EMPTY + val, s) : null; } //Integer to String
+	function fmtInt(str, s) { return str && fnInt(str, s); } //String (representing int) to String
 
-	function toFloat(str, d) {
-		if (!str) return null; //not number
+	function toFloat(str, d) { //String to Float
+		if (!str) return null; // not number
 		let separator = str.lastIndexOf(d);
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
@@ -102,12 +102,15 @@ function I18nBox() {
 		n = isNaN(n) ? 2 : n; //number of decimals
 		let separator = str.lastIndexOf(dIn); //decimal separator
 		let sign = (str.charAt(0) == "-") ? "-" : EMPTY; //+ or -
-		let whole = ((separator < 0) ? str : str.substr(0, separator))
-						.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
-		let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
-		return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+		let whole = (separator > 0) ? str.substr(0, separator) : str;
+		whole = (separator == 0) ? ZERO : whole.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
+		if (whole) { //exists whole part?
+			let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
+			return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+		}
+		return null;
 	}
-	function isoFloat(val, s, d, n) { return isset(val) ? fnFloat("" + val, s, d, n, DOT) : null; }
+	function isoFloat(val, s, d, n) { return isset(val) ? fnFloat(EMPTY + val, s, d, n, DOT) : null; }
 	function fmtFloat(str, s, d, n) { return str && fnFloat(str, s, d, n, d); }
 
 	const langs = {
@@ -155,7 +158,7 @@ function I18nBox() {
 			fmtFloat: function(str, n) { return fmtFloat(str, COMMA, DOT, n); },
 			toDate: function(str) { return str ? toDateTime(splitDate(str)) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
-			isoDate: function(date) { return isDate(date) ? enDate(date) : null; } //yyyy-mm-dd
+			isoDate: function(date) { return isDate(date) ? enDate(date) : null; }, //yyyy-mm-dd
 			fmtDate: function(str) { return str && rangeDate(splitDate(str)).map(lpad).join("-"); },
 			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
