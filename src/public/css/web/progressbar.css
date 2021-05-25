@@ -1,4 +1,9 @@
 
+/* Style the tab content */
+.tab-contents { display: none; }
+.tab-contents.active { display: block; }
+
+/* Progressbar styles */
 #progressbar {
 	display: flex;
 	padding: 1em;
@@ -30,7 +35,7 @@
 	margin: 0 auto 5px auto;
 }
 
-/*progressbar connectors*/
+/* Progressbar connectors */
 #progressbar li:after {
 	content: '';
 	width: 100%;
