@@ -15,6 +15,7 @@ function I18nBox() {
 	const RE_NO_DIGITS = /\D+/g; //split no digits
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
+	function hasParts(parts) { return parts && parts[0]; }
 	function splitDate(str) { return str.split(RE_NO_DIGITS); }
 	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
@@ -28,9 +29,7 @@ function I18nBox() {
 	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 
 	function rangeDate(parts) {
-		if (!parts || !parts[0])
-			return null; //at least year required
-		parts[0] = rangeYear(parts[0]); //year
+		parts[0] = rangeYear(parts[0] || 0); //year
 		parts[1] = range(parts[1], 1, 12); //months
 		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
 		return parts;
@@ -40,7 +39,8 @@ function I18nBox() {
 		return isNaN(date.getTime()) ? null : date;
 	}
 	function toDateTime(parts) {
-		if (rangeDate(parts)) { //parts ok?
+		if (hasParts(parts)) { //at least year required
+			rangeDate(parts); //close range date parts
 			let date = new Date(); //instance to be returned
 			date.setFullYear(parts[0], parts[1] - 1, parts[2]);
 			return setTime(date, parts[3], parts[4], parts[5], parts[6]);
@@ -48,22 +48,23 @@ function I18nBox() {
 		return null;
 	}
 	function toTime(str) {
-		let parts = str && splitDate(str);
-		return parts ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
+		let parts = str && splitDate(str); //at least hours required
+		return hasParts(parts) ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
 	}
 	function fmtTime(str) {
 		let parts = str && splitDate(str);
-		if (!parts || !parts[0])
-			return null; //at least hours required
-		parts[0] = range(parts[0], 0, 23); //hours
-		parts[1] = range59(parts[1]); //minutes
-		if (parts[2]) //seconds optionals
-			parts[2] = range59(parts[2]);
-		return parts.map(lpad).join(":");
+		if (hasParts(parts)) { //at least hours required
+			parts[0] = range(parts[0], 0, 23); //hours
+			parts[1] = range59(parts[1]); //minutes
+			if (parts[2]) //seconds optionals
+				parts[2] = range59(parts[2]);
+			return parts.map(lpad).join(":");
+		}
+		return null;
 	}
 
-	function esDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
 	function enDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
+	function esDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
 	function minTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
 	function isoTime(date) { return minTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
 
@@ -159,7 +160,10 @@ function I18nBox() {
 			toDate: function(str) { return str ? toDateTime(splitDate(str)) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			isoDate: function(date) { return isDate(date) ? enDate(date) : null; }, //yyyy-mm-dd
-			fmtDate: function(str) { return str && rangeDate(splitDate(str)).map(lpad).join("-"); },
+			fmtDate: function(str) {
+				let parts = str && splitDate(str); //try to split date parts
+				return hasParts(parts) ? rangeDate(parts).map(lpad).join("-") : null;
+			},
 			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM
@@ -214,7 +218,10 @@ function I18nBox() {
 			toDate: function(str) { return str ? toDateTime(swap(splitDate(str))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			isoDate: function(date) { return isDate(date) ? esDate(date) : null; }, //dd/mm/yyyy
-			fmtDate: function(str) { return str && swap(rangeDate(swap(splitDate(str))).map(lpad)).join("/"); },
+			fmtDate: function(str) {
+				let parts = str && splitDate(str); //try to split date parts
+				return hasParts(parts) ? swap(rangeDate(swap(parts))).map(lpad).join("/") : null;
+			},
 			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM

@@ -3,31 +3,35 @@ js.ready(function() {
 	let navs = document.querySelectorAll("ul#tab-nav li");
 	let tabs = document.querySelectorAll(".tab-contents");
 	let steps = document.querySelectorAll("ul#progressbar li");
+	let size = steps.length || tabs.length;
 	let index = 0; //current step
 
-	function fnTabs() {
-		js.removeClass(navs, "active").addClass(navs[index], "active");
-		return !js.removeClass(tabs, "active").addClass(tabs[index], "active");
+	function fnRange(index) {
+		if (index < 0)
+			return 0;
+		return (index < size) ? index : (size - 1);
 	}
-
-	//activate next step on progressbar
-	js.click(js.getAll(".next-tab"), () => {
-		(index < (steps.length - 1)) && js.addClass(steps[++index], "active");
-		return fnTabs();
-	});
+	function fnSetTabs() {
+		js.removeClass(navs, "active").addClass(navs[index], "active");
+		js.removeClass(tabs, "active").addClass(tabs[index], "active");
+		steps.forEach((el, i) => { js.toggle(el, "active", i <= index); });
+	}
 
 	//de-activate current step on progressbar
 	js.click(js.getAll(".prev-tab"), () => {
-		index && js.removeClass(steps[index--], "active");
-		return fnTabs();
+		index = fnRange(index - 1);
+		return fnSetTabs();
 	});
-
+	//activate next step on progressbar
+	js.click(js.getAll(".next-tab"), () => {
+		index = fnRange(index + 1);
+		return fnSetTabs();
+	});
 	//go to a specific step on progressbar
 	let anchors = js.getAll("a[href^='#']");
 	js.click(js.filter(anchors, "[href^='#tab-']"), (el) => {
-		index = +el.href.substr(el.href.lastIndexOf("-") + 1) - 1; //base 0
-		steps.forEach((el, i) => { js.toggle(el, "active", i <= index); });
-		return fnTabs();
+		index = fnRange(+el.href.substr(el.href.lastIndexOf("-") + 1) - 1); //base 0
+		return fnSetTabs();
 	});
 
 	//Scroll anchors to its destination with a slow effect
