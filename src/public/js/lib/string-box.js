@@ -31,6 +31,7 @@ function StringBox() {
 	this.size = fnSize;
 	this.eq = function(str1, str2) { return tr(str1) == tr(str2); }
 	this.iiOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
+	this.substr = function(str, i, n) { return str ? str.substr(i, n) : str; }
 	this.indexOf = function(str1, str2) { return str1 ? str1.indexOf(str2) : -1; }
 	this.lastIndexOf = function(str1, str2) { return str1 ? str1.lastIndexOf(str2) : -1; }
 	this.prevIndexOf = function(str1, str2, i) { return str1 ? str1.substr(0, i).lastIndexOf(str2) : -1; }
@@ -44,10 +45,10 @@ function StringBox() {
 		return self.trunc(str, (i < 0) ? size : i);
 	}
 
-	this.removeAt = function(str, i, n) { return (i < 0) ? str : str.substr(0, i) + str.substr(i + n); }
+	this.removeAt = function(str, i, n) { return (i < 0) ? str : (str.substr(0, i) + str.substr(i + n)); }
 	this.insertAt = function(str1, str2, i) { return str1 ? (str1.substr(0, i) + str2 + str1.substr(i)) : str2; }
 	this.replaceAt = function(str1, str2, i, n) { return (i < 0) ? str1 : (str1.substr(0, i) + str2 + str1.substr(i + n)); }
-	this.replaceLast = function(str1, find, str2) { return str1 ? str1.replaceAt(str1.lastIndexOf(find), find.length, str2) : str2; }
+	this.replaceLast = function(str1, find, str2) { return str1 ? self.replaceAt(str1, str2, str1.lastIndexOf(find), find.length) : str2; }
 	this.wrapAt = function(str, i, n, open, close) { return (i < 0) ? str : self.insertAt(self.insertAt(str, open, i), close, i + open.length + n); }
 	this.iwrap = function(str1, str2, open, close) { return str2 && self.wrapAt(str1, self.iiOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>"); }
 	this.rand = function(size) { return Math.random().toString(36).substr(2, size || 8); } //random char
