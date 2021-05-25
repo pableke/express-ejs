@@ -5,8 +5,8 @@ const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
 
 const dao = require("app/dao/factory.js");
+const i18n = require("app/i18n/i18n.js"); //languages
 const valid = require("./validators.js");
-const i18n = require("../i18n/i18n.js"); //languages
 
 const BODY = {};
 const UPLOADS = {
@@ -24,18 +24,11 @@ exports.lang = function(req, res, next) {
 		lang = i18n.get(lang, req.headers["accept-language"]); //get language
 	req.session.lang = res.locals.lang = lang; //set lang id on session and view
 	res.locals.msgs = valid.getMsgs(); //init messages
+	res.locals.i18n = i18n.es; //default language
 	res.locals.body = BODY; //init non-ajax body forms
 
 	// Load specific user menus or public menus on view
 	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic();
-	next(); //go next middleware
-}
-exports.tests = function(req, res, next) {
-	res.locals.i18n = i18n.tests[res.locals.lang]; //current language
-	next(); //go next middleware
-}
-exports.web = function(req, res, next) {
-	res.locals.i18n = i18n.web[res.locals.lang]; //current language
 	next(); //go next middleware
 }
 

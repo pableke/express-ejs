@@ -1,5 +1,5 @@
 
-const valid = require("app/lib/validator-box.js");
+const valid = require("app/controllers/validators.js");
 const i18n = require("../src/i18n/i18n.js"); //languages
 
 valid.setI18n(i18n.es);
@@ -41,5 +41,32 @@ describe("Type validators", () => {
 		expect(valid.creditCardNumber("4000056655665556")).toBe("4000056655665556");
 		expect(valid.creditCardNumber(" 4000 056655665 556 ")).toBe("4000056655665556");
 		expect(valid.creditCardNumber(" 4242 4242 4242 4242 ")).toBe("4242424242424242");
+	});
+});
+
+describe("Form validators", () => {
+	test("No Forms Found", () => {
+		expect(valid.setInputs({}).validate()).toBeFalsy();
+		expect(valid.setInputs({}).validate(null)).toBeFalsy();
+		expect(valid.setInputs({}).validate("")).toBeFalsy();
+		expect(valid.setInputs({}).validate("kk")).toBeFalsy();
+	});
+	test("No Data Inputs", () => {
+		expect(valid.validate("/login.html")).toBe(false);
+		expect(valid.setInputs({}).validate("/contact.html")).toBe(false);
+		expect(valid.setInputs({}).validate("/signup.html")).toBe(false);
+		expect(valid.setInputs({}).validate("/menu/filter.html")).toBe(true);
+	});
+	test("Data Inputs", () => {
+		expect(valid.setInputs({ usuario: "kk", clave: null }).validate("/login.html")).toBe(false);
+		expect(valid.setInputs({ fn: "", o1: "1", f1: "", f2: null }).validate("/menu/filter.html")).toBe(true);
+		expect(valid.setInputs({ o1: null, f1: "kkk" }).validate("/menu/filter.html")).toBe(true);
+	});
+	test("Data Parse", () => {
+		valid.setInputs({ fn: "", o1: "1", f1: "", f2: null }).validate("/menu/filter.html");
+		expect(valid.getData()).toEqual({ fn: "", o1: 1, o2: null, f1: null, f2: null });
+
+		valid.setInputs({ fn: "", o1: "1", f1: "26/2/21", f2: null }).validate("/menu/filter.html");
+		expect(valid.getData()).toEqual({ fn: "", o1: 1, o2: null, f1: new Date(2021, 1, 26), f2: null });
 	});
 });
