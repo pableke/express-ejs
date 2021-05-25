@@ -2,8 +2,14 @@
 const fs = require("fs"); //file system
 const path = require("path"); //file and directory paths
 const cp = require("child_process"); //system calls
+const i18n = require("app/i18n/i18n.js"); //languages
 const mailer = require("app/lib/mailer.js"); //google mailer
 const valid = require("app/lib/validator-box.js"); //validator
+
+exports.lang = function(req, res, next) {
+	res.locals.i18n = i18n.tests[res.locals.lang]; //current language
+	next(); //go next middleware
+}
 
 exports.index = (req, res) => {
 	res.build("tests/index");
