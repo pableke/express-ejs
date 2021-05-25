@@ -34,6 +34,11 @@ js.ready(function() {
 		return fnSetTabs();
 	});
 
+	js.click(js.getAll("a.show-info"), (el, ev) => { //show/hide extra info
+		js.toggle(el.lastElementChild, "fa-angle-double-up fa-angle-double-down").toggle(js.next(el, ".extra-info"), "hide");
+		ev.preventDefault();
+	});
+
 	//Scroll anchors to its destination with a slow effect
 	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
 		try { //is anchor well build
