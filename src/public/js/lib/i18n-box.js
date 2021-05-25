@@ -12,10 +12,12 @@ function I18nBox() {
 
 	// Dates
 	const sysdate = new Date(); //global sysdate
-	const RE_NO_DIGITS = /\D+/g; //split no digits
+	const RE_DIGITS = /^\d.+$/; //starts by digits
+	const RE_NO_DIGITS = /\D+/g; //no digits character
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
 	function hasParts(parts) { return parts && parts[0]; }
+	function parseable(str) { return str && RE_DIGITS.test(str); }
 	function splitDate(str) { return str.split(RE_NO_DIGITS); }
 	function lpad(val) { return (val < 10) ? (ZERO + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
@@ -160,10 +162,7 @@ function I18nBox() {
 			toDate: function(str) { return str ? toDateTime(splitDate(str)) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); },
 			isoDate: function(date) { return isDate(date) ? enDate(date) : null; }, //yyyy-mm-dd
-			fmtDate: function(str) {
-				let parts = str && splitDate(str); //try to split date parts
-				return hasParts(parts) ? rangeDate(parts).map(lpad).join("-") : null;
-			},
+			fmtDate: function(str) { return parseable(str) ? rangeDate(splitDate(str)).map(lpad).join("-") : null; },
 			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM
@@ -218,10 +217,7 @@ function I18nBox() {
 			toDate: function(str) { return str ? toDateTime(swap(splitDate(str))) : null; },
 			acDate: function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); },
 			isoDate: function(date) { return isDate(date) ? esDate(date) : null; }, //dd/mm/yyyy
-			fmtDate: function(str) {
-				let parts = str && splitDate(str); //try to split date parts
-				return hasParts(parts) ? swap(rangeDate(swap(parts))).map(lpad).join("/") : null;
-			},
+			fmtDate: function(str) { return parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; },
 			toTime: toTime,
 			acTime: function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); },
 			minTime: function(date) { return isDate(date) ? minTime(date) : null; }, //hh:MM
