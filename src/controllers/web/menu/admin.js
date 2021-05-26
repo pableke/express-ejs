@@ -17,9 +17,12 @@ function fnLoadList(req, res, next) {
 	}
 
 	let body = Object.assign(valid.getData(), list); //prepare view
-	body.rows = dao.web.myjson.menus.filter(fnFilter);
+	if (!valid.isEmpty({ fn, o1, o2, f1, f2 })) { //has filter
+		body.rows = dao.web.myjson.menus.filter(fnFilter); //filter data
+		Object.assign(list, { fn, o1, o2, f1, f2 }); //save filter values
+	}
 	dao.web.myjson.menus.sortBy(body).pagination(body);
-	res.locals.body = Object.assign(list, body);
+	res.locals.body = body;
 }
 function fnGoList(req, res, next) {
 	fnLoadList(req, res, next);
