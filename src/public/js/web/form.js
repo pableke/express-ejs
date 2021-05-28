@@ -141,11 +141,8 @@ js.ready(function() {
 	// Extends validator-box for clients
 	valid.validateForm = function(form) {
 		let inputs = form.elements;
-		js.clean(inputs).each(inputs, el => {
-			el.name && valid.setInput(el.name, el.value);
-		});
-		return valid.validate(form.getAttribute("action"))
-				|| !js.showErrors(inputs, valid.setMsgError(msgs.errForm).getMsgs());
+		js.clean(inputs).export(inputs, valid.getInputs());
+		return valid.validate(form.getAttribute("action")) || !js.showErrors(inputs, valid.closeMsgs(msgs.errForm));
 	}
 	valid.submit = function(form, ev, action, resolve) {
 		ev.preventDefault(); //stop default

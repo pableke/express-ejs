@@ -41,14 +41,14 @@ exports.get = function(req, res, next) { //validate all form post
 		next(); //all inputs ok => go next middleware
 	}
 	else
-		next(valid.setMsgError(i18n.errForm).getMsgs());
+		next(valid.closeMsgs(i18n.errForm));
 }
 
 exports.post = function(req, res, next) { //validate all form post
 	let i18n = res.locals.i18n; //get internacionalization
 	res.locals.body = req.body; //preserve client inputs
 	if (!valid.init(req.body, i18n).validate(req.originalUrl))
-		return next(valid.setMsgError(i18n.errForm).getMsgs());
+		return next(valid.closeMsgs(i18n.errForm));
 
 	// Returns inputs and parsed data to view
 	req.data = valid.getData(); //build data from inputs
