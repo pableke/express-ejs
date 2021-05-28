@@ -32,23 +32,24 @@ exports.lang = function(req, res, next) {
 }
 
 exports.get = function(req, res, next) { //validate all form post
+	let i18n = res.locals.i18n; //get internacionalization
 	res.locals.body = req.query; //preserve client inputs
-	let i = req.originalUrl.lastIndexOf("?");
+	let i = req.originalUrl.lastIndexOf("?"); // has params?
 	let pathname = (i < 0) ? req.originalUrl : req.originalUrl.substr(0, i);
-	valid.init(req.query, res.locals.i18n); //load inputs and messages
-	if (valid.validate(pathname)) { //validate inputs form
+	if (valid.init(req.query, i18n).validate(pathname)) { //validate inputs form
 		req.data = valid.getData(); //build data from inputs
 		next(); //all inputs ok => go next middleware
 	}
 	else
-		next(res.locals.i18n.errForm); //set error message
+		next(valid.setMsgError(i18n.errForm).getMsgs());
 }
 
 exports.post = function(req, res, next) { //validate all form post
+	let i18n = res.locals.i18n; //get internacionalization
 	res.locals.body = req.body; //preserve client inputs
-	valid.init(req.body, res.locals.i18n); //load inputs and messages
-	if (!valid.validate(req.originalUrl)) //validate inputs form
-		return next(res.locals.i18n.errForm); //set error message
+	if (!valid.init(req.body, i18n).validate(req.originalUrl))
+		return next(valid.setMsgError(i18n.errForm).getMsgs());
+
 	// Returns inputs and parsed data to view
 	req.data = valid.getData(); //build data from inputs
 	// Inputs values are valids => process POST request
