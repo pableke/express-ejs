@@ -10,8 +10,8 @@ function ValidatorBox() {
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
 
+	let data; //data parsed
 	let i18n = {}; //error messages
-	let data = {}; //data parsed
 	let inputs = {}; //inputs container
 	let errors = 0; //counter
 
@@ -205,6 +205,9 @@ function ValidatorBox() {
 	}
 
 	// Messages for response
+	this.isObject = function(obj) {
+		return obj && (typeof(obj) === "object");
+	}
 	this.isEmpty = function(obj) {
 		for (let k in obj) {
 			if (isset(obj[k]))
@@ -216,10 +219,6 @@ function ValidatorBox() {
 		for (let k in obj) //clear object
 			delete obj[k]; //delete keys
 		return self;
-	}
-	this.initMsgs = function() {
-		errors = 0; //errors counter
-		return self.clear(MSGS);
 	}
 	this.getMsgs = function() {
 		return MSGS;
@@ -300,22 +299,21 @@ function ValidatorBox() {
 		inputs = data;
 		return self;
 	}
-	this.init = function(inputs, msgs) {
-		return self.setInputs(inputs).setI18n(msgs);
+	this.init = function(inputs, i18n) {
+		return self.setInputs(inputs).setI18n(i18n);
 	}
 
-	this.fails = function() { return errors > 0; }
-	this.isValid = function() { return errors == 0; }
 	this.validate = function(form) {
-		data = {}; //new data output
+		data = {}; //init data
+		errors = 0; //init counter
 		sysdate.setTime(Date.now()); //update time
-		let validators = self.initMsgs().getForm(form);
+		let validators = self.clear(MSGS).getForm(form);
 		for (let field in validators) {
 			let fn = validators[field]; //validator to apply
 			data[field] = fn(field, inputs[field], i18n);
 		}
 		// Form must be registered
-		return validators && self.isValid();
+		return validators && (errors == 0);
 	}
 }
 

@@ -4,11 +4,6 @@ const dao = require("app/dao/factory.js");
 const mailer = require("app/lib/mailer.js");
 const valid = require("app/lib/validator-box.js")
 
-function fnError(res, msg) {
-	valid.setMsgError(msg);
-	res.status(500).send(msg);
-}
-
 exports.view = function(req, res) {
 	res.build("web/forms/public/reactive");
 }
@@ -19,20 +14,24 @@ exports.send = function(req, res) {
 	fetch(url, { method: "post" })
 		.then(res => res.json())
 		.then(gresponse => {
+			let i18n = res.locals.i18n;
 			if (!gresponse.success || (gresponse.score < 0.51)) //is a boot?
-				return fnError(res, res.locals.i18n.errCaptcha);
+				throw i18n.errCaptcha;
 
-			res.locals.pass = valid.generatePassword(); //generate new random password
-			if (!dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, res.locals.i18n))
-				return fnError(res, valid.getMsgError());
+			try {
+				res.locals.pass = valid.generatePassword(); //generate new random password
+				dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, i18n);
 
-			mailer.send({
-				to: req.body.correo,
-				subject: res.locals.i18n.lblReactivar,
-				tpl: "web/emails/reactive.ejs",
-				data: res.locals
-			}).then(info => res.send(res.locals.i18n.msgReactive))
-				.catch(err => fnError(res, res.locals.i18n.errSendMail));
+				mailer.send({
+					to: req.body.correo,
+					subject: i18n.lblReactivar,
+					tpl: "web/emails/reactive.ejs",
+					data: res.locals
+				}).then(info => res.send(i18n.msgReactive))
+					.catch(err => next(i18n.errSendMail));
+			} catch (ex) {
+				next(ex);
+			}
 		})
-		.catch(err => fnError(res, res.locals.i18n.errCaptcha));
+		.catch(err => next(res.locals.i18n.errCaptcha));
 }

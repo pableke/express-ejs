@@ -41,6 +41,7 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response helpers
+	res.locals.msgs = {}; //init messages
 	res.locals._tplBody = "web/index"; //default body
 	res.setBody = function(tpl) { //set body template
 		res.locals._tplBody = tpl; //tpl body path
@@ -51,24 +52,31 @@ app.use((req, res, next) => {
 		return res.setBody(tpl).render("index");
 	}
 	res.on("finish", function() {
-		valid.initMsgs(); //reset messages
+		// reset messages and view
+		valid.clear(res.locals.msgs);
+		valid.clear(res.locals);
 	});
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
-	valid.setMsgError("" + err); //set message error on view
-	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return (req.method == "POST") //ajax response
-					? res.status(500).json(valid.getMsgs())
-					: res.status(500).send(valid.getMsgError());
+	if (err.stack && err.message && (typeof(err.message) === "string"))
+		err = err.message; // Is Exception Error Type => send message only
+	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
+		return valid.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
+
+	// Is non ajax request
+	if (valid.isObject(err))
+		res.locals.msgs = err;
+	else
+		res.locals.msgs.msgError = err;
 	return res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found
-	valid.setMsgError(res.locals.i18n.err404); //set message error on view
+	res.locals.msgs.msgError = res.locals.i18n.err404; //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return res.status(404).send(valid.getMsgError()); //ajax response
+		return res.status(404).send(res.locals.msgs.msgError); //ajax response
 	return res.status(404).build("errors/404"); //show 404 page
 });
 

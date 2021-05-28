@@ -8,12 +8,10 @@ js.ready(function() {
 
 		function fnRemove(el, ev) {
 			confirm(msgs.remove) && js.ajax(el.href, data => {
-				let num = js.get("#rows", table.tfoot);
-				if (num)
-					num.innerText = isNaN(num.innerText) ? 0 : (+num.innerText - 1);
-				tbody.innerHTML = data;
-				js.showOk(msgs.msgOk);
-			}, js.showAlerts);
+				tbody.innerHTML = data.html; //load new data
+				js.text(js.get("#rows", table.tfoot), tbody.children.length);
+				js.showAlerts(data);
+			});
 			ev.preventDefault();
 		}
 
@@ -23,8 +21,8 @@ js.ready(function() {
 			js.removeClass(links, "asc desc");
 			js.addClass(el, dir);
 			js.ajax(el.href + "&dir=" + dir, data => {
-				js.html(tbody, data).click(js.getAll("a.remove-row", tbody), fnRemove);
-			}, js.showAlerts);
+				js.html(tbody, data.html).click(js.getAll("a.remove-row", tbody), fnRemove);
+			});
 		});
 		js.click(js.getAll("a.remove-row", tbody), fnRemove);
 	});

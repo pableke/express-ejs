@@ -7,10 +7,13 @@ exports.view = function(req, res) {
 	res.build("web/forms/public/signup");
 }
 
-exports.save = function(req, res) {
-	req.data.alta = new Date(); //set insert date time
-	if (dao.web.myjson.users.insertUser(req.data, res.locals.i18n))
-		res.send(res.locals.i18n.msgUsuario);
-	else
-		res.status(500).json(valid.getMsgs());
+exports.save = function(req, res, next) {
+	let i18n = res.locals.i18n;
+	try {
+		req.data.alta = new Date(); //set insert date time
+		dao.web.myjson.users.insertUser(req.data, i18n);
+		res.send(i18n.msgUsuario);
+	} catch(ex) {
+		next(ex);
+	}
 }

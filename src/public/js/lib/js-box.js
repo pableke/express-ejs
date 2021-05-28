@@ -167,17 +167,20 @@ function JsBox() {
 		el && el.focus();
 		return self;
 	}
-	this.val = function(list, value) {
-		let el = fnSize(list) ? list[0] : list;
+	function fnSetVal(el, value) {
 		if (el.tagName === "SELECT") {
 			value = value || el.getAttribute("value");
-			let i = Array.from(el.options).findIndex(opt => (opt.value == value));
-			return self.each(list, select => { select.selectedIndex = i; });
+			el.selectedIndex = Array.from(el.options).findIndex(opt => (opt.value == value));
 		}
-		if (isElem(list))
-			list.value = value;
 		else
-			self.each(list, el => { el.value = value; });
+			el.value = value;
+		return self;
+	}
+	this.val = function(list, value) {
+		if (isElem(list))
+			fnSetVal(list, value);
+		else
+			self.each(list, el => fnSetVal(el, value));
 		return self;
 	}
 	this.text = function(list, value) {
@@ -193,6 +196,14 @@ function JsBox() {
 		else
 			self.each(list, el => { el.innerHTML = value; });
 		return self;
+	}
+	this.import = function(inputs, data) {
+		return data ? self.each(inputs, el => fnSetVal(el, data[el.name] ?? "")) : self.val(inputs, "");
+	}
+	this.export = function(inputs, data) {
+		data = data || {};
+		self.each(inputs, el => { data[el.name] = el.value; });
+		return data;
 	}
 
 	// Styles
@@ -215,8 +226,8 @@ function JsBox() {
 		return self;
 	}
 	this.hasClass = function(list, name) {
-		let el = fnSize(list) ? list[0] : list;
-		return el && el.classList.contains(name);
+		let el = fnSize(list) ? list[0] : list; //first element
+		return el && fnSplit(name).some(name => el.classList.contains(name));
 	};
 	this.setClass = function(list, value) {
 		function fnSet(el) { el.className = value; }
