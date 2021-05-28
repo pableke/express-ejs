@@ -203,6 +203,7 @@ function JsBox() {
 	this.export = function(inputs, data) {
 		data = data || {};
 		self.each(inputs, el => { data[el.name] = el.value; });
+		delete data.undefined; //no name element
 		return data;
 	}
 
