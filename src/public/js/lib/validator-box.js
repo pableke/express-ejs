@@ -264,6 +264,9 @@ function ValidatorBox() {
 	this.setMsgError = function(msg) {
 		return self.setError("msgError", msg);
 	}
+	this.closeMsgs = function(msg) {
+		return self.setMsgError(msg).getMsgs();
+	}
 
 	// OJO! sobrescritura de forms => id's unicos
 	this.getForm = function(form) {

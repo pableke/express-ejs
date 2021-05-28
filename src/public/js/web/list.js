@@ -18,8 +18,7 @@ js.ready(function() {
 		js.click(links, (el, ev) => {
 			ev.preventDefault();
 			let dir = js.hasClass(el, "asc") ? "desc" : "asc";
-			js.removeClass(links, "asc desc");
-			js.addClass(el, dir);
+			js.removeClass(links, "asc desc").addClass(el, dir);
 			js.ajax(el.href + "&dir=" + dir, data => {
 				js.html(tbody, data.html).click(js.getAll("a.remove-row", tbody), fnRemove);
 			});
