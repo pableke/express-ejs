@@ -12,7 +12,8 @@ function StringBox() {
 	}*/
 
 	//helpers
-	function isstr(val) { return (typeof val === "string") || (val instanceof String); }
+	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
+	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
 	function fnTrim(str) { return isstr(str) ? str.trim() : str; } //string only
 	function fnSize(str) { return str ? str.length : 0; } //string o array
 	function tr(str) {
@@ -26,6 +27,7 @@ function StringBox() {
 		return output.toLowerCase();
 	}
 
+	this.isset = isset;
 	this.isstr = isstr;
 	this.trim = fnTrim;
 	this.size = fnSize;

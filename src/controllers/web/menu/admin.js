@@ -110,25 +110,17 @@ exports.last = function(req, res, next) {
 }
 
 exports.save = function(req, res, next) {
-	try {
-		let i18n = res.locals.i18n;
-		dao.web.myjson.menus.saveMenu(req.data, i18n);
-		res.locals.msgs.msgOk = i18n.msgGuardarOk;
-		fnGoList(req, res, next);
-	} catch (ex) {
-		fnView(res, req.data, ex);
-	}
+	let i18n = res.locals.i18n;
+	dao.web.myjson.menus.saveMenu(req.data, i18n);
+	res.locals.msgs.msgOk = i18n.msgGuardarOk;
+	fnGoList(req, res, next);
 }
 exports.duplicate = function(req, res, next) {
-	try {
-		let i18n = res.locals.i18n;
-		dao.web.myjson.menus.saveMenu(req.data, i18n);
-		res.locals.msgs.msgOk = i18n.msgGuardarOk;
-		delete req.data._id;
-		fnSendMenu(res, req.data);
-	} catch (ex) {
-		next(ex);
-	}
+	let i18n = res.locals.i18n;
+	dao.web.myjson.menus.saveMenu(req.data, i18n);
+	res.locals.msgs.msgOk = i18n.msgGuardarOk;
+	delete req.data._id;
+	fnSendMenu(res, req.data);
 }
 
 exports.delete = function(req, res, next) {
