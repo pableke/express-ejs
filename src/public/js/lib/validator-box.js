@@ -10,8 +10,7 @@ function ValidatorBox() {
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
 
-	let data; //data parsed
-	let i18n = {}; //error messages
+	let data, i18n; //data and messages
 	let inputs = {}; //inputs container
 	let errors = 0; //counter
 
@@ -199,8 +198,8 @@ function ValidatorBox() {
 	this.getI18n = function() {
 		return i18n;
 	}
-	this.setI18n = function(data) {
-		i18n = data || i18n;
+	this.setI18n = function(obj) {
+		i18n = obj;
 		return self;
 	}
 
