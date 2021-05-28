@@ -42,7 +42,13 @@ const MENU_SAVE = {
 	nombre: valid.required,
 	nombre_en: valid.max200,
 	pn: valid.max200,
-	padre: valid.key,
+	padre: function(name, value, msgs) {
+		let id = valid.getData("_id");
+		let padre = msgs.toInt(value);
+		if (sb.isset(_id) && sb.isset(padre) && (id == padre))
+			valid.setError(name, msgs.errRefCircular);
+		return padre;
+	},
 	orden: valid.intval,
 	mask: valid.intval,
 	alta: valid.ltNow
