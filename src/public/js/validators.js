@@ -1,8 +1,4 @@
 
-// Extends config
-const js = new JsBox();
-const sb = new StringBox();
-const i18n = new I18nBox();
 const valid = new ValidatorBox();
 
 // Extends validators
