@@ -33,7 +33,7 @@ js.ready(function() {
 	js.getAll(".pagination").forEach(pag => {
 		let list = js.getAll("select", pag);
 		js.val(list).change(list, (el) => {
-			window.location.href = "?page=0&size=" + el.value;
+			window.location.href = js.buildPath("page=0&size=" + el.value);
 		});
 	});
 });

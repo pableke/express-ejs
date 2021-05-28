@@ -36,11 +36,14 @@ exports.check = function(req, res, next) {
 	}
 }
 
-function fnLogout(req) {
-	// Delete all session data
+function fnResetLists(req) {
 	for (let k in req.session.list)
 		valid.clear(req.session.list[k]);
 	valid.clear(req.session.list);
+}
+function fnLogout(req) {
+	// Delete all session data
+	fnResetLists(req);
 	valid.clear(req.session.user);
 	valid.clear(req.session);
 	//remove session: regenerated next request
@@ -67,13 +70,13 @@ exports.auth = function(req, res, next) {
 
 exports.home = function(req, res) {
 	// Reset list configuration
-	valid.clear(req.session.list);
+	fnResetLists(req);
 	res.build(TPL_ADMIN);
 }
 
 exports.logout = function(req, res) {
+	res.locals.msgs.msgOk = res.locals.i18n.msgLogout;
 	fnLogout(req); //click logout user
-	valid.setMsgOk(res.locals.i18n.msgLogout);
 	res.build(TPL_LOGIN);
 }
 

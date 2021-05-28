@@ -280,12 +280,8 @@ function ValidatorBox() {
 		let fields = self.getForm(form);
 		return fields ? Object.keys(fields) : [];
 	}
-	this.getData = function(name) {
-		return name ? data[name] : data;
-	}
-	this.setData = function(name, value) {
-		data[name] = value;
-		return self;
+	this.getData = function() {
+		return data; //read only
 	}
 	this.getInput = function(name) {
 		return inputs[name];
