@@ -1,4 +1,5 @@
 
+const sb = require("app/lib/string-box.js")
 const valid = require("app/lib/validator-box.js")
 
 // Web module validators
@@ -45,8 +46,8 @@ const MENU_SAVE = {
 	padre: function(name, value, msgs) {
 		let id = valid.getData("_id");
 		let padre = msgs.toInt(value);
-		if (sb.isset(_id) && sb.isset(padre) && (id == padre))
-			valid.setError(name, msgs.errRefCircular);
+		if (sb.isset(id) && sb.isset(padre) && (id == padre))
+			valid.setError("pn", msgs.errRefCircular);
 		return padre;
 	},
 	orden: valid.intval,

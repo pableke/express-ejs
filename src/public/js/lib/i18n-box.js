@@ -133,6 +133,7 @@ function I18nBox() {
 			errRegex: "Wrong format",
 			errReclave: "Passwords typed do not match",
 			errRange: "Value out of allowed range",
+			errRefCircular: "Circular reference",
 
 			//confirm cuestions
 			remove: "Are you sure to delete element?",
@@ -188,6 +189,7 @@ function I18nBox() {
 			errRegex: "Formato incorrecto",
 			errReclave: "Las claves introducidas no coinciden",
 			errRange: "Valor fuera del rango permitido",
+			errRefCircular: "Referencia circular",
 
 			//confirm cuestions
 			remove: "¿Confirma que desea eliminar este registro?",
