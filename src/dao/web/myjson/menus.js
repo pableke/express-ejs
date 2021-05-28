@@ -76,8 +76,6 @@ module.exports = function(table) {
 		return (id && !table.getChildren(id).length) ? fnSetFinal(table.getById(id)) : table;
 	}
 	table.saveMenu = function(menu, msgs) {
-		//if (menu._id && (menu._id == menu.padre))
-			//throw msgs.errSave;
 		let row = table.getById(menu._id) || menu;
 		let padre = table.getParent(menu);
 		if (padre)
