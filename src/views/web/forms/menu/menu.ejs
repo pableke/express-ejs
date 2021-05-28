@@ -26,8 +26,8 @@
 			<span class="msg-error"><%=msgs.icon%></span>
 		</div>
 		<div class="input-group">
-			<label for="np"><%=i18n.lblPadre%>:</label>
-			<input type="text" id="np" name="np" value="<%=menu.pn%>" size="20" maxlength="200" class="input-item input-control ac-menu" tabindex="4" />
+			<label for="pn"><%=i18n.lblPadre%>:</label>
+			<input type="text" id="pn" name="pn" value="<%=menu.pn%>" size="20" maxlength="200" class="input-item input-control ac-menu" tabindex="4" />
 			<input type="hidden" id="padre" name="padre" value="<%=menu.padre%>" />
 			<i class="input-item input-icon <%=menu.pi || "fas fa-arrow-alt-circle-up"%>"></i>
 			<span class="msg-error"><%=msgs.padre%></span>
@@ -58,5 +58,12 @@
 		<a href="/menu/duplicate.html" tabindex="102" class="btn btn-warn duplicate"><i class="far fa-copy"></i> <%=i18n.lblDuplicar%></a>
 		<button type="reset" class="btn btn-light" tabindex="103">&olarr; <%=i18n.lblLimpiar%></button>
 		<a href="/menu/delete.html?k=<%=menu._id%>" tabindex="104" class="btn btn-danger remove"><i class="far fa-trash-alt"></i> <%=i18n.lblEliminar%></a>
+
+		<% if (menu._id) { %>
+			<a href="/menu/first.html" tabindex="106" class="btn btn-primary nav-to" title="<%=i18n.titPrimero%>"><i class="fas fa-angle-double-left"></i></a>
+			<a href="/menu/prev.html?k=<%=menu._id%>" tabindex="107" class="btn btn-primary nav-to" title="<%=i18n.titSiguiente%>"><i class="fas fa-angle-left"></i></a>
+			<a href="/menu/next.html?k=<%=menu._id%>" tabindex="108" class="btn btn-primary nav-to" title="<%=i18n.titAnterior%>"><i class="fas fa-angle-right"></i></a>
+			<a href="/menu/last.html" tabindex="109" class="btn btn-primary nav-to" title="<%=i18n.titUltimo%>"><i class="fas fa-angle-double-right"></i></a>
+		<% } %>
 	</form>
 </div>

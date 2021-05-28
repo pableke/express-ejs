@@ -25,7 +25,7 @@ js.ready(function() {
 
 	// Loading div
 	let _loading = document.querySelector(".loading");
-	function fnLoading() { js.show(_loading).closeAlerts(); valid.initMsgs(); }
+	function fnLoading() { js.show(_loading).closeAlerts(); }
 	function fnUnloading() { js.fadeOut(_loading); }
 	// End loading div
 
@@ -40,15 +40,20 @@ js.ready(function() {
 		showOk(msg); //green
 		return js;
 	}
+	js.showInfo = function(msg) {
+		showInfo(msg); //blue
+		return js;
+	}
+	js.showWarn = function(msg) {
+		showWarn(msg); //yellow
+		return js;
+	}
 	js.showError = function(msg) {
 		showError(msg); //red
 		return js;
 	}
-	js.showAlerts = function(msgs) {
-		//show posible multiple messages types
-		showInfo(msgs.msgInfo); //blue
-		showWarn(msgs.msgWarn); //yellow
-		return js.showOk(msgs.msgOk).showError(msgs.msgError); //red
+	js.showAlerts = function(msgs) { //show posible multiple messages types
+		return msgs ? js.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : js;
 	}
 	js.closeAlerts = function() {
 		return js.hide(alerts); //hide alerts
@@ -63,6 +68,19 @@ js.ready(function() {
 			let msg = el.name && errors[el.name]; //exists message error?
 			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
 		});
+	}
+	js.load = function(inputs, data) {
+		js.import(inputs, data); //load data and reformat
+		js.each(js.filter(inputs, ".integer"), el => {
+			el.value = msgs.isoInt(data[el.name]);
+		}).each(js.filter(inputs, ".float"), el => {
+			el.value = msgs.isoFloat(data[el.name]);
+		}).each(js.filter(inputs, ".date"), el => { //dates
+			el.value = msgs.isoDate(sb.toDate(data[el.name]));
+		}).each(js.filter(inputs, ".time"), el => { //times
+			el.value = msgs.minTime(sb.toDate(data[el.name]));
+		});
+		return js.showAlerts(data);
 	}
 
 	js.ajax = function(action, resolve, reject) {
@@ -166,9 +184,9 @@ js.ready(function() {
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
+
 		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
 		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
-
 		let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
 			.change(dates, el => { el.value = msgs.fmtDate(el.value); });
@@ -213,21 +231,19 @@ js.ready(function() {
 			js.clean(inputs).each(textareas, fnCounter);
 		}).click(js.filter(inputs, ".clear-all"), () => {
 			js.val(inputs, "").clean(inputs).each(textareas, fnCounter);
+		}).click(js.getAll("a.nav-to", form), (el, ev) => {
+			js.ajax(el.href, data => { js.load(inputs, data); });
+			ev.preventDefault();
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
-			valid.submit(form, ev, el.href, data => { //ajax form submit
-				js.val(js.filter(inputs, "[name='_id'],.dup-clear"), ""); //clean input values
-				showOk(data); //show ok message
+			valid.submit(form, ev, el.href, data => {
+				js.load(inputs, data).toggle(js.getAll("a.nav-to", form), "btn hide");
 			});
 		});
 
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
-			if (form.classList.contains("ajax")) {
-				valid.submit(form, ev, null, data => {
-					js.val(inputs, ""); //clean input values
-					showOk(data); //show ok message
-				});
-			}
+			if (form.classList.contains("ajax"))
+				valid.submit(form, ev, null, data => { js.load(inputs, data); });
 			else
 				valid.validateForm(form) || ev.preventDefault();
 		});

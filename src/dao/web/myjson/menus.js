@@ -1,6 +1,4 @@
 
-const valid = require("app/lib/validator-box.js");
-
 // Menus DAO
 module.exports = function(table) {
 	const _parents = [];
@@ -79,7 +77,7 @@ module.exports = function(table) {
 	}
 	table.saveMenu = function(menu, msgs) {
 		if (menu._id && (menu._id == menu.padre))
-			return !valid.setMsgError(msgs.errSave);
+			throw msgs.errSave;
 		let row = table.getById(menu._id) || menu;
 		let padre = table.getParent(menu);
 		if (padre)

@@ -23,7 +23,6 @@ exports.lang = function(req, res, next) {
 	if (!lang || (lang !== req.session.lang)) //user change language or first access
 		lang = i18n.get(lang, req.headers["accept-language"]); //get language
 	req.session.lang = res.locals.lang = lang; //set lang id on session and view
-	res.locals.msgs = valid.getMsgs(); //init messages
 	res.locals.i18n = i18n.es; //default language
 	res.locals.body = BODY; //init non-ajax body forms
 

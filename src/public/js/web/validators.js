@@ -39,6 +39,7 @@ const MENU_SAVE = {
 	icon: valid.max50,
 	nombre: valid.required,
 	nombre_en: valid.max200,
+	pn: valid.max200,
 	padre: valid.key,
 	orden: valid.intval,
 	mask: valid.intval,

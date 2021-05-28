@@ -1,10 +1,13 @@
 
 const bcrypt = require("bcrypt"); //encrypt
-const valid = require("app/lib/validator-box.js");
 
 // User DAO
 module.exports = function(table) {
-	function fnError(msg) { return !valid.setMsgError(msg); }
+	function fnError(msg, field, err) {
+		let error = { msgError: msg };
+		error[field] = err;
+		return error;
+	}
 
 	table.onLoad = function(users) { // build date types
 		users.each(user => { user.alta = new Date(user.alta); });
@@ -21,9 +24,9 @@ module.exports = function(table) {
 	table.getUser = function(login, pass, msgs) {
 		let user = table.findByLogin(login);
 		if (!user) // Search for user
-			return !valid.setError("usuario", msgs.errUsuario).setMsgError(msgs.errUserNotFound);
+			throw fnError(msgs.errUserNotFound, "usuario", msgs.errUsuario);
 		if (!bcrypt.compareSync(pass, user.clave)) // Validate user password
-			return !valid.setError("clave", msgs.errClave).setMsgError(msgs.errUserNotFound);
+			throw fnError(msgs.errUserNotFound, "clave", msgs.errClave);
 		return user;
 	}
 
@@ -33,20 +36,23 @@ module.exports = function(table) {
 	}
 	table.updatePassByMail = function(email, pass, msgs) {
 		let user = table.findByMail(email);
-		return user ? cryptPass(user, pass).commit() : fnError(msgs.errCorreoNotFound);
+		if (user)
+			return cryptPass(user, pass).commit()
+		throw msgs.errCorreoNotFound;
 	}
 	table.updateNewPass = function(id, oldPass, newPass, msgs) {
 		let user = table.findById(id);
-		if (user)
-			return bcrypt.compareSync(oldPass, user.clave) 
-						? cryptPass(user, newPass).commit() //truthy
-						: fnError(msgs.errClave); //falsy
-		return fnError(msgs.errUserNotFound);
+		if (user) {
+			if (bcrypt.compareSync(oldPass, user.clave))
+				return cryptPass(user, newPass).commit() //truthy
+			throw msgs.errClave; //falsy
+		}
+		throw msgs.errUserNotFound;
 	}
 
 	table.insertUser = function(user, msgs) {
 		if (table.findLogin(user.nif, user.correo))
-			return fnError(msgs.errUsuarioUk);
+			throw msgs.errUsuarioUk;
 		return table.insert(cryptPass(user, user.clave));
 	}
 

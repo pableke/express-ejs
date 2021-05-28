@@ -10,30 +10,36 @@ exports.view = function(req, res) {
 }
 
 exports.check = function(req, res, next) {
-	let msgs = res.locals.i18n;
-	let { usuario, clave } = req.data;
-	let user = dao.web.myjson.users.getUser(usuario, clave, msgs);
-	if (!user) //validate if user exists
-		return next(msgs.errUserNotFound); //go login error
-	// Build session data
-	req.session.list = {};
-	req.session.user = user;
-	req.session.time = Date.now();
-	req.session.click = Date.now();
-	let menus = dao.web.myjson.um.getMenus(user._id); //get specific user menus
-	req.session.menus = res.locals.menus = menus; //update user menus on view and session
-	if (req.session.redirTo) { //session helper
-		res.redirect(req.session.redirTo);
-		delete req.session.redirTo;
-	}
-	else {
-		valid.setMsgOk(msgs.msgLogin);
-		res.build(TPL_ADMIN);
+	try {
+		let i18n = res.locals.i18n;
+		let { usuario, clave } = req.data;
+		let user = dao.web.myjson.users.getUser(usuario, clave, i18n);
+	
+		// Build session data
+		req.session.list = {};
+		req.session.user = user;
+		req.session.time = Date.now();
+		req.session.click = Date.now();
+		let menus = dao.web.myjson.um.getMenus(user._id); //get specific user menus
+		req.session.menus = res.locals.menus = menus; //update user menus on view and session
+
+		// access allowed => go private area
+		res.locals.msgs.msgOk = i18n.msgLogin;
+		if (req.session.redirTo) { //session helper
+			res.redirect(req.session.redirTo);
+			delete req.session.redirTo;
+		}
+		else
+			res.build(TPL_ADMIN);
+	} catch (ex) {
+		next(ex);
 	}
 }
 
 function fnLogout(req) {
-	//delete all session data
+	// Delete all session data
+	for (let k in req.session.list)
+		valid.clear(req.session.list[k]);
 	valid.clear(req.session.list);
 	valid.clear(req.session.user);
 	valid.clear(req.session);
@@ -46,7 +52,7 @@ exports.auth = function(req, res, next) {
 	res.setBody(TPL_LOGIN); //if error => go login
 	if (!req.session) //no hay sesion
 		return next(res.locals.i18n.err401);
-	req.session.redirTo = (req.method == "GET") && req.originalUrl;
+	req.session.redirTo = !req.xhr && (req.method == "GET") && req.originalUrl;
 	if (!req.session.time) //no hay sesion
 		return next(res.locals.i18n.err401);
 	if ((req.session.click + 3600000) < Date.now()) {

@@ -11,6 +11,7 @@ router.get("/filter.html", ctrl.get, admin.list, admin.errList).get("/search.htm
 router.get("/filtrar.html", ctrl.get, admin.list, admin.errList).get("/buscar.html", ctrl.get, admin.list, admin.errList)
 router.get("/sort.html", admin.sort).get("/order.html", admin.sort).get("/ordenar.html", admin.sort);
 router.get("/view.html", admin.view).get("/find.html", admin.find);
+router.get("/first.html", admin.first).get("/prev.html", admin.prev).get("/next.html", admin.next).get("/last.html", admin.last);
 router.get("/delete.html", admin.delete).get("/remove.html", admin.delete);
 
 router.get("/users.html", admin.users);

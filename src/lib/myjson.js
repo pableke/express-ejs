@@ -83,7 +83,7 @@ function Collection(db, pathname) {
 	this.getAll = function() { return table.data; }
 	this.findAll = function() { return table.data; }
 	this.find = function(cb) { return table.data.find(cb); }
-	this.findIndex = function(id) { return table.data.findIndex(row => (row._id == id)); }
+	this.findIndex = function(id) { return id ? table.data.findIndex(row => (row._id == id)) : -1; }
 	this.getById = function(id) { return self.find(row => (row._id == id)); }
 	this.findById = function(id) { return self.getById(id); }
 	this.filter = function(cb) { return table.data.filter(cb); }
@@ -132,6 +132,13 @@ function Collection(db, pathname) {
 		cfg.start = Math.max(cfg.end - 7, 0);
 		cfg.index = cfg.page * cfg.size;
 		return self.paginate(cfg);
+	}
+	this.navto = function(cfg, i) {
+		i = i ?? 0; //0 allowed
+		cfg.rows = cfg.rows || table.data;
+		i = (i < cfg.rows.length) ? i : (cfg.rows.length - 1);
+		cfg.i = (i < 0) ? 0 : i;
+		return cfg.rows[cfg.i];
 	}
 
 	this.push = function(item) {

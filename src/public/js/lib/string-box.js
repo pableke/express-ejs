@@ -54,6 +54,7 @@ function StringBox() {
 	this.rand = function(size) { return Math.random().toString(36).substr(2, size || 8); } //random char
 	this.lopd = function(str) { return str ? ("***" + str.substr(3, 4) + "**") : str; }; //hide protect chars
 
+	this.toDate = function(str) { return str ? new Date(str) : null; }
 	this.split = function(str, sep) { return str ? str.trim().split(sep || ",") : []; }
 	this.minify = function(str) { return str ? str.trim().replace(/\s{2}/g, "") : str; }
 	this.lines = function(str) { return self.split(str, /[\n\r]+/); }
