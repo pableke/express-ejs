@@ -14,7 +14,7 @@ function fnLoadList(req, res, next) {
 	valid.init(list, res.locals.i18n).validate("/menu/filter.html"); // parse filter data
 	let { fn, o1, o2, f1, f2 } = valid.getData(); // declare filter data
 	function fnFilter(menu) { // menus filter function
-		return sb.ilike(menu.nombre, fn) && sb.between(menu.orden, o1, o2) && sb.between(menu.alta, f1, f2);
+		return sb.ilike(menu.nm, fn) && sb.between(menu.orden, o1, o2) && sb.between(menu.alta, f1, f2);
 	}
 
 	let body = Object.assign(valid.getData(), list); //prepare view
@@ -72,7 +72,7 @@ exports.view = function(req, res, next) {
 function fnNavTo(req, res, next) {
 	let id = +req.query.k;
 	let menus = fnLoadList(req, res, next);
-	menus.i = menus.i ?? menus.rows.findIndex(row => (row._id == id));
+	menus.i = menus.i ?? menus.rows.findIndex(row => (rownm.id == id));
 	return menus;
 }
 function fnSendMenu(res, menu) {
@@ -81,7 +81,7 @@ function fnSendMenu(res, menu) {
 exports.find = function(req, res, next) {
 	let term = req.query.term;
 	let i18n = res.locals.i18n;
-	let fnFilter = (menu) => sb.ilike(i18n.get(menu, "nombre"), term);
+	let fnFilter = (menu) => sb.ilike(i18n.get(menu, "nm"), term);
 	res.json(dao.web.myjson.menus.filter(fnFilter));
 }
 exports.first = function(req, res, next) {
@@ -119,7 +119,7 @@ exports.duplicate = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	dao.web.myjson.menus.saveMenu(req.data, i18n);
 	res.locals.msgs.msgOk = i18n.msgGuardarOk;
-	delete req.data._id;
+	delete req.datanm.id;
 	fnSendMenu(res, req.data);
 }
 

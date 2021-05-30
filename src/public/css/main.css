@@ -34,6 +34,7 @@ body {
 .icon:hover { text-shadow: 2px 2px 1px silver; }
 
 /* text modificators */
+.text-block { padding: .7rem; border: 1px solid transparent; border-radius: .25rem; }
 .text-ok { color: #00cc6a }
 .text-info { color: #0069d9 }
 .text-warn { color: #e0a800 }

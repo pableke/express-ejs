@@ -4,19 +4,19 @@
 	<hr/>
 
 	<form id="menu" method="post" action="/menu/save.html">
-		<input type="hidden" id="_id" name="_id" value="<%=menu._id%>" />
+		<input type="hidden" id="id" name="id" value="<%=menu.id%>" />
 
 		<div class="input-group">
-			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
-			<input type="text" id="nombre" name="nombre" value="<%=menu.nombre%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<label for="nm" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nm" name="nm" value="<%=menu.nm%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nombre%></span>
+			<span class="msg-error"><%=msgs.nm%></span>
 		</div>
 		<div class="input-group">
-			<label for="nombre_en" class="required"><%=i18n.lblNombre%> (<%=i18n.lblEn%>):</label>
-			<input type="text" id="nombre_en" name="nombre_en" value="<%=menu.nombre_en%>" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titNombre%> (<%=i18n.lblEn%>)" placeholder="<%=i18n.phNombre%>" />
+			<label for="nm_en" class="required"><%=i18n.lblNombre%> (<%=i18n.lblEn%>):</label>
+			<input type="text" id="nm_en" name="nm_en" value="<%=menu.nm_en%>" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titNombre%> (<%=i18n.lblEn%>)" placeholder="<%=i18n.phNombre%>" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nombre_en%></span>
+			<span class="msg-error"><%=msgs.nm_en%></span>
 		</div>
 
 		<div class="input-group">
@@ -57,12 +57,12 @@
 		<button type="submit" class="btn btn-success" tabindex="101"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
 		<a href="/menu/duplicate.html" tabindex="102" class="btn btn-warn duplicate"><i class="far fa-copy"></i> <%=i18n.lblDuplicar%></a>
 		<button type="reset" class="btn btn-light" tabindex="103">&olarr; <%=i18n.lblLimpiar%></button>
-		<a href="/menu/delete.html?k=<%=menu._id%>" tabindex="104" class="btn btn-danger remove"><i class="far fa-trash-alt"></i> <%=i18n.lblEliminar%></a>
+		<a href="/menu/delete.html?k=<%=menu.id%>" tabindex="104" class="btn btn-danger remove"><i class="far fa-trash-alt"></i> <%=i18n.lblEliminar%></a>
 
-		<% if (menu._id) { %>
+		<% if (menu.id) { %>
 			<a href="/menu/first.html" tabindex="106" class="btn btn-primary nav-to" title="<%=i18n.titPrimero%>"><i class="fas fa-angle-double-left"></i></a>
-			<a href="/menu/prev.html?k=<%=menu._id%>" tabindex="107" class="btn btn-primary nav-to" title="<%=i18n.titSiguiente%>"><i class="fas fa-angle-left"></i></a>
-			<a href="/menu/next.html?k=<%=menu._id%>" tabindex="108" class="btn btn-primary nav-to" title="<%=i18n.titAnterior%>"><i class="fas fa-angle-right"></i></a>
+			<a href="/menu/prev.html?k=<%=menu.id%>" tabindex="107" class="btn btn-primary nav-to" title="<%=i18n.titSiguiente%>"><i class="fas fa-angle-left"></i></a>
+			<a href="/menu/next.html?k=<%=menu.id%>" tabindex="108" class="btn btn-primary nav-to" title="<%=i18n.titAnterior%>"><i class="fas fa-angle-right"></i></a>
 			<a href="/menu/last.html" tabindex="109" class="btn btn-primary nav-to" title="<%=i18n.titUltimo%>"><i class="fas fa-angle-double-right"></i></a>
 		<% } %>
 	</form>

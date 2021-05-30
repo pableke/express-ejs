@@ -5,14 +5,14 @@
 
 	<form id="contact" action="/contact.html" method="post" class="ajax">
 		<div class="input-group">
-			<label for="nombre" class="required">Name:</label>
-			<input type="text" id="nombre" name="nombre" value="" size="20" maxlength="200" class="input-item input-control" tabindex="1" title="User name" placeholder="Joe" />
+			<label for="nm" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nm" name="nm" value="" size="20" maxlength="200" class="input-item input-control" tabindex="1" title="User name" placeholder="Joe" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nombre%></span>
+			<span class="msg-error"><%=msgs.nm%></span>
 		</div>
 
 		<div class="input-group">
-			<label for="correo" class="required">E-Mail</label>
+			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
 			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
 			<i class="input-item input-icon far fa-envelope"></i>
 			<div class="msg-error"><%=msgs.correo%></div>
