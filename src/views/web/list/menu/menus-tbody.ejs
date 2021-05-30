@@ -7,12 +7,12 @@
 	<% body.rows.forEach(function(menu, i) { %>
 		<tr class="data">
 			<td><%=i+1%></td>
-			<td class="tc"><i class="<%=menu.icon%>"></i></td>
+			<td class="tc"><i class="<%=menu.ico%>"></i></td>
 			<td>
-				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nombre%></a>
+				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nm%></a>
 			</td>
 			<td>
-				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nombre_en%></a>
+				<a href="/menu/view.html?k=<%=menu._id%>"><%=menu.nm_en%></a>
 			</td>
 			<td><i class="<%=menu.pi%>"></i> <a href="/menu/view.html?k=<%=menu.padre%>"><%=i18n.get(menu, "pn")%></a></td>
 			<td class="tr"><%=menu.orden%></td>

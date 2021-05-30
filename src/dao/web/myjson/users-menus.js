@@ -1,6 +1,9 @@
 
 // Menus DAO
-module.exports = function(table, users, menus) {
+module.exports = function(table) {
+	let users = table.db().get("users");
+	let menus = table.db().get("menus");
+
 	table.onLoad = function(data) {
 		data.each(um => { um.alta = new Date(um.alta); });
 	}

@@ -3,6 +3,7 @@
 module.exports = function(table) {
 	const _parents = [];
 	const _submenus = [];
+
 	let _publicMenus = [];
 
 	function hasParent(menu) { return menu && menu.padre; }
@@ -61,9 +62,9 @@ module.exports = function(table) {
 
 	table.loadParent = function(menu, padre) {
 		setParent(padre); //update mask
-		menu.pn = padre.nombre;
-		menu.pn_en = padre.nombre_en;
-		menu.pi = padre.icon;
+		menu.pn = padre.nm;
+		menu.pn_en = padre.nm_en;
+		menu.pi = padre.ico;
 		return table;
 	}
 	table.unloadParent = function(menu) {
@@ -86,13 +87,13 @@ module.exports = function(table) {
 		return table.save(row, menu).setFinal(id).commit();
 	}
 	table.deleteMenu = function(id) {
+		let um = table.db().get("um");
 		let menu = table.findById(id);
 		table.getSubmenus(menu).forEach(table.extractItem);
 		return table.extractItem(menu).setFinal(menu.padre).commit(); //implicit commit
 	}
 
 	// mask: bit0=public, bit1=visible, bit2=activo, bit3=has children
-	return table.setField("padre").setField("href").setField("icon")
-				.setField("nombre").setField("nombre_en")
-				.setField("orden").setField("mask").setField("alta");
+	return table.setField("nm").setField("nm_en").setField("padre").setField("href")
+				.setField("ico").setField("orden").setField("mask").setField("alta");
 }

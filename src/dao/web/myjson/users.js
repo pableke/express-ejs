@@ -56,6 +56,6 @@ module.exports = function(table) {
 		return table.insert(cryptPass(user, user.clave));
 	}
 
-	return table.setField("nif").setField("nombre").setField("ap1").setField("ap2")
+	return table.setField("nif").setField("nm").setField("ap1").setField("ap2")
 				.setField("correo").setField("clave").setField("mask").setField("alta");
 }

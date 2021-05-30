@@ -6,13 +6,9 @@ const users = require("./users.js");
 const um = require("./users-menus.js");
 
 const db = myjson.setPath(path.join(__dirname, "../../../dbs")).buildDB("company");
-const tblMenus = menus(db.buildTable("menus"));
-const tblUsers = users(db.buildTable("users"));
-const tblUm = um(db.buildTable("um"), tblUsers, tblMenus);
-
-exports.menus = tblMenus;
-exports.users = tblUsers;
-exports.um = tblUm;
+exports.menus = menus(db.buildTable("menus"));
+exports.users = users(db.buildTable("users"));
+exports.um = um(db.buildTable("um"));
 
 exports.open = function() {
 	myjson.load();

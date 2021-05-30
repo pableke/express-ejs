@@ -46,7 +46,7 @@ js.ready(function() {
 		function fnUpdateIcon(el, value) { return !js.setClass(js.next(el, "i"), value); }
 		js.autocomplete({
 			inputs: js.filter(inputs, ".ac-user"), action: "/user/find.html",
-			render: function(item) { return item.nif + " - " + (item.nombre + " " + item.ap1 + " " + item.ap2).trim(); },
+			render: function(item) { return item.nif + " - " + (item.nm + " " + item.ap1 + " " + item.ap2).trim(); },
 			load: function(item, el, ids) { js.val(el, this.render(item)).val(ids, item.nif); }
 		}).autocomplete({
 			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/find.html",
@@ -55,8 +55,8 @@ js.ready(function() {
 				return fnUpdateIcon(this, "input-item input-icon " + (icon || "fas fa-arrow-alt-circle-up"));
 			},
 			remove: function(el) { fnUpdateIcon(el, "input-item input-icon fas fa-arrow-alt-circle-up"); },
-			render: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nombre"); },
-			load: function(item, el, ids) { js.val(el, msgs.get(item, "nombre")).val(ids, item._id); }
+			render: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nm"); },
+			load: function(item, el, ids) { js.val(el, msgs.get(item, "nm")).val(ids, item.id); }
 		});
 
 		js.click(js.filter(inputs, "[type=reset]"), () => {

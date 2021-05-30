@@ -66,7 +66,7 @@ function Collection(db, pathname) {
 	}
 	this.duplicate = function(row) {
 		let item = self.clone(row);
-		delete item._id;
+		delete item.id;
 		return item;
 	}
 
@@ -83,11 +83,11 @@ function Collection(db, pathname) {
 	this.getAll = function() { return table.data; }
 	this.findAll = function() { return table.data; }
 	this.find = function(cb) { return table.data.find(cb); }
-	this.findIndex = function(id) { return id ? table.data.findIndex(row => (row._id == id)) : -1; }
-	this.getById = function(id) { return self.find(row => (row._id == id)); }
+	this.findIndex = function(id) { return id ? table.data.findIndex(row => (row.id == id)) : -1; }
+	this.getById = function(id) { return self.find(row => (row.id == id)); }
 	this.findById = function(id) { return self.getById(id); }
 	this.filter = function(cb) { return table.data.filter(cb); }
-	this.filterById = function(id) { return self.filter(row => (row._id == id)); }
+	this.filterById = function(id) { return self.filter(row => (row.id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.sort = function(cmp) { table.data.sort(cmp); return self; }
 
@@ -143,7 +143,7 @@ function Collection(db, pathname) {
 
 	this.push = function(item) {
 		delete table.sort;
-		item._id = table.seq++;
+		item.id = table.seq++;
 		table.data.push(item);
 		return self;
 	}
@@ -161,11 +161,11 @@ function Collection(db, pathname) {
 		return updates ? self.commit() : self;
 	}
 	this.updateItem = function(item) {
-		let row = self.getById(item._id); //search row
+		let row = self.getById(item.id); //search row
 		return row ? self.set(row, item).commit() : self;
 	}
 	this.save = function(item, data) {
-		return item._id ? self.set(item, data) : self.push(item);
+		return item.id ? self.set(item, data) : self.push(item);
 	}
 
 	this.delete = function(cb) {
@@ -188,7 +188,7 @@ function Collection(db, pathname) {
 		return self.extract(self.findIndex(id));
 	}
 	this.extractItem = function(item) {
-		return self.extractById(item._id);
+		return self.extractById(item.id);
 	}
 	this.deleteByIndex = function(i) {
 		return self.extract(i).commit();
@@ -197,7 +197,7 @@ function Collection(db, pathname) {
 		return self.deleteByIndex(self.findIndex(id));
 	}
 	this.deleteItem = function(item) {
-		return self.deleteById(item._id);
+		return self.deleteById(item.id);
 	}
 }
 
