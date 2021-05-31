@@ -58,21 +58,17 @@ exports.unlink = function(req, res, next) {
 	fnGoUsers(req, res);
 }
 
-function fnView(res, menu, err) {
-	res.locals.msgs.msgError = err;
-	res.locals.menu = menu;
-	res.build(TPL_FORM);
-}
 exports.view = function(req, res, next) {
 	let id = req.query.k; // create or update
-	fnView(res, id ? dao.web.myjson.menus.getById(id) : { alta: new Date() });
+	res.locals.menu = id ? dao.web.myjson.menus.getById(+id) : { alta: new Date() };
+	res.build(TPL_FORM);
 }
 
 /* Navegation */
 function fnNavTo(req, res, next) {
 	let id = +req.query.k;
 	let menus = fnLoadList(req, res, next);
-	menus.i = menus.i ?? menus.rows.findIndex(row => (rownm.id == id));
+	menus.i = menus.i ?? menus.rows.findIndex(row => (row.id == id));
 	return menus;
 }
 function fnSendMenu(res, menu) {
@@ -119,7 +115,7 @@ exports.duplicate = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	dao.web.myjson.menus.saveMenu(req.data, i18n);
 	res.locals.msgs.msgOk = i18n.msgGuardarOk;
-	delete req.datanm.id;
+	delete req.data.id;
 	fnSendMenu(res, req.data);
 }
 

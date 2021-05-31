@@ -1,10 +1,9 @@
 
-//npm remove gulp gulp-util gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
-//npm install -D gulp gulp-util gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const gulp = require("gulp");
-const gutil = require("gulp-util");
 const htmlmin = require("gulp-htmlmin");
 const minifyejs = require("gulp-minify-ejs");
 const uglify = require('gulp-uglify');

@@ -75,9 +75,8 @@ exports.home = function(req, res) {
 }
 
 exports.logout = function(req, res) {
-	res.locals.msgs.msgOk = res.locals.i18n.msgLogout;
 	fnLogout(req); //click logout user
-	res.build(TPL_LOGIN);
+	res.buildOk(TPL_LOGIN, res.locals.i18n.msgLogout);
 }
 
 exports.destroy = function(req, res) {

@@ -38,31 +38,26 @@ app.use(session({ //session config
 		maxAge: 60*60*1000 //1h
 	}
 }));
+
 // Routes
 app.use((req, res, next) => {
 	// Initialize response helpers
 	res.locals.msgs = {}; //init messages
 	res.locals._tplBody = "web/index"; //default body
-	res.setBody = function(tpl) { //set body template
-		res.locals._tplBody = tpl; //tpl body path
-		return res;
-	}
-	res.build = function(tpl) {
-		//set tpl body path and render index
-		return res.setBody(tpl).render("index");
-	}
-	res.on("finish", function() {
-		// reset messages and view
-		valid.clear(res.locals.msgs);
-		valid.clear(res.locals);
-	});
+	res.setOk = function(msg) { res.locals.msgs.msgOk = msg; return res; } //set msg ok
+	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
+	res.jsonMsgs = function(msg) { res.setOk(msg).json(res.locals.msgs); } //send msgs + ok as json
+	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
+	res.buildOk = function(tpl, msg) { res.setOk(msg).build(tpl); } //build + msg ok
+	res.buildErr = function(tpl, msg) { res.locals.msgs.msgError = msg; res.build(tpl); } //build + msg err
+	res.on("finish", function() { valid.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
 	if (err.stack && err.message && (typeof(err.message) === "string"))
-		err = err.message; // Is Exception Error Type => send message only
+		err = err.message; // Is Exception Error Type => response message only
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		return valid.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
 

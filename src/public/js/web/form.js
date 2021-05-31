@@ -12,7 +12,7 @@ js.ready(function() {
 			js.click(js.getAll(".captcha"), (el, ev) => {
 				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
 					.then(token => valid.setInput("token", token).submit(el.closest("form"), ev))
-					.catch(showError);
+					.catch(js.showError);
 				ev.preventDefault();
 			});
 		});

@@ -9,7 +9,7 @@ const reactive = require("app/controllers/web/public/reactive.js");
 const singup = require("app/controllers/web/public/signup.js");
 
 router.get("/contact.html", contact.view).get("/contacto.html", contact.view);
-router.post("/contact.html", contact.send).post("/contacto.html", contact.send);
+router.post("/contact.html", ctrl.post, contact.send).post("/contacto.html", ctrl.post, contact.send);
 
 router.get("/logout.html", login.logout).get("/signout.html", login.logout);
 router.get("/session/destroy.html", login.destroy).get("/session/unload.html", login.destroy);
