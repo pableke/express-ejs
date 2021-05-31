@@ -11,7 +11,7 @@ exports.save = function(req, res, next) {
 	try {
 		req.data.alta = new Date(); //set insert date time
 		dao.web.myjson.users.insertUser(req.data, i18n);
-		res.jsonMsgs(i18n.msgUsuario);
+		res.setOk(i18n.msgUsuario).msgs();
 	} catch(ex) {
 		next(ex);
 	}

@@ -34,8 +34,7 @@ function fnLoadTbody(req, res, next) {
 	ejs.renderFile(tpl, res.locals, (err, result) => {
 		if (err) // check error
 			return next(err);
-		res.locals.msgs.html = result; // add result
-		res.json(res.locals.msgs); //ajax response
+		res.setMsg("html", result).msgs(); //ajax response
 	});
 }
 

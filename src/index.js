@@ -44,12 +44,12 @@ app.use((req, res, next) => {
 	// Initialize response helpers
 	res.locals.msgs = {}; //init messages
 	res.locals._tplBody = "web/index"; //default body
-	res.setOk = function(msg) { res.locals.msgs.msgOk = msg; return res; } //set msg ok
+	res.msgs = function() { res.json(res.locals.msgs); } //send msgs as json
+	res.setMsg = function(name, msg) { res.locals.msgs[name] = msg; return res; } //set msg ok
+	res.setOk = function(msg) { return res.setMsg("msgOk", msg); } //set msg ok
+	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
-	res.jsonMsgs = function(msg) { res.setOk(msg).json(res.locals.msgs); } //send msgs + ok as json
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
-	res.buildOk = function(tpl, msg) { res.setOk(msg).build(tpl); } //build + msg ok
-	res.buildErr = function(tpl, msg) { res.locals.msgs.msgError = msg; res.build(tpl); } //build + msg err
 	res.on("finish", function() { valid.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
 	next(); //go next middleware
 });
