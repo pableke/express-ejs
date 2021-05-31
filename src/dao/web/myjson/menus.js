@@ -12,9 +12,9 @@ module.exports = function(table) {
 	function setParent(menu) { menu.mask |= 8; return table; }
 	function fnSetFinal(menu) { menu.mask &= ~8; return table; }
 
-	table.onLoad = function() {
-		table.each(menu => { menu.alta = new Date(menu.alta); });
-		_publicMenus = table.filter(isPublic);
+	table.onLoad = function(menus) {
+		menus.each(menu => { menu.alta = new Date(menu.alta); });
+		_publicMenus = menus.filter(isPublic);
 	}
 	table.onCommit = function() {
 		_publicMenus = table.filter(isPublic);
@@ -25,7 +25,7 @@ module.exports = function(table) {
 
 	function addSubmenus(menu) {
 		table.each(submenu => {
-			if (submenu.padre == menu._id) {
+			if (submenu.padre == menu.id) {
 				_submenus.push(submenu);
 				addSubmenus(submenu);
 			}
@@ -77,7 +77,7 @@ module.exports = function(table) {
 		return (id && !table.getChildren(id).length) ? fnSetFinal(table.getById(id)) : table;
 	}
 	table.saveMenu = function(menu, msgs) {
-		let row = table.getById(menu._id) || menu;
+		let row = table.getById(menu.id) || menu;
 		let padre = table.getParent(menu);
 		if (padre)
 			table.loadParent(row, padre);

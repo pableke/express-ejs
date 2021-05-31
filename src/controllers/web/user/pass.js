@@ -1,14 +1,5 @@
 
 const dao = require("app/dao/factory.js");
-const valid = require("app/lib/validator-box.js")
-
-const FORM = {
-	oldPass: valid.min8,
-	clave: valid.min8,
-	reclave: valid.reclave
-};
-valid.setForm("/user/pass.html", FORM)
-	.setForm("/user/password.html", FORM);
 
 exports.view = function(req, res, next) {
 	res.build("web/forms/user/pass");
@@ -16,12 +7,14 @@ exports.view = function(req, res, next) {
 
 exports.save = function(req, res, next) {
 	let user = req.session.user;
-	if (dao.web.myjson.users.updateNewPass(user._id, req.body.oldPass, req.body.clave, res.locals.i18n)) {
-		valid.setMsgOk(res.locals.i18n.msgUpdateOk);
-		res.build("web/list/index");
+	try {
+		let i18n = res.locals.i18n;
+		let { oldPass, clave } = req.body;
+		dao.web.myjson.users.updateNewPass(user.id, oldPass, clave, i18n);
+		res.buildOk("web/list/index", i18n.msgUpdateOk);
+	} catch (ex) {
+		next(ex);
 	}
-	else
-		next(valid.getMsgError());
 }
 
 exports.error = function(err, req, res, next) {

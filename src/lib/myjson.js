@@ -22,18 +22,16 @@ function Collection(db, pathname) {
 	this.onCommit = fnVoid;
 
 	this.load = function() {
-		return new Promise(function(resolve, reject) {
-			fs.readFile(pathname, "utf-8", (err, data) => {
-				if (err)
-					return reject(fnLogError(err));
-				let aux = data ? JSON.parse(data) : table; //parse json
-				//only load data not structure (fields)
-				table.seq = aux.seq || table.seq;
-				table.data = aux.data || table.data;
-				self.onLoad(self);
-				resolve(self);
-			});
+		fs.readFile(pathname, "utf-8", (err, data) => {
+			if (err)
+				return fnLogError(err);
+			let aux = data ? JSON.parse(data) : table; //parse json
+			//only load data not structure (fields)
+			table.seq = aux.seq || table.seq;
+			table.data = aux.data || table.data;
+			self.onLoad(self);
 		});
+		return self;
 	}
 	this.commit = function() {
 		self.onCommit(self);

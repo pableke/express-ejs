@@ -8,13 +8,13 @@ valid.setForm("/login.html", {
 	usuario: valid.usuario,
 	clave: valid.clave
 }).setForm("/contact.html", {
-	nombre: valid.required,
+	nm: valid.required,
 	correo: valid.correo,
 	asunto: valid.required,
 	info: valid.required
 }).setForm("/signup.html", {
 	token: valid.token,
-	nombre: valid.required,
+	nm: valid.required,
 	ap1: valid.required,
 	nif: valid.nif,
 	correo: valid.correo
@@ -29,7 +29,7 @@ valid.setForm("/user/pass.html", {
 	clave: valid.min8,
 	reclave: valid.reclave
 }).setForm("/user/profile.html", {
-	nombre: valid.required,
+	nm: valid.required,
 	ap1: valid.required,
 	ap2: valid.max200, //optional
 	nif: valid.nif,
@@ -38,13 +38,13 @@ valid.setForm("/user/pass.html", {
 
 // Menu validators
 const MENU_SAVE = {
-	_id: valid.key,
-	icon: valid.max50,
-	nombre: valid.required,
-	nombre_en: valid.max200,
+	id: valid.key,
+	ico: valid.max50,
+	nm: valid.required,
+	nm_en: valid.max200,
 	pn: valid.max200,
 	padre: function(name, value, msgs) {
-		let id = valid.getData("_id");
+		let id = valid.getData("id");
 		let padre = msgs.toInt(value);
 		if (sb.isset(id) && sb.isset(padre) && (id == padre))
 			valid.setError("pn", msgs.errRefCircular);
