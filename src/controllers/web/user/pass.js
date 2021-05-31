@@ -11,7 +11,7 @@ exports.save = function(req, res, next) {
 		let i18n = res.locals.i18n;
 		let { oldPass, clave } = req.body;
 		dao.web.myjson.users.updateNewPass(user.id, oldPass, clave, i18n);
-		res.buildOk("web/list/index", i18n.msgUpdateOk);
+		res.setOk(i18n.msgUpdateOk).build("web/list/index");
 	} catch (ex) {
 		next(ex);
 	}

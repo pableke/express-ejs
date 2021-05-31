@@ -13,7 +13,7 @@ exports.send = function(req, res, next) {
 		subject: i18n.lblFormContact,
 		tpl: "web/emails/contact.ejs",
 		data: res.locals
-	}).then(info => res.jsonMsgs(i18n.msgCorreo))
+	}).then(info => res.setOk(i18n.msgCorreo).msgs())
 		.catch(err => next(i18n.errSendMail));
 }
 

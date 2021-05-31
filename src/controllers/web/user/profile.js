@@ -20,7 +20,7 @@ exports.save = function(req, res, next) {
 	user.alta = req.data.alta;
 
 	dao.web.myjson.users.save(user);
-	res.buildOk("web/list/index", i18n.msgUpdateOk);
+	res.setOk(i18n.msgUpdateOk).build("web/list/index");
 }
 
 exports.error = function(err, req, res, next) {

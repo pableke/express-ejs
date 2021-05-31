@@ -76,7 +76,7 @@ exports.home = function(req, res) {
 
 exports.logout = function(req, res) {
 	fnLogout(req); //click logout user
-	res.buildOk(TPL_LOGIN, res.locals.i18n.msgLogout);
+	res.setOk(res.locals.i18n.msgLogout).build(TPL_LOGIN);
 }
 
 exports.destroy = function(req, res) {
