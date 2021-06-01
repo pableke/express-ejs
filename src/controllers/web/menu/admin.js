@@ -53,7 +53,8 @@ exports.unlink = function(req, res, next) {
 
 exports.view = function(req, res, next) {
 	let id = req.query.k; // create or update
-	res.locals.menu = id ? dao.web.myjson.menus.getById(+id) : { alta: new Date() };
+	res.locals.menu = id && dao.web.myjson.menus.getById(+id);
+	res.locals.menu = res.locals.menu || { alta: new Date() };
 	res.build(TPL_FORM);
 }
 
@@ -103,10 +104,9 @@ exports.save = function(req, res, next) {
 }
 exports.duplicate = function(req, res, next) {
 	let i18n = res.locals.i18n;
-	dao.web.myjson.menus.saveMenu(req.data, i18n);
-	res.locals.msgs.msgOk = i18n.msgGuardarOk;
-	delete req.data.id;
-	fnSendMenu(res, req.data);
+	dao.web.myjson.menus.saveMenu(req.data, i18n); //insert/update
+	delete req.data.id; //force insert on next request
+	res.add(req.data).setOk(i18n.msgGuardarOk).msgs();
 }
 
 exports.delete = function(req, res, next) {
