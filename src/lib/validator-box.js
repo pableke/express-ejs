@@ -14,6 +14,10 @@ function ValidatorBox() {
 	let inputs = {}; //inputs container
 	let errors = 0; //counter
 
+	//HTML special chars
+	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
+	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
+
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
@@ -40,6 +44,10 @@ function ValidatorBox() {
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
+
+	function fnEscape(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
+	this.unescape = function(str) { return str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)); }
+	this.escape = fnEscape;
 
 	// Boolean helpers function
 	this.size = function(value, min, max) { return fnRange(fnSize(value), min, max); } // min/max string/array length
@@ -308,7 +316,8 @@ function ValidatorBox() {
 		let validators = self.clear(MSGS).getForm(form);
 		for (let field in validators) {
 			let fn = validators[field]; //validator to apply
-			data[field] = fn(field, inputs[field], i18n);
+			// Only escape inputs on server not on client
+			data[field] = fn(field, fnEscape(inputs[field]), i18n);
 		}
 		// Form must be registered
 		return validators && (errors == 0);
