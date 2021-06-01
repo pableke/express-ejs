@@ -1,5 +1,4 @@
 
-const ejs = require("ejs"); //tpl engine
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js");
 const sb = require("app/lib/string-box.js");
@@ -30,12 +29,7 @@ function fnGoList(req, res, next) {
 }
 function fnLoadTbody(req, res, next) {
 	fnLoadList(req, res, next); // reload list
-	let tpl = req.app.get("views") + "/web/list/menu/menus-tbody.ejs";
-	ejs.renderFile(tpl, res.locals, (err, result) => {
-		if (err) // check error
-			return next(err);
-		res.setMsg("html", result).msgs(); //ajax response
-	});
+	res.setBody("/web/list/menu/menus-tbody.ejs").html();
 }
 
 exports.list = fnGoList;
@@ -70,9 +64,6 @@ function fnNavTo(req, res, next) {
 	menus.i = menus.i ?? menus.rows.findIndex(row => (row.id == id));
 	return menus;
 }
-function fnSendMenu(res, menu) {
-	res.json(Object.assign(menu, res.locals.msgs));
-}
 exports.find = function(req, res, next) {
 	let term = req.query.term;
 	let i18n = res.locals.i18n;
@@ -83,25 +74,25 @@ exports.first = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, 0);
 	req.session.list.menu.i = 0; //save in session
-	fnSendMenu(res, menu);
+	res.add(menu).msgs();
 }
 exports.prev = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, --menus.i);
 	req.session.list.menu.i = menus.i; //save in session
-	fnSendMenu(res, menu);
+	res.add(menu).msgs();
 }
 exports.next = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, ++menus.i);
 	req.session.list.menu.i = menus.i; //save in session
-	fnSendMenu(res, menu);
+	res.add(menu).msgs();
 }
 exports.last = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, menus.rows.length);
 	req.session.list.menu.i = menus.i; //save in session
-	fnSendMenu(res, menu);
+	res.add(menu).msgs();
 }
 
 exports.save = function(req, res, next) {

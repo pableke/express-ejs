@@ -4,6 +4,7 @@ module.exports = function(table) {
 	const _parents = [];
 	const _submenus = [];
 
+	let um = table.db().get("um");
 	let _publicMenus = [];
 
 	function hasParent(menu) { return menu && menu.padre; }
