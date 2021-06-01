@@ -2,14 +2,10 @@
 //String Box extensions
 function StringBox() {
 	const self = this; //self instance
-	//const ZEROS = "0000000000";
+	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
+	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
 	const TR1 = "àáâãäåāăąÀÁÂÃÄÅĀĂĄÆßèéêëēĕėęěÈÉĒĔĖĘĚìíîïìĩīĭÌÍÎÏÌĨĪĬòóôõöōŏőøÒÓÔÕÖŌŎŐØùúûüũūŭůÙÚÛÜŨŪŬŮçÇñÑþÐŔŕÿÝ";
 	const TR2 = "aaaaaaaaaAAAAAAAAAABeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIoooooooooOOOOOOOOOuuuuuuuuUUUUUUUUcCnNdDRryY";
-	/*const B64 = {
-		xls: "data:application/vnd.ms-excel;base64,",
-		pdf: "data:application/pdf;base64,",
-		txt: "data:text/plain;base64,"
-	}*/
 
 	//helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
@@ -46,6 +42,9 @@ function StringBox() {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
 		return self.trunc(str, (i < 0) ? size : i);
 	}
+
+	this.escape = function(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
+	this.unescape = function(str) { return str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)); }
 
 	this.removeAt = function(str, i, n) { return (i < 0) ? str : (str.substr(0, i) + str.substr(i + n)); }
 	this.insertAt = function(str1, str2, i) { return str1 ? (str1.substr(0, i) + str2 + str1.substr(i)) : str2; }
