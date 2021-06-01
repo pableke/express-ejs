@@ -7,6 +7,7 @@ const path = require("path"); //file and directory paths
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
 const uuid = require("uuid"); //generate random ids
+const ejs = require("ejs"); //tpl engine
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
@@ -19,8 +20,9 @@ const valid = require("app/lib/validator-box.js"); //validators
 };*/
 
 // Template engines
+const VIEWS = path.join(__dirname, "views");
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", VIEWS);
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -45,12 +47,19 @@ app.use((req, res, next) => {
 	res.locals.msgs = {}; //init messages
 	res.locals._tplBody = "web/index"; //default body
 	res.msgs = function() { res.json(res.locals.msgs); } //send msgs as json
-	res.setMsg = function(name, msg) { res.locals.msgs[name] = msg; return res; } //set msg ok
-	res.setOk = function(msg) { return res.setMsg("msgOk", msg); } //set msg ok
-	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err
+	res.msg = function(name, msg) { res.locals.msgs[name] = msg; return res; } //set msg ok
+	res.add = function(data) { Object.assign(res.locals.msgs, data); return res; } //add object data
+	res.setOk = function(msg) { return res.msg("msgOk", msg); } //set msg ok
+	res.setError = function(msg) { return res.msg("msgError", msg); } //set msg err
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.on("finish", function() { valid.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
+	res.html = function() {
+		let tpl = path.join(VIEWS, res.locals._tplBody);
+		ejs.renderFile(tpl, res.locals, (err, result) => {
+			err ? next(err) : res.msg("html", result).msgs(); //response = html + msgs
+		});
+	}
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
