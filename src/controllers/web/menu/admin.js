@@ -16,12 +16,11 @@ function fnLoadList(req, res, next) {
 		return sb.ilike(menu.nm, fn) && sb.between(menu.orden, o1, o2) && sb.between(menu.alta, f1, f2);
 	}
 
-	let body = Object.assign(valid.getData(), list); //prepare view
 	if (!valid.isEmpty({ fn, o1, o2, f1, f2 })) //has filter?
-		body.rows = dao.web.myjson.menus.filter(fnFilter);
-	body.size = dao.web.myjson.menus.sortBy(body).pagination(body).size();
-	res.locals.body = body;
-	return body;
+		list.rows = dao.web.myjson.menus.filter(fnFilter);
+	list.size = dao.web.myjson.menus.sortBy(list).pagination(list).size();
+	res.locals.body = list;
+	return list;
 }
 function fnGoList(req, res, next) {
 	fnLoadList(req, res, next);

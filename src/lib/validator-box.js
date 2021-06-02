@@ -215,6 +215,10 @@ function ValidatorBox() {
 	this.isObject = function(obj) {
 		return obj && (typeof(obj) === "object");
 	}
+	this.eq = function(obj1, obj2, keys) {
+		keys = keys || Object.keys(obj2);
+		return keys.every(k => (obj1[k] == obj2[k]));
+	}
 	this.isEmpty = function(obj) {
 		for (let k in obj) {
 			if (isset(obj[k]))
