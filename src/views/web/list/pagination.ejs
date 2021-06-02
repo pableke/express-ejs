@@ -1,6 +1,6 @@
 
 <div class="pagination">
-	<select value="<%=body.size%>" class="input-item">
+	<select value="<%=body.psize%>" class="input-item">
 		<option value="20">20</option>
 		<option value="40">40</option>
 		<option value="80">80</option>
@@ -8,16 +8,16 @@
 	</select>
 
 	<% if (body.page > 0) { %>
-		<a href="?page=0&size=<%=body.size%>">&laquo;</a>
+		<a href="?page=0&psize=<%=body.psize%>">&laquo;</a>
 	<% } %>
 	<% for (let i = body.start; i <= body.end; i++) { %>
 		<% if (body.page == i) { %>
 			<a href="#" class="active"><%=(i+1)%></a>
 		<% } else { %>
-			<a href="?page=<%=i%>&size=<%=body.size%>"><%=(i+1)%></a>
+			<a href="?page=<%=i%>&psize=<%=body.psize%>"><%=(i+1)%></a>
 		<% } %>
 	<% } %>
 	<% if (body.page < body.pages) { %>
-		<a href="?page=<%=body.pages%>&size=<%=body.size%>">&raquo;</a>
+		<a href="?page=<%=body.pages%>&psize=<%=body.psize%>">&raquo;</a>
 	<% } %>
 </div>

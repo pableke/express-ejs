@@ -30,8 +30,17 @@ body {
 .simple { background-color: transparent; border-color: transparent; text-decoration: none; color: inherit; }
 .simple:hover { text-decoration: none; color: inherit; }
 .logo { font-size: large; padding: 3px; }
+
+/* Table icons/actions */
 .icon {  }
-.icon:hover { text-shadow: 2px 2px 1px silver; }
+.icon:hover { text-shadow: 3px 3px 1px silver; }
+.icon-primary { color: blue; }
+.icon-light { color: #818182; }
+.icon-success { color: #28a745; }
+.icon-info { color: #0c5460; }
+.icon-warn { color: #b18708; }
+.icon-error { color: #C24200; }
+.icon-danger { color: #721c24; }
 
 /* text modificators */
 .text-block {
@@ -66,10 +75,10 @@ body {
 .alert-secondary { color: #383d41; background-color: #e2e3e5; border-color: #d6d8db; }
 .alert-light { color: #818182; background-color: #fefefe; border-color: #fdfdfe; }
 .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+.alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+.alert-warn { color: #b18708; background-color: #fff3cd; border-color: #f1db9e; }
 .alert-error { color: #C24200; background-color: rgba(194,66,0,0.1); border-color: rgba(194,66,0,0.2); }
 .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
-.alert-warn { color: #b18708; background-color: #fff3cd; border-color: #f1db9e; }
-.alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
 .alert-dark { color: #1b1e21; background-color: #d6d8d9; border-color: #aeaeb1; }
 /* Alerts */
 

@@ -9,7 +9,8 @@ js.ready(function() {
 		function fnRemove(el, ev) {
 			confirm(msgs.remove) && js.ajax(el.href, data => {
 				tbody.innerHTML = data.html; //load new data
-				js.text(js.get("#rows", table.tfoot), tbody.children.length);
+				js.text(js.get("#rows", table.tfoot), tbody.children.length)
+					.text(js.get("#size", table.tfoot), data.size);
 				js.showAlerts(data);
 			});
 			ev.preventDefault();
@@ -33,7 +34,7 @@ js.ready(function() {
 	js.getAll(".pagination").forEach(pag => {
 		let list = js.getAll("select", pag);
 		js.val(list).change(list, (el) => {
-			window.location.href = js.buildPath("page=0&size=" + el.value);
+			window.location.href = js.buildPath("page=0&psize=" + el.value);
 		});
 	});
 });

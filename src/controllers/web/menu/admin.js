@@ -19,7 +19,7 @@ function fnLoadList(req, res, next) {
 	let body = Object.assign(valid.getData(), list); //prepare view
 	if (!valid.isEmpty({ fn, o1, o2, f1, f2 })) //has filter?
 		body.rows = dao.web.myjson.menus.filter(fnFilter);
-	dao.web.myjson.menus.sortBy(body).pagination(body);
+	body.size = dao.web.myjson.menus.sortBy(body).pagination(body).size();
 	res.locals.body = body;
 	return body;
 }
@@ -28,8 +28,8 @@ function fnGoList(req, res, next) {
 	res.build(TPL_LIST);
 }
 function fnLoadTbody(req, res, next) {
-	fnLoadList(req, res, next); // reload list
-	res.setBody("/web/list/menu/menus-tbody.ejs").html();
+	let list = fnLoadList(req, res, next); // reload list
+	res.setBody("/web/list/menu/menus-tbody.ejs").setMsg("size", list.size).html();
 }
 
 exports.list = fnGoList;
@@ -75,25 +75,25 @@ exports.first = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, 0);
 	req.session.list.menu.i = 0; //save in session
-	res.add(menu).msgs();
+	res.addMsgs(menu).msgs();
 }
 exports.prev = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, --menus.i);
 	req.session.list.menu.i = menus.i; //save in session
-	res.add(menu).msgs();
+	res.addMsgs(menu).msgs();
 }
 exports.next = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, ++menus.i);
 	req.session.list.menu.i = menus.i; //save in session
-	res.add(menu).msgs();
+	res.addMsgs(menu).msgs();
 }
 exports.last = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, menus.rows.length);
 	req.session.list.menu.i = menus.i; //save in session
-	res.add(menu).msgs();
+	res.addMsgs(menu).msgs();
 }
 
 exports.save = function(req, res, next) {
@@ -106,7 +106,7 @@ exports.duplicate = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	dao.web.myjson.menus.saveMenu(req.data, i18n); //insert/update
 	delete req.data.id; //force insert on next request
-	res.add(req.data).setOk(i18n.msgGuardarOk).msgs();
+	res.addMsgs(req.data).setOk(i18n.msgGuardarOk).msgs();
 }
 
 exports.delete = function(req, res, next) {
