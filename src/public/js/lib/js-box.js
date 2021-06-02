@@ -335,4 +335,9 @@ function JsBox() {
 		return isElem(list) ? fnEvent(list, "keydown", fn) 
 							: self.each(list, el => fnEvent(el, "keydown", fn));
 	}
+	this.trigger = function(list, name) {
+		let ev = new Event(name);
+		return isElem(list) ? el.dispatchEvent(ev) 
+							: self.each(list, el => el.dispatchEvent(ev));
+	}
 }
