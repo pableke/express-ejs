@@ -59,6 +59,10 @@ js.ready(function() {
 			load: function(item, el, ids) { js.val(el, msgs.get(item, "nm")).val(ids, item.id); }
 		});
 
+		js.change(js.filter(inputs, ".update-icon"), (el) => {
+			js.setClass(el.nextElementSibling, "input-item input-icon " + (el.value || "far fa-window-close"));
+		})
+
 		js.click(js.filter(inputs, "[type=reset]"), () => {
 			//Do what you need before reset the form
 			form.reset(); //Reset manually the form
@@ -68,7 +72,9 @@ js.ready(function() {
 		}).click(js.filter(inputs, ".clear-all"), () => {
 			js.val(inputs, "").clean(inputs).each(textareas, fnCounter);
 		}).click(js.getAll("a.nav-to", form), (el, ev) => {
-			js.ajax(el.href, data => { js.load(inputs, data); });
+			js.ajax(el.href, data => {
+				js.load(inputs, data).trigger(inputs, "change");
+			});
 			ev.preventDefault();
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
 			valid.submit(form, ev, el.href, data => {
