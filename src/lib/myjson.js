@@ -119,16 +119,16 @@ function Collection(db, pathname) {
 	}
 	this.paginate = function(cfg) {
 		let rows = cfg.rows || table.data;
-		cfg.rows = rows.slice(cfg.index, cfg.index + cfg.size);
+		cfg.rows = rows.slice(cfg.index, cfg.index + cfg.psize);
 		return self;
 	}
 	this.pagination = function(cfg) {
 		cfg.page = isNaN(cfg.page) ? 0 : +cfg.page;
-		cfg.size = isNaN(cfg.size) ? 40 : +cfg.size;
-		cfg.pages = Math.floor(table.data.length / cfg.size);
+		cfg.psize = isNaN(cfg.psize) ? 40 : +cfg.psize;
+		cfg.pages = Math.floor(table.data.length / cfg.psize);
 		cfg.end = Math.min(cfg.page + 4, cfg.pages);
 		cfg.start = Math.max(cfg.end - 7, 0);
-		cfg.index = cfg.page * cfg.size;
+		cfg.index = cfg.page * cfg.psize;
 		return self.paginate(cfg);
 	}
 	this.navto = function(cfg, i) {
