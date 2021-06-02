@@ -215,6 +215,10 @@ function ValidatorBox() {
 	this.isObject = function(obj) {
 		return obj && (typeof(obj) === "object");
 	}
+	this.eq = function(obj1, obj2, keys) {
+		keys = keys || Object.keys(obj2);
+		return keys.every(k => (obj1[k] == obj2[k]));
+	}
 	this.isEmpty = function(obj) {
 		for (let k in obj) {
 			if (isset(obj[k]))
@@ -317,7 +321,7 @@ function ValidatorBox() {
 		for (let field in validators) {
 			let fn = validators[field]; //validator to apply
 			// Only escape inputs on server not on client
-			data[field] = fn(field, inputs[field], i18n);
+			data[field] = fn(field, fnEscape(inputs[field]), i18n);
 		}
 		// Form must be registered
 		return validators && (errors == 0);
