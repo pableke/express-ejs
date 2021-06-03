@@ -12,6 +12,7 @@ function ArrayBox() {
 	this.intersect = function(a1, a2) { return a2 ? a1.filter(function(e) { return (a2.indexOf(e) > -1); }) : []; }
 	this.shuffle = function(arr) { return arr.sort(function() { return 0.5 - Math.random(); }); }
 	this.unique = function(a1, a2) { return a2 ? a1.concat(a2.filter((item) => a1.indexOf(item) < 0)) : a1; }
+	this.swap = function(arr, a, b) { let aux = arr[a]; arr[a] = arr[b]; arr[b] = aux; return self; }
 	this.eq = function(a1, a2) { return a1 && a2 && a1.every((item, i) => (a2[i] == item)); }
 
 	this.push = function(arr, obj) { arr && arr.push(obj); return self; }
