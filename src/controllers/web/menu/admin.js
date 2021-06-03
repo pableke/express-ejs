@@ -1,7 +1,7 @@
 
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js");
-const sb = require("app/lib/string-box.js");
+const util = require("app/lib/util-box.js");
 
 const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
@@ -13,10 +13,10 @@ function fnLoadList(req, res, next) {
 	valid.init(list, res.locals.i18n).validate("/menu/filter.html"); // parse filter data
 	let { fn, o1, o2, f1, f2 } = valid.getData(); // declare filter data
 	function fnFilter(menu) { // menus filter function
-		return sb.ilike(menu.nm, fn) && sb.between(menu.orden, o1, o2) && sb.between(menu.alta, f1, f2);
+		return util.sb.ilike(menu.nm, fn) && util.sb.between(menu.orden, o1, o2) && util.sb.between(menu.alta, f1, f2);
 	}
 
-	if (!valid.isEmpty({ fn, o1, o2, f1, f2 })) //has filter?
+	if (!util.ob.empty({ fn, o1, o2, f1, f2 })) //has filter?
 		list.rows = dao.web.myjson.menus.filter(fnFilter);
 	list.size = dao.web.myjson.menus.sortBy(list).pagination(list).size();
 	res.locals.body = list;
@@ -67,7 +67,7 @@ function fnNavTo(req, res, next) {
 exports.find = function(req, res, next) {
 	let term = req.query.term;
 	let i18n = res.locals.i18n;
-	let fnFilter = (menu) => sb.ilike(i18n.get(menu, "nm"), term);
+	let fnFilter = (menu) => util.sb.ilike(i18n.get(menu, "nm"), term);
 	res.json(dao.web.myjson.menus.filter(fnFilter));
 }
 exports.first = function(req, res, next) {

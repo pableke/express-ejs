@@ -12,6 +12,7 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
+const util = require("app/lib/util-box.js"); //extra util
 const valid = require("app/lib/validator-box.js"); //validators
 
 /*const HTTPS = { //credentials
@@ -68,10 +69,10 @@ app.use((err, req, res, next) => { //global handler error
 	if (err.stack && err.message && (typeof(err.message) === "string"))
 		err = err.message; // Is Exception Error Type => response message only
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return valid.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
+		return util.ob.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
 
 	// Is non ajax request
-	if (valid.isObject(err))
+	if (util.ob.isObject(err))
 		res.locals.msgs = err;
 	else
 		res.locals.msgs.msgError = err;
