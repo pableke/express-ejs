@@ -68,10 +68,10 @@ app.use((err, req, res, next) => { //global handler error
 	if (err.stack && err.message && (typeof(err.message) === "string"))
 		err = err.message; // Is Exception Error Type => response message only
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return ob.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
+		return ob.isobj(err) ? res.status(500).json(err) : res.status(500).send(err);
 
 	// Is non ajax request
-	if (ob.isObject(err))
+	if (ob.isobj(err))
 		res.locals.msgs = err;
 	else
 		res.locals.msgs.msgError = err;
