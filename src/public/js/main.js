@@ -1,9 +1,5 @@
 
-// Extends config
-const js = new JsBox();
-const sb = new StringBox();
-const i18n = new I18nBox();
-
+// Extends config for DOM elements
 js.ready(function() {
 	const lang = js.getLang(); //default language
 	const msgs = i18n.setI18n(lang).getLang(); //messages container
