@@ -12,8 +12,7 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
-const util = require("app/lib/util-box.js"); //extra util
-const valid = require("app/lib/validator-box.js"); //validators
+const ob = require("app/lib/object-box.js"); //object utils
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -54,7 +53,7 @@ app.use((req, res, next) => {
 	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
-	res.on("finish", function() { valid.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
+	res.on("finish", function() { ob.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
 	res.html = function() {
 		let tpl = path.join(VIEWS, res.locals._tplBody);
 		ejs.renderFile(tpl, res.locals, (err, result) => {
@@ -69,10 +68,10 @@ app.use((err, req, res, next) => { //global handler error
 	if (err.stack && err.message && (typeof(err.message) === "string"))
 		err = err.message; // Is Exception Error Type => response message only
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return util.ob.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
+		return ob.isObject(err) ? res.status(500).json(err) : res.status(500).send(err);
 
 	// Is non ajax request
-	if (util.ob.isObject(err))
+	if (ob.isObject(err))
 		res.locals.msgs = err;
 	else
 		res.locals.msgs.msgError = err;
