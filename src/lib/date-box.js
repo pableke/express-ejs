@@ -45,23 +45,10 @@ function DateBox() {
 	this.isLeap = isLeapYear;
 	this.isValid = isDate;
 
-	function fnEnDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
-	this.enDate = function(str) { return str ? toDateTime(splitDate(str)) : null; } //parse to Date object
-	this.isoEnDate = function(date) { return isDate(date) ? fnEnDate(date) : null; } //yyyy-mm-dd
-	this.isoEnDateTime = function(date) { return isDate(date) ? (fnEnDate(date) + " " + self.isoTime(date)) : null; } //yyyy-mm-dd hh:MM:ss
-	this.fmtEnDate = function(str) { return parseable(str) ? rangeDate(splitDate(str)).map(lpad).join("-") : null; } //String to formated String
-	this.acEnDate = function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); }
-
-	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
-	this.esDate = function(str) { return str ? toDateTime(swap(splitDate(str))) : null; } //parse to Date object
-	this.isoEsDate = function(date) { return isDate(date) ? fnEsDate(date) : null; } //dd/mm/yyyy
-	this.isoEsDateTime = function(date) { return isDate(date) ? (fnEsDate(date) + " " + self.isoTime(date)) : null; } //dd/mm/yyyy hh:MM:ss
-	this.fmtEsDate = function(str) { return parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; } //String to formated String
-	this.acEsDate = function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); }
-
 	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
+	function fnIsoTime(date) { return fnMinTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
 	this.minTime = function(date) { return date ? fnMinTime(date) : null; } //hh:MM
-	this.isoTime = function(date) { return date ? (fnMinTime(date) + ":" + lpad(date.getSeconds())) : null; } //hh:MM:ss
+	this.isoTime = function(date) { return date ? fnIsoTime(date) : null; } //hh:MM:ss
 	this.acTime = function(str) { return str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY); }
 	this.toTime = function(str) {
 		let parts = str && splitDate(str); //at least hours required
@@ -78,6 +65,20 @@ function DateBox() {
 		}
 		return null;
 	}
+
+	function fnEnDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
+	this.enDate = function(str) { return str ? toDateTime(splitDate(str)) : null; } //parse to Date object
+	this.isoEnDate = function(date) { return isDate(date) ? fnEnDate(date) : null; } //yyyy-mm-dd
+	this.isoEnDateTime = function(date) { return isDate(date) ? (fnEnDate(date) + " " + fnIsoTime(date)) : null; } //yyyy-mm-dd hh:MM:ss
+	this.fmtEnDate = function(str) { return parseable(str) ? rangeDate(splitDate(str)).map(lpad).join("-") : null; } //String to formated String
+	this.acEnDate = function(str) { return str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY); }
+
+	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
+	this.esDate = function(str) { return str ? toDateTime(swap(splitDate(str))) : null; } //parse to Date object
+	this.isoEsDate = function(date) { return isDate(date) ? fnEsDate(date) : null; } //dd/mm/yyyy
+	this.isoEsDateTime = function(date) { return isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; } //dd/mm/yyyy hh:MM:ss
+	this.fmtEsDate = function(str) { return parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; } //String to formated String
+	this.acEsDate = function(str) { return str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY); }
 }
 
 module.exports = new DateBox();
