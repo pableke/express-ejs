@@ -44,7 +44,8 @@ function JsBox() {
 		opts.reject = opts.reject || fnLog;
 		opts.resolve = opts.resolve || fnLog;
 		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
-		return fetch(opts.action, opts).then(res => {
+		opts.headers["Authorization"] = "Bearer " + window.localStorage.getItem("jwt");
+		return window.fetch(opts.action, opts).then(res => {
 			let contentType = res.headers.get("content-type") || ""; //response type
 			let promise = (contentType.indexOf("application/json") > -1) ? res.json() : res.text(); //response
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200

@@ -35,8 +35,10 @@ app.use(session({ //session config
 	saveUninitialized: false,
 	genid: req => uuid.v1(), //use UUIDs for session IDs
 	secret: process.env.SESSION_SECRET,
+	name: process.env.SESSION_NAME,
 	cookie: {
 		secure: false, //require https
+		sameSite: true, //blocks CORS requests on cookies. This will affect the workflow on API calls and mobile applications
 		maxAge: 60*60*1000 //1h
 	}
 }));
