@@ -7,9 +7,10 @@ const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
 
 function fnLoadList(req, res, next) {
-	req.session.list.menu = req.session.list.menu || {};
-	// page, size (pagination), by, dir (sort) + filters
-	let list = Object.assign(req.session.list.menu, req.query);
+	// storage and load: page, size (pagination), by, dir (sort) + filters
+	req.sessionStorage.list.menu = req.sessionStorage.list.menu || {};
+	let list = Object.assign(req.sessionStorage.list.menu, req.query);
+
 	valid.init(list, res.locals.i18n).validate("/menu/filter.html"); // parse filter data
 	let { fn, o1, o2, f1, f2 } = valid.getData(); // declare filter data
 	function fnFilter(menu) { // menus filter function
@@ -36,8 +37,8 @@ exports.sort = fnLoadTbody;
 
 function fnGoUsers(req, res, next) {
 	let id = +req.query.k; // menu id
-	req.session.list.um = req.session.list.um || {};
-	let list = res.locals.body = req.session.list.um;
+	req.sessionStorage.list.um = req.sessionStorage.list.um || {};
+	let list = res.locals.body = req.sessionStorage.list.um;
 	list.rows = dao.web.myjson.um.getUsers(id);
 	dao.web.myjson.um.sortBy(list).pagination(list);
 	res.build("web/list/menu/users");
@@ -73,25 +74,25 @@ exports.find = function(req, res, next) {
 exports.first = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, 0);
-	req.session.list.menu.i = 0; //save in session
+	req.sessionStorage.list.menu.i = 0; //save in session
 	res.addMsgs(menu).msgs();
 }
 exports.prev = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, --menus.i);
-	req.session.list.menu.i = menus.i; //save in session
+	req.sessionStorage.list.menu.i = menus.i; //save in session
 	res.addMsgs(menu).msgs();
 }
 exports.next = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, ++menus.i);
-	req.session.list.menu.i = menus.i; //save in session
+	req.sessionStorage.list.menu.i = menus.i; //save in session
 	res.addMsgs(menu).msgs();
 }
 exports.last = function(req, res, next) {
 	let menus = fnNavTo(req, res, next);
 	let menu = dao.web.myjson.menus.navto(menus, menus.rows.length);
-	req.session.list.menu.i = menus.i; //save in session
+	req.sessionStorage.list.menu.i = menus.i; //save in session
 	res.addMsgs(menu).msgs();
 }
 

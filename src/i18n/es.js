@@ -314,17 +314,9 @@ module.exports = {
 	errSendValidate: "No se ha podido enviar el E-Mail de validación",
 	errSendRemember: "No se ha podido enviar el E-Mail recordatorio de su clave",
 
-	endSession: "Tiempo máximo sesión excedido",
-	err400: "¡Solicitud errónea!",
-	err401: "¡Acceso no autorizado!",
-	err403: "¡Acceso denegado/prohibido!",
-	err404: "¡Objeto no encontrado!",
-	err413: "¡Tamaño de solicitud excedido!",
-	err405: "Método no permitido",
-	err500: "¡No se puede mostrar la página!",
-	errNotExec: "Operación no ejecutable",
-	errBd: "No se ha podido conectar con la base de datos",
-	errDao: "Modelo de datos no encontrado en la BD",
-	errConexion: "Error al obtener una conexión a la BD",
+	endSession: "Tiempo máximo sesión excedido", sesNotFound: "Sesión no encontrada en el sistema",
+	err400: "¡Solicitud errónea!", err401: "¡Acceso no autorizado!", err403: "¡Acceso denegado/prohibido!",
+	err404: "¡Objeto no encontrado!", err413: "¡Tamaño de solicitud excedido!", err405: "Método no permitido", err500: "¡No se puede mostrar la página!",
+	errBd: "No se ha podido conectar con la base de datos", errDao: "Modelo de datos no encontrado en la BD", errConexion: "Error al obtener una conexión a la BD",
 	errUnknown: "Error desconocido"
 }
