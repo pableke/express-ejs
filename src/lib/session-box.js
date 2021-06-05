@@ -19,14 +19,14 @@ exports.open = function(opts) {
 	_maxage = opts.maxage || _maxage;
 	_sesInterval = opts.sessionInterval || _sesInterval;
 
-	_sesIntervalId = setInterval(function() {
+	/*_sesIntervalId = setInterval(function() {
 		let now = Date.now();
 		for (let k in SESSIONS) {
 			let session = SESSIONS[k];
 			if ((now - session.mtime) > _maxage)
 				_destroy(k);
 		}
-	}, _sesInterval);
+	}, _sesInterval);*/
 	console.log("> Sessions started.");
 	return this;
 }
@@ -44,7 +44,7 @@ exports.destroy = function(key) {
 }
 
 exports.close = function() {
-	clearInterval(_sesIntervalId);
+	//clearInterval(_sesIntervalId);
 	for (let k in SESSIONS)
 		_destroy(k);
 	console.log("> Sessions closed.");

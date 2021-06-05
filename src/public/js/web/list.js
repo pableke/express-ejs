@@ -30,11 +30,4 @@ js.ready(function() {
 	js.click(js.getAll("a.remove"), (el, ev) => {
 		confirm(msgs.remove) || ev.preventDefault();
 	});
-
-	js.getAll(".pagination").forEach(pag => {
-		let list = js.getAll("select", pag);
-		js.val(list).change(list, (el) => {
-			window.location.href = js.buildPath("page=0&psize=" + el.value);
-		});
-	});
 });

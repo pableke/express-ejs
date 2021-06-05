@@ -9,10 +9,11 @@ const pass = require("app/controllers/web/user/pass.js");
 const profile = require("app/controllers/web/user/profile.js");
 
 router.get("/", login.home).get("/index.html", login.home).get("/home.html", login.home).get("/inicio.html", login.home);
-router.get("/list.html", admin.list).get("/listar.html", admin.list)
+router.get("/users.html", admin.list).get("/list.html", admin.list).get("/listar.html", admin.list)
 router.get("/filter.html", ctrl.get, admin.list, admin.errList).get("/search.html", ctrl.get, admin.list, admin.errList)
 router.get("/filtrar.html", ctrl.get, admin.list, admin.errList).get("/buscar.html", ctrl.get, admin.list, admin.errList)
 router.get("/sort.html", admin.sort).get("/order.html", admin.sort).get("/ordenar.html", admin.sort);
+router.get("/paginate.html", admin.users).get("/pages.html", admin.users).get("/paginar.html", admin.users).get("/all.html", admin.users);
 router.get("/view.html", admin.view).get("/find.html", admin.find);
 router.get("/first.html", admin.first).get("/prev.html", admin.prev).get("/next.html", admin.next).get("/last.html", admin.last);
 router.get("/delete.html", admin.delete).get("/remove.html", admin.delete);

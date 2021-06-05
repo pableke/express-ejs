@@ -24,6 +24,14 @@ function ObjectBox() {
 		}
 		return true;
 	}
+	this.falsy = function(obj) {
+		for (let k in obj) {
+			if (obj[k])
+				return false;
+		}
+		return true;
+	}
+
 	this.clear = function(obj) {
 		for (let k in obj) //clear object
 			delete obj[k]; //delete keys

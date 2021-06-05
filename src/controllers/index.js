@@ -7,6 +7,7 @@ const sharp = require("sharp"); //image resizer
 const dao = require("app/dao/factory.js");
 const i18n = require("app/i18n/i18n.js"); //languages
 const valid = require("./validators.js");
+const session = require("app/lib/session-box.js")
 
 const BODY = {};
 const UPLOADS = {
@@ -27,7 +28,8 @@ exports.lang = function(req, res, next) {
 	res.locals.body = BODY; //init non-ajax body forms
 
 	// Load specific user menus or public menus on view
-	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic();
+	req.sessionStorage = session.get(req.session.ssId);
+	res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();
 	next(); //go next middleware
 }
 
