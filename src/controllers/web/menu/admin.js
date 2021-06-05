@@ -6,19 +6,13 @@ const util = require("app/lib/util-box.js");
 const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
 
+function fnInitList(req) {
+	req.sessionStorage.list.menu = req.sessionStorage.list.menu || { basename: "/menu" };
+	return req.sessionStorage.list.menu;
+}
 function fnLoadList(req, res, next) {
-	// storage and load: page, size (pagination), by, dir (sort) + filters
-	req.sessionStorage.list.menu = req.sessionStorage.list.menu || {};
-	let list = Object.assign(req.sessionStorage.list.menu, req.query);
-
-	valid.init(list, res.locals.i18n).validate("/menu/filter.html"); // parse filter data
-	let { fn, o1, o2, f1, f2 } = valid.getData(); // declare filter data
-	function fnFilter(menu) { // menus filter function
-		return util.sb.ilike(menu.nm, fn) && util.sb.between(menu.orden, o1, o2) && util.sb.between(menu.alta, f1, f2);
-	}
-
-	if (!util.ob.empty({ fn, o1, o2, f1, f2 })) //has filter?
-		list.rows = dao.web.myjson.menus.filter(fnFilter);
+	// save: page, size (pagination), by, dir (sort) + filters
+	let list = Object.assign(fnInitList(req), req.query); // load state
 	list.size = dao.web.myjson.menus.sortBy(list).pagination(list).size();
 	res.locals.body = list;
 	return list;
@@ -32,8 +26,28 @@ function fnLoadTbody(req, res, next) {
 	res.setBody("/web/list/menu/menus-tbody.ejs").setMsg("size", list.size).html();
 }
 
-exports.list = fnGoList;
+exports.menus = fnGoList;
 exports.sort = fnLoadTbody;
+exports.list = function(req, res, next) {
+	let menus = fnInitList(req); // load state
+	// All inputs fields are in string data
+	if (util.ob.falsy(req.query)) { // empty filter
+		dao.web.myjson.menus.reset(menus);
+		return fnGoList(req, res, next);
+	}
+	if (util.ob.eq(menus, req.query)) // same filter
+		return fnGoList(req, res, next);
+
+	if (valid.init(req.query, res.locals.i18n).validate("/menu/filter.html")) {
+		let { fn, o1, o2, f1, f2 } = valid.getData(); // parse filter data
+		menus.rows = dao.web.myjson.menus.filter(menu => { // menus filter function
+			return util.sb.ilike(menu.nm, fn) && util.sb.between(menu.orden, o1, o2) && util.sb.between(menu.alta, f1, f2);
+		});
+	}
+	else
+		res.setError(res.locals.i18n.errForm);
+	fnGoList(req, res, next);
+}
 
 function fnGoUsers(req, res, next) {
 	let id = +req.query.k; // menu id
@@ -61,7 +75,7 @@ exports.view = function(req, res, next) {
 /* Navegation */
 function fnNavTo(req, res, next) {
 	let id = +req.query.k;
-	let menus = fnLoadList(req, res, next);
+	let menus = req.sessionStorage.list.menu;
 	menus.i = menus.i ?? menus.rows.findIndex(row => (row.id == id));
 	return menus;
 }

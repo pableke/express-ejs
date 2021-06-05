@@ -138,9 +138,14 @@ function Collection(db, pathname) {
 		cfg.i = (i < 0) ? 0 : i;
 		return cfg.rows[cfg.i];
 	}
+	this.reset = function(cfg) {
+		if (cfg.rows && (cfg.rows != table.data))
+			cfg.rows.splice(0); // deep delete
+		delete cfg.rows;
+		return self;
+	}
 
 	this.push = function(item) {
-		delete table.sort;
 		item.id = table.seq++;
 		table.data.push(item);
 		return self;

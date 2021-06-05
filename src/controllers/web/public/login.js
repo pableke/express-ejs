@@ -46,13 +46,12 @@ exports.check = function(req, res, next) {
 		req.sessionStorage.list = {};
 
 		// access allowed => go private area
-		res.locals.msgs.msgOk = i18n.msgLogin;
 		if (req.session.redirTo) { //session helper
 			res.redirect(req.session.redirTo);
 			delete req.session.redirTo;
 		}
 		else
-			res.build(TPL_ADMIN);
+			res.setOk(i18n.msgLogin).build(TPL_ADMIN);
 	} catch (ex) {
 		next(ex);
 	}
@@ -80,26 +79,24 @@ exports.auth = function(req, res, next) {
 
 exports.token = function(req, res, next) {
 	try {
-		const i18n = res.locals.i18n;
 		const { usuario, clave } = req.data;
-		const user = dao.web.myjson.users.getUser(usuario, clave, i18n);
+		const user = dao.web.myjson.users.getUser(usuario, clave, res.locals.i18n);
 		res.send(jwt.sign({ id: user.id }, process.env.JWT_KEY));
+		req.session.ssId = user.id;
 	} catch (ex) {
 		next(ex);
 	}
 }
 exports.OAuth2 = function(req, res, next) {
-	res.setBody(TPL_LOGIN); //if error => go login
 	const token = req.headers["Authorization"];
+	res.setBody(TPL_LOGIN); //if error => go login
+
 	if (token && token.startsWith("Bearer")) {
-		jwt.verify(token.substr(7), process.env.JWT_KEY, (err, decoded) => {
-			if (err || !decoded || !decoded.id)
+		jwt.verify(token.substr(7), process.env.JWT_KEY, (err, user) => {
+			if (err || !user || !user.id)
 				return next(err || res.locals.i18n.err401);
-			req.sessionStorage = session.get(decoded.id);
-			if (req.sessionStorage)
-				next();
-			else
-				next(res.locals.i18n.sesNotFound);
+			req.sessionStorage = session.get(user.id);
+			req.sessionStorage ? next() : next(res.locals.i18n.sesNotFound);
 		});
 	}
 	else

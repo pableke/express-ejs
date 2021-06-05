@@ -6,7 +6,7 @@ js.ready(function() {
 	$.datepicker.regional["es"] = i18n.getI18n("es");
 	$.datepicker.setDefaults(i18n.getLang());
 
-	// AJAX links and forms
+	// Google recptcha
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
 			js.click(js.getAll(".captcha"), (el, ev) => {
@@ -17,6 +17,8 @@ js.ready(function() {
 			});
 		});
 	}
+	// load select value
+	js.val(js.getAll("select"));
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
