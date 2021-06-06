@@ -7,7 +7,7 @@ const sharp = require("sharp"); //image resizer
 const dao = require("app/dao/factory.js");
 const i18n = require("app/i18n/i18n.js"); //languages
 const valid = require("./validators.js");
-const session = require("app/lib/session-box.js")
+const session = require("app/lib/session-box.js");
 
 const BODY = {};
 const UPLOADS = {

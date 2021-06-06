@@ -10,7 +10,7 @@ var _sesInterval = 1000 * 60 * 60; //default = 1h
 var _maxage = 1000 * 60 * 60; //1h in miliseconds
 
 function _destroy(key) {
-	ob.clear(SESSIONS[key]);
+	ob.deepClear(SESSIONS[key]);
 	delete SESSIONS[key];
 }
 
@@ -27,7 +27,7 @@ exports.open = function(opts) {
 				_destroy(k);
 		}
 	}, _sesInterval);*/
-	console.log("> Sessions started.");
+	console.log("> Session Storage Started.");
 	return this;
 }
 
@@ -47,6 +47,6 @@ exports.close = function() {
 	//clearInterval(_sesIntervalId);
 	for (let k in SESSIONS)
 		_destroy(k);
-	console.log("> Sessions closed.");
+	console.log("> Session Storage Closed.");
 	return this;
 }
