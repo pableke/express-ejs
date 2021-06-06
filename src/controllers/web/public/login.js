@@ -1,8 +1,8 @@
 
 const jwt = require("jsonwebtoken");
 const dao = require("app/dao/factory.js");
-const util = require("app/lib/util-box.js")
-const session = require("app/lib/session-box.js")
+const ob = require("app/lib/object-box.js");
+const session = require("app/lib/session-box.js");
 
 const TPL_LOGIN = "web/forms/public/login";
 const TPL_ADMIN = "web/list/index";
@@ -11,21 +11,9 @@ exports.view = function(req, res) {
 	res.build(TPL_LOGIN);
 }
 
-function fnResetLists(session) {
-	for (let k in session.list) {
-		util.ab.reset(session.list[k].rows);
-		util.ob.clear(session.list[k]);
-	}
-	util.ob.clear(session.list);
-}
 function fnLogout(req) {
-	let storage = session.get(req.session.ssId);
-	if (storage) { // Delete all session data
-		fnResetLists(storage);
-		util.ab.reset(storage.menus);
-		util.ob.clear(storage.user);
-		session.destroy(req.session.ssId);
-	}
+	session.destroy(req.session.ssId);
+	delete req.session.ssId; //remove user id
 	//remove session: regenerated next request
 	req.session.destroy(); //specific destroy
 	delete req.session; //full destroy
@@ -105,7 +93,7 @@ exports.OAuth2 = function(req, res, next) {
 
 exports.home = function(req, res) {
 	// Reset list configuration
-	fnResetLists(req.sessionStorage);
+	ob.deepClear(req.sessionStorage.list);
 	res.build(TPL_ADMIN);
 }
 

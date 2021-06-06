@@ -12,6 +12,7 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
+const sb = require("app/lib/session-box.js"); //session storage
 const ob = require("app/lib/object-box.js"); //object utils
 
 /*const HTTPS = { //credentials
@@ -87,6 +88,7 @@ app.use("*", (req, res) => { //error 404 page not found
 });
 
 // Start servers (db's and http)
+sb.open(); //open session storage
 dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
 const server = app.listen(port, err => {
@@ -102,6 +104,7 @@ function fnExit(signal) { //exit handler
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
 
+	sb.close();
 	dao.close();
 	server.close();
 
