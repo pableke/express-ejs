@@ -13,7 +13,7 @@ function fnInitList(req) {
 function fnLoadList(req, res, next) {
 	// save: page, size (pagination), by, dir (sort) + filters
 	let list = Object.assign(fnInitList(req), req.query); // load state
-	list.size = dao.web.myjson.menus.sortBy(list).pagination(list).size();
+	dao.web.myjson.menus.sortBy(list).pagination(list);
 	res.locals.body = list;
 	return list;
 }
