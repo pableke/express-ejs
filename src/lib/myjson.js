@@ -123,9 +123,10 @@ function Collection(db, pathname) {
 		return self;
 	}
 	this.pagination = function(cfg) {
+		cfg.size = self.size();
 		cfg.page = isNaN(cfg.page) ? 0 : +cfg.page;
 		cfg.psize = isNaN(cfg.psize) ? 40 : +cfg.psize;
-		cfg.pages = Math.floor(table.data.length / cfg.psize);
+		cfg.pages = Math.floor(cfg.size / cfg.psize);
 		cfg.end = Math.min(cfg.page + 4, cfg.pages);
 		cfg.start = Math.max(cfg.end - 7, 0);
 		cfg.index = cfg.page * cfg.psize;
