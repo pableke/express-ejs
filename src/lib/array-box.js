@@ -23,8 +23,26 @@ function ArrayBox() {
 	this.reset = function(arr) { arr && arr.splice(0); return self; }
 	this.get = function(arr, i) { return arr ? arr[i] : null; }
 	this.last = function(arr) { return self.get(arr, fnSize(arr) - 1); }
-	this.sort = function(arr, fn) { return arr ? arr.sort(fn || cmp) : arr; }
 	this.clone = function(arr) { return arr ? arr.slice() : []; }
+
+	// Sorting
+	this.sort = function(arr, fn) { return arr ? arr.sort(fn || cmp) : arr; }
+	this.sortBy = function(arr, field, dir) {
+		function fnAsc(a, b) { return cmp(a[field], b[field]); }
+		function fnDesc(a, b) { return cmp(b[field], a[field]); }
+		return arr ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
+	}
+	this.multisort = function(arr, columns, orderby) {
+		orderby = orderby || []; //columns direction
+		function fnMultisort(a, b, index) { //recursive function
+			index = index || 0; //index columns to ordered
+			let name = columns[index]; //current column
+			let value = (orderby[index] == "desc") ? cmp(b[field], a[field]) : cmp(a[name], b[name]);
+			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b, index) : value;
+		}
+		arr.sort(fnMultisort);
+		return self;
+	}
 
 	this.each = function(arr, fn) { //iterator
 		let size = fnSize(arr); //max

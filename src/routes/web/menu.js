@@ -6,7 +6,7 @@ const ctrl = require("app/controllers/index.js");
 const admin = require("app/controllers/web/menu/admin.js");
 
 router.get("/", admin.menus).get("/index.html", admin.menus).get("/home.html", admin.menus).get("/inicio.html", admin.menus);
-router.get("/menus.html", admin.list).get("/list.html", admin.list).get("/listar.html", admin.list);
+router.get("/menus.html", admin.menus).get("/list.html", admin.menus).get("/listar.html", admin.menus);
 router.get("/filter.html", ctrl.get, admin.list, admin.errList).get("/search.html", ctrl.get, admin.list, admin.errList);
 router.get("/filtrar.html", ctrl.get, admin.list, admin.errList).get("/buscar.html", ctrl.get, admin.list, admin.errList);
 router.get("/sort.html", admin.sort).get("/order.html", admin.sort).get("/ordenar.html", admin.sort);

@@ -4,12 +4,11 @@ const path = require("path"); //file and directory paths
 const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
 
-const dao = require("app/dao/factory.js");
+const dao = require("app/dao/factory.js"); //DAO factory
 const i18n = require("app/i18n/i18n.js"); //languages
 const valid = require("./validators.js");
 const session = require("app/lib/session-box.js");
 
-const BODY = {};
 const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: path.join(__dirname, "../public/files/"),
@@ -24,9 +23,6 @@ exports.lang = function(req, res, next) {
 	if (!lang || (lang !== req.session.lang)) //user change language or first access
 		lang = i18n.get(lang, req.headers["accept-language"]); //get language
 	req.session.lang = res.locals.lang = lang; //set lang id on session and view
-	res.locals.i18n = i18n.es; //default language
-	res.locals.body = BODY; //init non-ajax body forms
-
 	// Load specific user menus or public menus on view
 	req.sessionStorage = session.get(req.session.ssId);
 	res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();

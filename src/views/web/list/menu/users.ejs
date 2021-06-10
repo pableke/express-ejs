@@ -47,13 +47,9 @@
 		<tbody>
 			<%-include("./users-tbody")%>
 		</tbody>
-		<tfoot>
-			<tr>
-				<td colspan="2">Menus: <%=body.rows.length%></td>
-			</tr>
-		</tfoot>
+		<%-include(components + "list/tfoot.ejs", body)%>
 	</table>
-	<%-include("../pagination")%>
+	<%-include(components + "list/pagination.ejs", body)%>
 
 	<hr/>
 	<a href="/menu/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>

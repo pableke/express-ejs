@@ -12,6 +12,9 @@
   "keywords": [],
   "author": "Pablo Rosique Vidal",
   "license": "ISC",
+  "engines" : { 
+    "npm": "7.15.1"
+  },
   "dependencies": {
     "bcrypt": "^5.0.1",
     "dotenv": "^8.2.0",
