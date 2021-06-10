@@ -89,26 +89,30 @@ function Collection(db, pathname) {
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.sort = function(cmp) { table.data.sort(cmp); return self; }
 
-	function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
+	/*function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
 	function fnDesc(a, b) { return (a == b) ? 0 : ((a < b) ? 1 : -1); };
-	this.orderBy = function(name, dir, rows) {
-		if (!name) return self; //no field to sort by
-		rows = rows || table.data; //array to be ordered
+	function fnOrderBy(name, dir, rows) {
+		rows = rows || [...table.data]; //array to be ordered
 		function fnSortAsc(a, b) { return fnAsc(a[name], b[name]); }
 		function fnSortDesc(a, b) { return fnDesc(a[name], b[name]); }
 		rows.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
 		return self;
 	}
-	this.sortBy = function(cfg, name) {
-		name = name || cfg.by;
-		cfg[name] = cfg.dir;
-		return self.orderBy(name, cfg.dir, cfg.rows);
+	this.orderBy = function(name, dir, rows) {
+		return name ? fnOrderBy(name, dir, rows) : self;
+	}
+	this.sortBy = function(cfg) {
+		if (cfg.by) {
+			cfg[cfg.by + "Dir"] = cfg.dir;
+			fnOrderBy(cfg.by, cfg.dir, cfg.rows);
+		}
+		return self;
 	}
 	this.multisort = function(cfg) {
 		let index = 0; //index columns to ordered
 		let columns = cfg.columns || []; //columns names
 		let orderby = cfg.orderby || []; //columns direction
-		let rows = cfg.rows || table.data; //array ti be ordered
+		let rows = cfg.rows || [...table.data]; //array ti be ordered
 		function fnMultisort(a, b) { //recursive function
 			let name = columns[index]; //current column
 			let value = (orderby[index] == "desc") ? fnDesc(a[name], b[name]) :  fnAsc(a[name], b[name]);
@@ -118,7 +122,7 @@ function Collection(db, pathname) {
 		return self;
 	}
 	this.paginate = function(cfg) {
-		let rows = cfg.rows || table.data;
+		let rows = cfg.rows || [...table.data];
 		cfg.rows = rows.slice(cfg.index, cfg.index + cfg.psize);
 		return self;
 	}
@@ -134,17 +138,16 @@ function Collection(db, pathname) {
 	}
 	this.navto = function(cfg, i) {
 		i = i ?? 0; //0 allowed
-		cfg.rows = cfg.rows || table.data;
+		cfg.rows = cfg.rows || [...table.data];
 		i = (i < cfg.rows.length) ? i : (cfg.rows.length - 1);
 		cfg.i = (i < 0) ? 0 : i;
 		return cfg.rows[cfg.i];
 	}
 	this.reset = function(cfg) {
-		if (cfg.rows && (cfg.rows != table.data))
-			cfg.rows.splice(0); // deep delete
-		delete cfg.rows;
+		cfg.rows && cfg.rows.splice(0); // deep delete
+		delete cfg.rows; // delete pointer
 		return self;
-	}
+	}*/
 
 	this.push = function(item) {
 		item.id = table.seq++;

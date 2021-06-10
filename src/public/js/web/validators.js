@@ -53,8 +53,8 @@ const MENU_SAVE = {
 };
 const MENU_FILTER = {
 	fn: valid.max200,
-	o1: valid.intnull,
-	o2: valid.intnull,
+	n1: valid.intnull,
+	n2: valid.intnull,
 	f1: valid.datenull,
 	f2: valid.datenull
 };

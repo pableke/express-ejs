@@ -1,0 +1,25 @@
+
+<div class="pagination">
+	<select value="<%=psize%>" class="input-item" onchange="window.location.href = '<%=basename%>/pages.html?page=0&psize=' + this.value;">
+		<option value="20">20</option>
+		<option value="40">40</option>
+		<option value="80">80</option>
+		<option value="100">100</option>
+	</select>
+
+	<% if (page > 0) { %>
+		<a href="<%=basename%>/pages.html?page=0&psize=<%=psize%>">&laquo;</a>
+	<% } %>
+
+	<% for (let i = start; i <= end; i++) { %>
+		<% if (page == i) { %>
+			<a href="#" class="active"><%=(i+1)%></a>
+		<% } else { %>
+			<a href="<%=basename%>/pages.html?page=<%=i%>&psize=<%=psize%>"><%=(i+1)%></a>
+		<% } %>
+	<% } %>
+
+	<% if (page < pages) { %>
+		<a href="<%=basename%>/pages.html?page=<%=pages%>&psize=<%=psize%>">&raquo;</a>
+	<% } %>
+</div>

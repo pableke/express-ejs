@@ -12,6 +12,7 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
+const i18n = require("app/i18n/i18n.js"); //languages
 const sb = require("app/lib/session-box.js"); //session storage
 const ob = require("app/lib/object-box.js"); //object utils
 
@@ -20,10 +21,15 @@ const ob = require("app/lib/object-box.js"); //object utils
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };*/
 
-// Template engines
+// Template engines for views
+const EJS = { async: true };
 const VIEWS = path.join(__dirname, "views");
 app.set("view engine", "ejs");
 app.set("views", VIEWS);
+app.locals.partials = VIEWS + "/partials/";
+app.locals.components = VIEWS + "/components/"
+app.locals.i18n = i18n.es; //default language
+app.locals.body = {}; //init non-ajax body forms
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -57,12 +63,7 @@ app.use((req, res, next) => {
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.on("finish", function() { ob.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
-	res.html = function() {
-		let tpl = path.join(VIEWS, res.locals._tplBody);
-		ejs.renderFile(tpl, res.locals, (err, result) => {
-			err ? next(err) : res.setMsg("html", result).msgs(); //response = html + msgs
-		});
-	}
+	res.html = async function(tpl, data) { await ejs.renderFile(path.join(VIEWS, tpl), data, EJS); }
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes

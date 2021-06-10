@@ -1,0 +1,7 @@
+
+<% if (id) { %>
+	<a href="<%=basename%>/first.html" tabindex="106" class="btn btn-outline-primary nav-to" title="<%=i18n.titPrimero%>"><i class="fas fa-angle-double-left"></i></a>
+	<a href="<%=basename%>/prev.html?k=<%=id%>" tabindex="107" class="btn btn-outline-primary nav-to" title="<%=i18n.titSiguiente%>"><i class="fas fa-angle-left"></i></a>
+	<a href="<%=basename%>/next.html?k=<%=id%>" tabindex="108" class="btn btn-outline-primary nav-to" title="<%=i18n.titAnterior%>"><i class="fas fa-angle-right"></i></a>
+	<a href="<%=basename%>/last.html" tabindex="109" class="btn btn-outline-primary nav-to" title="<%=i18n.titUltimo%>"><i class="fas fa-angle-double-right"></i></a>
+<% } %>
