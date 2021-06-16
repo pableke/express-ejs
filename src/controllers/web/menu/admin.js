@@ -72,22 +72,6 @@ exports.pagination = function(req, res, next) {
 	res.render("web/list/menu/menus-tbody");
 }
 
-function fnGoUsers(req, res, next) {
-	let id = +req.query.k; // menu id
-	req.sessionStorage.list.um = req.sessionStorage.list.um || { basename: "/um" };
-	let list = res.locals.body = req.sessionStorage.list.um;
-	list.rows = dao.web.myjson.um.getUsers(id);
-	dao.web.myjson.um.sortBy(list).pagination(list);
-	res.build("web/list/menu/users");
-}
-exports.users = fnGoUsers;
-exports.link = function(req, res, next) {
-	fnGoUsers(req, res);
-}
-exports.unlink = function(req, res, next) {
-	fnGoUsers(req, res);
-}
-
 exports.view = function(req, res, next) { // create or update
 	let list = fnStart(req, res, next); // get list
 	let i = pagination.current(list.rows, +req.query.k);
