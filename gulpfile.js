@@ -69,6 +69,7 @@ gulp.task("symlinks", () => {
 	//ln -s ../../src/controllers/web/public node_modules/app
 	//mv node_modules/app/controllers node_modules/app/ctrl
 	//cp -r node_modules/app/controllers node_modules/app/ctrl
+	gulp.src("src/components").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/i18n").pipe(gulp.symlink("node_modules/app"));

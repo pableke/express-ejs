@@ -52,9 +52,9 @@ function Collection(db, pathname) {
 	this.size = function() { return table.data.length; }
 	this.stringify = function() { return JSON.stringify(table); }
 
-	this.get = function(i) {
-		return table.data[i];
-	}
+	this.first = function() { return table.data[0]; }
+	this.get = function(i) { return table.data[i]; }
+	this.last = function() { return table.data[table.data.length-1]; }
 	this.set = function(item1, item2) {
 		Object.assign(item1, item2);
 		return self;
@@ -80,6 +80,7 @@ function Collection(db, pathname) {
 
 	this.getAll = function() { return table.data; }
 	this.findAll = function() { return table.data; }
+	this.copy = function() { return table.data.slice(); }
 	this.find = function(cb) { return table.data.find(cb); }
 	this.findIndex = function(id) { return id ? table.data.findIndex(row => (row.id == id)) : -1; }
 	this.getById = function(id) { return self.find(row => (row.id == id)); }
@@ -88,66 +89,6 @@ function Collection(db, pathname) {
 	this.filterById = function(id) { return self.filter(row => (row.id == id)); }
 	this.each = function(cb) { table.data.forEach(cb); return self; }
 	this.sort = function(cmp) { table.data.sort(cmp); return self; }
-
-	/*function fnAsc(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); };
-	function fnDesc(a, b) { return (a == b) ? 0 : ((a < b) ? 1 : -1); };
-	function fnOrderBy(name, dir, rows) {
-		rows = rows || [...table.data]; //array to be ordered
-		function fnSortAsc(a, b) { return fnAsc(a[name], b[name]); }
-		function fnSortDesc(a, b) { return fnDesc(a[name], b[name]); }
-		rows.sort((dir == "desc") ? fnSortDesc : fnSortAsc);
-		return self;
-	}
-	this.orderBy = function(name, dir, rows) {
-		return name ? fnOrderBy(name, dir, rows) : self;
-	}
-	this.sortBy = function(cfg) {
-		if (cfg.by) {
-			cfg[cfg.by + "Dir"] = cfg.dir;
-			fnOrderBy(cfg.by, cfg.dir, cfg.rows);
-		}
-		return self;
-	}
-	this.multisort = function(cfg) {
-		let index = 0; //index columns to ordered
-		let columns = cfg.columns || []; //columns names
-		let orderby = cfg.orderby || []; //columns direction
-		let rows = cfg.rows || [...table.data]; //array ti be ordered
-		function fnMultisort(a, b) { //recursive function
-			let name = columns[index]; //current column
-			let value = (orderby[index] == "desc") ? fnDesc(a[name], b[name]) :  fnAsc(a[name], b[name]);
-			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b) : value;
-		}
-		rows.sort(fnMultisort);
-		return self;
-	}
-	this.paginate = function(cfg) {
-		let rows = cfg.rows || [...table.data];
-		cfg.rows = rows.slice(cfg.index, cfg.index + cfg.psize);
-		return self;
-	}
-	this.pagination = function(cfg) {
-		cfg.size = self.size();
-		cfg.page = isNaN(cfg.page) ? 0 : +cfg.page;
-		cfg.psize = isNaN(cfg.psize) ? 40 : +cfg.psize;
-		cfg.pages = Math.floor(cfg.size / cfg.psize);
-		cfg.end = Math.min(cfg.page + 4, cfg.pages);
-		cfg.start = Math.max(cfg.end - 7, 0);
-		cfg.index = cfg.page * cfg.psize;
-		return self.paginate(cfg);
-	}
-	this.navto = function(cfg, i) {
-		i = i ?? 0; //0 allowed
-		cfg.rows = cfg.rows || [...table.data];
-		i = (i < cfg.rows.length) ? i : (cfg.rows.length - 1);
-		cfg.i = (i < 0) ? 0 : i;
-		return cfg.rows[cfg.i];
-	}
-	this.reset = function(cfg) {
-		cfg.rows && cfg.rows.splice(0); // deep delete
-		delete cfg.rows; // delete pointer
-		return self;
-	}*/
 
 	this.push = function(item) {
 		item.id = table.seq++;

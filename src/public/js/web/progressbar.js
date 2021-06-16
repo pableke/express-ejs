@@ -35,7 +35,7 @@ js.ready(function() {
 	});
 
 	js.click(js.getAll("a.show-info"), (el, ev) => { //show/hide extra info
-		js.toggle(el.lastElementChild, "fa-angle-double-up fa-angle-double-down").toggle(js.next(el, ".extra-info"), "hide");
+		js.toggle(el.lastElementChild, "fa-angle-double-up fa-angle-double-down").toggle(js.get(".extra-info-" + el.id), "hide");
 		ev.preventDefault();
 	});
 

@@ -61,31 +61,35 @@ module.exports = function(table) {
 		return _parents;
 	}
 
-	table.loadParent = function(menu, padre) {
+	function loadParent(menu, padre) {
 		setParent(padre); //update mask
 		menu.pn = padre.nm;
 		menu.pn_en = padre.nm_en;
 		menu.pi = padre.ico;
-		return table;
+		return menu;
 	}
-	table.unloadParent = function(menu) {
+	function unloadParent(menu) {
 		delete menu.pn;
 		delete menu.pn_en;
 		delete menu.pi;
-		return table;
+		return menu;
 	}
 	table.setFinal = function(id) {
 		return (id && !table.getChildren(id).length) ? fnSetFinal(table.getById(id)) : table;
 	}
-	table.saveMenu = function(menu, msgs) {
-		let row = table.getById(menu.id) || menu;
+	table.insertMenu = function(menu, msgs) {
 		let padre = table.getParent(menu);
-		if (padre)
-			table.loadParent(row, padre);
-		else
-			table.unloadParent(row);
-		let id = row.padre;
-		return table.save(row, menu).setFinal(id).commit();
+		padre ? loadParent(menu, padre) : unloadParent(menu);
+		return table.push(menu).setFinal(menu.padre).commit();
+	}
+	table.updateMenu = function(menu, msgs) {
+		let row = table.getById(menu.id)
+		let padre = table.getParent(menu);
+		return padre ? loadParent(row, padre) : unloadParent(row);
+		return table.set(row, menu).setFinal(row.padre).commit();
+	}
+	table.saveMenu = function(menu, msgs) {
+		return menu.id ? table.updateMenu(menu, msgs) : table.insertMenu(menu, msgs);
 	}
 	table.deleteMenu = function(id) {
 		let um = table.db().get("um");

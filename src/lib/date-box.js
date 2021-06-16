@@ -22,7 +22,7 @@ function DateBox() {
 	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
 
 	function rangeDate(parts) {
-		parts[0] = rangeYear(parts[0] || 0); //year
+		parts[0] = rangeYear(+parts[0] || 0); //year
 		parts[1] = range(parts[1], 1, 12); //months
 		parts[2] = range(parts[2], 1, daysInMonth(parts[0], parts[1]-1)); //days
 		return parts;

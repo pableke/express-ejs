@@ -6,6 +6,7 @@ function ArrayBox() {
 	function cmp(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); }
 
 	this.size = fnSize;
+	this.empty = function(arr) { return (fnSize(arr) < 1); }
 	this.find = function(arr, fn) { return arr ? arr.find(fn) : null; }
 	this.ifind = function(arr, fn) { return arr ? arr.findIndex(fn) : -1; }
 	this.indexOf = function(arr, elem) { return arr ? arr.indexOf(elem) : -1; }
@@ -30,7 +31,7 @@ function ArrayBox() {
 	this.sortBy = function(arr, field, dir) {
 		function fnAsc(a, b) { return cmp(a[field], b[field]); }
 		function fnDesc(a, b) { return cmp(b[field], a[field]); }
-		return arr ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
+		return (arr && field) ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
 	this.multisort = function(arr, columns, orderby) {
 		orderby = orderby || []; //columns direction
@@ -59,6 +60,11 @@ function ArrayBox() {
 		let size = fnSize(arr); //max
 		for (let i = 0; (i < size); i++)
 			fn(arr[i], i) && arr.splice(i--, 1);
+		return self;
+	}
+	this.flush = function(arr, fn) {
+		let i = self.ifind(arr, fn);
+		(i > -1) && arr.splice(i, 1);
 		return self;
 	}
 }

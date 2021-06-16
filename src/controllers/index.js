@@ -7,7 +7,6 @@ const sharp = require("sharp"); //image resizer
 const dao = require("app/dao/factory.js"); //DAO factory
 const i18n = require("app/i18n/i18n.js"); //languages
 const valid = require("./validators.js");
-const session = require("app/lib/session-box.js");
 
 const UPLOADS = {
 	keepExtensions: true,
@@ -24,7 +23,6 @@ exports.lang = function(req, res, next) {
 		lang = i18n.get(lang, req.headers["accept-language"]); //get language
 	req.session.lang = res.locals.lang = lang; //set lang id on session and view
 	// Load specific user menus or public menus on view
-	req.sessionStorage = session.get(req.session.ssId);
 	res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();
 	next(); //go next middleware
 }
