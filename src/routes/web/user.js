@@ -20,10 +20,6 @@ router.get("/view.html", admin.view).get("/find.html", admin.find);
 router.get("/first.html", admin.first).get("/prev.html", admin.prev).get("/next.html", admin.next).get("/last.html", admin.last);
 router.get("/delete.html", admin.delete).get("/remove.html", admin.delete);
 
-//router.get("/menus.html", admin.menus).get("/grupos.html", admin.grupos);
-//router.post("/menu/link.html", admin.mlink).post("/menu/unlink.html", admin.munlink);
-//router.post("/grupo/link.html", admin.glink).post("/grupo/unlink.html", admin.gunlink);
-
 router.post("/save.html", ctrl.post, admin.save, admin.error);
 router.post("/duplicate.html", ctrl.post, admin.duplicate, admin.error);
 
@@ -36,8 +32,6 @@ router.post("/profile.html", ctrl.post, profile.save, profile.error)
 	.post("/perfil.html", ctrl.post, profile.save, profile.error);
 
 // routes errors => redirect to it's list (avoid 404)
-//router.get("/menu/link.html", admin.menus).get("/menu/unlink.html", admin.menus);
-//router.get("/grupo/link.html", admin.menus).get("/grupo/unlink.html", admin.menus);
 router.get("/save.html", admin.list).get("/duplicate.html", admin.list);
 
 module.exports = router;

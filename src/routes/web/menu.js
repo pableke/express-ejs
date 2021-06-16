@@ -16,13 +16,10 @@ router.get("/view.html", admin.view).get("/find.html", admin.find);
 router.get("/first.html", admin.first).get("/prev.html", admin.prev).get("/next.html", admin.next).get("/last.html", admin.last);
 router.get("/delete.html", admin.delete).get("/remove.html", admin.delete);
 
-router.get("/users.html", admin.users);
-router.post("/link.html", admin.link).post("/unlink.html", admin.unlink);
 router.post("/save.html", ctrl.post, admin.save, admin.error);
 router.post("/duplicate.html", ctrl.post, admin.duplicate, admin.error);
 
 // routes errors => redirect to it's list (avoid 404)
-router.get("/link.html", admin.users).get("/unlink.html", admin.users);
 router.get("/save.html", admin.list).get("/duplicate.html", admin.list);
 
 module.exports = router;
