@@ -28,7 +28,7 @@ tr.data:hover { background-color: #E6E6FA; }
 	padding: 16px;
 }
 
-.pagination a {
+.pagination a, .active {
 	color: black;
 	margin: 0 4px;
 	padding: 8px 16px;
@@ -38,7 +38,7 @@ tr.data:hover { background-color: #E6E6FA; }
 	border-radius: 4px;
 }
 
-.pagination a.active {
+.pagination .active {
 	color: white;
 	background-color: #4CAF50;
 	border: 1px solid #4CAF50;

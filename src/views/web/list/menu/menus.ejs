@@ -10,15 +10,31 @@
 			<i class="input-item input-icon fas fa-signature"></i>
 			<span class="msg-error"><%=msgs.fn%></span>
 		</div>
-		<%-include(components + "forms/number-range.ejs", body.orden)%>
-		<%-include(components + "forms/date-range.ejs", body.fechas)%>
+		<div class="input-group">
+			<label for="n1"><%=i18n.lblOrden%>:</label>
+			<input type="text" id="n1" name="n1" class="input-item input-control integer tr" value="<%=body.n1%>" size="15" maxlength="10" tabindex="2" />
+			<span class="input-item input-icon">...</span>
+			<input type="text" id="n2" name="n2" class="input-item input-control integer tr" value="<%=body.n2%>" size="15" maxlength="10" tabindex="3" />
+			<span class="msg-error"><%=msgs.n1%></span>
+		</div>
+		<div class="input-group">
+			<label for="d1"><%=i18n.lblFecha%>:</label>
+			<input type="text" id="d1" name="d1" class="input-item input-control date datepicker" value="<%=body.d1%>" size="15" maxlength="10" tabindex="4" placeholder="<%=i18n.phDate%>" />
+			<span class="input-item input-icon">...</span>
+			<input type="text" id="d2" name="d2" class="input-item input-control date datepicker" value="<%=body.d2%>" size="15" maxlength="10" tabindex="5" placeholder="<%=i18n.phDate%>" />
+			<span class="msg-error"><%=msgs.d1%></span>
+		</div>
 
-		<%-include(components + "list/buttons.ejs", body)%>
+		<hr/>
+		<a href="<%=body.prevname%>/index.html" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101"><%=i18n.lblBuscar%> <i class="fas fa-search"></i></button>
+		<button type="button" class="btn btn-light clear-all" tabindex="102">&olarr; <%=i18n.lblLimpiar%></button>
+		<button type="submit" class="btn btn-warn clear-all" tabindex="103"><i class="fas fa-list-ol"></i> <%=i18n.lblRestaurar%></button>
 	</form>
 </div>
 
 <div class="wrapper">
-	<table>
+	<table class="paginable">
 		<thead>
 			<tr>
 				<th>N&#186;</th><th><%=i18n.lblIcono%></th>
@@ -34,8 +50,15 @@
 		<tbody>
 			<%-include("./menus-tbody")%>
 		</tbody>
-		<%-include(components + "list/tfoot.ejs", body)%>
+		<tfoot>
+			<tr>
+				<td colspan="99">Menus: <span id="rows"><%=body.rows.length%></span>/<span id="size"><%=body.size%></span></td>
+			</tr>
+		</tfoot>
 	</table>
-	<%-body.paginationRendered%>
-	<%-include(components + "list/footer.ejs", body)%>
+	<%-pagination%>
+
+	<hr/>
+	<a href="<%=body.prevname%>/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+	<a href="<%=body.basename%>/view.html" class="btn btn-success"><%=i18n.lblAdd%> <i class="fas fa-plus"></i></a>
 </div>

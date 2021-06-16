@@ -58,8 +58,8 @@ const MENU_FILTER = {
 	fn: valid.max200,
 	n1: valid.intnull,
 	n2: valid.intnull,
-	f1: valid.datenull,
-	f2: valid.datenull
+	d1: valid.datenull,
+	d2: valid.datenull
 };
 valid.setForm("/menu/save.html", MENU_SAVE).setForm("/menu/duplicate.html", MENU_SAVE);
 valid.setForm("/menu/filter.html", MENU_FILTER).setForm("/menu/search.html", MENU_FILTER);

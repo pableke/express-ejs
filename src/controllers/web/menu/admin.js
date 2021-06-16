@@ -3,80 +3,73 @@ const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js");
 const util = require("app/lib/util-box.js");
 
-const Pagination = require("app/controllers/components/pagination.js");
+// Components
+const pagination = require("app/components/pagination.js");
 
+// View config
 const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
-const LIST = { // view config
-	id: null,
-	basename: "/menu",
-	prevname: "/user"
-}
+const LIST = { basename: "/menu", prevname: "/user" };
 
-function fnLoadList(req, res, next) {
-	let list = req.sessionStorage.list.menu || Object.assign({}, LIST); // get config
-	res.locals.body = req.sessionStorage.list.menu = list; // save on view and session
-
-	// Configure fields
-	let i18n = res.locals.i18n;
-	list.orden = list.orden || { tabindex: 2 };
-	list.orden.label = i18n.lblOrden;
-	list.fechas = list.fechas || { tabindex: 4 };
-	list.fechas.label = i18n.lblFecha;
-	list.pagination = list.pagination || new Pagination();
-	list.pagination.set("size", dao.web.myjson.menus.size()).set("basename", list.basename);
-	list.size = dao.web.myjson.menus.size();
+/*********************** HELPERS ***********************/
+function fnStart(req, res, next) {
+	let list = req.sessionStorage.list.menu;
+	if (list)
+		pagination.load(list);
+	else { // First instance
+		list = req.sessionStorage.list.menu = util.ob.clone(LIST);
+		list.rows = dao.web.myjson.menus.copy();
+		pagination.load(list).resize(list.rows.length);
+	}
+	res.locals.body = list; // save on view and session
 	return list;
 }
-function fnGoList(req, res, next) {
-	let list = fnLoadList(req, res, next);
-	dao.web.myjson.menus.sortBy(list).pagination(list);
-	res.build(TPL_LIST);
+function fnLoad(res, list, rows) {
+	util.ob.setArray(list, "rows", rows);
+	util.ab.sortBy(rows, list.by, list.dir); // sort by field and dir
+	res.locals.pagination = pagination.resize(rows.length).render();
+	return list;
 }
-function fnLoadTbody(req, res, next) {
-	let list = fnLoadList(req, res, next); //get list
-	Object.assign(list, req.query); //save page, psize, short, dir...
-	util.ab.apply(list.rows, list);
-	res.setBody("/web/list/menu/menus-tbody.ejs").setMsg("size", list.size).html();
+function fnFilter(data) {
+	let { fn, n1, n2, d1, d2 } = data; // declare filter data as var
+	return (menu) => (util.sb.ilike(menu.nm, fn) && util.sb.between(menu.orden, n1, n2) && util.sb.between(menu.alta, d1, d2));
 }
+function fnClose(req, res) {
+	res.locals.pagination = pagination.render();
+	return res.build(TPL_LIST);
+}
+/*********************** HELPERS ***********************/
 
+/*********************** ROUTES ***********************/
 exports.menus = function(req, res, next) {
-	let list = fnLoadList(req, res, next);
-	list.rows = list.pagination.slice(dao.web.myjson.menus.getAll());
-	list.paginationRendered = list.pagination.html();
-	res.build(TPL_LIST);
+	fnStart(req, res, next);
+	fnClose(req, res);
 }
 exports.list = function(req, res, next) {
-	let list = fnLoadList(req, res, next); //get list
-	// All inputs fields are in string data
-	if (list.rows && util.ob.eq(list, req.query))
-		return res.build(TPL_LIST);
-	if (util.ob.falsy(req.query)) { // empty filter
-		util.ob.delArray(list, "rows"); // remove previos filter
-		list.rows = util.ab.apply(dao.web.myjson.menus.getAll(), list);
+	let list = fnStart(req, res, next); //get list
+	if (util.ob.eq(list, req.data)) // is same search (null == null) => true
+		return fnClose(req, res);
+	if (util.ob.falsy(req.data)) { // clear filter => next click go eq
+		Object.assign(list, { fn: "", n1: null, n2: null, d1: null, d2: null });
+		fnLoad(res, list, dao.web.myjson.menus.copy());
 	}
-	else {
-		let { fn, n1, n2, f1, f2 } = valid.getData(); // parse filter data
-		list.rows = dao.web.myjson.menus.filter(menu => { // menus filter function
-			return util.sb.ilike(menu.nm, fn) && util.sb.between(menu.orden, n1, n2) && util.sb.between(menu.alta, f1, f2);
-		});
+	else { // apply filter and save inputs
+		let rows = dao.web.myjson.menus.filter(fnFilter(valid.getData()));
+		Object.assign(fnLoad(res, list, rows), req.data);
 	}
-	Object.assign(list, req.query); //save filters
-	list.rows = util.ab.apply(list.rows, list);
 	return res.build(TPL_LIST);
 }
 exports.sort = function(req, res, next) {
 	let { by, dir } = req.query;
-	let list = fnLoadList(req, res, next); //get list
+	let list = fnStart(req, res, next); //get list
 	util.ab.sortBy(list.rows, by, dir) // sort by field and dir
 	util.ob.flush(list, list.by + "Dir").set(list, by + "Dir", dir).set(list, "by", by);
-	res.setBody("/web/list/menu/menus-tbody.ejs").setMsg("size", list.size).html();
+	res.render("web/list/menu/menus-tbody");
 }
 exports.pagination = function(req, res, next) {
-	let { page, psize } = req.query;
-	let list = fnLoadList(req, res, next); //get list
-	list.pagination.update(page, psize);
-	res.setBody("/web/list/menu/menus-tbody.ejs").setMsg("size", list.size).html();
+	let list = fnStart(req, res, next); //get list
+	pagination.update(+req.query.page, +req.query.psize);
+	res.render("web/list/menu/menus-tbody");
 }
 
 function fnGoUsers(req, res, next) {
@@ -95,69 +88,75 @@ exports.unlink = function(req, res, next) {
 	fnGoUsers(req, res);
 }
 
-exports.view = function(req, res, next) {
-	let id = req.query.k; // create or update
-	let i = +req.query.i || 0; //index position
-	res.locals.menu = id && dao.web.myjson.menus.getById(+id);
-	res.locals.menu = res.locals.menu || { alta: new Date() };
-	res.locals.body = req.sessionStorage.list.menu;
-	res.locals.body.i = res.locals.body.index + i;
+exports.view = function(req, res, next) { // create or update
+	let list = fnStart(req, res, next); // get list
+	let i = pagination.current(list.rows, +req.query.k);
+	res.locals.menu = (i < 0) ? { alta: new Date() } : list.rows[i];
 	res.build(TPL_FORM);
 }
 
 /* Navegation */
 exports.find = function(req, res, next) {
 	let term = req.query.term;
-	let i18n = res.locals.i18n;
-	let fnFilter = (menu) => util.sb.ilike(i18n.get(menu, "nm"), term);
+	let fnGet = res.locals.i18n.get;
+	let fnFilter = (menu) => util.sb.ilike(fnGet(menu, "nm"), term);
 	res.json(dao.web.myjson.menus.filter(fnFilter));
 }
 exports.first = function(req, res, next) {
-	let menus = req.sessionStorage.list.menu;
-	menus.i = 0; //save in session
-	res.addMsgs(menus.rows[menus.i]).msgs();
+	let list = fnStart(req, res, next); // get list
+	res.addMsgs(list.rows[pagination.first()]).msgs();
 }
 exports.prev = function(req, res, next) {
-	let menus = req.sessionStorage.list.menu;
-	menus.i = Math.max(menus.i - 1, 0);
-	res.addMsgs(menus.rows[menus.i]).msgs();
+	let list = fnStart(req, res, next); // get list
+	res.addMsgs(list.rows[pagination.prev()]).msgs();
 }
 exports.next = function(req, res, next) {
-	let menus = req.sessionStorage.list.menu;
-	menus.i = Math.min(menus.i + 1, menus.rows.length - 1);
-	res.addMsgs(menus.rows[menus.i]).msgs();
+	let list = fnStart(req, res, next); // get list
+	res.addMsgs(list.rows[pagination.next()]).msgs();
 }
 exports.last = function(req, res, next) {
-	let menus = req.sessionStorage.list.menu;
-	menus.i = menus.rows.length - 1; //save in session
-	res.addMsgs(menus.rows[menus.i]).msgs();
+	let list = fnStart(req, res, next); // get list
+	res.addMsgs(list.rows[pagination.last()]).msgs();
 }
 
 exports.save = function(req, res, next) {
+	let list = fnStart(req, res, next); //get list
 	let i18n = res.locals.i18n;
-	dao.web.myjson.menus.saveMenu(req.data, i18n);
-	res.locals.msgs.msgOk = i18n.msgGuardarOk;
-	fnGoList(req, res, next);
+	if (req.data.id) // updating
+		dao.web.myjson.menus.updateMenu(req.data, i18n);
+	else { // inserting
+		let fn = fnFilter(list);
+		dao.web.myjson.menus.insertMenu(req.data, i18n);
+		if (fn(req.data)) {
+			list.rows.push(req.data);
+			pagination.resize(list.rows.length);
+			util.ab.sortBy(list.rows, list.by, list.dir);
+		}
+	}
+	res.locals.pagination = pagination.render();
+	res.setOk(i18n.msgGuardarOk).build(TPL_LIST);
 }
 exports.duplicate = function(req, res, next) {
 	let i18n = res.locals.i18n;
-	dao.web.myjson.menus.saveMenu(req.data, i18n); //insert/update
-	delete req.data.id; //force insert on next request
-	res.addMsgs(req.data).setOk(i18n.msgGuardarOk).msgs();
+	dao.web.myjson.menus.saveMenu(req.data, i18n); //insert ot update
+	res.addMsgs(util.ob.del(req.data, "id")).setOk(i18n.msgGuardarOk).msgs(); //force insert on next save
 }
 
 exports.delete = function(req, res, next) {
-	dao.web.myjson.menus.deleteMenu(+req.query.k);
-	res.locals.msgs.msgOk = res.locals.i18n.msgBorrarOk;
-	if (req.xhr) // is ajax call?
-		fnLoadTbody(req, res, next);
-	else
-		fnGoList(req, res, next);
+	let id = +req.query.k; // get pk
+	let list = fnStart(req, res, next);
+	if (id) { // id to remove and update filter
+		dao.web.myjson.menus.deleteMenu(id); // remove from db
+		util.ab.flush(list.rows, row => (row.id == id));
+		pagination.resize(list.rows.length); //update filter
+	}
+	res.locals.pagination = pagination.render();
+	res.setOk(res.locals.i18n.msgBorrarOk).build(TPL_LIST);
 }
 
 // Error handlers
 exports.errList = function(err, req, res, next) {
-	fnLoadList(req, res, next); //reload list
+	fnStart(req, res, next); //reload list
 	res.setBody(TPL_LIST); //same body = list
 	next(err); //go next error handler
 }

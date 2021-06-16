@@ -52,7 +52,18 @@
 			<div class="msg-error"><%=msgs.alta%></div>
 		</div>
 
-		<%-include(components + "forms/buttons.ejs", body)%>
-		<%-include(components + "forms/navbar.ejs", body)%>
+
+		<hr/>
+		<a href="<%=body.basename%>/index.html" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+		<a href="<%=body.basename%>/duplicate.html" tabindex="102" class="btn btn-warn duplicate"><i class="far fa-copy"></i> <%=i18n.lblDuplicar%></a>
+		<button type="reset" class="btn btn-light" tabindex="103">&olarr; <%=i18n.lblLimpiar%></button>
+		<% if (menu.id) { %>
+			<a href="<%=body.basename%>/delete.html?k=<%=menu.id%>" tabindex="104" class="btn btn-danger remove"><i class="far fa-trash-alt"></i> <%=i18n.lblEliminar%></a>
+			<a href="<%=body.basename%>/first.html" tabindex="106" class="btn btn-outline-primary nav-to" title="<%=i18n.titPrimero%>"><i class="fas fa-angle-double-left"></i></a>
+			<a href="<%=body.basename%>/prev.html?k=<%=menu.id%>" tabindex="107" class="btn btn-outline-primary nav-to" title="<%=i18n.titSiguiente%>"><i class="fas fa-angle-left"></i></a>
+			<a href="<%=body.basename%>/next.html?k=<%=menu.id%>" tabindex="108" class="btn btn-outline-primary nav-to" title="<%=i18n.titAnterior%>"><i class="fas fa-angle-right"></i></a>
+			<a href="<%=body.basename%>/last.html" tabindex="109" class="btn btn-outline-primary nav-to" title="<%=i18n.titUltimo%>"><i class="fas fa-angle-double-right"></i></a>
+		<% } %>
 	</form>
 </div>
