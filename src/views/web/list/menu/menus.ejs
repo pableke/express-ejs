@@ -12,16 +12,16 @@
 		</div>
 		<div class="input-group">
 			<label for="n1"><%=i18n.lblOrden%>:</label>
-			<input type="text" id="n1" name="n1" class="input-item input-control integer tr" value="<%=body.n1%>" size="15" maxlength="10" tabindex="2" />
+			<input type="text" id="n1" name="n1" class="input-item input-control integer tr" value="<%=body.n1%>" size="17" maxlength="10" tabindex="2" />
 			<span class="input-item input-icon">...</span>
-			<input type="text" id="n2" name="n2" class="input-item input-control integer tr" value="<%=body.n2%>" size="15" maxlength="10" tabindex="3" />
+			<input type="text" id="n2" name="n2" class="input-item input-control integer tr" value="<%=body.n2%>" size="17" maxlength="10" tabindex="3" />
 			<span class="msg-error"><%=msgs.n1%></span>
 		</div>
 		<div class="input-group">
 			<label for="d1"><%=i18n.lblFecha%>:</label>
-			<input type="text" id="d1" name="d1" class="input-item input-control date datepicker" value="<%=body.d1%>" size="15" maxlength="10" tabindex="4" placeholder="<%=i18n.phDate%>" />
+			<input type="date" id="d1" name="d1" class="input-item input-control" value="<%=body.d1%>" tabindex="4" />
 			<span class="input-item input-icon">...</span>
-			<input type="text" id="d2" name="d2" class="input-item input-control date datepicker" value="<%=body.d2%>" size="15" maxlength="10" tabindex="5" placeholder="<%=i18n.phDate%>" />
+			<input type="date" id="d2" name="d2" class="input-item input-control" value="<%=body.d2%>" tabindex="5" />
 			<span class="msg-error"><%=msgs.d1%></span>
 		</div>
 
@@ -38,12 +38,12 @@
 		<thead>
 			<tr>
 				<th>N&#186;</th><th><%=i18n.lblIcono%></th>
-				<th><%=i18n.lblNombre%><a href="/menu/sort.html?by=nombre" class="sort <%=list.nombreDir%>"></a>
-				<th><%=i18n.lblNombre%> (en)<a href="/menu/sort.html?by=nombre_en" class="sort <%=list.nombre_enDir%>"></a>
-				<th><%=i18n.lblPadre%><a href="/menu/sort.html?by=nombre_en" class="sort <%=list.padreDir%>"></a></th>
+				<th><span class="name-sort"><%=i18n.lblNombre%></span><a href="/menu/sort.html?by=nm" class="sort <%=list.nombreDir%>"></a>
+				<th><span class="name-sort"><%=i18n.lblNombre%> (en)</span><a href="/menu/sort.html?by=nm_en" class="sort <%=list.nm_enDir%>"></a>
+				<th><span class="name-sort"><%=i18n.lblPadre%></span><a href="/menu/sort.html?by=pn" class="sort <%=list.padreDir%>"></a></th>
 				<th class="mw-80"><%=i18n.lblOrden%><a href="/menu/sort.html?by=orden" class="sort <%=list.ordenDir%>"></a></th>
 				<th class="mw-80"><%=i18n.lblMask%><a href="/menu/sort.html?by=mask" class="sort <%=list.maskDir%>"></a></th>
-				<th><%=i18n.lblFecha%><a href="/menu/sort.html?by=alta" class="sort <%=list.altaDir%>"></a></th>
+				<th><span class="name-sort"><%=i18n.lblFecha%></span><a href="/menu/sort.html?by=alta" class="sort <%=list.altaDir%>"></a></th>
 				<th class="mw-120"></th>
 			</tr>
 		</thead>

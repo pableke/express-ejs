@@ -16,6 +16,11 @@ module.exports = function(table) {
 		id && table.each(um => { (um.user == id) && aux.push(um.menu); });
 		return aux.length ? menus.filter(menu => (aux.indexOf(menu.id) > -1)) : aux;
 	}
+	table.getAllMenus = function(id) {
+		let aux = []; // id's container
+		id && table.each(um => { (um.user == id) && aux.push(um.menu); });
+		return menus.filter(menu => (menus.isPublic(menu) || (aux.indexOf(menu.id) > -1)));
+	}
 	table.getUsers = function(id) {
 		let aux = []; // id's container
 		id && table.each(um => { (um.menu == id) && ids.push(um.user); });

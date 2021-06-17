@@ -310,6 +310,10 @@ function ValidatorBox() {
 			data[field] = fn(field, fnEscape(inputs[field]), i18n);
 		}
 		// Form must be registered
-		return validators && (errors == 0);
+		if (!validators || (errors > 0))
+			return false;
+		if (validators.onValid) //call valid event
+			return validators.onValid(data);
+		return true; //everything is ok
 	}
 }

@@ -28,7 +28,7 @@ exports.check = function(req, res, next) {
 		// Build session storage data
 		req.session.ssId = user.id;
 		req.sessionStorage = sb.init(user.id);
-		let menus = dao.web.myjson.um.getMenus(user.id); //get specific user menus
+		let menus = dao.web.myjson.um.getAllMenus(user.id); //get specific user menus
 		req.sessionStorage.menus = res.locals.menus = menus; //update user menus on view and session
 		req.sessionStorage.user = Object.assign({}, user);
 		req.sessionStorage.list = {};

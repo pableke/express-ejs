@@ -8,6 +8,9 @@ tr.data:nth-child(odd) { background-color: #fff; }
 tr.data:nth-child(even) { background-color: #eee; }
 tr.data:hover { background-color: #E6E6FA; }
 
+.name-sort {
+	cursor: pointer;
+}
 .sort {
 	cursor: pointer;
 	padding: 4px 24px 4px 4px;

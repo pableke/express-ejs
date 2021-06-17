@@ -9,7 +9,7 @@ const pagination = require("app/components/pagination.js");
 // View config
 const TPL_LIST = "web/list/menu/menus";
 const TPL_FORM = "web/forms/menu/menu";
-const LIST = { basename: "/menu", prevname: "/user" };
+const LIST = { basename: "/menu", prevname: "/user", body: {} };
 
 /*********************** HELPERS ***********************/
 function fnStart(req, res, next) {
@@ -17,7 +17,7 @@ function fnStart(req, res, next) {
 	if (list)
 		pagination.load(list);
 	else { // First instance
-		list = req.sessionStorage.list.menu = util.ob.clone(LIST);
+		list = req.sessionStorage.list.menu = util.ob.deepClone(LIST);
 		list.rows = dao.web.myjson.menus.copy();
 		pagination.load(list).resize(list.rows.length);
 	}
@@ -30,7 +30,8 @@ function fnLoad(res, list, rows) {
 	util.ob.setArray(list, "rows", rows);
 	util.ab.sortBy(rows, list.by, list.dir); // sort by field and dir
 	res.locals.pagination = pagination.resize(rows.length).render();
-	return list;
+	res.locals.body = list.body;
+	res.locals.rows = rows;
 }
 function fnFilter(data) {
 	let { fn, n1, n2, d1, d2 } = data; // declare filter data as var
@@ -52,21 +53,21 @@ exports.list = function(req, res, next) {
 	if (util.ob.eq(list, req.data)) // is same search (null == null) => true
 		return fnClose(req, res);
 	if (util.ob.falsy(req.data)) { // clear filter => next click go eq
+		util.ob.setObject(list, "data", { fn: "", n1: null, n2: null, d1: null, d2: null }).clear(list.body);
 		fnLoad(res, list, dao.web.myjson.menus.copy());
-		util.ob.setObject(list, "data", { fn: "", n1: null, n2: null, d1: null, d2: null });
 	}
 	else { // apply filter and save inputs
+		util.ob.setObject(list, "data", req.data).setObject(list, "body", req.query);
 		fnLoad(res, list, dao.web.myjson.menus.filter(fnFilter(req.data)));
-		util.ob.setObject(list, "data", req.data);
 	}
-	list.body = req.query;
 	return res.build(TPL_LIST);
 }
 exports.sort = function(req, res, next) {
 	let { by, dir } = req.query;
 	let list = fnStart(req, res, next); //get list
-	util.ab.sortBy(list.rows, by, dir) // sort by field and dir
-	util.ob.flush(list, list.by + "Dir").set(list, by + "Dir", dir).set(list, "by", by);
+	util.ab.sortBy(list.rows, by, dir); // sort by field and dir
+	util.ob.flush(list, list.by + "Dir").set(list, by + "Dir", dir)
+			.set(list, "by", by).set(list, "dir", dir);
 	res.render("web/list/menu/menus-tbody");
 }
 exports.pagination = function(req, res, next) {
@@ -112,9 +113,9 @@ exports.save = function(req, res, next) {
 	if (req.data.id) // updating
 		dao.web.myjson.menus.updateMenu(req.data, i18n);
 	else { // inserting
-		let fn = fnFilter(list);
+		let fn = fnFilter(list.data);
 		dao.web.myjson.menus.insertMenu(req.data, i18n);
-		if (fn(req.data)) {
+		if (fn(req.data)) { //new item on filter
 			list.rows.push(req.data);
 			pagination.resize(list.rows.length);
 			util.ab.sortBy(list.rows, list.by, list.dir);
@@ -132,7 +133,7 @@ exports.duplicate = function(req, res, next) {
 exports.delete = function(req, res, next) {
 	let id = +req.query.k; // get pk
 	let list = fnStart(req, res, next);
-	if (id) { // id to remove and update filter
+	if (id) { // remove id and update filter
 		dao.web.myjson.menus.deleteMenu(id); // remove from db
 		util.ab.flush(list.rows, row => (row.id == id));
 		pagination.resize(list.rows.length); //update filter

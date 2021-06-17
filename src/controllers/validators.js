@@ -30,6 +30,8 @@ valid.set("required", function(name, value, msgs) { //usefull for common inputs
 	return valid.required(name, value, msgs) && (valid.email(value) || valid.addError(name, msgs.errCorreo));
 }).set("dateval", function(name, value, msgs) { //required date
 	return msgs.toDate(value) || valid.addError(name, msgs.errDate);
+}).set("dtnull", function(name, value, msgs) {
+	return value ? new Date(value) : null; //optional date (en format)
 }).set("datenull", function(name, value, msgs) {
 	return msgs.toDate(value); //optional date
 }).set("ltNow", function(name, value, msgs) {
