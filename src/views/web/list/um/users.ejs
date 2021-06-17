@@ -49,8 +49,8 @@
 		<thead>
 			<tr>
 				<th>N&#186;</th>
-				<th><%=i18n.lblNif%><a href="/um/sort.html?by=nif" class="sort <%=list.nif%>"></a></th>
-				<th><%=i18n.lblNombre%><a href="/um/sort.html?by=nombre" class="sort <%=list.nombre%>"></a></th>
+				<th><span class="name-sort"><%=i18n.lblNif%></span><a href="/um/sort.html?by=nif" class="sort <%=list.nif%>"></a></th>
+				<th><span class="name-sort"><%=i18n.lblNombre%></span><a href="/um/sort.html?by=nombre" class="sort <%=list.nombre%>"></a></th>
 				<th><%=i18n.lblApellido1%><a href="/um/sort.html?by=ap1" class="sort <%=list.ap1%>"></a></th>
 				<th><%=i18n.lblApellido2%><a href="/um/sort.html?by=ap2" class="sort <%=list.ap2%>"></a></th>
 				<th><%=i18n.lblCorreo%><a href="/um/sort.html?by=correo" class="sort <%=list.correo%>"></a></th>
@@ -59,7 +59,12 @@
 			</tr>
 		</thead>
 		<tbody>
-			<%-include("./users-tbody")%>
+			<%-util.ab.empty(rows) || include("./users-tbody")%>
+		</tbody>
+		<tbody class="no-data hide">
+			<tr>
+				<td colspan="99">No existen usuarios asociados a este menu.</td>
+			</tr>
 		</tbody>
 		<tfoot>
 			<tr>

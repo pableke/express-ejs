@@ -48,7 +48,12 @@
 			</tr>
 		</thead>
 		<tbody>
-			<%-include("./menus-tbody")%>
+			<%-util.ab.empty(rows) || include("./menus-tbody")%>
+		</tbody>
+		<tbody class="no-data hide">
+			<tr>
+				<td colspan="99">No se han encontrado menus dados de alta en el sistema.</td>
+			</tr>
 		</tbody>
 		<tfoot>
 			<tr>

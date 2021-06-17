@@ -9,7 +9,7 @@ const pagination = require("app/components/pagination.js");
 // View config
 const TPL_LIST = "web/list/um/users";
 const TPL_FORM = "web/forms/um/xxx";
-const LIST = { basename: "/um", prevname: "/menu" };
+const LIST = { basename: "/um", prevname: "/menu", body: {} };
 
 /*********************** HELPERS ***********************/
 function fnStart(req, res, next) {
@@ -17,11 +17,13 @@ function fnStart(req, res, next) {
 	if (list)
 		pagination.load(list);
 	else { // First instance
-		list = req.sessionStorage.list.um = util.ob.clone(LIST);
+		list = req.sessionStorage.list.um = util.ob.deepClone(LIST);
 		list.rows = dao.web.myjson.um.getUsers(+req.query.id);
 		pagination.load(list).resize(list.rows.length);
 	}
-	res.locals.list = list; // save on view and session
+	res.locals.body = list.body;
+	res.locals.rows = list.rows;
+	res.locals.list = list;
 	return list;
 }
 function fnLoad(res, list, rows) {
