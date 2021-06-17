@@ -32,6 +32,6 @@ router.post("/profile.html", ctrl.post, profile.save, profile.error)
 	.post("/perfil.html", ctrl.post, profile.save, profile.error);
 
 // routes errors => redirect to it's list (avoid 404)
-router.get("/save.html", admin.list).get("/duplicate.html", admin.list);
+router.get("/save.html", admin.users).get("/duplicate.html", admin.users);
 
 module.exports = router;

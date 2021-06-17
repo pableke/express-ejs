@@ -3,8 +3,8 @@ js.ready(function() {
 	const msgs = i18n.getLang(); //messages container
 
 	// Configure datepicker
-	$.datepicker.regional["es"] = i18n.getI18n("es");
-	$.datepicker.setDefaults(i18n.getLang());
+	//$.datepicker.regional["es"] = i18n.getI18n("es");
+	//$.datepicker.setDefaults(i18n.getLang());
 
 	// Google recptcha
 	if (typeof grecaptcha !== "undefined") {
@@ -31,10 +31,10 @@ js.ready(function() {
 		let times = js.filter(inputs, ".time");
 		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
 			.change(times, el => { el.value = msgs.fmtTime(el.value); });
-		$(inputs).filter(".datepicker").datepicker({
+		/*$(inputs).filter(".datepicker").datepicker({
 			dateFormat: i18n.get("dateFormat"),
 			changeMonth: false
-		});
+		});*/
 
 		// Initialize all textarea counter
 		let textareas = js.filter(inputs, "textarea[maxlength]");

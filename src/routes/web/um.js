@@ -7,6 +7,9 @@ const admin = require("app/controllers/web/um/admin.js");
 const user = require("app/controllers/web/um/user.js");
 const menu = require("app/controllers/web/um/menu.js");
 
+router.get("/users.html", user.users);
+router.get("/menus.html", menu.menus);
+
 /*router.get("/", admin.menus).get("/index.html", admin.menus).get("/home.html", admin.menus).get("/inicio.html", admin.menus);
 router.get("/menus.html", admin.menus).get("/list.html", admin.menus).get("/listar.html", admin.menus).get("/relist.html", admin.menus);
 router.get("/filter.html", ctrl.get, admin.list, admin.errList).get("/search.html", ctrl.get, admin.list, admin.errList);

@@ -20,6 +20,6 @@ router.post("/save.html", ctrl.post, admin.save, admin.error);
 router.post("/duplicate.html", ctrl.post, admin.duplicate, admin.error);
 
 // routes errors => redirect to it's list (avoid 404)
-router.get("/save.html", admin.list).get("/duplicate.html", admin.list);
+router.get("/save.html", admin.menus).get("/duplicate.html", admin.menus);
 
 module.exports = router;
