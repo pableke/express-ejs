@@ -3,6 +3,13 @@ function ObjectBox() {
 	const self = this; //self instance
 
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
+	function unset(val) { return (typeof(val) === "undefined") || (val === null); }
+	//equality operators == != === !== cannot be used to compare (the value of) dates
+	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+	function eqDate(d1, d2) { return (d1.getTime() == d2.getTime()); }
+	function eq(v1, v2) { // generic equality
+		return (unset(v1) && unset(v2)) || (isDate(v1) && isDate(v2) && eqDate(v1, v2)) || (v1 == v2);
+	}
 
 	this.isobj = function(obj) { return obj && (typeof(obj) === "object") && !Array.isArray(obj); };
 	this.get = function(obj, name) { return obj && obj[name]; }
@@ -22,7 +29,7 @@ function ObjectBox() {
 
 	this.eq = function(obj1, obj2, keys) {
 		keys = keys || Object.keys(obj2);
-		return obj1 && keys.every(k => (obj1[k] == obj2[k]));
+		return obj1 && keys.every(k => eq(obj1[k], obj2[k]));
 	}
 	this.merge = function(keys, values) {
 		return values ? keys.reduce((o, k, i) => self.add(o, k, values[i]), {}) : {};

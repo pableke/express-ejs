@@ -21,7 +21,9 @@ function fnStart(req, res, next) {
 		list.rows = dao.web.myjson.menus.copy();
 		pagination.load(list).resize(list.rows.length);
 	}
-	res.locals.body = list; // save on view and session
+	res.locals.body = list.body;
+	res.locals.rows = list.rows;
+	res.locals.list = list;
 	return list;
 }
 function fnLoad(res, list, rows) {
@@ -50,13 +52,14 @@ exports.list = function(req, res, next) {
 	if (util.ob.eq(list, req.data)) // is same search (null == null) => true
 		return fnClose(req, res);
 	if (util.ob.falsy(req.data)) { // clear filter => next click go eq
-		Object.assign(list, { fn: "", n1: null, n2: null, d1: null, d2: null });
 		fnLoad(res, list, dao.web.myjson.menus.copy());
+		util.ob.setObject(list, "data", { fn: "", n1: null, n2: null, d1: null, d2: null });
 	}
 	else { // apply filter and save inputs
-		let rows = dao.web.myjson.menus.filter(fnFilter(valid.getData()));
-		Object.assign(fnLoad(res, list, rows), req.data);
+		fnLoad(res, list, dao.web.myjson.menus.filter(fnFilter(req.data)));
+		util.ob.setObject(list, "data", req.data);
 	}
+	list.body = req.query;
 	return res.build(TPL_LIST);
 }
 exports.sort = function(req, res, next) {

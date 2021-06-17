@@ -12,18 +12,14 @@ module.exports = function(table) {
 		return table.find(um => ((um.user == user._id) && (um.menu == menu._id)));
 	}
 	table.getMenus = function(id) {
-		let aux = table.getAll().reduce((ids, um) => {
-			(um.user == id) && ids.push(um.menu);
-			return ids;
-		}, []);
-		return menus.filter(menu => (menus.isPublic(menu) || (aux.indexOf(menu._id) > -1)));
+		let aux = []; // id's container
+		id && table.each(um => { (um.user == id) && aux.push(um.menu); });
+		return aux.length ? menus.filter(menu => (aux.indexOf(menu.id) > -1)) : aux;
 	}
 	table.getUsers = function(id) {
-		let aux = table.getAll().reduce((ids, um) => {
-			(um.menu == id) && ids.push(um.user);
-			return ids;
-		}, []);
-		return users.filter(user => (aux.indexOf(user._id) > -1));
+		let aux = []; // id's container
+		id && table.each(um => { (um.menu == id) && ids.push(um.user); });
+		return aux.length ? users.filter(user => (aux.indexOf(user.id) > -1)) : aux;
 	}
 
 	table.newUserMenu = function(user, menu, date) {

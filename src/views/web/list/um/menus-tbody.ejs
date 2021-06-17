@@ -1,11 +1,11 @@
 
-<% if (util.ab.empty(rows)) { %>
+<% if (util.ab.empty(list.rows)) { %>
 	<tr class="no-data">
 		<td colspan="99">No se han encontrado menus dados de alta en el sistema.</td>
 	</tr>
 <% } else { %>
 	<% for (let i = list.index; (i < list.last); i++) { %>
-		<% let menu = rows[i]; %>
+		<% let menu = list.rows[i]; %>
 		<tr class="data">
 			<td><%=i+1%></td>
 			<td class="tc"><i class="<%=menu.ico%>"></i></td>
