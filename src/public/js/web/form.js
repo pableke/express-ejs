@@ -25,13 +25,13 @@ js.ready(function() {
 
 		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
 		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
-		let dates = js.filter(inputs, ".date");
+		/*let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
 			.change(dates, el => { el.value = msgs.fmtDate(el.value); });
 		let times = js.filter(inputs, ".time");
 		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
 			.change(times, el => { el.value = msgs.fmtTime(el.value); });
-		/*$(inputs).filter(".datepicker").datepicker({
+		$(inputs).filter(".datepicker").datepicker({
 			dateFormat: i18n.get("dateFormat"),
 			changeMonth: false
 		});*/

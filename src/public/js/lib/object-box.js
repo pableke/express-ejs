@@ -16,16 +16,22 @@ function ObjectBox() {
 	this.set = function(obj, name, value) { obj[name] = value; return self; }
 	this.add = function(obj, name, value) { obj[name] = value; return obj; }
 
-	this.del = function(obj, name) { delete obj[name]; return obj; }
+	this.del = function(obj, name) { obj && (delete obj[name]); return obj; }
 	this.flush = function(obj, name) { self.del(obj, name); return self; }
 
-	this.delArray = function(obj, name) { obj[name].splice(0); return self.del(obj, name); }
+	this.delArray = function(obj, name) {
+		if (obj) {
+			obj[name].splice(0);
+			delete obj[name];
+		}
+		return self;
+	}
 	this.flushArray = function(obj, name) { self.delArray(obj, name); return self; }
 	this.setArray = function(obj, name, arr) { return self.flushArray(obj, name).set(obj, name, arr); }
 
 	this.delObject = function(obj, name) { self.clear(obj); return self.del(obj, name); }
-	this.flushObject = function(obj, name) { self.delObject(obj, name); return self; }
-	this.setObject = function(obj, name, obj) { return self.flushObject(obj, name).set(obj, name, obj); }
+	this.flushObject = function(obj, name) { self.delObject(obj[name], name); return self; }
+	this.setObject = function(obj, name, data) { return self.flushObject(obj, name).set(obj, name, data); }
 
 	this.eq = function(obj1, obj2, keys) {
 		keys = keys || Object.keys(obj2);
@@ -46,6 +52,11 @@ function ObjectBox() {
 		return !self.some(obj, fields); // all falsy
 	}
 
+	this.init = function(obj1, obj2, fields) {
+		fields = fields || Object.keys(obj2);
+		fields.forEach(k => { obj1[k] = obj1[k] ?? obj2[k]; });
+		return self;
+	}
 	this.clone = function(obj) {
 		return Object.assign({}, obj);
 	}

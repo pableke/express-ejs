@@ -45,6 +45,10 @@ function DateBox() {
 	this.isLeap = isLeapYear;
 	this.isValid = isDate;
 
+	//equality operators == != === !== cannot be used to compare (the value of) dates
+	function eqDate(d1, d2) { return (d1.getTime() == d2.getTime()); }
+	this.eq = function(d1, d2) { return isDate(d1) && isDate(d2) && eqDate(d1, d2); }
+
 	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
 	function fnIsoTime(date) { return fnMinTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
 	this.minTime = function(date) { return date ? fnMinTime(date) : null; } //hh:MM

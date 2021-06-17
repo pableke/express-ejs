@@ -2,7 +2,7 @@
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const ejs = require("ejs"); //tpl engine
-const ab = require("app/lib/array-box.js");
+const util = require("app/lib/util-box.js");
 
 const contents = fs.readFileSync(path.join(__dirname, "./pagination.ejs"), "utf-8");
 const DEFAULT = { size: 0, pages: 0, page: 0, psize: 40, start: 0, end: 0, index: 0, i: 0, last: 0 };
@@ -20,17 +20,15 @@ function Pagination() {
 		return self;
 	}
 	this.load = function(data) {
+		util.ob.init(data, DEFAULT, KEYS);
 		opts = data;
-		KEYS.forEach(k => {
-			opts[k] = opts[k] ?? DEFAULT[k];
-		});
 		return self;
 	}
 
 	this.first = function() { opts.i = 0; return 0; }
 	this.prev = function() { opts.i = Math.max(opts.i - 1, 0); return opts.i; }
 	this.current = function(rows, id) {
-		opts.i = id ? ab.ifind(rows, row => (row.id == id)) : -1;
+		opts.i = id ? util.ab.ifind(rows, row => (row.id == id)) : -1;
 		return opts.i;
 	}
 	this.next = function() { opts.i = Math.min(opts.i + 1, opts.size - 1); return opts.i; }

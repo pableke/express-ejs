@@ -7,19 +7,21 @@ js.ready(function() {
 
 	js.click(js.getAll("a.remove"), fnRemove);
 	js.getAll("table").forEach(table => { //tables
+		let names = js.getAll(".name-sort", table.thead);
 		let links = js.getAll("a.sort", table.thead);
 		let tbody = table.tBodies[0];
 
 		function fnTbody(html) {
 			js.html(tbody, html).click(js.getAll("a.remove", tbody), fnRemove);
 		}
-
-		js.click(links, (el, ev) => {
+		function fnSort(el, ev) {
 			let dir = js.hasClass(el, "asc") ? "desc" : "asc";
 			js.removeClass(links, "asc desc").addClass(el, dir);
 			js.ajax(el.href + "&dir=" + dir, fnTbody);
 			ev.preventDefault();
-		});
+		}
+		js.click(names, (el, ev) => fnSort(el.nextElementSibling, ev));
+		js.click(links, fnSort);
 
 		if (js.hasClass(table, "paginable")) {
 			js.each(pages, pag => {
