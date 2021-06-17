@@ -3,14 +3,21 @@ js.ready(function() {
 	const msgs = i18n.getLang(); //messages container
 	let pages = js.getAll(".pagination");
 
-	function fnRemove(el, ev) { confirm(msgs.remove) || ev.preventDefault(); }
-
-	js.click(js.getAll("a.remove"), fnRemove);
 	js.getAll("table").forEach(table => { //tables
 		let names = js.getAll(".name-sort", table.thead);
 		let links = js.getAll("a.sort", table.thead);
 		let tbody = table.tBodies[0];
 
+		function fnRemoveRow(el, ev) {
+			confirm(msgs.remove) && js.ajax(el.href, data => {
+				el.closest("tr").remove();
+				tbody.children.length || js.removeClass(table.tBodies[1], "hide");
+				js.text(js.get("#rows", table.tfoot), tbody.children.length)
+					.text(js.get("#size", table.tfoot), data.size);
+				js.showAlerts(data);
+			});
+			ev.preventDefault();
+		}
 		function fnTbody(html) {
 			js.html(tbody, html).click(js.getAll("a.remove", tbody), fnRemove);
 		}
@@ -22,6 +29,12 @@ js.ready(function() {
 		}
 		js.click(names, (el, ev) => fnSort(el.nextElementSibling, ev));
 		js.click(links, fnSort);
+
+		js.click(js.getAll("a.remove-row", tbody), fnRemoveRow);
+		js.click(js.getAll("a.remove", tbody), (el, ev) => {
+			confirm(msgs.remove) || ev.preventDefault();
+		});
+		tbody.children.length || js.removeClass(table.tBodies[1], "hide");
 
 		if (js.hasClass(table, "paginable")) {
 			js.each(pages, pag => {

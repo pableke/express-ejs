@@ -25,6 +25,10 @@ js.ready(function() {
 
 		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
 		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
+		js.change(js.filter(inputs, ".date-range"), el => { // unpdate range limits
+			js.filter(inputs, ".date-range-min-" + el.id).forEach(input => input.setAttribute("max", el.value));
+			js.filter(inputs, ".date-range-max-" + el.id).forEach(input => input.setAttribute("min", el.value));
+		});
 		/*let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
 			.change(dates, el => { el.value = msgs.fmtDate(el.value); });
@@ -82,6 +86,8 @@ js.ready(function() {
 			valid.submit(form, ev, el.href, data => {
 				js.load(inputs, data).toggle(js.getAll("a.nav-to", form), "btn hide");
 			});
+		}).click(js.filter(inputs, ".remove"), (el, ev) => {
+			confirm(msgs.remove) || ev.preventDefault();
 		});
 
 		js.focus(inputs); //focus on first

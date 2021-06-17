@@ -1,22 +1,16 @@
 
-<% if (util.ab.empty(list.rows)) { %>
-	<tr class="no-data">
-		<td colspan="99">No existen usuarios asociados a este menu.</td>
+<% for (let i = list.index; (i < list.last); i++) { %>
+	<% let user = rows[i]; %>
+	<tr class="data">
+		<td class="tc"><%=i+1%></td>
+		<td><%=user.nif%></td>
+		<td><%=user.nm%></td>
+		<td><%=user.ap1%></td>
+		<td><%=user.ap2%></td>
+		<td><a href="mailto:<%=user.correo%>"><%=user.correo%></a></td>
+		<td><%=i18n.isoDate(user.alta)%></td>
+		<td class="tc">
+			<a href="/um/unlink.html?k=<%=user.id%>" class="remove"><i class="fas fa-times fa-lg text-error icon"></i></a>
+		</td>
 	</tr>
-<% } else { %>
-	<% for (let i = list.index; (i < list.last); i++) { %>
-		<% let user = list.rows[i]; %>
-		<tr class="data">
-			<td class="tc"><%=i+1%></td>
-			<td><%=user.nif%></td>
-			<td><%=user.nm%></td>
-			<td><%=user.ap1%></td>
-			<td><%=user.ap2%></td>
-			<td><a href="mailto:<%=user.correo%>"><%=user.correo%></a></td>
-			<td><%=i18n.isoDate(user.alta)%></td>
-			<td class="tc">
-				<a href="/um/unlink.html?k=<%=user.id%>" class="remove"><i class="fas fa-times fa-lg text-error icon"></i></a>
-			</td>
-		</tr>
-	<% } %>
 <% } %>

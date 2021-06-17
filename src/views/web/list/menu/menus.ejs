@@ -19,9 +19,9 @@
 		</div>
 		<div class="input-group">
 			<label for="d1"><%=i18n.lblFecha%>:</label>
-			<input type="date" id="d1" name="d1" class="input-item input-control" value="<%=body.d1%>" tabindex="4" />
+			<input type="date" id="d1" name="d1" class="input-item input-control date-range date-range-min-d2" value="<%=body.d1%>" tabindex="4" />
 			<span class="input-item input-icon">...</span>
-			<input type="date" id="d2" name="d2" class="input-item input-control" value="<%=body.d2%>" tabindex="5" />
+			<input type="date" id="d2" name="d2" class="input-item input-control date-range date-range-max-d1" value="<%=body.d2%>" tabindex="5" />
 			<span class="msg-error"><%=msgs.d1%></span>
 		</div>
 
@@ -41,14 +41,19 @@
 				<th><span class="name-sort"><%=i18n.lblNombre%></span><a href="/menu/sort.html?by=nm" class="sort <%=list.nombreDir%>"></a>
 				<th><span class="name-sort"><%=i18n.lblNombre%> (en)</span><a href="/menu/sort.html?by=nm_en" class="sort <%=list.nm_enDir%>"></a>
 				<th><span class="name-sort"><%=i18n.lblPadre%></span><a href="/menu/sort.html?by=pn" class="sort <%=list.padreDir%>"></a></th>
-				<th class="mw-80"><%=i18n.lblOrden%><a href="/menu/sort.html?by=orden" class="sort <%=list.ordenDir%>"></a></th>
-				<th class="mw-80"><%=i18n.lblMask%><a href="/menu/sort.html?by=mask" class="sort <%=list.maskDir%>"></a></th>
+				<th class="mw-80"><span class="name-sort"><%=i18n.lblOrden%></span><a href="/menu/sort.html?by=orden" class="sort <%=list.ordenDir%>"></a></th>
+				<th class="mw-80"><span class="name-sort"><%=i18n.lblMask%></span><a href="/menu/sort.html?by=mask" class="sort <%=list.maskDir%>"></a></th>
 				<th><span class="name-sort"><%=i18n.lblFecha%></span><a href="/menu/sort.html?by=alta" class="sort <%=list.altaDir%>"></a></th>
 				<th class="mw-120"></th>
 			</tr>
 		</thead>
 		<tbody>
-			<%-include("./menus-tbody")%>
+			<%-util.ab.empty(rows) || include("./menus-tbody")%>
+		</tbody>
+		<tbody class="no-data hide">
+			<tr>
+				<td colspan="99">No se han encontrado menus dados de alta en el sistema.</td>
+			</tr>
 		</tbody>
 		<tfoot>
 			<tr>

@@ -1,29 +1,24 @@
 
-<% if (util.ab.empty(rows)) { %>
-	<tr class="no-data">
-		<td colspan="99">No se han encontrado menus dados de alta en el sistema.</td>
+<% for (let i = list.index; (i < list.last); i++) { %>
+	<% let menu = rows[i]; %>
+	<tr class="data">
+		<td><%=i+1%></td>
+		<td class="tc"><i class="<%=menu.ico%>"></i></td>
+		<td>
+			<a href="/menu/view.html?k=<%=menu.id%>"><%=menu.nm%></a>
+		</td>
+		<td>
+			<a href="/menu/view.html?k=<%=menu.id%>"><%=menu.nm_en%></a>
+		</td>
+		<td><i class="<%=menu.pi%>"></i> <a href="/menu/view.html?k=<%=menu.padre%>"><%=i18n.get(menu, "pn")%></a></td>
+		<td class="tr"><%=menu.orden%></td>
+		<td class="tr"><%=menu.mask%></td>
+		<td class="tc"><%=i18n.isoDate(menu.alta)%></td>
+		<td class="tc">
+			<a href="/menu/view.html?k=<%=menu.id%>"><i class="fas fa-search fa-lg icon icon-primary"></i></a>
+			<a href="/um/users.html?k=<%=menu.id%>"><i class="fas fa-user-plus fa-lg icon icon-success"></i></a>
+			<a href="/menu/delete.html?k=<%=menu.id%>" class="remove"><i class="fas fa-times fa-lg icon icon-error"></i></a>
+		</td>
 	</tr>
-<% } else { %>
-	<% for (let i = list.index; (i < list.last); i++) { %>
-		<% let menu = rows[i]; %>
-		<tr class="data">
-			<td><%=i+1%></td>
-			<td class="tc"><i class="<%=menu.ico%>"></i></td>
-			<td>
-				<a href="/menu/view.html?k=<%=menu.id%>"><%=menu.nm%></a>
-			</td>
-			<td>
-				<a href="/menu/view.html?k=<%=menu.id%>"><%=menu.nm_en%></a>
-			</td>
-			<td><i class="<%=menu.pi%>"></i> <a href="/menu/view.html?k=<%=menu.padre%>"><%=i18n.get(menu, "pn")%></a></td>
-			<td class="tr"><%=menu.orden%></td>
-			<td class="tr"><%=menu.mask%></td>
-			<td class="tc"><%=i18n.isoDate(menu.alta)%></td>
-			<td class="tc">
-				<a href="/menu/view.html?k=<%=menu.id%>"><i class="fas fa-search fa-lg icon icon-primary"></i></a>
-				<a href="/um/users.html?k=<%=menu.id%>"><i class="fas fa-user-plus fa-lg icon icon-success"></i></a>
-				<a href="/menu/delete.html?k=<%=menu.id%>" class="remove"><i class="fas fa-times fa-lg icon icon-error"></i></a>
-			</td>
-		</tr>
-	<% } %>
 <% } %>
+	<tr class="data"></tr>
