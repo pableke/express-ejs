@@ -110,6 +110,10 @@ exports.last = function(req, res, next) {
 exports.save = function(req, res, next) {
 	let list = fnStart(req, res, next); //get list
 	let i18n = res.locals.i18n;
+	if (req.xhr) { // insert ot update and update html partial
+		dao.web.myjson.menus.saveMenu(req.data, i18n);
+		return res.setOk(i18n.msgGuardarOk).msgs();
+	}
 	if (req.data.id) // updating
 		dao.web.myjson.menus.updateMenu(req.data, i18n);
 	else { // inserting
@@ -138,8 +142,12 @@ exports.delete = function(req, res, next) {
 		util.ab.flush(list.rows, row => (row.id == id));
 		pagination.resize(list.rows.length); //update filter
 	}
+	// set common ok message
+	res.locals.msgs.msgOk = res.locals.i18n.msgBorrarOk;
+	if (req.xhr)
+		return res.msgs();
 	res.locals.pagination = pagination.render();
-	res.setOk(res.locals.i18n.msgBorrarOk).build(TPL_LIST);
+	res.build(TPL_LIST);
 }
 
 // Error handlers

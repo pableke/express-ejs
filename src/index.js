@@ -62,7 +62,8 @@ app.use((req, res, next) => {
 	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
-	res.setHtml = function(tpl) { return res.setMsg("html", ejs.render(fs.readFileSync(path.join(VIEWS, tpl), "utf-8"), res.locals)); }
+	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
+	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
 	res.on("finish", function() { util.ob.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
 	req.sessionStorage = sb.get(req.session.ssId);
 	next(); //go next middleware

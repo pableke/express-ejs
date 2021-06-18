@@ -28,6 +28,9 @@ valid.set("required", function(name, value, msgs) { //usefull for common inputs
 	return valid.required(name, value, msgs) && (valid.idES(value) || valid.addError(name, msgs.errNif));
 }).set("correo", function(name, value, msgs) {
 	return valid.required(name, value, msgs) && (valid.email(value) || valid.addError(name, msgs.errCorreo));
+}).set("dtval", function(name, value, msgs) { //required date
+	let date = value && new Date(value);
+	return valid.isDate(date) ? date : valid.addError(name, msgs.errDate);
 }).set("dateval", function(name, value, msgs) { //required date
 	return msgs.toDate(value) || valid.addError(name, msgs.errDate);
 }).set("dtnull", function(name, value, msgs) {
