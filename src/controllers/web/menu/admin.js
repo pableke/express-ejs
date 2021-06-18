@@ -145,7 +145,7 @@ exports.delete = function(req, res, next) {
 	// set common ok message
 	res.locals.msgs.msgOk = res.locals.i18n.msgBorrarOk;
 	if (req.xhr)
-		return res.msgs();
+		return res.setMsg("size", list.rows.length).msgs();
 	res.locals.pagination = pagination.render();
 	res.build(TPL_LIST);
 }
