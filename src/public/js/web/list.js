@@ -3,19 +3,26 @@ js.ready(function() {
 	const msgs = i18n.getLang(); //messages container
 	let pages = js.getAll(".pagination");
 
+	/*** ALL TABLES **/
 	js.getAll("table").forEach(table => { //tables
+		let isPaginable = js.hasClass(table, "paginable");
 		let names = js.getAll(".name-sort", table.thead);
 		let links = js.getAll("a.sort", table.thead);
 		let tbody = table.tBodies[0];
 
-		function fnRemoveRow(el, ev) {
-			confirm(msgs.remove) && js.ajax(el.href, data => {
-				el.closest("tr").remove();
-				tbody.children.length || js.removeClass(table.tBodies[1], "hide");
-				js.text(js.get("#rows", table.tfoot), tbody.children.length)
-					.text(js.get("#size", table.tfoot), data.size);
-				js.showAlerts(data);
-			});
+		function fnRemove(el, ev) {
+			if (confirm(msgs.remove)) {
+				if (isPaginable)
+					return true;
+				js.ajax(el.href, data => {
+					el.closest("tr").remove();
+					let size = tbody.children.length;
+					size || js.removeClass(table.tBodies[1], "hide");
+					js.text(js.get("#rows", table.tfoot), size)
+						.text(js.get("#size", table.tfoot), data.size || size)
+						.showAlerts(data);
+				});
+			}
 			ev.preventDefault();
 		}
 		function fnTbody(html) {
@@ -30,13 +37,10 @@ js.ready(function() {
 		js.click(names, (el, ev) => fnSort(el.nextElementSibling, ev));
 		js.click(links, fnSort);
 
-		js.click(js.getAll("a.remove-row", tbody), fnRemoveRow);
-		js.click(js.getAll("a.remove", tbody), (el, ev) => {
-			confirm(msgs.remove) || ev.preventDefault();
-		});
+		js.click(js.getAll("a.remove", tbody), fnRemove);
 		tbody.children.length || js.removeClass(table.tBodies[1], "hide");
 
-		if (js.hasClass(table, "paginable")) {
+		if (isPaginable) {
 			js.each(pages, pag => {
 				let ranges = js.getAll("input[type=range]", pag);
 				js.change(ranges, (el, ev) => {

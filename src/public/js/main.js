@@ -72,6 +72,8 @@ js.ready(function() {
 			data[el.name] = msgs.toInt(data[el.name]);
 		}).each(js.filter(inputs, ".float"), el => {
 			data[el.name] = msgs.toFloat(data[el.name]);
+		}).each(js.filter(inputs, "[type=date]"), el => { //dates
+			data[el.name] = new Date(data[el.name]);
 		}).each(js.filter(inputs, ".date"), el => { //dates
 			data[el.name] = msgs.toDate(data[el.name]);
 		}).each(js.filter(inputs, ".time"), el => { //times

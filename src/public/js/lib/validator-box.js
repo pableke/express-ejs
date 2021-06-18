@@ -67,6 +67,7 @@ function ValidatorBox() {
 
 	// Date / Number helpers
 	this.sysdate = function() { return sysdate; } //current date
+	this.isDate = function(date) { return date && date.getTime && !isNaN(date.getTime()); }
 	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
 	// isset function is usfull for integers and floats => 0 is defined (true), otherwise set text error
 	this.isset = function(name, value, err) { return isset(value) ? value : self.addError(name, err); };

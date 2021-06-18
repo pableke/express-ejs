@@ -22,12 +22,11 @@ js.ready(function() {
 
 	js.reverse(js.getAll("form"), form => {
 		let inputs = form.elements; //inputs list
-
 		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
 		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
-		js.change(js.filter(inputs, ".date-range"), el => { // unpdate range limits
-			js.filter(inputs, ".date-range-min-" + el.id).forEach(input => input.setAttribute("max", el.value));
-			js.filter(inputs, ".date-range-max-" + el.id).forEach(input => input.setAttribute("min", el.value));
+		js.each(js.filter(inputs, ".date-range"), (el, i, arr) => { // unpdate range limits
+			js.change(el, () => js.attr(js.filter(arr, ".min-" + el.id), "max", el.value));
+			js.change(el, () => js.attr(js.filter(arr, ".max-" + el.id), "min", el.value));
 		});
 		/*let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
@@ -84,16 +83,16 @@ js.ready(function() {
 			ev.preventDefault();
 		}).click(js.getAll("a.duplicate", form), (el, ev) => {
 			valid.submit(form, ev, el.href, data => {
-				js.load(inputs, data).toggle(js.getAll("a.nav-to", form), "btn hide");
+				js.load(inputs, data).hide(js.getAll("a.remove,a.nav-to", form));
 			});
-		}).click(js.filter(inputs, ".remove"), (el, ev) => {
+		}).click(js.getAll("a.remove", form), (el, ev) => {
 			confirm(msgs.remove) || ev.preventDefault();
 		});
 
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax"))
-				valid.submit(form, ev, null, data => { js.load(inputs, data); });
+				valid.submit(form, ev, null, data => js.load(inputs, data));
 			else
 				valid.validateForm(form) || ev.preventDefault();
 		});

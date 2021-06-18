@@ -70,12 +70,12 @@ function JsBox() {
 	this.each = function(list, cb) {
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++)
-			cb(list[i], i);
+			cb(list[i], i, list);
 		return self;
 	}
 	this.reverse = function(list, cb) {
 		for (let i = fnSize(list) - 1; i > -1; i--)
-			cb(list[i], i);
+			cb(list[i], i, list);
 		return self;
 	}
 
@@ -166,6 +166,13 @@ function JsBox() {
 		const selector = "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])";
 		const el = self.find(list, selector);
 		el && el.focus();
+		return self;
+	}
+	this.attr = function(list, name, value) {
+		if (isElem(list))
+			list.setAttribute(name, value);
+		else
+			self.each(list, el => el.setAttribute(name, value));
 		return self;
 	}
 	function fnSetVal(el, value) {
