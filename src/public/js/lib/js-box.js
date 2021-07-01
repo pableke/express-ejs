@@ -157,14 +157,6 @@ function JsBox() {
 	}
 
 	// Contents
-	this.focus = function(list) {
-		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])", list);
-		el && el.focus();
-		return self;
-	}
-	this.attr = function(name, value, list) {
-		return self.each(el => el.setAttribute(name, value), list);
-	}
 	function fnSetVal(el, value) {
 		if (el.tagName === "SELECT") {
 			value = value || el.getAttribute("value");
@@ -174,18 +166,18 @@ function JsBox() {
 			el.value = value;
 		return self;
 	}
-	this.val = function(value, list) {
-		return self.each(el => fnSetVal(el, value), list);
-	}
-	this.text = function(value, list) {
-		return self.each(el => { el.innerText = value; }, list);
-	}
-	this.html = function(value, list) {
-		return self.each(el => { el.innerHTML = value; }, list);
+	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
+	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
+	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
+	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
+	this.focus = function(list) {
+		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])", list);
+		el && el.focus();
+		return self;
 	}
 	this.mask = function(mask, list) { //hide elements by mask 
 		const fn = (el, i) => {
-			return (((mask>>i)&1)==0) ? self.addClass(el, "hide") : self.removeClass(el, "hide");
+			return (((mask>>i)&1)==0) ? self.addClass("hide", el) : self.removeClass("hide", el);
 		}
 		return self.each(fn, list);
 	}
