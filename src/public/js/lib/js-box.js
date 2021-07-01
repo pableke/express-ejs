@@ -5,16 +5,33 @@
  */
 function JsBox() {
 	const self = this; //self instance
+	let elements; //elements container
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
-	function fnMatch(el, selector) { return isElem(el) && el.matches(selector); }
-	function fnGet(el, selector) { return selector && el.querySelector(selector); }
-	function fnGetAll(el, selector) { return selector && el.querySelectorAll(selector); }
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
+
+	this.get = function(selector, el) {
+		return (el || document).querySelector(selector);
+	}
+	this.getAll = function(selector, el) {
+		return (el || document).querySelectorAll(selector);
+	}
+	this.set = function(list) {
+		delete elements; //prev container
+		elements = list;
+		return self;
+	}
+	this.load = function(param, parent) {
+		if (!param)
+			return self;
+		if ((typeof param === "string") || (param instanceof String))
+			return self.set(self.getAll(param, parent));
+		return self.set(param);
+	}
 
 	this.getLang = function() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
@@ -51,61 +68,49 @@ function JsBox() {
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
 	}
-	this.mask = function(list, mask) {
-		return self.each(list, (el, i) => { //hide elements by mask
-			(((mask>>i)&1)==0) ? self.addClass(el, "hide") : self.removeClass(el, "hide");
-		});
-	}
-	this.select = function(el, mask) {
-		self.mask(el.querySelectorAll("option"), mask);
-		let option = el.querySelector("option[value='" + el.value + "']");
-		if (self.hasClass(option, "hide")) { //current option is hidden => change
-			option = self.find(el.children, "option:not(.hide)");
-			el.value = option ? option.value : null;
+
+	// Iterators
+	this.each = function(cb, list) {
+		list = list || elements;
+		if (isElem(list))
+			cb(list, 0);
+		else {
+			let size = fnSize(list);
+			for (let i = 0; i < size; i++)
+				cb(list[i], i, list);
 		}
 		return self;
 	}
-
-	// Iterators
-	this.each = function(list, cb) {
-		let size = fnSize(list);
-		for (let i = 0; i < size; i++)
-			cb(list[i], i, list);
-		return self;
-	}
-	this.reverse = function(list, cb) {
-		for (let i = fnSize(list) - 1; i > -1; i--)
-			cb(list[i], i, list);
+	this.reverse = function(cb, list) {
+		list = list || elements;
+		if (isElem(list))
+			cb(list, 0);
+		else {
+			for (let i = fnSize(list) - 1; i > -1; i--)
+				cb(list[i], i, list);
+		}
 		return self;
 	}
 
 	// Filters
-	this.matches = function(el, selector) {
-		return selector && fnMatch(el, selector);
-	}
-	this.find = function(list, selector) {
-		if (selector) {
-			if (fnMatch(list, selector))
-				return list; //only one element
-			let size = fnSize(list);
-			for (let i = 0; i < size; i++) {
-				let el = list[i]; //get element
-				if (fnMatch(el, selector))
-					return el;
-			}
+	this.findIndex = function(selector, list) {
+		list = list || elements;
+		let size = fnSize(list);
+		for (let i = 0; i < size; i++) {
+			if (list[i].matches(selector))
+				return i;
 		}
-		return null;
+		return -1;
 	}
-	this.filter = function(list, selector) {
+	this.find = function(selector, list) {
+		list = list || elements;
+		let i = self.findIndex(selector, list);
+		return (i < 0) ? null : list[i];
+	}
+	this.filter = function(selector, list) {
 		let results = []; //elem container
-		selector && self.each(list, el => addMatch(el, selector, results));
+		self.each(el => addMatch(el, selector, results), list);
 		return results;
-	}
-	this.get = function(selector, el) {
-		return fnGet(el || document, selector);
-	}
-	this.getAll = function(selector, el) {
-		return fnGetAll(el || document, selector);
 	}
 
 	function addPrev(el, selector, results) {
@@ -132,85 +137,72 @@ function JsBox() {
 		addAllPrev(el, results);
 		addAllNext(el, results);
 	}
-	this.prev = function(list, selector) {
+	this.prev = function(selector, list) {
 		let results = []; //elem container
-		if (isElem(list))
-			selector ? addPrev(list, selector, results) : addAllPrev(list, results);
-		else
-			selector ? self.each(list, el => addPrev(el, selector, results))
-					: self.each(list, el => addAllPrev(el, results));
+		selector ? self.each(el => addPrev(el, selector, results), list)
+				: self.each(el => addAllPrev(el, results), list);
 		return results;
 	}
-	this.next = function(list, selector) {
+	this.next = function(selector, list) {
 		let results = []; //elem container
-		if (isElem(list))
-			selector ? addNext(list, selector, results) : addAllNext(list, results);
-		else
-			selector ? self.each(list, el => addNext(el, selector, results))
-					: self.each(list, el => addAllNext(el, results));
+		selector ? self.each(el => addNext(el, selector, results), list)
+				: self.each(el => addAllNext(el, results), list);
 		return results;
 	}
-	this.siblings = function(list, selector) {
+	this.siblings = function(selector, list) {
 		let results = []; //elem container
-		if (isElem(list))
-			selector ? addSiblings(list, selector, results)
-					: addAllSiblings(list, results);
-		else
-			selector ? self.each(list, el => addSiblings(el, selector, results))
-					: self.each(list, el => addAllSiblings(el, results));
+		selector ? self.each(el => addSiblings(el, selector, results), list)
+				: self.each(el => addAllSiblings(el, results), list);
 		return results;
 	}
 
 	// Contents
 	this.focus = function(list) {
-		const selector = "[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])";
-		const el = self.find(list, selector);
+		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])", list);
 		el && el.focus();
 		return self;
 	}
-	this.attr = function(list, name, value) {
-		if (isElem(list))
-			list.setAttribute(name, value);
-		else
-			self.each(list, el => el.setAttribute(name, value));
-		return self;
+	this.attr = function(name, value, list) {
+		return self.each(el => el.setAttribute(name, value), list);
 	}
 	function fnSetVal(el, value) {
 		if (el.tagName === "SELECT") {
 			value = value || el.getAttribute("value");
-			el.selectedIndex = Array.from(el.options).findIndex(opt => (opt.value == value));
+			el.selectedIndex = self.findIndex(opt => (opt.value == value), el.options);
 		}
 		else
 			el.value = value;
 		return self;
 	}
-	this.val = function(list, value) {
-		if (isElem(list))
-			fnSetVal(list, value);
-		else
-			self.each(list, el => fnSetVal(el, value));
-		return self;
+	this.val = function(value, list) {
+		return self.each(el => fnSetVal(el, value), list);
 	}
-	this.text = function(list, value) {
-		if (isElem(list))
-			list.innerText = value;
-		else
-			self.each(list, el => { el.innerText = value; });
-		return self;
+	this.text = function(value, list) {
+		return self.each(el => { el.innerText = value; }, list);
 	}
-	this.html = function(list, value) {
-		if (isElem(list))
-			list.innerHTML = value;
-		else
-			self.each(list, el => { el.innerHTML = value; });
-		return self;
+	this.html = function(value, list) {
+		return self.each(el => { el.innerHTML = value; }, list);
+	}
+	this.mask = function(mask, list) { //hide elements by mask 
+		const fn = (el, i) => {
+			return (((mask>>i)&1)==0) ? self.addClass(el, "hide") : self.removeClass(el, "hide");
+		}
+		return self.each(fn, list);
+	}
+	this.select = function(mask, list) {
+		return self.each(el => {
+			self.mask(mask, el.querySelectorAll("option"));
+			let option = el.querySelector("option[value='" + el.value + "']");
+			if (self.hasClass("hide", option)) //current option is hidden => force change
+				el.selectedIndex = self.findIndex("option:not(.hide)", el.children);
+		}, list);
 	}
 	this.import = function(inputs, data) {
-		return data ? self.each(inputs, el => fnSetVal(el, data[el.name] ?? "")) : self.val(inputs, "");
+		return data ? self.each(el => fnSetVal(el, data[el.name] ?? ""), inputs) : self.val("", inputs);
 	}
 	this.export = function(inputs, data) {
 		data = data || {};
-		self.each(inputs, el => { data[el.name] = el.value; });
+		self.each(el => { data[el.name] = el.value; }, inputs);
 		delete data.undefined; //no name element
 		return data;
 	}
@@ -221,57 +213,37 @@ function JsBox() {
 	}
 	this.show = function(list, display) {
 		display = display || "block";
-		if (isElem(list))
-			list.style.display = display;
-		else
-			self.each(list, el => { el.style.display = display; });
-		return self;
+		return self.each(el => { el.style.display = display; }, list);
 	}
 	this.hide = function(list) {
-		if (isElem(list))
-			list.style.display = "none";
-		else
-			self.each(list, el => { el.style.display = "none"; });
-		return self;
+		return self.each(el => { el.style.display = "none"; }, list);
 	}
-	this.hasClass = function(list, name) {
-		let el = fnSize(list) ? list[0] : list; //first element
+	this.hasClass = function(name, list) {
+		list = list || elements;
+		const el = fnSize(list) ? list[0] : list; //first element
 		return el && fnSplit(name).some(name => el.classList.contains(name));
-	};
-	this.setClass = function(list, value) {
-		function fnSet(el) { el.className = value; }
-		if (isElem(list))
-			fnSet(list);
-		else
-			self.each(list, fnSet);
-		return self;
 	}
-	this.addClass = function(list, name) {
-		let names = fnSplit(name); // Split value by " " (class separator)
+	this.setClass = function(value, list) {
+		return self.each(el => { el.className = value; }, list);
+	}
+	this.addClass = function(name, list) {
+		const names = fnSplit(name); // Split value by " " (class separator)
 		function fnAdd(el) { names.forEach(name => el.classList.add(name)); }
-		if (isElem(list))
-			fnAdd(list);
-		else
-			self.each(list, fnAdd);
-		return self;
+		return self.each(fnAdd, list);
 	}
-	this.removeClass = function(list, name) {
-		let names = fnSplit(name); // Split value by " " (class separator)
+	this.removeClass = function(name, list) {
+		const names = fnSplit(name); // Split value by " " (class separator)
 		function fnRemove(el) { names.forEach(name => el.classList.remove(name)); }
-		if (isElem(list))
-			fnRemove(list);
-		else
-			self.each(list, fnRemove);
-		return self;
+		return self.each(fnRemove, list);
 	}
-	this.toggle = function(list, name, display) {
-		let names = fnSplit(name); // Split value by " " (class separator)
+	this.toggle = function(name, list) {
+		const names = fnSplit(name); // Split value by " " (class separator)
 		function fnToggle(el) { names.forEach(name => el.classList.toggle(name)); }
-		if (isElem(list))
-			fnToggle(list);
-		else
-			self.each(list, fnToggle);
-		return self;
+		return self.each(fnToggle, list);
+	}
+	this.css = function(prop, value, list) {
+		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", "").toUpperCase());
+		return self.each(el => { el.style[camelProp] = value; }, list);
 	}
 
 	// Efects Fade
@@ -289,11 +261,7 @@ function JsBox() {
 			fade();
 		}
 
-		if (isElem(list))
-			fnFadeOut(list);
-		else
-			self.each(list, fnFadeOut);
-		return self;
+		return self.each(fnFadeOut, list);
 	};
 	this.fadeIn = function(list, display) {
 		function fnFadeIn(el) {
@@ -307,11 +275,7 @@ function JsBox() {
 			fade();
 		}
 
-		if (isElem(list))
-			fnFadeIn(list);
-		else
-			self.each(list, fnFadeIn);
-		return self;
+		return self.each(fnFadeIn, list);
 	};
 	this.fadeToggle = function(list, display) {
 		let el = fnSize(list) ? list[0] : list;
@@ -324,28 +288,10 @@ function JsBox() {
 		el.addEventListener(name, ev => fn(el, ev));
 		return self;
 	}
-	this.ready = function(fn) {
-		return fnEvent(document, "DOMContentLoaded", fn);
-	}
-	this.click = function(list, fn) {
-		return isElem(list) ? fnEvent(list, "click", fn) 
-							: self.each(list, el => fnEvent(el, "click", fn));
-	}
-	this.change = function(list, fn) {
-		return isElem(list) ? fnEvent(list, "change", fn) 
-							: self.each(list, el => fnEvent(el, "change", fn));
-	}
-	this.keyup = function(list, fn) {
-		return isElem(list) ? fnEvent(list, "keyup", fn) 
-							: self.each(list, el => fnEvent(el, "keyup", fn));
-	}
-	this.keydown = function(list, fn) {
-		return isElem(list) ? fnEvent(list, "keydown", fn) 
-							: self.each(list, el => fnEvent(el, "keydown", fn));
-	}
-	this.trigger = function(list, name) {
-		let ev = new Event(name);
-		return isElem(list) ? el.dispatchEvent(ev) 
-							: self.each(list, el => el.dispatchEvent(ev));
-	}
+	this.ready = function(fn) { return fnEvent(document, "DOMContentLoaded", fn); }
+	this.click = function(fn, list) { return self.each(el => fnEvent(el, "click", fn), list); }
+	this.change = function(fn, list) { return self.each(el => fnEvent(el, "change", fn), list); }
+	this.keyup = function(fn, list) { return self.each(el => fnEvent(el, "keyup", fn), list); }
+	this.keydown = function(fn, list) { return self.each(el => fnEvent(el, "keydown", fn), list); }
+	this.trigger = function(name, list) { return self.each(el => el.dispatchEvent(new Event(name)), list); }
 }
