@@ -9,7 +9,7 @@ js.ready(function() {
 	// Google recptcha
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
-			js.click(js.getAll(".captcha"), (el, ev) => {
+			js.load(".captcha").click((el, ev) => {
 				grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
 					.then(token => valid.setInput("token", token).submit(el.closest("form"), ev))
 					.catch(js.showError);
@@ -18,15 +18,15 @@ js.ready(function() {
 		});
 	}
 	// load select value
-	js.val(js.getAll("select"));
+	js.load("select").val();
 
-	js.reverse(js.getAll("form"), form => {
+	js.load("form").reverse(form => {
 		let inputs = form.elements; //inputs list
-		js.change(js.filter(inputs, ".integer"), el => { el.value = msgs.fmtInt(el.value); });
-		js.change(js.filter(inputs, ".float"), el => { el.value = msgs.fmtFloat(el.value); });
-		js.each(js.filter(inputs, ".date-range"), (el, i, arr) => { // unpdate range limits
-			js.change(el, () => js.attr(js.filter(arr, ".min-" + el.id), "max", el.value));
-			js.change(el, () => js.attr(js.filter(arr, ".max-" + el.id), "min", el.value));
+		js.set(js.filter(".integer", inputs)).change(el => { el.value = msgs.fmtInt(el.value); });
+		js.set(js.filter(".float", inputs)).change(el => { el.value = msgs.fmtFloat(el.value); });
+		js.set(js.filter(".date-range", inputs)).each((el, i, arr) => { // unpdate range limits
+			js.change(el, () => js.set(js.filter(".min-" + el.id, arr)).attr("max", el.value));
+			js.change(el, () => js.set(js.filter(".max-" + el.id, arr)).attr("min", el.value));
 		});
 		/*let dates = js.filter(inputs, ".date");
 		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
@@ -43,56 +43,56 @@ js.ready(function() {
 		let textareas = js.filter(inputs, "textarea[maxlength]");
 		function fnCounter(el) {
 			let txt = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
-			js.text(form.querySelector("#counter-" + el.id), txt);
+			js.text(txt, form.querySelector("#counter-" + el.id));
 		}
-		js.keyup(textareas, fnCounter).each(textareas, fnCounter);
+		js.set(textareas).keyup(fnCounter).each(fnCounter);
 		// End initialize all textarea counter
 
-		function fnUpdateIcon(el, value) { return !js.setClass(js.next(el, "i"), value); }
+		function fnUpdateIcon(el, value) { return !js.set(js.next("i", el)).setClass(value); }
 		js.autocomplete({
-			inputs: js.filter(inputs, ".ac-user"), action: "/user/find.html",
+			inputs: js.filter(".ac-user", inputs), action: "/user/find.html",
 			render: function(item) { return item.nif + " - " + (item.nm + " " + item.ap1 + " " + item.ap2).trim(); },
-			load: function(item, el, ids) { js.val(el, this.render(item)).val(ids, item.nif); }
+			load: function(item, el, ids) { js.val(this.render(item), el).val(item.nif, ids); }
 		}).autocomplete({
-			inputs: js.filter(inputs, ".ac-menu"), action: "/menu/find.html",
+			inputs: js.filter(".ac-menu", inputs), action: "/menu/find.html",
 			focus: function(ev, ui) {
 				let icon = ui.item && ui.item.icon;
 				return fnUpdateIcon(this, "input-item input-icon " + (icon || "fas fa-arrow-alt-circle-up"));
 			},
 			remove: function(el) { fnUpdateIcon(el, "input-item input-icon fas fa-arrow-alt-circle-up"); },
 			render: function(item) { return (item.icon ? '<i class="' + item.icon + '"></i> - ' : "") + msgs.get(item, "nm"); },
-			load: function(item, el, ids) { js.val(el, msgs.get(item, "nm")).val(ids, item.id); }
+			load: function(item, el, ids) { js.val(msgs.get(item, "nm"), el).val(item.id, ids); }
 		});
 
-		js.change(js.filter(inputs, ".update-icon"), (el) => {
-			js.setClass(el.nextElementSibling, "input-item input-icon " + (el.value || "far fa-window-close"));
-		})
+		js.set(js.filter(".update-icon", inputs)).change(el => {
+			js.setClass("input-item input-icon " + (el.value || "far fa-window-close"), el.nextElementSibling);
+		});
 
-		js.click(js.filter(inputs, "[type=reset]"), () => {
+		js.set(js.filter("[type=reset]", inputs)).click(() => {
 			//Do what you need before reset the form
 			form.reset(); //Reset manually the form
 			//Do what you need after reset the form
 			//reset message, state inputs and recount textareas
-			js.clean(inputs).each(textareas, fnCounter);
-		}).click(js.filter(inputs, ".clear-all"), () => {
-			js.val(inputs, "").clean(inputs).each(textareas, fnCounter);
-		}).click(js.getAll("a.nav-to", form), (el, ev) => {
+			js.clean(inputs).each(fnCounter, textareas);
+		}).set(js.filter(".clear-all", inputs)).click(() => {
+			js.val("", inputs).clean(inputs).each(fnCounter, textareas);
+		}).load("a.nav-to", form).click((el, ev) => {
 			js.ajax(el.href, data => {
-				js.load(inputs, data).trigger(inputs, "change");
+				js.read(inputs, data).trigger(inputs, "change");
 			});
 			ev.preventDefault();
-		}).click(js.getAll("a.duplicate", form), (el, ev) => {
+		}).load("a.duplicate", form).click((el, ev) => {
 			valid.submit(form, ev, el.href, data => {
-				js.load(inputs, data).hide(js.getAll("a.remove,a.nav-to", form));
+				js.read(inputs, data).load("a.remove,a.nav-to", form).hide();
 			});
-		}).click(js.getAll("a.remove", form), (el, ev) => {
+		}).load("a.remove", form).click((el, ev) => {
 			confirm(msgs.remove) || ev.preventDefault();
 		});
 
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax"))
-				valid.submit(form, ev, null, data => js.load(inputs, data));
+				valid.submit(form, ev, null, data => js.read(inputs, data));
 			else
 				valid.validateForm(form) || ev.preventDefault();
 		});

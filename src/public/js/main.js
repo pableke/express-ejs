@@ -8,7 +8,6 @@ js.ready(function() {
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
 	let texts = js.getAll(".alert-text");
-	let buttons = js.getAll(".alert-close");
 	function showAlert(el) { js.fadeIn(el.parentNode, "grid");  }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
@@ -16,8 +15,8 @@ js.ready(function() {
 	function showWarn(txt) { txt && setAlert(texts[2], txt); } //yellow
 	function showError(txt) { txt && setAlert(texts[3], txt); } //red
 
-	js.each(texts, el => { el.firstChild && showAlert(el); });
-	js.click(buttons, el => { js.fadeOut(el.parentNode); });
+	js.each(el => { el.firstChild && showAlert(el); }, texts)
+		.load(".alert-close").click(el => { js.fadeOut(el.parentNode); });
 	// End alerts handlers
 
 	// Loading div
@@ -42,41 +41,39 @@ js.ready(function() {
 		return msgs ? js.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : js;
 	}
 	js.clean = function(inputs) { //reset message and state inputs
-		return js.closeAlerts().removeClass(inputs, CLS_INVALID)
-				.text(js.siblings(inputs, CLS_FEED_BACK), "")
-				.focus(inputs);
+		return js.closeAlerts().set(inputs).removeClass(CLS_INVALID).set(js.siblings(inputs, CLS_FEED_BACK)).text("").focus(inputs);
 	}
 	js.showErrors = function(inputs, errors) {
-		return js.showAlerts(errors).reverse(inputs, el => {
+		return js.showAlerts(errors).set(inputs).reverse(el => {
 			let msg = el.name && errors[el.name]; //exists message error?
 			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
 		});
 	}
 
-	js.load = function(inputs, data) {
+	js.read = function(inputs, data) {
 		js.import(inputs, data); //load data and reformat
-		js.each(js.filter(inputs, ".integer"), el => {
+		js.set(js.filter(".integer", inputs)).each(el => {
 			el.value = msgs.isoInt(data[el.name]);
-		}).each(js.filter(inputs, ".float"), el => {
+		}).set(js.filter(".float", inputs)).each(el => {
 			el.value = msgs.isoFloat(data[el.name]);
-		}).each(js.filter(inputs, ".date"), el => { //dates
+		}).set(js.filter(".date", inputs)).each(el => { //dates
 			el.value = msgs.isoDate(sb.toDate(data[el.name]));
-		}).each(js.filter(inputs, ".time"), el => { //times
+		}).set(js.filter(".time", inputs)).each(el => { //times
 			el.value = msgs.minTime(sb.toDate(data[el.name]));
 		});
 		return js.showAlerts(data);
 	}
 	js.parse = function(inputs, data) {
 		data = js.export(inputs, data); //parse from inputs
-		js.each(js.filter(inputs, ".integer"), el => {
+		js.set(js.filter(".integer", inputs)).each(el => {
 			data[el.name] = msgs.toInt(data[el.name]);
-		}).each(js.filter(inputs, ".float"), el => {
+		}).set(js.filter(".float", inputs)).each(el => {
 			data[el.name] = msgs.toFloat(data[el.name]);
-		}).each(js.filter(inputs, "[type=date]"), el => { //dates
+		}).set(js.filter("[type=date]", inputs)).each(el => { //dates
 			data[el.name] = new Date(data[el.name]);
-		}).each(js.filter(inputs, ".date"), el => { //dates
+		}).set(js.filter(".date", inputs)).each(el => { //dates
 			data[el.name] = msgs.toDate(data[el.name]);
-		}).each(js.filter(inputs, ".time"), el => { //times
+		}).set(js.filter(".time", inputs)).each(el => { //times
 			data[el.name] = msgs.toTime(data[el.name]);
 		});
 		return data;
@@ -94,7 +91,7 @@ js.ready(function() {
 	js.autocomplete = function(opts) { // Autocomplete inputs
 		let _search = false; //call source indicator
 		function fnFalse() { return false; }
-		function fnGetIds(el) { return js.siblings(el, "[type=hidden]"); }
+		function fnGetIds(el) { return js.siblings("[type=hidden]", el); }
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -120,12 +117,12 @@ js.ready(function() {
 		// Triggered when the field is blurred, if the value has changed
 		opts.change = function(ev, ui) {
 			if (!ui.item) { //item selected?
-				js.val(this, "").val(fnGetIds(this), "");
+				js.val("", this).val("", fnGetIds(this));
 				opts.remove(this);
 			}
 		};
 		$(opts.inputs).autocomplete(opts);
-		return js.keydown(opts.inputs, (el, ev) => { // Reduce server calls, only for backspace or alfanum
+		return js.set(opts.inputs).keydown((el, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
 		});
 	}
