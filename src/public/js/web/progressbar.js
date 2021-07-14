@@ -12,39 +12,40 @@ js.ready(function() {
 		return (index < size) ? index : (size - 1);
 	}
 	function fnSetTabs() {
-		js.removeClass(navs, "active").addClass(navs[index], "active");
-		js.removeClass(tabs, "active").addClass(tabs[index], "active");
-		steps.forEach((el, i) => { js.toggle(el, "active", i <= index); });
+		js.removeClass("active", navs).addClass("active", navs[index]);
+		js.removeClass("active", tabs).addClass("active", tabs[index]);
+		steps.forEach((el, i) => js.set(el).toggle("active", i <= index));
 	}
 
 	//de-activate current step on progressbar
-	js.click(js.getAll(".prev-tab"), () => {
+	js.load(".prev-tab").click(() => {
 		index = fnRange(index - 1);
 		return fnSetTabs();
 	});
 	//activate next step on progressbar
-	js.click(js.getAll(".next-tab"), () => {
+	js.load(".next-tab").click(() => {
 		index = fnRange(index + 1);
 		return fnSetTabs();
 	});
 	//go to a specific step on progressbar
 	let anchors = js.getAll("a[href^='#']");
-	js.click(js.filter(anchors, "[href^='#tab-']"), (el) => {
+	js.set(js.filter("[href^='#tab-']", anchors)).click((el) => {
 		index = fnRange(+el.href.substr(el.href.lastIndexOf("-") + 1) - 1); //base 0
 		return fnSetTabs();
 	});
 
-	js.click(js.getAll("a.show-info"), (el, ev) => { //show/hide extra info
-		js.toggle(el.lastElementChild, "fa-angle-double-up fa-angle-double-down").toggle(js.get(".extra-info-" + el.id), "hide");
-		ev.preventDefault();
-	});
-
 	//Scroll anchors to its destination with a slow effect
-	js.click(js.filter(anchors, ":not([href^='#tab-'])"), function(el, ev) {
+	js.set(js.filter(":not([href^='#tab-'])", anchors)).click((el, ev) => {
 		try { //is anchor well build
 			let dest = document.querySelector(el.getAttribute("href"));
 			dest && dest.scrollIntoView({ behavior: "smooth" });
 		} catch(ex) {}
+		ev.preventDefault();
+	});
+
+	js.load("a.show-info").click((el, ev) => { //show/hide extra info
+		js.set(el.lastElementChild).toggle("fa-angle-double-up fa-angle-double-down")
+			.load(".extra-info-" + el.id).toggle("hide");
 		ev.preventDefault();
 	});
 });

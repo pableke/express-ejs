@@ -8,7 +8,7 @@ js.ready(function() {
 	// Alerts handlers
 	let alerts = js.getAll("div.alert");
 	let texts = js.getAll(".alert-text");
-	function showAlert(el) { js.fadeIn(el.parentNode, "grid");  }
+	function showAlert(el) { js.fadeIn(el.parentNode, "grid"); }
 	function setAlert(el, txt) { el.innerHTML = txt; showAlert(el); }
 	function showOk(txt) { txt && setAlert(texts[0], txt); } //green
 	function showInfo(txt) { txt && setAlert(texts[1], txt); } //blue
@@ -16,7 +16,7 @@ js.ready(function() {
 	function showError(txt) { txt && setAlert(texts[3], txt); } //red
 
 	js.each(el => { el.firstChild && showAlert(el); }, texts)
-		.load(".alert-close").click(el => { js.fadeOut(el.parentNode); });
+		.load(".alert-close").click(el => js.fadeOut(el.parentNode));
 	// End alerts handlers
 
 	// Loading div
@@ -50,7 +50,7 @@ js.ready(function() {
 		});
 	}
 
-	js.read = function(inputs, data) {
+	js.format = function(inputs, data) {
 		js.import(inputs, data); //load data and reformat
 		js.set(js.filter(".integer", inputs)).each(el => {
 			el.value = msgs.isoInt(data[el.name]);
