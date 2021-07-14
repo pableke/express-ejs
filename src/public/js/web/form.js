@@ -40,7 +40,7 @@ js.ready(function() {
 		});*/
 
 		// Initialize all textarea counter
-		let textareas = js.filter(inputs, "textarea[maxlength]");
+		let textareas = js.filter("textarea[maxlength]", inputs);
 		function fnCounter(el) {
 			let txt = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
 			js.text(txt, form.querySelector("#counter-" + el.id));
@@ -78,12 +78,12 @@ js.ready(function() {
 			js.val("", inputs).clean(inputs).each(fnCounter, textareas);
 		}).load("a.nav-to", form).click((el, ev) => {
 			js.ajax(el.href, data => {
-				js.read(inputs, data).trigger(inputs, "change");
+				js.format(inputs, data).trigger(inputs, "change");
 			});
 			ev.preventDefault();
 		}).load("a.duplicate", form).click((el, ev) => {
 			valid.submit(form, ev, el.href, data => {
-				js.read(inputs, data).load("a.remove,a.nav-to", form).hide();
+				js.format(inputs, data).load("a.remove,a.nav-to", form).hide();
 			});
 		}).load("a.remove", form).click((el, ev) => {
 			confirm(msgs.remove) || ev.preventDefault();
@@ -92,7 +92,7 @@ js.ready(function() {
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax"))
-				valid.submit(form, ev, null, data => js.read(inputs, data));
+				valid.submit(form, ev, null, data => js.format(inputs, data));
 			else
 				valid.validateForm(form) || ev.preventDefault();
 		});

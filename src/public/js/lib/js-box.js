@@ -14,15 +14,11 @@ function JsBox() {
 	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 
-	this.get = function(selector, el) {
-		return (el || document).querySelector(selector);
-	}
-	this.getAll = function(selector, el) {
-		return (el || document).querySelectorAll(selector);
-	}
+	this.get = function(selector, el) { return (el || document).querySelector(selector); }
+	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
 	this.set = function(list) {
 		delete elements; //prev container
-		elements = list;
+		elements = list; //new container
 		return self;
 	}
 	this.load = function(param, parent) {
@@ -93,8 +89,7 @@ function JsBox() {
 	}
 
 	// Filters
-	this.findIndex = function(selector, list) {
-		list = list || elements;
+	function fnGetIndex(selector, list) {
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
 			if (list[i].matches(selector))
@@ -102,9 +97,12 @@ function JsBox() {
 		}
 		return -1;
 	}
+	this.findIndex = function(selector, list) {
+		return fnGetIndex(selector, list || elements);
+	}
 	this.find = function(selector, list) {
 		list = list || elements;
-		let i = self.findIndex(selector, list);
+		let i = fnGetIndex(selector, list);
 		return (i < 0) ? null : list[i];
 	}
 	this.filter = function(selector, list) {
@@ -228,10 +226,9 @@ function JsBox() {
 		function fnRemove(el) { names.forEach(name => el.classList.remove(name)); }
 		return self.each(fnRemove, list);
 	}
-	this.toggle = function(name, list) {
+	this.toggle = function(name, force) {
 		const names = fnSplit(name); // Split value by " " (class separator)
-		function fnToggle(el) { names.forEach(name => el.classList.toggle(name)); }
-		return self.each(fnToggle, list);
+		return self.each(el => names.forEach(name => el.classList.toggle(name, force)));
 	}
 	this.css = function(prop, value, list) {
 		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", "").toUpperCase());

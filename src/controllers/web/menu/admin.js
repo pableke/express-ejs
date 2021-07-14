@@ -112,7 +112,7 @@ exports.save = function(req, res, next) {
 	let i18n = res.locals.i18n;
 	if (req.xhr) { // insert ot update and update html partial
 		dao.web.myjson.menus.saveMenu(req.data, i18n);
-		return res.setOk(i18n.msgGuardarOk).msgs();
+		return res.setOk(i18n.msgGuardarOk).setFile("xxxx").msgs();
 	}
 	if (req.data.id) // updating
 		dao.web.myjson.menus.updateMenu(req.data, i18n);

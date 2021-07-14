@@ -10,13 +10,13 @@ js.ready(function() {
 			if ((mask&8) == 8) { // Is parent => add triangle
 				child.innerHTML += '<ul class="sub-menu"></ul>';
 				child.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
-				js.click(child.firstElementChild, (el, ev) => { //usfull on sidebar
-					js.toggle(child, "active");
+				js.set(child.firstElementChild).click((el, ev) => { //usfull on sidebar
+					js.toggle("active", child);
 					ev.preventDefault();
 				});
 			}
 			if ((mask&4) == 0) // Disables links
-				js.addClass(child.firstElementChild, "disabled");
+				js.addClass("disabled", child.firstElementChild);
 		});
 
 		for (let i = 0; i < menu.children.length; ) {
@@ -33,15 +33,15 @@ js.ready(function() {
 	});
 
 	// Show/Hide sidebar
-	js.click(js.getAll(".sidebar-toggle"), (el, ev) => {
-		js.toggle(js.getAll(".sidebar-icon", el.parentNode), "hide");
-		js.toggle(js.get("#sidebar", el.parentNode), "active");
+	js.load(".sidebar-toggle").click((el, ev) => {
+		js.toggle("hide", js.getAll(".sidebar-icon", el.parentNode));
+		js.toggle("active", js.get("#sidebar", el.parentNode));
 		ev.preventDefault();
 	});
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
-	js.click(top, () => { js.scrollTop(400); });
+	js.click(() => { js.scrollTop(400); }, top);
 	window.onscroll = function() {
 		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
 	};
