@@ -42,10 +42,9 @@ js.ready(function() {
 	}
 	js.clean = function(inputs) { //reset message and state inputs
 		return js.closeAlerts().set(inputs).focus() //focus on first if no error
-				.removeClass(CLS_INVALID).set(js.siblings(CLS_FEED_BACK)).text("").focus();
+				.removeClass(CLS_INVALID).set(js.siblings(CLS_FEED_BACK)).text("");
 	}
 	js.showErrors = function(inputs, errors) {
-		console.log("errors", errors);
 		return js.showAlerts(errors).set(inputs).reverse(el => {
 			let msg = el.name && errors[el.name]; //exists message error?
 			msg && js.set(el).focus().addClass(CLS_INVALID).html(msg, js.siblings(CLS_FEED_BACK));
