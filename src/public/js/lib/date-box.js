@@ -31,19 +31,63 @@ function DateBox() {
 		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
 		return isNaN(date.getTime()) ? null : date;
 	}
-	function toDateTime(parts) {
-		if (hasParts(parts)) { //at least year required
-			rangeDate(parts); //close range date parts
-			let date = new Date(); //instance to be returned
-			date.setFullYear(parts[0], parts[1] - 1, parts[2]);
-			return setTime(date, parts[3], parts[4], parts[5], parts[6]);
-		}
-		return null;
+	function fnBuild(parts) {
+		let date = new Date(); //returned instance
+		parts = rangeDate(parts); //limit date ranges
+		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
+		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+	}
+	function toDateTime(parts) { //at least year required
+		return hasParts(parts) ? fnBuild(parts) : null;
 	}
 
-	this.daysInMonth = daysInMonth;
-	this.isLeap = isLeapYear;
 	this.isValid = isDate;
+	this.build = fnBuild;
+	this.isLeap = function(date) { return date && isLeapYear(date.getFullYear()); }
+	this.daysInMonth = function(date) { return date ? daysInMonth(date.getFullYear(), date.getMonth()) : 0; }
+	this.toArray = function(date) { return date ? [date.getFullYear(), lpad(date.getMonth() + 1), lpad(date.getDate()), lpad(date.getHours()), lpad(date.getMinutes()), lpad(date.getSeconds()), date.getMilliseconds()] : []; }
+	this.addDate = function(date, val) { date && date.setDate(date.getDate() + val); return self; }
+	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
+	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
+	this.getWeek = function(date) {
+		date = date || sysdate; //default
+		var d1 = new Date(date.getFullYear(), 0, 1);
+		var numberOfDays = Math.floor((date - d1) / 86400000); //1d = 24 * 60 * 60 * 1000
+		return Math.ceil((date.getDay() + 1 + numberOfDays) / 7);
+	}
+	this.week = function(year, week) {
+		week = week || 1; // default week = first week of year
+		const firstDay = new Date(year, 0, 1); // first day of year
+		const offset = (firstDay.getDay() + 6) % 7; //num days from start year and start week
+		firstDay.setDate(firstDay.getDate() + (week * 7) - offset); //update date
+		return firstDay; //first day of week
+	}
+	this.toWeek = function(str) { //ej: "2021-W27"
+		return str ? self.week(+str.substr(0, 4), +str.substr(6)) : null;
+	}
+	this.isoWeek = function(date) {
+		return date ? (date.getFullYear() + "-W" + self.getWeek(date)) : null;
+	}
+	this.diff = function(d1, d2) {
+		d2 = d2 || sysdate;
+		if (d1 > d2) //swap
+			return d1.diff(d2, d1);
+
+		const result = self.toArray(d2); //date parts
+		const dias = self.daysInMonth(d2) - d2.getDate() + d1.getDate();
+		const ajustes = [0, 12, dias, 24, 60, 60, 1000]; //years, months, days...
+
+		function fnAjustar(val, i) {
+			result[i] -= val;
+			if (result[i] < 0) {
+				result[i] += ajustes[i];
+				fnAjustar(1, i-1);
+			}
+		}
+
+		self.toArray(d1).forEach(fnAjustar);
+		return result;
+	}
 
 	//equality operators == != === !== cannot be used to compare (the value of) dates
 	function eqDate(d1, d2) { return (d1.getTime() == d2.getTime()); }

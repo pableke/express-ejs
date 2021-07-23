@@ -20,7 +20,7 @@ js.ready(function() {
 	// load select value
 	js.load("select").val();
 
-	js.load("form").reverse(form => {
+	js.setI18n(msgs).load("form").reverse(form => {
 		let inputs = form.elements; //inputs list
 		js.set(js.filter(".integer", inputs)).change(el => { el.value = msgs.fmtInt(el.value); });
 		js.set(js.filter(".float", inputs)).change(el => { el.value = msgs.fmtFloat(el.value); });
@@ -78,12 +78,12 @@ js.ready(function() {
 			js.val("", inputs).clean(inputs).each(fnCounter, textareas);
 		}).load("a.nav-to", form).click((el, ev) => {
 			js.ajax(el.href, data => {
-				js.format(inputs, data).trigger(inputs, "change");
+				js.import(inputs, data).trigger(inputs, "change");
 			});
 			ev.preventDefault();
 		}).load("a.duplicate", form).click((el, ev) => {
 			valid.submit(form, ev, el.href, data => {
-				js.format(inputs, data).load("a.remove,a.nav-to", form).hide();
+				js.import(inputs, data).load("a.remove,a.nav-to", form).hide();
 			});
 		}).load("a.remove", form).click((el, ev) => {
 			confirm(msgs.remove) || ev.preventDefault();
@@ -92,9 +92,9 @@ js.ready(function() {
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax"))
-				valid.submit(form, ev, null, data => js.format(inputs, data));
+				valid.submit(form, ev, null, data => js.import(inputs, data));
 			else
-				valid.validateForm(form) || ev.preventDefault();
+				valid.validateForm(form, ev);
 		});
 	});
 	// End AJAX links and forms
