@@ -22,7 +22,7 @@ function JsBox() {
 	function buildTime(str) { return str ? new Date(fnIsoString(sysdate) + "T" + str) : null; } //ej: "2021-07-21T11:48:29"
 	function fnIsoTime(date) { return date ? date.toISOString().substr(11, 8) : null; } //ej: "11:48:29"
 	function buildWeek(str) { return str ? new Date() : null; } // not implemented (calculate date for first day of week)
-	function fnIsoWeek(date) { return date ? (date.getFullYear() + "-W" + self.getWeek(date)) : null; } //ej: "2021-W27"
+	function fnIsoWeek(date) { return date ? (date.getFullYear() + "-W01") : null; } // not implemented ej: "2021-W27"
 	let i18n = { // fotmats + parsers + messages
 		toInt: parseInt, isoInt: fnParam,
 		toFloat: parseFloat, isoFloat: fnParam,
@@ -223,7 +223,7 @@ function JsBox() {
 				else if ((el.type == "date") || (el.type == "month"))
 					el.value = fnIsoDate(data[el.name]);
 				else if (el.type == "week") //ej: "2021-W27"
-					el.value = fnIsoWeek(data[el.name]);
+					el.value = i18.isoWeek(data[el.name]);
 				else if (el.classList.contains("date"))
 					el.value = i18n.isoDate(data[el.name]);
 				else if ((el.type == "time") || el.classList.contains("time"))
