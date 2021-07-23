@@ -59,14 +59,14 @@ describe("Form validators", () => {
 	});
 	test("Data Inputs", () => {
 		expect(valid.setInputs({ usuario: "kk", clave: null }).validate("/login.html")).toBe(false);
-		expect(valid.setInputs({ fn: "", o1: "1", f1: "", f2: null }).validate("/menu/filter.html")).toBe(true);
-		expect(valid.setInputs({ o1: null, f1: "kkk" }).validate("/menu/filter.html")).toBe(true);
+		expect(valid.setInputs({ fn: "", n1: "1", d1: "", d2: null }).validate("/menu/filter.html")).toBe(true);
+		expect(valid.setInputs({ n1: null, d1: "kkk" }).validate("/menu/filter.html")).toBe(true);
 	});
 	test("Data Parse", () => {
-		valid.setInputs({ fn: "", o1: "1", f1: "", f2: null }).validate("/menu/filter.html");
-		expect(valid.getData()).toEqual({ fn: "", o1: 1, o2: null, f1: null, f2: null });
+		valid.setInputs({ fn: "", n1: "1", d1: "", d2: null }).validate("/menu/filter.html");
+		expect(valid.getData()).toEqual({ fn: "", n1: 1, n2: null, d1: null, d2: null });
 
-		valid.setInputs({ fn: "", o1: "1", f1: "26/2/21", f2: null }).validate("/menu/filter.html");
-		expect(valid.getData()).toEqual({ fn: "", o1: 1, o2: null, f1: new Date(2021, 1, 26), f2: null });
+		valid.setInputs({ fn: "", n1: "1", d1: "2021-02-26", d2: null }).validate("/menu/filter.html");
+		expect(valid.getData()).toEqual({ fn: "", n1: 1, n2: null, d1: new Date("2021-02-26"), d2: null });
 	});
 });

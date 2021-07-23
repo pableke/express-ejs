@@ -5,14 +5,31 @@
  */
 function JsBox() {
 	const self = this; //self instance
+	const sysdate = new Date(); //global sysdate
 	let elements; //elements container
 
+	function fnParam(param) { return param; }
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
+
+	function toDateTime(str) { return str ? new Date(str) : null; }
+	function fnIsoString(date) { return date.toISOString().substr(0, 10); } //ej: "2021-07-21"
+	function fnIsoDate(date) { return date ? fnIsoString(date) : null; }
+	function buildTime(str) { return str ? new Date(fnIsoString(sysdate) + "T" + str) : null; } //ej: "2021-07-21T11:48:29"
+	function fnIsoTime(date) { return date ? date.toISOString().substr(11, 8) : null; } //ej: "11:48:29"
+	function buildWeek(str) { return str ? new Date() : null; } // not implemented (calculate date for first day of week)
+	function fnIsoWeek(date) { return date ? (date.getFullYear() + "-W" + self.getWeek(date)) : null; } //ej: "2021-W27"
+	let i18n = { // fotmats + parsers + messages
+		toInt: parseInt, isoInt: fnParam,
+		toFloat: parseFloat, isoFloat: fnParam,
+		toDate: toDateTime, isoDate: fnIsoDate,
+		toTime: buildTime, isoTime: fnIsoTime,
+		toWeek: buildWeek, isoWeek: fnIsoWeek
+	};
 
 	this.get = function(selector, el) { return (el || document).querySelector(selector); }
 	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
@@ -26,9 +43,11 @@ function JsBox() {
 			return self;
 		if ((typeof param === "string") || (param instanceof String))
 			return self.set(self.getAll(param, parent));
-		return self.set(param);
+		return self.set(param); //param = element or array
 	}
 
+	this.getI18n = function() { return i18n; }
+	this.setI18n = function(obj) { i18n = obj; return self; }
 	this.getLang = function() {
 		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
 		return lang || navigator.language || navigator.userLanguage; //default browser language
@@ -98,10 +117,15 @@ function JsBox() {
 		return -1;
 	}
 	this.findIndex = function(selector, list) {
-		return fnGetIndex(selector, list || elements);
+		list = list || elements;
+		if (isElem(list))
+			return list.matches(selector) ? 0 : -1;
+		return fnGetIndex(selector, list);
 	}
 	this.find = function(selector, list) {
 		list = list || elements;
+		if (isElem(list))
+			return list.matches(selector) ? list : null;
 		let i = fnGetIndex(selector, list);
 		return (i < 0) ? null : list[i];
 	}
@@ -187,12 +211,50 @@ function JsBox() {
 				el.selectedIndex = self.findIndex("option:not(.hide)", el.children);
 		}, list);
 	}
+
+	// Format and parse contents
 	this.import = function(inputs, data) {
-		return data ? self.each(el => fnSetVal(el, data[el.name] ?? ""), inputs) : self.val("", inputs);
+		if (data)
+			self.each(el => {
+				if (el.classList.contains("integer"))
+					el.value = i18n.isoInt(data[el.name]);
+				else if (el.classList.contains("float"))
+					el.value = i18n.isoFloat(data[el.name]);
+				else if ((el.type == "date") || (el.type == "month"))
+					el.value = fnIsoDate(data[el.name]);
+				else if (el.type == "week") //ej: "2021-W27"
+					el.value = fnIsoWeek(data[el.name]);
+				else if (el.classList.contains("date"))
+					el.value = i18n.isoDate(data[el.name]);
+				else if ((el.type == "time") || el.classList.contains("time"))
+					el.value = i18n.isoTime(data[el.name]);
+				else
+					fnSetVal(el, data[el.name]);
+			}, inputs);
+		else
+			self.val("", inputs);
+		return self;
 	}
 	this.export = function(inputs, data) {
-		data = data || {};
-		self.each(el => { data[el.name] = el.value; }, inputs);
+		data = data || {}; //output container
+		self.each(el => {
+			if (el.classList.contains("integer"))
+				data[el.name] = i18n.toInt(el.value);
+			else if (el.classList.contains("float"))
+				data[el.name] = i18n.toFloat(el.value);
+			else if (el.type == "date")
+				data[el.name] = toDateTime(el.value);
+			else if (el.type == "month") //ej: "2021-06" => default day = 1
+				data[el.name] = el.value ? new Date(el.value + "-1") : null;
+			else if (el.type == "week") //ej: "2021-W27"
+				data[el.name] = i18n.toWeek(el.value);
+			else if (el.classList.contains("date"))
+				data[el.name] = i18n.toDate(el.value);
+			else if ((el.type == "time") || el.classList.contains("time"))
+				data[el.name] = i18n.toTime(el.value);
+			else
+				data[el.name] = el.value; 
+		}, inputs);
 		delete data.undefined; //no name element
 		return data;
 	}

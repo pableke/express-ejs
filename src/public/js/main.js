@@ -41,42 +41,15 @@ js.ready(function() {
 		return msgs ? js.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : js;
 	}
 	js.clean = function(inputs) { //reset message and state inputs
-		return js.closeAlerts().set(inputs).removeClass(CLS_INVALID).set(js.siblings(inputs, CLS_FEED_BACK)).text("").focus(inputs);
+		return js.closeAlerts().set(inputs).focus() //focus on first if no error
+				.removeClass(CLS_INVALID).set(js.siblings(CLS_FEED_BACK)).text("").focus();
 	}
 	js.showErrors = function(inputs, errors) {
+		console.log("errors", errors);
 		return js.showAlerts(errors).set(inputs).reverse(el => {
 			let msg = el.name && errors[el.name]; //exists message error?
-			msg && js.focus(el).addClass(el, CLS_INVALID).html(js.siblings(el, CLS_FEED_BACK), msg);
+			msg && js.set(el).focus().addClass(CLS_INVALID).html(msg, js.siblings(CLS_FEED_BACK));
 		});
-	}
-
-	js.format = function(inputs, data) {
-		js.import(inputs, data); //load data and reformat
-		js.set(js.filter(".integer", inputs)).each(el => {
-			el.value = msgs.isoInt(data[el.name]);
-		}).set(js.filter(".float", inputs)).each(el => {
-			el.value = msgs.isoFloat(data[el.name]);
-		}).set(js.filter(".date", inputs)).each(el => { //dates
-			el.value = msgs.isoDate(sb.toDate(data[el.name]));
-		}).set(js.filter(".time", inputs)).each(el => { //times
-			el.value = msgs.minTime(sb.toDate(data[el.name]));
-		});
-		return js.showAlerts(data);
-	}
-	js.parse = function(inputs, data) {
-		data = js.export(inputs, data); //parse from inputs
-		js.set(js.filter(".integer", inputs)).each(el => {
-			data[el.name] = msgs.toInt(data[el.name]);
-		}).set(js.filter(".float", inputs)).each(el => {
-			data[el.name] = msgs.toFloat(data[el.name]);
-		}).set(js.filter("[type=date]", inputs)).each(el => { //dates
-			data[el.name] = new Date(data[el.name]);
-		}).set(js.filter(".date", inputs)).each(el => { //dates
-			data[el.name] = msgs.toDate(data[el.name]);
-		}).set(js.filter(".time", inputs)).each(el => { //times
-			data[el.name] = msgs.toTime(data[el.name]);
-		});
-		return data;
 	}
 
 	js.ajax = function(action, resolve, reject) {
@@ -135,15 +108,18 @@ js.ready(function() {
 	/*************** validator-cli ***************/
 	/*********************************************/
 	// Extends validator-box for clients
-	valid.validateForm = function(form) {
-		let inputs = form.elements;
-		js.clean(inputs).export(inputs, valid.getInputs());
-		return valid.validate(form.getAttribute("action")) || !js.showErrors(inputs, valid.closeMsgs(msgs.errForm));
+	valid.validateForm = function(form, ev) {
+		js.clean(form.elements); // clear previos errors
+		js.each(el => { valid.setInput(el.name, el.value); }, form.elements);
+		if (valid.validate(form.getAttribute("action"))) //validate inputs
+			return true; // the form is valid
+		ev.preventDefault(); // stop default when error
+		return !js.showErrors(form.elements, valid.closeMsgs(msgs.errForm));
 	}
 	valid.submit = function(form, ev, action, resolve) {
-		ev.preventDefault(); //stop default
-		if (valid.validateForm(form)) {
+		if (valid.validateForm(form, ev)) {
 			fnLoading(); //show loading frame
+			ev.preventDefault(); //stop default
 			let fd = new FormData(form); //build pair key/value
 			for (let field in valid.getInputs()) //add extra data
 				fd.has(field) || fd.append(field, valid.getInput(field));
