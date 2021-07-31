@@ -34,7 +34,7 @@
 </div>
 
 <div class="wrapper">
-	<table class="paginable">
+	<table>
 		<thead>
 			<tr>
 				<th>N&#186;</th><th><%=i18n.lblIcono%></th>
@@ -48,7 +48,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<%-util.ab.empty(rows) || include("./menus-tbody")%>
+			<%-util.ab.empty(rows) || include("./menus-rows")%>
 		</tbody>
 		<tbody class="no-data hide">
 			<tr>
@@ -61,7 +61,7 @@
 			</tr>
 		</tfoot>
 	</table>
-	<%-pagination%>
+	<%-include("../pagination", list)%>
 
 	<hr/>
 	<a href="<%=list.prevname%>/index.html" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>

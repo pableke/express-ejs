@@ -192,6 +192,7 @@ function JsBox() {
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
 	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
 	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
+	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
 	this.focus = function(list) {
 		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])", list);
 		el && el.focus();
@@ -344,5 +345,6 @@ function JsBox() {
 	this.change = function(fn, list) { return self.each(el => fnEvent(el, "change", fn), list); }
 	this.keyup = function(fn, list) { return self.each(el => fnEvent(el, "keyup", fn), list); }
 	this.keydown = function(fn, list) { return self.each(el => fnEvent(el, "keydown", fn), list); }
+	this.submit = function(fn, list) { return self.each(el => fnEvent(el, "submit", fn), list); }
 	this.trigger = function(name, list) { return self.each(el => el.dispatchEvent(new Event(name)), list); }
 }

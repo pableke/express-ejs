@@ -2,10 +2,6 @@
 js.ready(function() {
 	const msgs = i18n.getLang(); //messages container
 
-	// Configure datepicker
-	//$.datepicker.regional["es"] = i18n.getI18n("es");
-	//$.datepicker.setDefaults(i18n.getLang());
-
 	// Google recptcha
 	if (typeof grecaptcha !== "undefined") {
 		grecaptcha.ready(function() { //google captcha defined
@@ -28,16 +24,6 @@ js.ready(function() {
 			js.change(el, () => js.set(js.filter(".min-" + el.id, arr)).attr("max", el.value));
 			js.change(el, () => js.set(js.filter(".max-" + el.id, arr)).attr("min", el.value));
 		});
-		/*let dates = js.filter(inputs, ".date");
-		js.keyup(dates, el => { el.value = msgs.acDate(el.value); })
-			.change(dates, el => { el.value = msgs.fmtDate(el.value); });
-		let times = js.filter(inputs, ".time");
-		js.keyup(times, el => { el.value = msgs.acTime(el.value); })
-			.change(times, el => { el.value = msgs.fmtTime(el.value); });
-		$(inputs).filter(".datepicker").datepicker({
-			dateFormat: i18n.get("dateFormat"),
-			changeMonth: false
-		});*/
 
 		// Initialize all textarea counter
 		let textareas = js.filter("textarea[maxlength]", inputs);
@@ -78,12 +64,12 @@ js.ready(function() {
 			js.val("", inputs).clean(inputs).each(fnCounter, textareas);
 		}).load("a.nav-to", form).click((el, ev) => {
 			js.ajax(el.href, data => {
-				js.import(inputs, data).trigger(inputs, "change");
+				js.showAlerts(data).import(inputs, data).trigger(inputs, "change");
 			});
 			ev.preventDefault();
 		}).load("a.duplicate", form).click((el, ev) => {
 			valid.submit(form, ev, el.href, data => {
-				js.import(inputs, data).load("a.remove,a.nav-to", form).hide();
+				js.showAlerts(data).import(inputs, data).load("a.remove,a.nav-to", form).hide();
 			});
 		}).load("a.remove", form).click((el, ev) => {
 			confirm(msgs.remove) || ev.preventDefault();
@@ -92,7 +78,9 @@ js.ready(function() {
 		js.focus(inputs); //focus on first
 		form.addEventListener("submit", ev => {
 			if (form.classList.contains("ajax"))
-				valid.submit(form, ev, null, data => js.import(inputs, data));
+				valid.submit(form, ev, null, data => js.showAlerts(data).import(inputs, data).clean(inputs).each(fnCounter, textareas));
+			else if (form.classList.contains("ajax-clear"))
+				valid.submit(form, ev, null, data => js.showAlerts(data).val("", inputs).clean(inputs).each(fnCounter, textareas));
 			else
 				valid.validateForm(form, ev);
 		});
