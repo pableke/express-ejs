@@ -1,0 +1,6 @@
+
+<% for (let i = list.index; (i < list.last); i++) { %>
+	<tr class="data">
+		<%-include("./menus-cells", { menu: rows[i], i: i })%>
+	</tr>
+<% } %>

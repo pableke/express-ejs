@@ -1,33 +1,23 @@
 
-const fs = require("fs"); //file system module
-const path = require("path"); //file and directory paths
-const ejs = require("ejs"); //tpl engine
 const util = require("app/lib/util-box.js");
 
-const contents = fs.readFileSync(path.join(__dirname, "./pagination.ejs"), "utf-8");
-const DEFAULT = { size: 0, pages: 0, page: 0, psize: 40, start: 0, end: 0, index: 0, i: 0, last: 0 };
-const KEYS = Object.keys(DEFAULT);
+const DEFAULT = {
+	size: 0, pages: 0, page: 0, psize: 40, 
+	start: 0, end: 0, index: 0, i: 0, last: 0
+};
 
 function Pagination() {
 	const self = this; //self instance
 	let opts = DEFAULT;
 
-	this.get = function(name) {
-		return opts[name];
-	}
-	this.set = function(name, value) {
-		opts[name] = value;
-		return self;
-	}
-	this.load = function(data) {
-		util.ob.init(data, DEFAULT, KEYS);
-		opts = data;
-		return self;
-	}
+	this.get = function(name) { return opts[name]; }
+	this.set = function(name, value) { opts[name] = value; return self; }
+	this.init = function(data) { opts = Object.assign(data, DEFAULT); return self; }
+	this.load = function(data) { opts = data; return self; }
 
 	this.first = function() { opts.i = 0; return 0; }
 	this.prev = function() { opts.i = Math.max(opts.i - 1, 0); return opts.i; }
-	this.current = function(rows, id) {
+	this.find = function(rows, id) {
 		opts.i = id ? util.ab.ifind(rows, row => (row.id == id)) : -1;
 		return opts.i;
 	}
@@ -56,10 +46,6 @@ function Pagination() {
 	}
 	this.slice = function(rows) {
 		return rows.slice(opts.index, opts.index + opts.psize);
-	}
-
-	this.render = function() {
-		return ejs.render(contents, opts);
 	}
 }
 

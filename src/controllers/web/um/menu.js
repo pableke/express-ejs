@@ -2,9 +2,7 @@
 const dao = require("app/dao/factory.js");
 const valid = require("app/lib/validator-box.js");
 const util = require("app/lib/util-box.js");
-
-// Components
-const pagination = require("app/components/pagination.js");
+const pagination = require("app/lib/pagination.js");
 
 // View config
 const TPL_LIST = "web/list/um/menus";

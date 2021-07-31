@@ -57,9 +57,12 @@ app.use((req, res, next) => {
 	res.locals._tplBody = "web/index"; //default body
 	res.msgs = function() { res.json(res.locals.msgs); } //send msgs as json
 	res.setMsg = function(name, msg) { res.locals.msgs[name] = msg; return res; } //set msg ok
+	res.delMsg = function(name) { delete res.locals.msgs[name]; return res; } //delete msg
+	res.setMsgs = function(data) { res.locals.msgs = data; return res; } //set object data
 	res.addMsgs = function(data) { Object.assign(res.locals.msgs, data); return res; } //add object data
-	res.setOk = function(msg) { return res.setMsg("msgOk", msg); } //set msg ok
-	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err
+	res.setOk = function(msg) { return res.setMsg("msgOk", msg); } //set msg ok (green)
+	res.setInfo = function(msg) { return res.setMsg("msgInfo", msg); } //set info (blue)
+	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err (red)
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }

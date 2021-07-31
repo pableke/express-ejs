@@ -6,6 +6,7 @@ function DateBox() {
 	const sysdate = new Date(); //global sysdate
 	const RE_DIGITS = /^\d.+$/; //starts by digits
 	const RE_NO_DIGITS = /\D+/g; //no digits character
+	const ONE_DAY = 86400000; //1d = 24 * 60 * 60 * 1000 = hours*minutes*seconds*milliseconds
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
 	function hasParts(parts) { return parts && parts[0]; }
@@ -43,17 +44,21 @@ function DateBox() {
 
 	this.isValid = isDate;
 	this.build = fnBuild;
+	this.sysdate = function() { return sysdate; }
 	this.isLeap = function(date) { return date && isLeapYear(date.getFullYear()); }
+	this.getDays = function(d1, d2) { return Math.round(Math.abs((d1 - d2) / ONE_DAY)); }
 	this.daysInMonth = function(date) { return date ? daysInMonth(date.getFullYear(), date.getMonth()) : 0; }
-	this.toArray = function(date) { return date ? [date.getFullYear(), lpad(date.getMonth() + 1), lpad(date.getDate()), lpad(date.getHours()), lpad(date.getMinutes()), lpad(date.getSeconds()), date.getMilliseconds()] : []; }
+	this.toArray = function(date) { return date ? [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()] : []; }
 	this.addDate = function(date, val) { date && date.setDate(date.getDate() + val); return self; }
 	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
+	this.reset = function(date) { date && date.setFullYear(sysdate.getFullYear(), sysdate.getMonth(), sysdate.getDate()); return self; }
+	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
+	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
-		var d1 = new Date(date.getFullYear(), 0, 1);
-		var numberOfDays = Math.floor((date - d1) / 86400000); //1d = 24 * 60 * 60 * 1000
-		return Math.ceil((date.getDay() + 1 + numberOfDays) / 7);
+		const d1 = new Date(date.getFullYear(), 0, 1);
+		return Math.ceil((date.getDay() + 1 + self.getDays(date, d1)) / 7);
 	}
 	this.week = function(year, week) {
 		week = week || 1; // default week = first week of year
@@ -66,12 +71,13 @@ function DateBox() {
 		return str ? self.week(+str.substr(0, 4), +str.substr(6)) : null;
 	}
 	this.isoWeek = function(date) {
-		return date ? (date.getFullYear() + "-W" + self.getWeek(date)) : null;
+		return date ? (date.getFullYear() + "-W" + lpad(self.getWeek(date))) : null;
 	}
+
 	this.diff = function(d1, d2) {
 		d2 = d2 || sysdate;
 		if (d1 > d2) //swap
-			return d1.diff(d2, d1);
+			return self.diff(d2, d1);
 
 		const result = self.toArray(d2); //date parts
 		const dias = self.daysInMonth(d2) - d2.getDate() + d1.getDate();
@@ -87,6 +93,19 @@ function DateBox() {
 
 		self.toArray(d1).forEach(fnAjustar);
 		return result;
+	}
+	this.interval = function(date, timeleft, onTic, onTimeLeft, interval) {
+		let auxdate = self.clone(date); //start date
+		interval = interval || 1000; //default 1seg.
+		const endDate = new Date(auxdate.getTime() + timeleft); //end date.
+		const idInterval = setInterval(function() {
+			self.addMs(auxdate, interval);
+			if (!onTic(auxdate, endDate) || (endDate <= auxdate)) {
+				clearInterval(idInterval);
+				onTimeLeft && onTimeLeft();
+			}
+		}, interval);
+		return self;
 	}
 
 	//equality operators == != === !== cannot be used to compare (the value of) dates
