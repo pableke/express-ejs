@@ -107,6 +107,16 @@ function JsBox() {
 		return self;
 	}
 
+	this.first = function(list) {
+		list = list || elements;
+		return fnSize(list) ? list[0] : list; //first element
+	}
+	this.last = function(list) {
+		list = list || elements;
+		let size = fnSize(list);
+		return size ? list[size-1] : list; //last element
+	}
+
 	// Filters
 	function fnGetIndex(selector, list) {
 		let size = fnSize(list);
@@ -189,12 +199,16 @@ function JsBox() {
 		return self;
 	}
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
+	this.getAttr = function(name, list) { let el = self.first(list); return el && el.getAttribute(name); }
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
+	this.getVal = function(selector) { let el = self.get(selector); return el && el.value; }
 	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
+	this.getText = function(selector) { let el = self.get(selector); return el && el.innerText; }
 	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
+	this.getHtml = function(selector) { let el = self.get(selector); return el && el.innerHTML; }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
 	this.focus = function(list) {
-		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1'][tabindex=''])", list);
+		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1']):not([tabindex=''])", list);
 		el && el.focus();
 		return self;
 	}
@@ -215,8 +229,8 @@ function JsBox() {
 
 	// Format and parse contents
 	this.import = function(inputs, data) {
-		if (data)
-			self.each(el => {
+		if (data) //load data
+			self.each(el => { //format data by i18n
 				if (el.classList.contains("integer"))
 					el.value = i18n.isoInt(data[el.name]);
 				else if (el.classList.contains("float"))
@@ -232,13 +246,13 @@ function JsBox() {
 				else
 					fnSetVal(el, data[el.name]);
 			}, inputs);
-		else
+		else //clear inputs
 			self.val("", inputs);
 		return self;
 	}
 	this.export = function(inputs, data) {
-		data = data || {}; //output container
-		self.each(el => {
+		data = data || {}; //output data container
+		self.each(el => { //parse data by i18n
 			if (el.classList.contains("integer"))
 				data[el.name] = i18n.toInt(el.value);
 			else if (el.classList.contains("float"))
@@ -272,8 +286,7 @@ function JsBox() {
 		return self.each(el => { el.style.display = "none"; }, list);
 	}
 	this.hasClass = function(name, list) {
-		list = list || elements;
-		const el = fnSize(list) ? list[0] : list; //first element
+		const el = self.first(list); //first element
 		return el && fnSplit(name).some(name => el.classList.contains(name));
 	}
 	this.setClass = function(value, list) {
