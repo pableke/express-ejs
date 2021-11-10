@@ -98,4 +98,15 @@ function StringBox() {
 			result.push(str.substr(j));
 		return result;
 	}
+
+	this.format = function(data, tpl, opts) {
+		opts = opts || {}; //default settings
+		opts.empty = opts.empty || "";
+
+		return data && tpl && tpl.replace(/@(\w+);/g, function(m, k) {
+			let fn = opts[k]; //field format function
+			let value = fn ? fn(data[k], data) : data[k];
+			return value ?? opts.empty; //string formated
+		});
+	}
 }

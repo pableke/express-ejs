@@ -59,4 +59,7 @@ function NumberBox() {
 	this.isoFloat = function(val, s, d, n) { return isset(val) ? fnFloat(EMPTY + val, s, d, n, DOT) : null; } // Float to String formated
 	this.fmtFloat = function(str, s, d, n) { return str && fnFloat(str, s, d, n, d); } // String to String formated
 	this.floatval = function(str) { return parseFloat(str) || 0; } //float
+
+	// Booleans
+	this.boolval = function(val) { return val && (val !== "false") && (val !== "0"); };
 }

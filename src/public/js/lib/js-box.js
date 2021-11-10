@@ -13,7 +13,7 @@ function JsBox() {
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
-	function fnSplit(str) { return str ? str.split(" ") : []; } //class separator
+	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 
 	function toDateTime(str) { return str ? new Date(str) : null; }
@@ -33,6 +33,7 @@ function JsBox() {
 
 	this.get = function(selector, el) { return (el || document).querySelector(selector); }
 	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
+	this.getElements = function() { return elements; }
 	this.set = function(list) {
 		delete elements; //prev container
 		elements = list; //new container
@@ -110,6 +111,14 @@ function JsBox() {
 	this.first = function(list) {
 		list = list || elements;
 		return fnSize(list) ? list[0] : list; //first element
+	}
+	this.getElement = function(i, list) {
+		list = list || elements;
+		return fnSize(list) ? list[i] : list;
+	}
+	this.reduce = function(i) {
+		elements = fnSize(elements) ? elements[i] : elements;
+		return self;
 	}
 	this.last = function(list) {
 		list = list || elements;
