@@ -41,13 +41,7 @@ function I18nBox() {
 			dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
 			dateFormat: "yy-mm-dd", firstDay: 0,
 
-			//inputs helpers functions
-			toInt: nb.toInt,
-			isoInt: function(num) { return nb.isoInt(num, COMMA); },
-			fmtInt: function(str) { return nb.fmtInt(str, COMMA); },
-			toFloat: function(str) { return nb.toFloat(str, DOT); },
-			isoFloat: function(num, n) { return nb.isoFloat(num, COMMA, DOT, n); },
-			fmtFloat: function(str, n) { return nb.fmtFloat(str, COMMA, DOT, n); },
+			//datetime helpers
 			toDate: dt.enDate,
 			isoDate: dt.isoEnDate,
 			isoDateTime: dt.isoEnDateTime,
@@ -58,7 +52,16 @@ function I18nBox() {
 			isoTime: dt.isoTime,
 			fmtTime: dt.fmtTime,
 			acTime: dt.acTime,
-			get: function(obj, name) { return obj[name + "_en"] || obj[name]; }
+
+			//numbers helpers
+			toInt: nb.toInt,
+			isoInt: function(num) { return nb.isoInt(num, COMMA); },
+			fmtInt: function(str) { return nb.fmtInt(str, COMMA); },
+			toFloat: function(str) { return nb.toFloat(str, DOT); },
+			isoFloat: function(num, n) { return nb.isoFloat(num, COMMA, DOT, n); },
+			fmtFloat: function(str, n) { return nb.fmtFloat(str, COMMA, DOT, n); },
+			fmtBool: function(val) { return nb.boolval(val) ? "Yes" : "No"; },
+			get: function(obj, name) { return obj[name + "_en"] || obj[name]; } //object lang access
 		},
 
 		es: { //spanish
@@ -89,7 +92,7 @@ function I18nBox() {
 			linkOk: "Registros asociados correctamente.",
 
 			//datepicker language
-			closeText: "close", prevText: "prev.", nextText: "sig.", currentText: "current",
+			closeText: "cerrar", prevText: "prev.", nextText: "sig.", currentText: "hoy",
 			monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
 			monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
 			dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
@@ -97,13 +100,7 @@ function I18nBox() {
 			dayNamesMin: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
 			dateFormat: "dd/mm/yy", firstDay: 1,
 
-			//inputs helpers functions
-			toInt: nb.toInt,
-			isoInt: function(num) { return nb.isoInt(num, DOT); },
-			fmtInt: function(str) { return nb.fmtInt(str, DOT); },
-			toFloat: function(str) { return nb.toFloat(str, COMMA); },
-			isoFloat: function(num, n) { return nb.isoFloat(num, DOT, COMMA, n); },
-			fmtFloat: function(str, n) { return nb.fmtFloat(str, DOT, COMMA, n); },
+			//datetime helpers
 			toDate: dt.esDate,
 			isoDate: dt.isoEsDate,
 			isoDateTime: dt.isoEsDateTime,
@@ -114,17 +111,29 @@ function I18nBox() {
 			isoTime: dt.isoTime,
 			fmtTime: dt.fmtTime,
 			acTime: dt.acTime,
-			get: function(obj, name) { return obj[name]; }
+
+			//numbers helpers
+			toInt: nb.toInt,
+			isoInt: function(num) { return nb.isoInt(num, DOT); },
+			fmtInt: function(str) { return nb.fmtInt(str, DOT); },
+			toFloat: function(str) { return nb.toFloat(str, COMMA); },
+			isoFloat: function(num, n) { return nb.isoFloat(num, DOT, COMMA, n); },
+			fmtFloat: function(str, n) { return nb.fmtFloat(str, DOT, COMMA, n); },
+			fmtBool: function(val) { return nb.boolval(val) ? "Sí" : "No"; },
+			get: function(obj, name) { return obj[name]; } //object lang access
 		}
 	}
 
-	let _lang = langs.es; //default
-	this.getLang = function(lang) { return lang ? langs[lang] : _lang; }
+	this.getMsgs = function() { return _lang; }
+	this.getLang = function(lang) { return langs[lang] || _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
 	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
-	this.getI18n = function(lang) { return lang ? (langs[lang] || langs[lang.substr(0, 2)] || langs.es) : langs.es; }
+	this.getI18n = function(lang) { return lang ? (langs[lang] || self.getLang(lang.substr(0, 2))) : _lang; }
 	this.setI18n = function(lang) { _lang = self.getI18n(lang); return self; }
 
 	this.get = function(name) { return _lang[name]; }
 	this.set = function(name, value) { _lang[name] = value; return self; }
+
+	let _lang = langs.es; //default browser language
+	_lang = this.getI18n(navigator.language || navigator.userLanguage);
 }
