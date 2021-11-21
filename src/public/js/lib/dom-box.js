@@ -189,7 +189,6 @@ function DomBox() {
 		return self;
 	}
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
-	this.getAttr = function(name, list) { let el = self.first(list); return el && el.getAttribute(name); }
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
 	this.getVal = function(selector) { let el = self.get(selector); return el && el.value; }
 	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
