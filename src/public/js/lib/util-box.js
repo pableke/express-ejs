@@ -8,4 +8,4 @@ const sb = new StringBox();
 const tb = new TreeBox();
 
 const i18n = new I18nBox();
-const js = new JsBox();
+const js = new DomBox();
