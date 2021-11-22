@@ -5,12 +5,13 @@
  */
 function DomBox() {
 	const self = this; //self instance
+	const HIDE = "hide"; //css display: none
 	let elements; //elements container
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
-	//function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
+	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 
@@ -196,6 +197,7 @@ function DomBox() {
 	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
 	this.getHtml = function(selector) { let el = self.get(selector); return el && el.innerHTML; }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
+	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === ""); }
 	this.focus = function(list) {
 		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1']):not([tabindex=''])", list);
 		el && el.focus();
@@ -203,7 +205,7 @@ function DomBox() {
 	}
 	this.mask = function(mask, list) { //hide elements by mask 
 		const fn = (el, i) => {
-			return (((mask>>i)&1)==0) ? self.addClass("hide", el) : self.removeClass("hide", el);
+			return (((mask>>i)&1) == 0) ? self.addClass(HIDE, el) : self.removeClass(HIDE, el);
 		}
 		return self.each(fn, list);
 	}
@@ -211,7 +213,7 @@ function DomBox() {
 		return self.each(el => {
 			self.mask(mask, el.querySelectorAll("option"));
 			let option = el.querySelector("option[value='" + el.value + "']");
-			if (self.hasClass("hide", option)) //current option is hidden => force change
+			if (self.hasClass(HIDE, option)) //current option is hidden => force change
 				el.selectedIndex = self.findIndex("option:not(.hide)", el.children);
 		}, list);
 	}
@@ -238,6 +240,16 @@ function DomBox() {
 		}, inputs);
 		delete data.undefined; //no name element
 		return data;
+	}
+
+	const TEMPLATES = {}; //container
+	this.format = function(formatter, list) {
+		return self.each(el => { //elements to be re-formated
+			el.id = el.id || fnId(); //tpl associate by id
+			TEMPLATES[el.id] = TEMPLATES[el.id] || el.innerHTML;
+			el.innerHTML = formatter(TEMPLATES[el.id]);
+			el.innerHTML && el.classList.remove(HIDE);
+		}, list);
 	}
 
 	// Styles

@@ -55,6 +55,12 @@ function DateBox() {
 	this.reset = function(date) { date && date.setFullYear(sysdate.getFullYear(), sysdate.getMonth(), sysdate.getDate()); return self; }
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
+	this.between = function(value, min, max) { // value into a range
+		min = min || value;
+		max = max || value;
+		return (min <= value) && (value <= max);
+	}
+
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
 		const d1 = new Date(date.getFullYear(), 0, 1);
