@@ -53,12 +53,17 @@ function DateBox() {
 	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
 	this.reset = function(date) { date && date.setFullYear(sysdate.getFullYear(), sysdate.getMonth(), sysdate.getDate()); return self; }
+	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
-	this.between = function(value, min, max) { // value into a range
-		min = min || value;
-		max = max || value;
-		return (min <= value) && (value <= max);
+	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
+	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
+	this.between = function(date, min, max) { // value into a range
+		if (!isDate(date))
+			return null;
+		min = isDate(min) ? min.getTime() : date.getTime();
+		max = isDate(max) ? max.getTime() : date.getTime();
+		return ((min <= date.getTime()) && (date.getTime() <= max)) ? date : null;
 	}
 
 	this.getWeek = function(date) {
@@ -80,6 +85,18 @@ function DateBox() {
 		return date ? (date.getFullYear() + "-W" + lpad(self.getWeek(date))) : null;
 	}
 
+	this.toObject = function(date, lang) {
+		date = date || sysdate; //default
+		let D = date.getDay();
+		let Y = date.getFullYear().toString();
+		const flags = { yyyy: +Y, y: +Y.substr(0, 2), yy: +Y.substr(2, 2), m: date.getMonth(), d: date.getDate() };
+		flags.mmm = lang.monthNamesShort[flags.m]; flags.mmmm = lang.monthNames[flags.m]; flags.mm = lpad(++flags.m);
+		flags.ddd = lang.dayNamesShort[D]; flags.dddd = lang.dayNames[D]; flags.dd = lpad(flags.d);
+		flags.h = date.getHours(); flags.hh = lpad(flags.h); flags.M = date.getMinutes(); flags.MM = lpad(flags.M);
+		flags.s = date.getSeconds(); flags.ss = lpad(flags.s); flags.ms = date.getMilliseconds();
+		flags.t = (flags.h < 12) ? "a" : "p"; flags.tt = flags.t + "m";
+		return flags;
+	}
 	this.diff = function(d1, d2) {
 		d2 = d2 || sysdate;
 		if (d1 > d2) //swap
