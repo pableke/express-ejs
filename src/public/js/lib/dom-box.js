@@ -6,6 +6,9 @@
 function DomBox() {
 	const self = this; //self instance
 	const HIDE = "hide"; //css display: none
+	const DIV = document.createElement("div");
+	const TEXT = document.createElement("textarea");
+	//const parser = new DOMParser(); //parser
 	let elements; //elements container
 
 	function fnLog(data) { console.log("Log:", data); }
@@ -31,10 +34,12 @@ function DomBox() {
 		return self.set(param); //param = element or array
 	}
 
-	this.getLang = function() {
-		let lang = document.querySelector("html").getAttribute("lang"); //get lang by tag
-		return lang || navigator.language || navigator.userLanguage; //default browser language
-	}
+	this.getNavLang = function() { return navigator.language || navigator.userLanguage; } //default browser language
+	this.getLang = function() { return self.getAttr(self.get("html"), "lang") || self.getNavLang(); } //get lang by tag
+	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
+	//this.unescape = function(html) { return html && parser.parseFromString(html); }
+	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
+	this.escape = function(text) { DIV.innerHTML = text; return DIV.innerHTML; }
 	this.buildPath = function(parts, url) {
 		url = url || window.location.pathname;
 		let aux = new URLSearchParams(parts);
@@ -42,12 +47,13 @@ function DomBox() {
 		aux.forEach((v, k) => params.set(k, v));
 		return url + "?" + params.toString();
 	}
-	this.scrollTop = function(time) {
+	this.scrollTop = function(time, win) {
 		time = time || 600; //default duration
-		let scrollStep = -window.scrollY / (time / 15);
+		win = win || window; //window to apply scroll
+		let scrollStep = -win.scrollY / (time / 15);
 		let scrollInterval = setInterval(() => {
-			if (window.scrollY > 0)
-				window.scrollBy(0, scrollStep);
+			if (win.scrollY > 0)
+				win.scrollBy(0, scrollStep);
 			else
 				clearInterval(scrollInterval);
 		}, 15);
@@ -90,22 +96,16 @@ function DomBox() {
 		return self;
 	}
 
-	this.first = function(list) {
-		list = list || elements;
-		return fnSize(list) ? list[0] : list; //first element
+	function fnItem(i, list) {
+		if (isElem(list))
+			return list;
+		return fnSize(list) ? list[i] : null;
 	}
-	this.getElement = function(i, list) {
+	this.first = function(list) { return fnItem(0, list || elements); } //first element
+	this.elem = function(i, list) { return fnItem(i, list || elements); } //by position
+	this.last = function(list) { //last element
 		list = list || elements;
-		return fnSize(list) ? list[i] : list;
-	}
-	this.reduce = function(i) {
-		elements = fnSize(elements) ? elements[i] : elements;
-		return self;
-	}
-	this.last = function(list) {
-		list = list || elements;
-		let size = fnSize(list);
-		return size ? list[size-1] : list; //last element
+		return fnItem(fnSize(list)-1, list);
 	}
 
 	// Filters
@@ -127,14 +127,16 @@ function DomBox() {
 		list = list || elements;
 		if (isElem(list))
 			return list.matches(selector) ? list : null;
-		let i = fnGetIndex(selector, list);
-		return (i < 0) ? null : list[i];
+		return list[fnGetIndex(selector, list)];
 	}
 	this.filter = function(selector, list) {
 		let results = []; //elem container
 		self.each(el => addMatch(el, selector, results), list);
 		return results;
 	}
+	this.focus = function(el) { el = el || self.first(); el && el.focus(); return self; }
+	this.inputs = function(el) { return self.getAll("input:not([type=file]),textarea,select", el); }
+	this.refocus = function(list) { return self.focus(self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1']):not([tabindex=''])", list)); }
 
 	function addPrev(el, selector, results) {
 		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
@@ -189,29 +191,22 @@ function DomBox() {
 			el.value = value;
 		return self;
 	}
-	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
+	this.getValue = function(el) { return el && el.value; }
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
-	this.getVal = function(selector) { let el = self.get(selector); return el && el.value; }
+	this.getAttr = function(el, name) { return el && el.getAttribute(name); }
+	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
+	this.getText = function(el) { return el && el.innerText; }
 	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
-	this.getText = function(selector) { let el = self.get(selector); return el && el.innerText; }
+	this.getHtml = function(el) { return el && el.innerHTML; }
 	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
-	this.getHtml = function(selector) { let el = self.get(selector); return el && el.innerHTML; }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
 	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === ""); }
-	this.focus = function(list) {
-		const el = self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1']):not([tabindex=''])", list);
-		el && el.focus();
-		return self;
-	}
-	this.mask = function(mask, list) { //hide elements by mask 
-		const fn = (el, i) => {
-			return (((mask>>i)&1) == 0) ? self.addClass(HIDE, el) : self.removeClass(HIDE, el);
-		}
-		return self.each(fn, list);
-	}
+	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
+	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
+	this.mask = function(mask, list) { return self.each((el, i) => el.classList.toggle(HIDE, ((mask>>i)&1) == 0), list); } //hide elements by mask
 	this.select = function(mask, list) {
 		return self.each(el => {
-			self.mask(mask, el.querySelectorAll("option"));
+			self.mask(mask, el.children);
 			let option = el.querySelector("option[value='" + el.value + "']");
 			if (self.hasClass(HIDE, option)) //current option is hidden => force change
 				el.selectedIndex = self.findIndex("option:not(.hide)", el.children);
@@ -280,9 +275,9 @@ function DomBox() {
 		function fnRemove(el) { names.forEach(name => el.classList.remove(name)); }
 		return self.each(fnRemove, list);
 	}
-	this.toggle = function(name, force) {
+	this.toggle = function(name, force, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(el => names.forEach(name => el.classList.toggle(name, force)));
+		return self.each(el => names.forEach(name => el.classList.toggle(name, force)), list);
 	}
 	this.css = function(prop, value, list) {
 		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", "").toUpperCase());

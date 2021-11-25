@@ -1,4 +1,8 @@
 
+/**
+ * Internacionalization module require: DateBox, NumberBox and ValidatorBox modules
+ * @module I18nBox
+ */
 function I18nBox() {
 	const self = this; //self instance
 	const DOT = "."; //floats separator
@@ -124,16 +128,73 @@ function I18nBox() {
 		}
 	}
 
-	this.getMsgs = function() { return _lang; }
+	let _lang = langs.es; //default language
+	this.getLangs = function() { return langs; }
 	this.getLang = function(lang) { return langs[lang] || _lang; }
 	this.setLang = function(lang, data) { langs[lang] = data; return self; }
-	this.addLang = function(lang, data) { Object.assign(langs[lang], data); return self; }
 	this.getI18n = function(lang) { return lang ? (langs[lang] || self.getLang(lang.substr(0, 2))) : _lang; }
 	this.setI18n = function(lang) { _lang = self.getI18n(lang); return self; }
 
 	this.get = function(name) { return _lang[name]; }
 	this.set = function(name, value) { _lang[name] = value; return self; }
 
-	let _lang = langs.es; //default browser language
-	_lang = this.getI18n(navigator.language || navigator.userLanguage);
+	this.addLang = function(lang, data) {
+		langs[lang] = Object.assign(langs[lang] || {}, data);
+		return self;
+	}
+	this.addLangs = function(langs) {
+		for (const k in langs)
+			self.addLang(k, langs[k]);
+		return self;
+	}
+
+	// Shortcuts
+	this.getMsgs = function() { return _lang; }
+	this.toInt = function(str) { return _lang.toInt(str); }
+	this.isoInt = function(num) { return _lang.isoInt(num); }
+	this.fmtInt = function(str) { return _lang.fmtInt(str); }
+
+	this.toFloat = function(str) { return _lang.toFloat(str); }
+	this.isoFloat = function(num) { return _lang.isoFloat(num); }
+	this.fmtFloat = function(str) { return _lang.fmtFloat(str); }
+
+	this.toDate = function(str) { return _lang.toDate(str); }
+	this.isoDate = function(date) { return _lang.isoDate(date); }
+	this.fmtDate = function(str) { return _lang.fmtDate(str); }
+	this.acDate = function(str) { return _lang.acDate(str); }
+
+	this.toTime = function(str) { return _lang.toTime(str); }
+	this.isoTime = function(date) { return _lang.isoTime(date); }
+	this.fmtTime = function(str) { return _lang.fmtTime(str); }
+	this.acTime = function(str) { return _lang.acTime(str); }
+
+	this.fmtBool = function(val) { return _lang.fmtBool(val); }
+	this.val = function(obj, name) { return _lang.get(obj, name); }
+
+	// Validators
+	this.range = function(name, value, min, max) { return valid.set(name, valid.range(_lang.toFloat(value), min, max)); }
+	this.size = function(name, value, min, max) { return valid.set(name, valid.size(value, min, max)); }
+
+	this.gt0 = function(name, value) { return valid.set(name, valid.gt0(_lang.toFloat(value))); }
+	this.required = function(name, value) { return valid.set(name, valid.required(value)); }
+
+	this.regex = function(name, value) { return valid.set(name, valid.regex(value)); }
+	this.login = function(name, value) { return valid.set(name, valid.login(value)); }
+	this.digits = function(name, value) { return valid.set(name, valid.digits(value)); }
+	this.idlist = function(name, value) { return valid.set(name, valid.idlist(value)); }
+	this.email = function(name, value) { return valid.set(name, valid.email(value)); }
+
+	this.isDate = function(name, value) { return valid.set(name, valid.isDate(_lang.toDate(value))); }
+	this.past = function(name, value) { return valid.set(name, valid.past(_lang.toDate(value))); }
+	this.future = function(name, value) { return valid.set(name, valid.future(_lang.toDate(value))); }
+	this.future = function(name, value) { return valid.set(name, valid.future(_lang.toDate(value))); }
+	this.between = function(name, value, min, max) { return valid.set(name, valid.between(value, min, max)); }
+
+	this.dni = function(name, value) { return valid.set(name, valid.dni(value)); }
+	this.cif = function(name, value) { return valid.set(name, valid.cif(value)); }
+	this.nie = function(name, value) { return valid.set(name, valid.nie(value)); }
+	this.idES = function(name, value) { return valid.set(name, valid.idES(value)); }
+
+	this.iban = function(name, value) { return valid.set(name, valid.iban(value)); }
+	this.creditCardNumber = function(name, value) { return valid.set(name, valid.creditCardNumber(value)); }
 }

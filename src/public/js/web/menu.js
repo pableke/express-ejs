@@ -41,10 +41,10 @@ js.ready(function() {
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	let top = js.get("#back-to-top");
-	js.click(() => { js.scrollTop(400); }, top);
+	js.click(() => js.scrollTop(400), top);
 	window.onscroll = function() {
 		(window.pageYOffset > 80) ? js.fadeIn(top) : js.fadeOut(top);
-	};
+	}
 
 	// Onclose event tab/browser of client user
 	window.addEventListener("unload", function(ev) {
