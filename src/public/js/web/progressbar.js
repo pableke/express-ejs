@@ -44,7 +44,7 @@ js.ready(function() {
 	});
 
 	js.load("a.show-info").click((el, ev) => { //show/hide extra info
-		js.set(el.lastElementChild).toggle("fa-angle-double-up fa-angle-double-down")
+		js.load("i.fas", el).toggle("fa-angle-double-up fa-angle-double-down")
 			.load(".extra-info-" + el.id).toggle("hide");
 		ev.preventDefault();
 	});

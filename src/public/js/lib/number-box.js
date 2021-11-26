@@ -16,6 +16,17 @@ function NumberBox() {
 		return result;
 	}
 
+	this.lt0 = function(num) { return isset(num) && (num < 0); }
+	this.le0 = function(num) { return isset(num) && (num <= 0); }
+	this.gt0 = function(num) { return isset(num) && (num > 0); }
+	this.round = function(num, d) {
+		d = isset(d) ? d : 2; //default 2 decimals
+		return +(Math.round(num + "e" + d) + "e-" + d);
+	}
+
+	this.rand = function(min, max) { return Math.random() * (max - min) + min; }
+	this.randInt = function(min, max) { return Math.floor(Math.rand(min, max)); }
+
 	// Integers
 	this.toInt = function(str) { // String to Integer
 		if (!str) return null; // not number
@@ -56,7 +67,7 @@ function NumberBox() {
 		}
 		return null;
 	}
-	this.isoFloat = function(val, s, d, n) { return isset(val) ? fnFloat(EMPTY + val, s, d, n, DOT) : null; } // Float to String formated
+	this.isoFloat = function(val, s, d, n) { return isset(val) ? fnFloat(EMPTY + self.round(val, n), s, d, n, DOT) : null; } // Float to String formated
 	this.fmtFloat = function(str, s, d, n) { return str && fnFloat(str, s, d, n, d); } // String to String formated
 	this.floatval = function(str) { return parseFloat(str) || 0; } //float
 

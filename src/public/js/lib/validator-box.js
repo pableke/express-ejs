@@ -38,7 +38,7 @@ function ValidatorBox() {
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
-	function fnRange(num, min, max) { return isset(num) && (min <= num) && (num <= max); }
+	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
 	function fnRegex(re, value) {
 		try {
 			return (value && re.test(value)) ? value : null;
@@ -50,8 +50,8 @@ function ValidatorBox() {
 	this.escape = function(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
 
 	// Validators
-	this.range = function(num, min, max) {
-		return fnRange(num, min, max) ? num : null; // NaN comparator always false
+	this.range = function(num, min, max) { // NaN comparator always false
+		return (isset(num) && fnRange(num, min, max)) ? num : null;
 	}
 	this.size = function(str, min, max) {
 		str = fnTrim(str); // min/max string length
@@ -199,7 +199,7 @@ function ValidatorBox() {
 	// Data acces functions
 	this.getData = function() { return DATA; }
 	this.get = function(name) { return DATA.get(name); }
-	this.set = function(name, value) {
+	this.set = function(name, value) { //save if value is defined
 		return isset(value) && DATA.set(name, value);
 	}
 }
