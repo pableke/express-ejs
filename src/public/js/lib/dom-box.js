@@ -20,6 +20,7 @@ function DomBox() {
 
 	this.get = function(selector, el) { return (el || document).querySelector(selector); }
 	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
+	this.closest = function(selector, el) { return el && el.closest(selector); }
 	this.getElements = function() { return elements; }
 	this.set = function(list) {
 		delete elements; //prev container
@@ -47,16 +48,10 @@ function DomBox() {
 		aux.forEach((v, k) => params.set(k, v));
 		return url + "?" + params.toString();
 	}
-	this.scrollTop = function(time, win) {
-		time = time || 600; //default duration
+	this.scroll = function(el, win) {
 		win = win || window; //window to apply scroll
-		let scrollStep = -win.scrollY / (time / 15);
-		let scrollInterval = setInterval(() => {
-			if (win.scrollY > 0)
-				win.scrollBy(0, scrollStep);
-			else
-				clearInterval(scrollInterval);
-		}, 15);
+		el = el || win.document.body; //destination elem
+		el.scrollIntoView({ behavior: "smooth" }); //Scroll to destination with a slow effect
 		return self;
 	}
 	this.fetch = function(opts) {
@@ -109,7 +104,10 @@ function DomBox() {
 	}
 
 	// Filters
-	function fnGetIndex(selector, list) {
+	this.findIndex = function(selector, list) {
+		list = list || elements;
+		if (isElem(list))
+			return list.matches(selector) ? 0 : -1;
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
 			if (list[i].matches(selector))
@@ -117,26 +115,31 @@ function DomBox() {
 		}
 		return -1;
 	}
-	this.findIndex = function(selector, list) {
-		list = list || elements;
-		if (isElem(list))
-			return list.matches(selector) ? 0 : -1;
-		return fnGetIndex(selector, list);
-	}
 	this.find = function(selector, list) {
 		list = list || elements;
 		if (isElem(list))
 			return list.matches(selector) ? list : null;
-		return list[fnGetIndex(selector, list)];
+		return list[self.findIndex(selector, list)];
 	}
 	this.filter = function(selector, list) {
 		let results = []; //elem container
 		self.each(el => addMatch(el, selector, results), list);
 		return results;
 	}
+
+	// Inputs selectors and focusableds
+	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
+	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
+	this.inputs = function(el) { return self.getAll("input,textarea,select", el); }
 	this.focus = function(el) { el = el || self.first(); el && el.focus(); return self; }
-	this.inputs = function(el) { return self.getAll("input:not([type=file]),textarea,select", el); }
-	this.refocus = function(list) { return self.focus(self.find("[tabindex]:not([type=hidden][readonly][disabled]):not([tabindex='-1']):not([tabindex=''])", list)); }
+	this.refocus = function(list) {
+		return self.reverse(input => { //set focus on first input
+			fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
+		}, list);
+	}
+	this.setFocus = function(el) {
+		return self.refocus(self.inputs(el));
+	}
 
 	function addPrev(el, selector, results) {
 		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
@@ -193,12 +196,16 @@ function DomBox() {
 	}
 	this.getValue = function(el) { return el && el.value; }
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
+	this.setValue = function(selector, value) { return self.val(value, self.getAll(selector)); }
 	this.getAttr = function(el, name) { return el && el.getAttribute(name); }
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
+	this.setAttr = function(selector, name, value) { return self.attr(name, value, self.getAll(selector)); }
 	this.getText = function(el) { return el && el.innerText; }
 	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
+	this.setText = function(selector, value) { return self.text(value, self.getAll(selector)); }
 	this.getHtml = function(el) { return el && el.innerHTML; }
 	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
+	this.setHtml = function(selector, value) { return self.html(value, self.getAll(selector)); }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
 	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === ""); }
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
@@ -248,9 +255,8 @@ function DomBox() {
 	}
 
 	// Styles
-	this.isVisible = function(el) {
-		return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-	}
+	this.isVisible = function(el) { return el && fnVisible(el); }
+	this.visible = function(selector) { return self.isVisible(dom.get(selector)); }
 	this.show = function(list, display) {
 		display = display || "block";
 		return self.each(el => { el.style.display = display; }, list);
@@ -323,14 +329,19 @@ function DomBox() {
 
 	// Events
 	function fnEvent(el, name, fn) {
-		el.addEventListener(name, ev => fn(el, ev));
+		el.addEventListener(name, ev => fn(el, ev) || ev.preventDefault());
 		return self;
 	}
 	this.ready = function(fn) { return fnEvent(document, "DOMContentLoaded", fn); }
 	this.click = function(fn, list) { return self.each(el => fnEvent(el, "click", fn), list); }
+	this.onclick = function(selector, fn) { return self.click(fn, self.getAll(selector)); }
 	this.change = function(fn, list) { return self.each(el => fnEvent(el, "change", fn), list); }
+	this.onchange = function(selector, fn) { return self.change(fn, self.getAll(selector)); }
 	this.keyup = function(fn, list) { return self.each(el => fnEvent(el, "keyup", fn), list); }
+	this.onkeyup = function(selector, fn) { return self.keyup(fn, self.getAll(selector)); }
 	this.keydown = function(fn, list) { return self.each(el => fnEvent(el, "keydown", fn), list); }
+	this.onkeydown = function(selector, fn) { return self.keydown(fn, self.getAll(selector)); }
 	this.submit = function(fn, list) { return self.each(el => fnEvent(el, "submit", fn), list); }
+	this.onsubmit = function(selector, fn) { return self.submit(fn, self.getAll(selector)); }
 	this.trigger = function(name, list) { return self.each(el => el.dispatchEvent(new Event(name)), list); }
 }
