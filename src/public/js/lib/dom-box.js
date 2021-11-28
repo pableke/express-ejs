@@ -5,6 +5,7 @@
  */
 function DomBox() {
 	const self = this; //self instance
+	const EMPTY = ""; //empty string
 	const HIDE = "hide"; //css display: none
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
@@ -21,7 +22,7 @@ function DomBox() {
 	this.get = function(selector, el) { return (el || document).querySelector(selector); }
 	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
 	this.closest = function(selector, el) { return el && el.closest(selector); }
-	this.getElements = function() { return elements; }
+	this.toArray = function() { return elements ? Array.from(elements) : []; }
 	this.set = function(list) {
 		delete elements; //prev container
 		elements = list; //new container
@@ -62,7 +63,7 @@ function DomBox() {
 		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
 		opts.headers["Authorization"] = "Bearer " + window.localStorage.getItem("jwt");
 		return window.fetch(opts.action, opts).then(res => {
-			let contentType = res.headers.get("content-type") || ""; //response type
+			let contentType = res.headers.get("content-type") || EMPTY; //response type
 			let promise = (contentType.indexOf("application/json") > -1) ? res.json() : res.text(); //response
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
@@ -201,13 +202,13 @@ function DomBox() {
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
 	this.setAttr = function(selector, name, value) { return self.attr(name, value, self.getAll(selector)); }
 	this.getText = function(el) { return el && el.innerText; }
-	this.text = function(value, list) { return self.each(el => { el.innerText = value; }, list); }
+	this.text = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerText = value; }, list); }
 	this.setText = function(selector, value) { return self.text(value, self.getAll(selector)); }
 	this.getHtml = function(el) { return el && el.innerHTML; }
-	this.html = function(value, list) { return self.each(el => { el.innerHTML = value; }, list); }
+	this.html = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerHTML = value; }, list); }
 	this.setHtml = function(selector, value) { return self.html(value, self.getAll(selector)); }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
-	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === ""); }
+	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
 	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
 	this.mask = function(mask, list) { return self.each((el, i) => el.classList.toggle(HIDE, ((mask>>i)&1) == 0), list); } //hide elements by mask
@@ -224,7 +225,7 @@ function DomBox() {
 	this.import = function(inputs, data, opts) {
 		opts = opts || {}; //default settings
 		if (!data) //no data => clear inputs
-			return self.val("", inputs);
+			return self.val(EMPTY, inputs);
 		return self.each((el, i) => { //format data
 			let fn = opts[el.name]; //field format function
 			if (fn)
@@ -286,7 +287,7 @@ function DomBox() {
 		return self.each(el => names.forEach(name => el.classList.toggle(name, force)), list);
 	}
 	this.css = function(prop, value, list) {
-		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", "").toUpperCase());
+		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", EMPTY).toUpperCase());
 		return self.each(el => { el.style[camelProp] = value; }, list);
 	}
 

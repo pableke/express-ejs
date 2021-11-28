@@ -25,7 +25,7 @@ function NumberBox() {
 	}
 
 	this.rand = function(min, max) { return Math.random() * (max - min) + min; }
-	this.randInt = function(min, max) { return Math.floor(Math.rand(min, max)); }
+	this.randInt = function(min, max) { return Math.floor(self.rand(min, max)); }
 
 	// Integers
 	this.toInt = function(str) { // String to Integer
