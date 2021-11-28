@@ -71,7 +71,7 @@ function I18nBox() {
 		es: { //spanish
 			//inputs errors messages
 			errForm: "Error al validar los campos del formulario",
-			errRequired: "Campo obligatorio!",
+			errRequired: "¡Campo obligatorio!",
 			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
 			errMaxlength: "Longitud máxima excedida",
 			errNif: "Formato de NIF / CIF incorrecto",
@@ -170,6 +170,7 @@ function I18nBox() {
 
 	this.fmtBool = function(val) { return _lang.fmtBool(val); }
 	this.val = function(obj, name) { return _lang.get(obj, name); }
+	this.confirm = function(key) { return confirm(_lang[key]); }
 
 	// Validators
 	this.range = function(name, value, min, max) { return valid.set(name, valid.range(_lang.toFloat(value), min, max)); }
@@ -187,8 +188,11 @@ function I18nBox() {
 	this.isDate = function(name, value) { return valid.set(name, valid.isDate(_lang.toDate(value))); }
 	this.past = function(name, value) { return valid.set(name, valid.past(_lang.toDate(value))); }
 	this.future = function(name, value) { return valid.set(name, valid.future(_lang.toDate(value))); }
-	this.future = function(name, value) { return valid.set(name, valid.future(_lang.toDate(value))); }
 	this.between = function(name, value, min, max) { return valid.set(name, valid.between(value, min, max)); }
+	this.geToday = function(name, value) {
+		let date =_lang.toDate(value);
+		return dt.inDay(dt.sysdate(), date) ? valid.set(name, date) : valid.set(name, valid.future(date));
+	}
 
 	this.dni = function(name, value) { return valid.set(name, valid.dni(value)); }
 	this.cif = function(name, value) { return valid.set(name, valid.cif(value)); }

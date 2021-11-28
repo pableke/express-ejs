@@ -56,15 +56,8 @@ function DateBox() {
 	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
-	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
-	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
-	this.between = function(date, min, max) { // value into a range
-		if (!isDate(date))
-			return null;
-		min = isDate(min) ? min.getTime() : date.getTime();
-		max = isDate(max) ? max.getTime() : date.getTime();
-		return ((min <= date.getTime()) && (date.getTime() <= max)) ? date : null;
-	}
+	this.randTime = function(d1, d2) { return Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime()); }
+	this.randDate = function(d1, d2) { return new Date(self.randTime(d1, d2)); }
 
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
@@ -132,10 +125,24 @@ function DateBox() {
 	}
 
 	//equality operators == != === !== cannot be used to compare (the value of) dates
-	function eqDate(d1, d2) { return (d1.getTime() == d2.getTime()); }
-	this.eq = function(d1, d2) { return isDate(d1) && isDate(d2) && eqDate(d1, d2); }
-	this.randTime = function(d1, d2) { return Math.randInt(d1.getTime(), d2.getTime()); }
-	this.randDate = function(d1, d2) { return new Date(Math.randTime(d1, d2)); }
+	this.lt = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() < d2.getTime()); }
+	this.le = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() <= d2.getTime()); }
+	this.eq = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime()); }
+	this.ge = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime()); }
+	this.gt = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime()); }
+	this.inYear = function(d1, d2) { return d1 && d2 && (d1.getFullYear() == d2.getFullYear()); }
+	this.inMonth = function(d1, d2) { return self.inYear(d1, d2) && (d1.getMonth() == d2.getMonth()); }
+	this.inDay = function(d1, d2) { return self.inMonth(d1, d2) && (d1.getDate() == d2.getDate()); }
+	this.inHour = function(d1, d2) { return self.inDay(d1, d2) && (d1.getHours() == d2.getHours()); }
+	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
+	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
+	this.between = function(date, min, max) { // value into a range
+		if (!isDate(date))
+			return null;
+		min = isDate(min) ? min.getTime() : date.getTime();
+		max = isDate(max) ? max.getTime() : date.getTime();
+		return ((min <= date.getTime()) && (date.getTime() <= max)) ? date : null;
+	}
 
 	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
 	function fnIsoTime(date) { return fnMinTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
