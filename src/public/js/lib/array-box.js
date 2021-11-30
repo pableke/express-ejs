@@ -78,12 +78,12 @@ function ArrayBox() {
 		opts.empty = opts.empty || "";
 
 		const status = { size: fnSize(data) };
-		return data && tpl && data.map(function(obj, i) {
-			status.index = i;
-			status.count = i + 1;
+		return data && tpl && data.map((obj, j) => {
+			status.index = j;
+			status.count = j + 1;
 			return tpl.replace(/@(\w+);/g, function(m, k) {
 				let fn = opts[k]; //field format function
-				let value = fn ? fn(obj[k], obj, i) : (obj[k] ?? status[k]);
+				let value = fn ? fn(obj[k], obj, j) : (obj[k] ?? status[k]);
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);

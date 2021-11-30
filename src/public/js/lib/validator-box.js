@@ -58,7 +58,7 @@ function ValidatorBox() {
 		return fnRange(fnSize(str), min, max) ? str : null;
 	}
 
-	this.gt0 = function(num) { return self.range(num, .01, 1e9); }
+	this.gt0 = function(num) { return self.range(num, .001, 1e9); }
 	this.required = function(value) { return self.size(value, 1, 1e4); }
 
 	this.regex = function(re, value) { return fnRegex(re, fnTrim(value)); }
@@ -67,7 +67,7 @@ function ValidatorBox() {
 	this.idlist = function(value) { return self.regex(RE_IDLIST, value); }
 	this.email = function(value) {
 		value = self.regex(RE_MAIL, value);
-		return value ? value.toLowerCase() : null;
+		return value && value.toLowerCase();
 	}
 
 	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
