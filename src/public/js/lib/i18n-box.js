@@ -155,7 +155,9 @@ function I18nBox() {
 	this.fmtInt = function(str) { return _lang.fmtInt(str); }
 
 	this.toFloat = function(str) { return _lang.toFloat(str); }
+	this.isoFloat1 = function(num) { return _lang.isoFloat(num, 1); }
 	this.isoFloat = function(num) { return _lang.isoFloat(num); }
+	this.isoFloat3 = function(num) { return _lang.isoFloat(num, 3); }
 	this.fmtFloat = function(str) { return _lang.fmtFloat(str); }
 
 	this.toDate = function(str) { return _lang.toDate(str); }
