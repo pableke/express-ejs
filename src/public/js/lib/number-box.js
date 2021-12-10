@@ -19,6 +19,11 @@ function NumberBox() {
 	this.lt0 = function(num) { return isset(num) && (num < 0); }
 	this.le0 = function(num) { return isset(num) && (num <= 0); }
 	this.gt0 = function(num) { return isset(num) && (num > 0); }
+	this.cmp = function(n1, n2) { //nulls go last
+		if (!isNaN(n1) && !isNaN(n2))
+			return n1 - n2;
+		return isNaN(n2) ? -1 : 1;
+	}
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
 		return +(Math.round(num + "e" + d) + "e-" + d);
