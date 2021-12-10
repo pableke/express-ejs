@@ -14,9 +14,17 @@ const dom = new DomBox(); //HTML-DOM box
 //DOM is fully loaded
 dom.ready(function() {
 	i18n.setI18n(dom.getLang());
-	const inputs = dom.inputs();
+	const inputs = dom.inputs(); //all html inputs
 	dom.getInput = function(selector) { return dom.find(selector, inputs); }
 	dom.getInputs = function(selector) { return dom.filter(selector, inputs); }
+	dom.moveFocus = function(selector) { return dom.focus(dom.getInput(selector)); }
+	dom.findValue = function(selector) { return dom.getValue(dom.getInput(selector)); } //redefine default from dom
+	dom.setValue = function(selector, value) { return dom.val(value, dom.getInputs(selector)); } //redefine default function
+	dom.setAttr = function(selector, name, value) { return dom.attr(name, value, dom.getInputs(selector)); } //redefine default
+	dom.setDateRange = function(el) { return dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id)); }
+	dom.setDates = function(value, list) { return dom.val(value, list).each(dom.setDateRange, list); } //update value and range
+	dom.setDate = function(selector, value) { return dom.setDates(value, dom.getInputs(selector)); }
+	dom.onChangeInput = function(selector, fn) { return dom.change(fn, dom.getInputs(selector)); }
 	dom.refocus(inputs); //focus on first input
 
 	// Alerts handlers
@@ -24,7 +32,8 @@ dom.ready(function() {
 	const texts = dom.getAll(".alert-text");
 	let errors = 0; //errors counter
 
-	function showAlert(el) { return dom.fadeIn(el.parentNode, "grid"); }
+	function showAlert(el) { return dom.removeClass("hide", el.parentNode); }
+	function closeAlert(el) { return dom.addClass("hide", el.parentNode); }
 	function setAlert(el, txt) { return showAlert(el).html(txt, el).scroll(); }
 
 	dom.isOk = function() { return (errors == 0); }
@@ -44,25 +53,20 @@ dom.ready(function() {
 	}
 	dom.closeAlerts = function() { //hide alerts
 		errors = 0; //reinit error counter
-		return dom.hide(alerts).removeClass("ui-error", inputs)
-					.set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide");
+		return dom.addClass("hide", alerts).removeClass("ui-error", inputs).set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide").set();
 	}
-	dom.setError = function(el, msg, msgtip) {
-		return dom.showError(msg).addClass("ui-error", el).focus(el)
-					.set(dom.siblings(".ui-errtip", el)).html(msgtip).removeClass("hide");
-	}
-	dom.each(el => { el.firstChild && showAlert(el); }, texts)
-		.load(".alert-close").click(el => dom.fadeOut(el.parentNode));
+	dom.setError = function(el, msg, msgtip) { return dom.showError(msg).addClass("ui-error", el).focus(el).set(dom.siblings(".ui-errtip", el)).html(msgtip).removeClass("hide").set(); }
+	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
+	dom.each(el => { el.firstChild && showAlert(el); }, texts).onclick(".alert-close", closeAlert);
 
 	// Inputs formater
-	dom.each(el => { el.value = i18n.fmtBool(el.value); }, dom.getInputs(".bool"));
-	dom.change(el => { el.value = i18n.fmtInt(el.value); }, dom.getInputs(".integer"));
-	dom.change(el => { el.value = i18n.fmtFloat(el.value); }, dom.getInputs(".float"));
-	dom.set(dom.getInputs(".date")).keyup(el => { el.value = i18n.acDate(el.value); }).change(el => { el.value = i18n.fmtDate(el.value); });
-	dom.set(dom.getInputs(".time")).keyup(el => { el.value = i18n.acTime(el.value); }).change(el => { el.value = i18n.fmtTime(el.value); });
+	dom.each(el => { el.value = i18n.fmtBool(el.value); }, dom.getInputs(".ui-bool"));
+	dom.onChangeInput(".ui-integer", el => { el.value = i18n.fmtInt(el.value); });
+	dom.onChangeInput(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
+	dom.onChangeInput(".ui-date", dom.setDateRange); //auto range date inputs
 	// Initialize all textarea counter
 	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value))); }
-	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter);
+	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter).set();
 
 	// Common validators for fields
 	dom.isGt0 = function(el, msg, msgtip) { return i18n.gt0(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
@@ -74,24 +78,44 @@ dom.ready(function() {
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
-		return !dom.load("i.fas", el).toggle("fa-chevron-double-down fa-chevron-double-up")
-					.load(".extra-info-" + el.id).toggle("hide");
+		return !dom.load("i.fas", el).toggle("fa-chevron-double-down fa-chevron-double-up").toggleHide(".extra-info-" + el.id).set();
 	});
 
 	// Tabs handler
 	const tabs = dom.getAll("div.tab-content");
+	dom.getTab = function(i) { return tabs.find("#tab-" + i); }
 	dom.showTab = function(i) {
-		const tab = dom.set(tabs).removeClass("active").find("#tab-" + i);
+		const tab = dom.removeClass("active", tabs).getTab(i);
 		return dom.addClass("active", tab).setFocus(tab);
 	}
 	dom.progressbar = function(i) {
 		const step = "step-" + i; //go to a specific step on progressbar and tab
-		return dom.load("ul#progressbar li").each(li => dom.toggle("active", li.id <= step, li));
+		return dom.forEach("ul#progressbar li", li => dom.toggle("active", li.id <= step, li));
 	}
 	dom.onclick("a[href^='#tab-']", el => {
 		let i = el.href.substr(el.href.lastIndexOf("-") + 1);
 		return !dom.progressbar(i).showTab(i);
 	});
+
+	// Tables helper
+	const tables = dom.getAll("table.tb-xeco");
+	dom.toggleTbody = function(table) {
+		let tr = dom.get("tr.tb-data", table);
+		return dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
+	}
+	dom.getTable = function(selector) { return dom.find(selector, tables); }
+	dom.toggleTdata = function(selector) { return dom.toggleTbody(dom.getTable(selector)); }
+	dom.reloadTable = function(selector, data, resume, styles) {
+		const table = dom.getTable(selector);
+		if (table) {
+			resume.size = data.length; //numrows
+			return dom.format(tpl => sb.format(resume, tpl, styles), table.tFoot)
+						.format(tpl => ab.format(data, tpl, styles), table.tBodies[0])
+						.toggleTbody(table)
+		}
+		return dom;
+	}
+	dom.each(dom.toggleTbody, tables);
 
 	// Extends dom-box actions
 	dom.ajax = function(action, resolve, reject) {
@@ -143,12 +167,12 @@ dom.ready(function() {
 
 	// Loading div
 	const _loading = dom.get(".loading");
-	dom.loading = function() { return dom.show(_loading).closeAlerts(); }
-	dom.unloading = function() { return dom.fadeOut(_loading); }
+	dom.loading = function() { return dom.addClass("hide", _loading).closeAlerts(); }
+	dom.unloading = function() { return dom.removeClass("hide", _loading); }
 	// End loading div
 
 	// Scroll body to top on click and toggle back-to-top arrow
-	let top = dom.append('<a id="back-to-top" href="#top" class="back-to-top"><i class="fas fa-chevron-up"></i></a>').get("a#back-to-top");
-	window.onscroll = function() { (this.pageYOffset > 80) ? dom.fadeIn(top) : dom.fadeOut(top); }
+	let top = dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>').get("a#back-to-top");
+	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, top); }
 	dom.click(() => dom.scroll(), top);
 });

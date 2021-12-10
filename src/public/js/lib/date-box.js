@@ -130,6 +130,12 @@ function DateBox() {
 	this.eq = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime()); }
 	this.ge = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime()); }
 	this.gt = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime()); }
+	this.cmp = function(d1, d2) { //nulls go last
+		if (isDate(d1) && isDate(d2))
+			return d1.getTime() - d2.getTime();
+		return isDate(d1) ? -1 : 1;
+	}
+
 	this.inYear = function(d1, d2) { return d1 && d2 && (d1.getFullYear() == d2.getFullYear()); }
 	this.inMonth = function(d1, d2) { return self.inYear(d1, d2) && (d1.getMonth() == d2.getMonth()); }
 	this.inDay = function(d1, d2) { return self.inMonth(d1, d2) && (d1.getDate() == d2.getDate()); }

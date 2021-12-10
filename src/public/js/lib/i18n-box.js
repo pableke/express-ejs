@@ -65,7 +65,7 @@ function I18nBox() {
 			isoFloat: function(num, n) { return nb.isoFloat(num, COMMA, DOT, n); },
 			fmtFloat: function(str, n) { return nb.fmtFloat(str, COMMA, DOT, n); },
 			fmtBool: function(val) { return nb.boolval(val) ? "Yes" : "No"; },
-			get: function(obj, name) { return obj[name + "_en"] || obj[name]; } //object lang access
+			val: function(obj, name) { return obj[name + "_en"] || obj[name]; } //object lang access
 		},
 
 		es: { //spanish
@@ -124,7 +124,7 @@ function I18nBox() {
 			isoFloat: function(num, n) { return nb.isoFloat(num, DOT, COMMA, n); },
 			fmtFloat: function(str, n) { return nb.fmtFloat(str, DOT, COMMA, n); },
 			fmtBool: function(val) { return nb.boolval(val) ? "Sí" : "No"; },
-			get: function(obj, name) { return obj[name]; } //object lang access
+			val: function(obj, name) { return obj[name]; } //object lang access
 		}
 	}
 
@@ -166,13 +166,18 @@ function I18nBox() {
 	this.acDate = function(str) { return _lang.acDate(str); }
 
 	this.toTime = function(str) { return _lang.toTime(str); }
+	this.minTime = function(date) { return _lang.minTime(date); }
 	this.isoTime = function(date) { return _lang.isoTime(date); }
 	this.fmtTime = function(str) { return _lang.fmtTime(str); }
 	this.acTime = function(str) { return _lang.acTime(str); }
 
 	this.fmtBool = function(val) { return _lang.fmtBool(val); }
-	this.val = function(obj, name) { return _lang.get(obj, name); }
 	this.confirm = function(key) { return confirm(_lang[key]); }
+	this.val = function(obj, name) { return _lang.val(obj, name); }
+	this.arrval = function(name, i) {
+		let arr = _lang[name];
+		return (arr && arr[i]) || "-";
+	}
 
 	// Validators
 	this.range = function(name, value, min, max) { return valid.set(name, valid.range(_lang.toFloat(value), min, max)); }

@@ -30,9 +30,10 @@ function ArrayBox() {
 
 	// Sorting
 	this.sort = function(arr, fn) { return arr ? arr.sort(fn || cmp) : arr; }
-	this.sortBy = function(arr, field, dir) {
-		function fnAsc(a, b) { return cmp(a[field], b[field]); }
-		function fnDesc(a, b) { return cmp(b[field], a[field]); }
+	this.sortBy = function(arr, field, fnSort, dir) {
+		fnSort = fnSort || cmp; //default sorting
+		function fnAsc(a, b) { return fnSort(a[field], b[field]); }
+		function fnDesc(a, b) { return fnSort(b[field], a[field]); }
 		return (arr && field) ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
 	this.multisort = function(arr, columns, orderby) {
