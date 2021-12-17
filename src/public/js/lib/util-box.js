@@ -14,6 +14,14 @@ const dom = new DomBox(); //HTML-DOM box
 //DOM is fully loaded
 dom.ready(function() {
 	i18n.setI18n(dom.getLang());
+
+	// Loading div
+	const _loading = dom.get(".loading");
+	dom.loading = function() { return dom.addClass("hide", _loading).closeAlerts(); }
+	dom.unloading = function() { return dom.removeClass("hide", _loading); }
+	// End loading div
+
+	// Inputs helpers
 	const inputs = dom.inputs(); //all html inputs
 	dom.getInput = function(selector) { return dom.find(selector, inputs); }
 	dom.getInputs = function(selector) { return dom.filter(selector, inputs); }
@@ -57,6 +65,7 @@ dom.ready(function() {
 	}
 	dom.setError = function(el, msg, msgtip) { return dom.showError(msg).addClass("ui-error", el).focus(el).set(dom.siblings(".ui-errtip", el)).html(msgtip).removeClass("hide").set(); }
 	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
+	dom.i18nError = function(selector, key, keytip) { return dom.addError(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.each(el => { el.firstChild && showAlert(el); }, texts).onclick(".alert-close", closeAlert);
 
 	// Inputs formater
@@ -78,44 +87,59 @@ dom.ready(function() {
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
-		return !dom.load("i.fas", el).toggle("fa-chevron-double-down fa-chevron-double-up").toggleHide(".extra-info-" + el.id).set();
+		return !dom.swapClass("i.fas", "fa-chevron-double-down fa-chevron-double-up", el).toggleHide(".extra-info-" + el.id);
 	});
 
 	// Tabs handler
-	const tabs = dom.getAll("div.tab-content");
-	dom.getTab = function(i) { return tabs.find("#tab-" + i); }
-	dom.showTab = function(i) {
-		const tab = dom.removeClass("active", tabs).getTab(i);
-		return dom.addClass("active", tab).setFocus(tab);
+	const tabs = dom.getAll("div.tab-content"); //all tabs
+	let index = dom.findIndex(".active", tabs); //current index tab
+	dom.getTab = function(i) { //get tab by index
+		index = Math.min(Math.max(i, 0), tabs.length - 1);
+		return tabs[index]; //get tab element
 	}
+	dom.goTab = function(tab) { return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab); }
+	dom.showTab = function(i) { return dom.goTab(dom.getTab(i)); } //show tab by index
+	dom.showTabById = function(id) { return dom.showTab(dom.findIndex("#tab-" + id, tabs)); } //show tab by id selector
+	dom.prevTab = function() { return dom.showTab(index - 1); }
+	dom.nextTab = function() { return dom.showTab(index + 1); }
 	dom.progressbar = function(i) {
 		const step = "step-" + i; //go to a specific step on progressbar and tab
 		return dom.forEach("ul#progressbar li", li => dom.toggle("active", li.id <= step, li));
 	}
+	dom.onclick("a[href='#prev-tab']", dom.prevTab);
+	dom.onclick("a[href='#next-tab']", dom.nextTab);
 	dom.onclick("a[href^='#tab-']", el => {
 		let i = el.href.substr(el.href.lastIndexOf("-") + 1);
-		return !dom.progressbar(i).showTab(i);
+		return !dom.progressbar(i).showTabById(i);
 	});
 
 	// Tables helper
 	const tables = dom.getAll("table.tb-xeco");
-	dom.toggleTbody = function(table) {
-		let tr = dom.get("tr.tb-data", table);
-		return dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
-	}
 	dom.getTable = function(selector) { return dom.find(selector, tables); }
-	dom.toggleTdata = function(selector) { return dom.toggleTbody(dom.getTable(selector)); }
-	dom.reloadTable = function(selector, data, resume, styles) {
-		const table = dom.getTable(selector);
-		if (table) {
-			resume.size = data.length; //numrows
-			return dom.format(tpl => sb.format(resume, tpl, styles), table.tFoot)
-						.format(tpl => ab.format(data, tpl, styles), table.tBodies[0])
-						.toggleTbody(table)
-		}
-		return dom;
+	dom.getTables = function(selector) { return dom.filter(selector, tables); }
+	function fnToggleTable(table) {
+		let tr = dom.get("tr.tb-data", table); //has data rows?
+		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
 	}
-	dom.each(dom.toggleTbody, tables);
+	dom.reloadTable = function(selector, data, resume, styles) {
+		resume.size = data.length; //numrows
+		return dom.each(table => {
+			dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles))
+				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles));
+			fnToggleTable(table);
+		}, dom.getTables(selector));
+	}
+	dom.each(fnToggleTable, tables);
+
+	// Extends internacionalization
+	dom.tr = function(selector, opts) {
+		const elements = dom.getAll(selector);
+		i18n.set("size", elements.length); //size list
+		return dom.each((el, i) => {
+			i18n.set("index", i).set("count", i + 1);
+			dom.render(el, tpl => i18n.format(tpl, opts));
+		}, elements);
+	}
 
 	// Extends dom-box actions
 	dom.ajax = function(action, resolve, reject) {
@@ -160,16 +184,11 @@ dom.ready(function() {
 			}
 		};
 		$(opts.inputs).autocomplete(opts);
-		return dom.set(opts.inputs).keydown((el, ev) => { // Reduce server calls, only for backspace or alfanum
+		return dom.keydown((el, i, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
-		});
+		}, opts.inputs);
 	}
-
-	// Loading div
-	const _loading = dom.get(".loading");
-	dom.loading = function() { return dom.addClass("hide", _loading).closeAlerts(); }
-	dom.unloading = function() { return dom.removeClass("hide", _loading); }
-	// End loading div
+	// Extends dom-box actions
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	let top = dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>').get("a#back-to-top");

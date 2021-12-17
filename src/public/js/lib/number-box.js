@@ -28,6 +28,8 @@ function NumberBox() {
 		d = isset(d) ? d : 2; //default 2 decimals
 		return +(Math.round(num + "e" + d) + "e-" + d);
 	}
+	this.eq2 = function(num1, num2) { return isset(num1) && (self.round(num1) == self.round(num2)); }
+	this.eq3 = function(num1, num2) { return isset(num1) && (self.round(num1, 3) == self.round(num2, 3)); }
 
 	this.rand = function(min, max) { return Math.random() * (max - min) + min; }
 	this.randInt = function(min, max) { return Math.floor(self.rand(min, max)); }
