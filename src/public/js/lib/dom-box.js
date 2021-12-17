@@ -221,12 +221,13 @@ function DomBox() {
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
 	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
 	this.mask = function(mask, list) { return self.each((el, i) => el.classList.toggle(HIDE, ((mask>>i)&1) == 0), list); } //hide elements by mask
+	this.optText = function(sel) { return sel ? self.getText(sel.options[sel.selectedIndex]) : null; }
 	this.select = function(mask, list) {
 		return self.each(el => {
 			self.mask(mask, el.children);
 			let option = el.querySelector("option[value='" + el.value + "']");
 			if (self.hasClass(HIDE, option)) //current option is hidden => force change
-				el.selectedIndex = self.findIndex("option:not(.hide)", el.children);
+				el.selectedIndex = self.findIndex("option:not(.hide)", el.options);
 		}, list);
 	}
 
@@ -239,8 +240,8 @@ function DomBox() {
 			let fn = opts[el.name]; //field format function
 			if (fn)
 				el.value = fn(data[el.name], data, i);
-			else
-				fnSetVal(el, data[el.name]);
+			else //default string if not defined same value
+				fnSetVal(el, data[el.name] ?? el.value);
 		}, inputs);
 	}
 	this.export = function(inputs, data, opts) {
@@ -248,20 +249,22 @@ function DomBox() {
 		opts = opts || {}; //default settings
 		self.each((el, i) => { //parse inputs data
 			let fn = opts[el.name]; //field format function
-			data[el.name] = fn ? fn(data[el.name], data, i) : el.value;
+			data[el.name] = fn ? fn(el.value, data, i) : el.value;
 		}, inputs);
 		delete data.undefined; //no name element
 		return data;
 	}
 
 	const TEMPLATES = {}; //container
+	this.render = function(el, formatter) {
+		el.id = el.id || fnId(); //tpl associate by id
+		TEMPLATES[el.id] = TEMPLATES[el.id] || el.innerHTML;
+		el.innerHTML = formatter(TEMPLATES[el.id]);
+		el.classList.toggle(HIDE, !el.innerHTML);
+		return self;
+	}
 	this.format = function(formatter, list) {
-		return self.each(el => { //elements to be re-formated
-			el.id = el.id || fnId(); //tpl associate by id
-			TEMPLATES[el.id] = TEMPLATES[el.id] || el.innerHTML;
-			el.innerHTML = formatter(TEMPLATES[el.id]);
-			el.innerHTML && el.classList.remove(HIDE);
-		}, list);
+		return self.each(self.render, list);
 	}
 	this.reformat = function(selector, formatter) {
 		return self.format(formatter, self.getAll(selector));
@@ -269,7 +272,7 @@ function DomBox() {
 
 	// Styles
 	this.isVisible = function(el) { return el && fnVisible(el); }
-	this.visible = function(selector) { return self.isVisible(dom.get(selector)); }
+	this.visible = function(selector, el) { return self.isVisible(dom.get(selector, el)); }
 	this.show = function(list, display) {
 		display = display || "block";
 		return self.each(el => { el.style.display = display; }, list);
@@ -310,6 +313,16 @@ function DomBox() {
 	this.toggleHide = function(selector, force, el) {
 		return self.toggleClass(selector, HIDE, force, el);
 	}
+	this.swap = function(name, list) {
+		const names = fnSplit(name); // Split value by " " (class separator)
+		return self.each(el => names.forEach(name => el.classList.toggle(name)), list);
+	}
+	this.swapClass = function(selector, name, el) {
+		return self.swap(name, self.getAll(selector, el));
+	}
+	this.swapHide = function(selector, el) {
+		return self.swapClass(selector, HIDE, el);
+	}
 	this.css = function(prop, value, list) {
 		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", EMPTY).toUpperCase());
 		return self.each(el => { el.style[camelProp] = value; }, list);
@@ -317,7 +330,7 @@ function DomBox() {
 
 	// Events
 	function fnEvent(name, el, i, fn) {
-		el.addEventListener(name, ev => fn(el, i) || ev.preventDefault());
+		el.addEventListener(name, ev => fn(el, i, ev) || ev.preventDefault());
 		return self;
 	}
 	this.ready = function(fn) { document.addEventListener("DOMContentLoaded", fn); return self; }

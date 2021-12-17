@@ -1,6 +1,6 @@
 
 /**
- * Internacionalization module require: DateBox, NumberBox and ValidatorBox modules
+ * Internacionalization module require: DateBox (dt), NumberBox (nb, StringBox (sb) and ValidatorBox (valid) modules
  * @module I18nBox
  */
 function I18nBox() {
@@ -137,6 +137,7 @@ function I18nBox() {
 
 	this.get = function(name) { return _lang[name]; }
 	this.set = function(name, value) { _lang[name] = value; return self; }
+	this.format = function(tpl, opts) { return sb.format(_lang, tpl, opts); }
 
 	this.addLang = function(lang, data) {
 		langs[lang] = Object.assign(langs[lang] || {}, data);
