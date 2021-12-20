@@ -139,13 +139,10 @@ function DomBox() {
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
 	this.inputs = function(el) { return self.getAll("input,textarea,select", el); }
 	this.focus = function(el) { el && el.focus(); return self; }
-	this.refocus = function(list) {
+	this.setFocus = function(el) {
 		return self.reverse(input => { //set focus on first input
 			fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
-		}, list);
-	}
-	this.setFocus = function(el) {
-		return self.refocus(self.inputs(el));
+		}, self.inputs(el));
 	}
 
 	function addPrev(el, selector, results) {

@@ -115,7 +115,7 @@ label.required:after { color: #e32; content: " *"; }
 	.input-control, .ui-control { min-width: 96%; width: 98%; }
 	.input-group-block, .input-group-flex { display: inline-block; width: 96%; }
 	.input-group-inline { grid-template-columns: auto; }
-	span.input-icon { display: none; }
+	.input-icon { display: none !important; } /*priority over font-awesome*/
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {

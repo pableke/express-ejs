@@ -33,7 +33,7 @@ dom.ready(function() {
 	dom.setDates = function(value, list) { return dom.val(value, list).each(dom.setDateRange, list); } //update value and range
 	dom.setDate = function(selector, value) { return dom.setDates(value, dom.getInputs(selector)); }
 	dom.onChangeInput = function(selector, fn) { return dom.change(fn, dom.getInputs(selector)); }
-	dom.refocus(inputs); //focus on first input
+	//dom.refocus(inputs); //focus on first input
 
 	// Alerts handlers
 	const alerts = dom.getAll("div.alert");
@@ -80,10 +80,13 @@ dom.ready(function() {
 	// Common validators for fields
 	dom.isGt0 = function(el, msg, msgtip) { return i18n.gt0(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.gt0 = function(selector, msg, msgtip) { return dom.isGt0(dom.getInput(selector), msg, msgtip); }
+	dom.i18nGt0 = function(selector, key, keytip) { return dom.gt0(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.isRequired = function(el, msg, msgtip) { return i18n.required(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.required = function(selector, msg, msgtip) { return dom.isRequired(dom.getInput(selector), msg, msgtip); }
+	dom.i18nRequired = function(selector, key, keytip) { return dom.required(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.isGeToday = function(el, msg, msgtip) { return i18n.geToday(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.geToday = function(selector, msg, msgtip) { return dom.isGeToday(dom.getInput(selector), msg, msgtip); }
+	dom.i18nGeToday = function(selector, key, keytip) { return dom.geToday(selector, i18n.get(key), i18n.get(keytip)); }
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
@@ -93,6 +96,7 @@ dom.ready(function() {
 	// Tabs handler
 	const tabs = dom.getAll("div.tab-content"); //all tabs
 	let index = dom.findIndex(".active", tabs); //current index tab
+	dom.setFocus(tabs[index]); //try to reallocate focus on active tab
 	dom.getTab = function(i) { //get tab by index
 		index = Math.min(Math.max(i, 0), tabs.length - 1);
 		return tabs[index]; //get tab element
@@ -150,18 +154,23 @@ dom.ready(function() {
 		}).catch(dom.showError) //error handler
 			.finally(dom.unloading); //allways
 	}
-	dom.autocomplete = function(opts) { // Autocomplete inputs
-		let _search = false; //call source indicator
+	dom.autocomplete = function(selector, opts) {
+		const inputs = dom.getInputs(selector); //Autocomplete inputs
+		let _search = false; //call source indicator (reduce calls)
+
 		function fnFalse() { return false; }
+		function fnParam(data) { return data; }
 		function fnGetIds(el) { return dom.siblings("[type=hidden]", el); }
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
 		opts.minLength = opts.minLength || 3; //length to start
+		opts.maxResults = opts.maxResults || 10; //max showed rows (default = 10)
 		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
 		opts.open = opts.open || fnFalse; //triggered if the value has changed
 		opts.focus = opts.focus || fnFalse; //no change focus on select
 		opts.load = opts.load || fnFalse; //triggered when select an item
+		opts.sort = opts.sort || fnParam; //sort array data received
 		opts.remove = opts.remove || fnFalse; //triggered when no item selected
 		opts.render = opts.render || function() { return "-"; }; //render on input
 		opts.search = function(ev, ui) { return _search; }; //lunch source
@@ -174,7 +183,9 @@ dom.ready(function() {
 				let label = sb.iwrap(opts.render(item), req.term); //decore matches
 				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
-			dom.ajax(opts.action + "?term=" + req.term, data => res(data.slice(0, 10)));
+			dom.ajax(opts.action + "?term=" + req.term, data => {
+				res(opts.sort(data).slice(0, opts.maxResults));
+			});
 		};
 		// Triggered when the field is blurred, if the value has changed
 		opts.change = function(ev, ui) {
@@ -183,10 +194,10 @@ dom.ready(function() {
 				opts.remove(this);
 			}
 		};
-		$(opts.inputs).autocomplete(opts);
+		$(inputs).autocomplete(opts);
 		return dom.keydown((el, i, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
-		}, opts.inputs);
+		}, inputs);
 	}
 	// Extends dom-box actions
 
