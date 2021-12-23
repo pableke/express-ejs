@@ -15,10 +15,36 @@ const dom = new DomBox(); //HTML-DOM box
 dom.ready(function() {
 	i18n.setI18n(dom.getLang());
 
+	// Extends with animationCSS lib
+	dom.animate = function(animation, list) {
+		// We create a Promise and return it
+		return new Promise((resolve, reject) => {
+			const animationName = "animate__animated animate__" + animation;
+
+			// When the animation ends, we clean the classes and resolve the Promise
+			function handleAnimationEnd(el, i, ev) {
+				dom.removeClass(animationName, list);
+				ev.stopPropagation();
+				resolve(el);
+			}
+
+			dom.addClass(animationName, list)
+				.event("animationend", handleAnimationEnd, list);
+		});
+	}
+	dom.cssAnimate = function(selector, animation) {
+		return dom.animate(animation, dom.getAll(selector));
+	}
+
+	// Scroll body to top on click and toggle back-to-top arrow
+	const _top = document.body.lastElementChild;
+	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, _top); }
+	dom.click(() => dom.scroll(), _top);
+
 	// Loading div
-	const _loading = dom.get(".loading");
-	dom.loading = function() { return dom.addClass("hide", _loading).closeAlerts(); }
-	dom.unloading = function() { return dom.removeClass("hide", _loading); }
+	const _loading = _top.previousElementSibling;
+	dom.loading = function() { return dom.removeClass("hide", _loading).closeAlerts(); }
+	dom.working = function() { return dom.animate("fadeOut", _loading).then(el => dom.addClass("hide", el)); }
 	// End loading div
 
 	// Inputs helpers
@@ -40,7 +66,7 @@ dom.ready(function() {
 	const texts = dom.getAll(".alert-text");
 	let errors = 0; //errors counter
 
-	function showAlert(el) { return dom.removeClass("hide", el.parentNode); }
+	function showAlert(el) { return dom.removeClass("hide", alert).animate("fadeIn", alert); }
 	function closeAlert(el) { return dom.addClass("hide", el.parentNode); }
 	function setAlert(el, txt) { return showAlert(el).html(txt, el).scroll(); }
 
@@ -145,14 +171,14 @@ dom.ready(function() {
 		}, elements);
 	}
 
-	// Extends dom-box actions
+	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {
 		return dom.loading().fetch({
 			action: action,
 			resolve: resolve || dom.showOk,
 			reject: reject || dom.showError
 		}).catch(dom.showError) //error handler
-			.finally(dom.unloading); //allways
+			.finally(dom.working); //allways
 	}
 	dom.autocomplete = function(selector, opts) {
 		const inputs = dom.getInputs(selector); //Autocomplete inputs
@@ -200,9 +226,4 @@ dom.ready(function() {
 		}, inputs);
 	}
 	// Extends dom-box actions
-
-	// Scroll body to top on click and toggle back-to-top arrow
-	let top = dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>').get("a#back-to-top");
-	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, top); }
-	dom.click(() => dom.scroll(), top);
 });
