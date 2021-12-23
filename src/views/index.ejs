@@ -1,35 +1,69 @@
-
 <!doctype html>
 <html lang="<%=lang%>">
-<%-include("partials/head")%>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="author" content="Pablo Rosique Vidal" />
+	<meta name="keywords" content="<%=i18n.msgMetaKeywords%>" />
+	<meta name="description" content="<%=i18n.msgMetaDescription%>" />
+
+	<title><%=i18n.lblEmpresaNombre%></title>
+	<link rel="icon" type="image/x-icon" href="/public/img/upct-azul-logo.png" />
+
+	<!-- google fonts -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap">
+
+	<!-- Styles css jquery + animateCSS -->
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+	<link rel="stylesheet" href="/public/css/styles.min.css" type="text/css" />
+	<link rel="manifest" href="/public/manifest.json" />
+
+	<!-- jQuery, jQuery UI, fontawesome -->
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="https://kit.fontawesome.com/76f12cea70.js" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="/public/js/lib-min.js"></script>
+</head>
+
 <body>
-	<%-include("partials/header")%>
-	<%-include("partials/nav")%>
-	<main>
-		<div class="alerts">
-			<div class="alert alert-success">
-				<div class="alert-icon"><img src="/public/img/png/check.png"></div>
-				<div class="alert-text"><%=msgs.msgOk%></div>
-				<div class="alert-close">&times;</div>
-			</div>
-			<div class="alert alert-info">
-				<div class="alert-icon"><img src="/public/img/png/info-about.png"></div>
-				<div class="alert-text"><%=msgs.msgInfo%></div>
-				<div class="alert-close">&times;</div>
-			</div>
-			<div class="alert alert-warn">
-				<div class="alert-icon"><img src="/public/img/png/warning2.png"></div>
-				<div class="alert-text"><%=msgs.msgWarn%></div>
-				<div class="alert-close">&times;</div>
-			</div>
-			<div class="alert alert-danger">
-				<div class="alert-icon"><img src="/public/img/png/error.png"></div>
-				<div class="alert-text"><%=msgs.msgError%></div>
-				<div class="alert-close">&times;</div>
-			</div>
+	<header></header>
+	<nav></nav>
+
+	<div class="alerts">
+		<div class="alert alert-success hide">
+			<div class="alert-icon"><img src="/public/img/png/check.png"></div>
+			<div class="alert-text"><%=msgs.msgOk%></div>
+			<div class="alert-close">&times;</div>
 		</div>
+		<div class="alert alert-info hide">
+			<div class="alert-icon"><img src="/public/img/png/info-about.png"></div>
+			<div class="alert-text"><%=msgs.msgInfo%></div>
+			<div class="alert-close">&times;</div>
+		</div>
+		<div class="alert alert-warn hide">
+			<div class="alert-icon"><img src="/public/img/png/warning2.png"></div>
+			<div class="alert-text"><%=msgs.msgWarn%></div>
+			<div class="alert-close">&times;</div>
+		</div>
+		<div class="alert alert-danger hide">
+			<div class="alert-icon"><img src="/public/img/png/error.png"></div>
+			<div class="alert-text"><%=msgs.msgError%></div>
+			<div class="alert-close">&times;</div>
+		</div>
+	</div>
+
+	<main>
 		<%-include(_tplBody)%>
 	</main>
-	<%-include("partials/footer")%>
+
+	<footer>
+		<div>
+			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
+		</div>
+	</footer>
+
+	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
+	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
 </body>
 </html>
