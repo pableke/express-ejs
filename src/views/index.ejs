@@ -29,6 +29,15 @@
 <body>
 	<header></header>
 	<nav></nav>
+	<main>
+		<%-include(_tplBody)%>
+	</main>
+
+	<footer>
+		<div>
+			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
+		</div>
+	</footer>
 
 	<div class="alerts">
 		<div class="alert alert-success hide">
@@ -52,17 +61,6 @@
 			<div class="alert-close">&times;</div>
 		</div>
 	</div>
-
-	<main>
-		<%-include(_tplBody)%>
-	</main>
-
-	<footer>
-		<div>
-			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
-		</div>
-	</footer>
-
 	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
 	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
 </body>

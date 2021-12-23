@@ -62,8 +62,8 @@ dom.ready(function() {
 	//dom.refocus(inputs); //focus on first input
 
 	// Alerts handlers
-	const alerts = dom.getAll("div.alert");
-	const texts = dom.getAll(".alert-text");
+	const alerts = _loading.previousElementSibling;
+	const texts = dom.getAll(".alert-text", alerts);
 	let errors = 0; //errors counter
 
 	function showAlert(el) { return dom.removeClass("hide", alert).animate("fadeIn", alert); }
@@ -87,7 +87,7 @@ dom.ready(function() {
 	}
 	dom.closeAlerts = function() { //hide alerts
 		errors = 0; //reinit error counter
-		return dom.addClass("hide", alerts).removeClass("ui-error", inputs).set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide").set();
+		return dom.addClass("hide", alerts.children).removeClass("ui-error", inputs).set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide").set();
 	}
 	dom.setError = function(el, msg, msgtip) { return dom.showError(msg).addClass("ui-error", el).focus(el).set(dom.siblings(".ui-errtip", el)).html(msgtip).removeClass("hide").set(); }
 	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
