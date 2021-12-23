@@ -330,7 +330,10 @@ function DomBox() {
 		el.addEventListener(name, ev => fn(el, i, ev) || ev.preventDefault());
 		return self;
 	}
-	this.ready = function(fn) { document.addEventListener("DOMContentLoaded", fn); return self; }
+	this.event = function(name, fn, list) { return self.each((el, i) => fnEvent(name, el, i, fn), list); }
+	this.addEvent = function(name, selector, fn) { return self.event(name, fn, self.getAll(selector)); }
+
+	this.ready = function(fn) { return fnEvent("DOMContentLoaded", document, 0, fn); }
 	this.click = function(fn, list) { return self.each((el, i) => fnEvent("click", el, i, fn), list); }
 	this.onclick = function(selector, fn) { return self.click(fn, self.getAll(selector)); }
 	this.change = function(fn, list) { return self.each((el, i) => fnEvent("change", el, i, fn), list); }

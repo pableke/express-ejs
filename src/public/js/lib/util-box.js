@@ -70,7 +70,7 @@ dom.ready(function() {
 
 	// Inputs formater
 	dom.each(el => { el.value = i18n.fmtBool(el.value); }, dom.getInputs(".ui-bool"));
-	dom.onChangeInput(".ui-integer", el => { el.value = i18n.fmtInt(el.value); });
+	dom.onChangeInput(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
 	dom.onChangeInput(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
 	dom.onChangeInput(".ui-date", dom.setDateRange); //auto range date inputs
 	// Initialize all textarea counter
