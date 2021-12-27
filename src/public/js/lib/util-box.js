@@ -39,7 +39,7 @@ dom.ready(function() {
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, _top); }
-	dom.click(() => dom.scroll(), _top);
+	dom.click(() => !dom.scroll(), _top);
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
@@ -59,7 +59,6 @@ dom.ready(function() {
 	dom.setDates = function(value, list) { return dom.val(value, list).each(dom.setDateRange, list); } //update value and range
 	dom.setDate = function(selector, value) { return dom.setDates(value, dom.getInputs(selector)); }
 	dom.onChangeInput = function(selector, fn) { return dom.change(fn, dom.getInputs(selector)); }
-	//dom.refocus(inputs); //focus on first input
 
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
@@ -85,7 +84,7 @@ dom.ready(function() {
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
-	dom.closeAlerts = function() { //hide alerts
+	dom.closeAlerts = function() { //hide all div alerts
 		errors = 0; //reinit error counter
 		return dom.addClass("hide", alerts.children).removeClass("ui-error", inputs).set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide").set();
 	}
@@ -120,16 +119,17 @@ dom.ready(function() {
 	});
 
 	// Tabs handler
-	const tabs = dom.getAll("div.tab-content"); //all tabs
+	let tabs = dom.getAll(".tab-content.tab-active");
 	let index = dom.findIndex(".active", tabs); //current index tab
 	dom.setFocus(tabs[index]); //try to reallocate focus on active tab
 	dom.getTab = function(i) { //get tab by index
 		index = Math.min(Math.max(i, 0), tabs.length - 1);
 		return tabs[index]; //get tab element
 	}
+	dom.setTabs = function() { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
 	dom.goTab = function(tab) { return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab); }
 	dom.showTab = function(i) { return dom.goTab(dom.getTab(i)); } //show tab by index
-	dom.showTabById = function(id) { return dom.showTab(dom.findIndex("#tab-" + id, tabs)); } //show tab by id selector
+	dom.viewTab = function(id) { return dom.showTab(dom.findIndex("#tab-" + id, tabs)); } //find by id selector
 	dom.prevTab = function() { return dom.showTab(index - 1); }
 	dom.nextTab = function() { return dom.showTab(index + 1); }
 	dom.progressbar = function(i) {
@@ -140,7 +140,7 @@ dom.ready(function() {
 	dom.onclick("a[href='#next-tab']", dom.nextTab);
 	dom.onclick("a[href^='#tab-']", el => {
 		let i = el.href.substr(el.href.lastIndexOf("-") + 1);
-		return !dom.progressbar(i).showTabById(i);
+		return !dom.progressbar(i).viewTab(i);
 	});
 
 	// Tables helper
@@ -226,4 +226,42 @@ dom.ready(function() {
 		}, inputs);
 	}
 	// Extends dom-box actions
+
+	// Build tree menu as UL > Li > *
+	const menu = dom.get("ul.menu"); // Find unique menu
+	const children = Array.from(menu.children); // JS Array
+	function setMenuDisabled(node, mask) { //Disable link?
+		mask = mask ?? 4; // Default mask = active
+		(mask & 4) || dom.addClass("disabled", node.firstElementChild);
+	}
+
+	children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
+	children.forEach(child => {
+		let padre = child.dataset.padre; // Has parent?
+		if (padre) { // Move child with his parent
+			let li = dom.get("li[id='" + padre + "']", menu);
+			if (li) {
+				let children = li.dataset.children || 0;
+				if (!children) { // Is first child?
+					li.innerHTML += '<ul class="sub-menu"></ul>';
+					li.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
+					dom.click(el => !dom.toggle("active", undefined, li), li.firstElementChild); //usfull on sidebar
+				}
+				li.dataset.children = children + 1;
+				li.lastElementChild.appendChild(child);
+				setMenuDisabled(child, li.dataset.mask); // Propage disabled
+			}
+		}
+		else // force reorder lebel 1
+			menu.appendChild(child);
+		setMenuDisabled(child, child.dataset.mask);
+	});
+	// Show / Hide sidebar and show menu
+	dom.onclick(".sidebar-toggle", el => !dom.toggle("active", undefined, menu))
+		.removeClass("hide", menu);
+
+	// Onclose event tab/browser of client user
+	window.addEventListener("unload", ev => {
+		//dom.ajax("/session/destroy.html");
+	});
 });
