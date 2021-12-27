@@ -85,7 +85,7 @@ label.required:after { color: #e32; content: " *"; }
 /* Buttons */
 
 /* Alerts */
-.alerts { position: relative; }
+.alerts { position: fixed; top: 6rem; right: 1em; width: 40%; z-index: 9; }
 .alert {
 	display: grid;
 	grid-gap: 5px;
@@ -117,19 +117,19 @@ label.required:after { color: #e32; content: " *"; }
 	.input-group-block, .input-group-flex { display: inline-block; width: 96%; }
 	.input-group-inline { grid-template-columns: auto; }
 	.input-icon { display: none !important; } /*priority over font-awesome*/
+	.alerts { top: 9px; right: 0; width: 99%; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
+	.alerts { width: 60%; }
 }
 /* Medium devices (tablets, 768px and up) */
 @media screen and (min-width: 768px) and (max-width: 991.98px) {
-	.alerts { position: fixed; top: 6rem; right: 1em; width: 40%; z-index: 9; }
+	.alerts { width: 50%; }
 }
 /* Large devices (desktops, 992px and up) */
 @media screen and (min-width: 992px) and (max-width: 1199.98px) {
-	.alerts { position: fixed; top: 6rem; right: 1em; width: 40%; z-index: 9; }
 }
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.alerts { position: fixed; top: 6rem; right: 1em; width: 40%; z-index: 9; }
 }

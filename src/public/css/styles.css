@@ -1,5 +1,5 @@
 
-* { margin: 0; }
+* { margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; }
 
 /* Cards clases */
@@ -44,21 +44,21 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 1rem; font-weight: 
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media screen and (max-width: 575.98px) {
-	.d-pc, .hide-phone, .hide-tablet, .alert-icon { display: none; }
+	.d-pc, .hide-phone, .hide-tablet { display: none !important; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
-	.d-pc, .hide-phone, .hide-tablet { display: none; }
+	.d-pc, .hide-phone, .hide-tablet, .d-phone { display: none !important; }
 }
 /* Medium devices (tablets, 768px and up) */
 @media screen and (min-width: 768px) and (max-width: 991.98px) {
-	.d-pc, .hide-tablet, .d-phone { display: none; }
+	.d-pc, .hide-tablet, .d-phone { display: none !important; }
 }
 /* Large devices (desktops, 992px and up) */
 @media screen and (min-width: 992px) and (max-width: 1199.98px) {
-	.hide-pc, .d-phone { display: none; }
+	.hide-pc, .d-phone { display: none !important; }
 }
 /* Extra large devices (large desktops, 1200px and up) */
 @media screen and (min-width: 1200px) {
-	.hide-pc, .d-phone { display: none; }
+	.hide-pc, .d-phone { display: none !important; }
 }

@@ -217,14 +217,13 @@ function DomBox() {
 	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
 	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
-	this.mask = function(mask, list) { return self.each((el, i) => el.classList.toggle(HIDE, ((mask>>i)&1) == 0), list); } //hide elements by mask
+	this.mask = function(name, mask, list) { return self.each((el, i) => el.classList.toggle(name, (mask>>i)&1), list); } //toggle class by mask
 	this.optText = function(sel) { return sel ? self.getText(sel.options[sel.selectedIndex]) : null; }
 	this.select = function(mask, list) {
-		return self.each(el => {
-			self.mask(mask, el.children);
-			let option = el.querySelector("option[value='" + el.value + "']");
+		return self.each(el => { //iterate over all selects
+			let option = self.mask(HIDE, ~mask, el.options).get("[value='" + el.value + "']", el);
 			if (self.hasClass(HIDE, option)) //current option is hidden => force change
-				el.selectedIndex = self.findIndex("option:not(.hide)", el.options);
+				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		}, list);
 	}
 
