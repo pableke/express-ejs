@@ -65,33 +65,44 @@ dom.ready(function() {
 	const texts = dom.getAll(".alert-text", alerts);
 	let errors = 0; //errors counter
 
-	function showAlert(el) { return dom.removeClass("hide", alert).animate("fadeIn", alert); }
-	function closeAlert(el) { return dom.addClass("hide", el.parentNode); }
-	function setAlert(el, txt) { return showAlert(el).html(txt, el).scroll(); }
+	function showAlert(el) { return dom.removeClass("hide", el.parentNode).animate("fadeIn", el.parentNode); }
+	function closeAlert(el) { return dom.animate("fadeOut", el.parentNode).then(alert => dom.addClass("hide", alert)); }
+	function setAlert(el, txt) { return txt ? showAlert(el).html(txt, el).scroll() : dom; }
 
 	dom.isOk = function() { return (errors == 0); }
 	dom.isError = function() { return (errors > 0); }
-	dom.showOk = function(msg) { msg && setAlert(texts[0], msg); return dom; } //green
-	dom.showInfo = function(msg) { msg && setAlert(texts[1], msg); return dom; } //blue
-	dom.showWarn = function(msg) { msg && setAlert(texts[2], msg); return dom; } //yellow
-	dom.showError = function(msg) { //red
-		if (msg) {
-			errors++; //inc new error
-			setAlert(texts[3], msg);
-		}
-		return dom;
+	dom.showOk = function(msg) { return setAlert(texts[0], msg); } //green
+	dom.showInfo = function(msg) { return setAlert(texts[1], msg); } //blue
+	dom.showWarn = function(msg) { return setAlert(texts[2], msg); } //yellow
+	dom.showError = function(msg) {
+		errors += msg ? 1 : 0; //inc error counter
+		return setAlert(texts[3], msg); //red
 	}
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
 	dom.closeAlerts = function() { //hide all div alerts
-		errors = 0; //reinit error counter
-		return dom.addClass("hide", alerts.children).removeClass("ui-error", inputs).set(dom.siblings(".ui-errtip", inputs)).html("").addClass("hide").set();
+		errors = 0; //reinit. error counter
+		const tips = dom.siblings(".ui-errtip", inputs); //tips messages
+		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
 	}
-	dom.setError = function(el, msg, msgtip) { return dom.showError(msg).addClass("ui-error", el).focus(el).set(dom.siblings(".ui-errtip", el)).html(msgtip).removeClass("hide").set(); }
+
+	// Show posible server messages and close click event
+	dom.each(el => { el.firstChild && showAlert(el); }, texts)
+		.click(closeAlert, dom.getAll(".alert-close", alerts));
+
+	// Individual input error messages
+	dom.setError = function(el, msg, msgtip) {
+		const tip = dom.siblings(".ui-errtip", el);
+		return dom.showError(msg).addClass("ui-error", el).focus(el).html(msgtip, tip).removeClass("hide", tip);
+	}
 	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
 	dom.i18nError = function(selector, key, keytip) { return dom.addError(selector, i18n.get(key), i18n.get(keytip)); }
-	dom.each(el => { el.firstChild && showAlert(el); }, texts).onclick(".alert-close", closeAlert);
+	dom.setErrors = function(data) {
+		for (const k in data) //errors list
+			dom.addError("[name='" + k + "']", data[k], data[k + "Tip"]);
+		return showAlerts(data);
+	}
 
 	// Inputs formater
 	dom.each(el => { el.value = i18n.fmtBool(el.value); }, dom.getInputs(".ui-bool"));
@@ -145,12 +156,13 @@ dom.ready(function() {
 
 	// Tables helper
 	const tables = dom.getAll("table.tb-xeco");
-	dom.getTable = function(selector) { return dom.find(selector, tables); }
-	dom.getTables = function(selector) { return dom.filter(selector, tables); }
 	function fnToggleTable(table) {
 		let tr = dom.get("tr.tb-data", table); //has data rows?
 		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
 	}
+
+	dom.getTable = function(selector) { return dom.find(selector, tables); }
+	dom.getTables = function(selector) { return dom.filter(selector, tables); }
 	dom.reloadTable = function(selector, data, resume, styles) {
 		resume.size = data.length; //numrows
 		return dom.each(table => {

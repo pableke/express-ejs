@@ -73,8 +73,8 @@ ul.breadcrumb li a:hover { color: #01447e; text-decoration: underline; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media screen and (max-width: 575.98px) {
-  ul.menu-phone { display: inline-block; width: 100%; padding: 5px; background-color: #f8f9fa; }
-  ul.menu-phone a { display: block; padding: .5rem .8rem; white-space: nowrap; text-decoration: none; color: #000; }
+	ul.menu-phone { display: inline-block; width: 100%; padding: 5px; background-color: #f8f9fa; }
+	ul.menu-phone a { display: block; padding: .5rem .8rem; white-space: nowrap; text-decoration: none; color: #000; }
 
 	ul.menu {
 		position: fixed;
@@ -107,7 +107,7 @@ ul.breadcrumb li a:hover { color: #01447e; text-decoration: underline; }
 	ul.menu li.active > ul { display: block; }
 	/* Displays second level dropdowns to the right of the first level dropdown */
 	ul.menu ul ul { top: 0; left: 0; }
-	ul.menu .nav-tri { float: right; }
+	ul.menu .nav-tri { float: right; font-size: x-large; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
