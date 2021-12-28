@@ -157,7 +157,7 @@ dom.ready(function() {
 
 	// Tables helper
 	const tables = dom.getAll("table.tb-xeco");
-	function fnToggleTable(table) {
+	function fnToggleTbody(table) {
 		let tr = dom.get("tr.tb-data", table); //has data rows?
 		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
 	}
@@ -169,10 +169,14 @@ dom.ready(function() {
 		return dom.each(table => {
 			dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles))
 				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles));
-			fnToggleTable(table);
+			fnToggleTbody(table); // Toggle body if no data
+
+			const columns = dom.getAll(".sort", table.tHead); // All orderable columns
+			dom.removeClass("sort-asc sort-desc", columns).addClass("sort-none", columns) // Reset all orderable columns
+				.swap("sort-none sort-" + resume.sortDir, dom.find(".sort-" + resume.sortBy, columns)); // Column to order table
 		}, dom.getTables(selector));
 	}
-	dom.each(fnToggleTable, tables);
+	dom.each(fnToggleTbody, tables);
 
 	// Extends internacionalization
 	dom.tr = function(selector, opts) {
