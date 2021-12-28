@@ -81,7 +81,7 @@ dom.ready(function() {
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
-	dom.closeAlerts = function() { //hide all div alerts
+	dom.closeAlerts = function() { //hide all alerts
 		errors = 0; //reinit. error counter
 		const tips = dom.siblings(".ui-errtip", inputs); //tips messages
 		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
@@ -99,9 +99,10 @@ dom.ready(function() {
 	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
 	dom.i18nError = function(selector, key, keytip) { return dom.addError(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.setErrors = function(data) {
+		dom.closeAlerts(); //init. errros
 		for (const k in data) //errors list
 			dom.addError("[name='" + k + "']", data[k], data[k + "Tip"]);
-		return showAlerts(data);
+		return dom.showAlerts(data); //show global menssages
 	}
 
 	// Inputs formater
