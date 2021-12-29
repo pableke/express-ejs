@@ -111,7 +111,7 @@ dom.ready(function() {
 	dom.onChangeInput(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
 	dom.onChangeInput(".ui-date", dom.setDateRange); //auto range date inputs
 	// Initialize all textarea counter
-	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value))); }
+	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value)), el.parentNode); }
 	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter).set();
 
 	// Common validators for fields
@@ -139,7 +139,7 @@ dom.ready(function() {
 		return tabs[index]; //get tab element
 	}
 	dom.setTabs = function() { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
-	dom.goTab = function(tab) { return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab); }
+	dom.goTab = function(tab) { return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll(); }
 	dom.showTab = function(i) { return dom.goTab(dom.getTab(i)); } //show tab by index
 	dom.viewTab = function(id) { return dom.showTab(dom.findIndex("#tab-" + id, tabs)); } //find by id selector
 	dom.prevTab = function() { return dom.showTab(index - 1); }
@@ -249,7 +249,7 @@ dom.ready(function() {
 	const children = Array.from(menu.children); // JS Array
 	function setMenuDisabled(node, mask) { //Disable link?
 		mask = mask ?? 4; // Default mask = active
-		(mask & 4) || dom.addClass("disabled", node.firstElementChild);
+		dom.toggle("disabled", mask & 4, node.firstElementChild);
 	}
 
 	children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
