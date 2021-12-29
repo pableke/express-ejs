@@ -262,7 +262,7 @@ dom.ready(function() {
 				if (!children) { // Is first child?
 					li.innerHTML += '<ul class="sub-menu"></ul>';
 					li.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
-					dom.click(el => !dom.toggle("active", undefined, li), li.firstElementChild); //usfull on sidebar
+					dom.click(el => !dom.swap("active", li), li.firstElementChild); //usfull on sidebar
 				}
 				li.dataset.children = children + 1;
 				li.lastElementChild.appendChild(child);
@@ -274,7 +274,7 @@ dom.ready(function() {
 		setMenuDisabled(child, child.dataset.mask);
 	});
 	// Show / Hide sidebar and show menu
-	dom.onclick(".sidebar-toggle", el => !dom.toggle("active", undefined, menu))
+	dom.onclick(".sidebar-toggle", el => !dom.swap("active", menu))
 		.removeClass("hide", menu);
 
 	// Onclose event tab/browser of client user
