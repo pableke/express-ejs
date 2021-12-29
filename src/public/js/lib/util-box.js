@@ -93,11 +93,14 @@ dom.ready(function() {
 
 	// Individual input error messages
 	dom.setError = function(el, msg, msgtip) {
+		msg = i18n.get(msg) || msg;
+		msgtip = i18n.get(msgtip) || msgtip;
 		const tip = dom.siblings(".ui-errtip", el);
 		return dom.showError(msg).addClass("ui-error", el).focus(el).html(msgtip, tip).removeClass("hide", tip);
 	}
-	dom.addError = function(selector, msg, msgtip) { return dom.setError(dom.getInput(selector), msg, msgtip); }
-	dom.i18nError = function(selector, key, keytip) { return dom.addError(selector, i18n.get(key), i18n.get(keytip)); }
+	dom.addError = function(selector, msg, msgtip) {
+		return dom.setError(dom.getInput(selector), msg, msgtip);
+	}
 	dom.setErrors = function(data) {
 		dom.closeAlerts(); //init. errros
 		for (const k in data) //errors list
@@ -117,13 +120,10 @@ dom.ready(function() {
 	// Common validators for fields
 	dom.isGt0 = function(el, msg, msgtip) { return i18n.gt0(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.gt0 = function(selector, msg, msgtip) { return dom.isGt0(dom.getInput(selector), msg, msgtip); }
-	dom.i18nGt0 = function(selector, key, keytip) { return dom.gt0(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.isRequired = function(el, msg, msgtip) { return i18n.required(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.required = function(selector, msg, msgtip) { return dom.isRequired(dom.getInput(selector), msg, msgtip); }
-	dom.i18nRequired = function(selector, key, keytip) { return dom.required(selector, i18n.get(key), i18n.get(keytip)); }
 	dom.isGeToday = function(el, msg, msgtip) { return i18n.geToday(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
 	dom.geToday = function(selector, msg, msgtip) { return dom.isGeToday(dom.getInput(selector), msg, msgtip); }
-	dom.i18nGeToday = function(selector, key, keytip) { return dom.geToday(selector, i18n.get(key), i18n.get(keytip)); }
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
