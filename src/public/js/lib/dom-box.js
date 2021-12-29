@@ -201,18 +201,18 @@ function DomBox() {
 	this.getValue = function(el) { return el && el.value; }
 	this.findValue = function(selector, el) { return self.getValue(self.get(selector, el)); }
 	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
-	this.setValue = function(selector, value) { return self.val(value, self.getAll(selector)); }
+	this.setValue = function(selector, value, el) { return self.val(value, self.getAll(selector, el)); }
 	this.getAttr = function(el, name) { return el && el.getAttribute(name); }
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
-	this.setAttr = function(selector, name, value) { return self.attr(name, value, self.getAll(selector)); }
+	this.setAttr = function(selector, name, value, el) { return self.attr(name, value, self.getAll(selector, el)); }
 	this.getText = function(el) { return el && el.innerText; }
 	this.findText = function(selector, el) { return self.getText(self.get(selector, el)); }
 	this.text = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerText = value; }, list); }
-	this.setText = function(selector, value) { return self.text(value, self.getAll(selector)); }
+	this.setText = function(selector, value, el) { return self.text(value, self.getAll(selector, el)); }
 	this.getHtml = function(el) { return el && el.innerHTML; }
 	this.findHtml = function(selector, el) { return self.getHtml(self.get(selector, el)); }
 	this.html = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerHTML = value; }, list); }
-	this.setHtml = function(selector, value) { return self.html(value, self.getAll(selector)); }
+	this.setHtml = function(selector, value, el) { return self.html(value, self.getAll(selector, el)); }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
 	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
