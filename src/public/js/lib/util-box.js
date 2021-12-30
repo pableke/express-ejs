@@ -247,38 +247,34 @@ dom.ready(function() {
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu"); // Find unique menu
 	const children = Array.from(menu.children); // JS Array
-	function setMenuDisabled(node, mask) { //Disable link?
-		mask = mask ?? 4; // Default mask = active
-		dom.toggle("disabled", mask & 4, node.firstElementChild);
-	}
-
 	children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
 	children.forEach(child => {
 		let padre = child.dataset.padre; // Has parent?
+		let mask = child.dataset.mask ?? 4; // Default mask = active
 		if (padre) { // Move child with his parent
 			let li = dom.get("li[id='" + padre + "']", menu);
 			if (li) {
 				let children = li.dataset.children || 0;
 				if (!children) { // Is first child?
 					li.innerHTML += '<ul class="sub-menu"></ul>';
-					li.firstElementChild.innerHTML += '<b class="nav-tri">&rtrif;</b>';
+					li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
 					dom.click(el => !dom.swap("active", li), li.firstElementChild); //usfull on sidebar
 				}
-				li.dataset.children = children + 1;
-				li.lastElementChild.appendChild(child);
-				setMenuDisabled(child, li.dataset.mask); // Propage disabled
+				mask &= li.dataset.mask ?? 4; // Propage disabled
+				li.dataset.children = children + 1; // add child num
+				li.lastElementChild.appendChild(child); // move child
 			}
 		}
 		else // force reorder lebel 1
 			menu.appendChild(child);
-		setMenuDisabled(child, child.dataset.mask);
+		dom.toggle("disabled", !(mask & 4), child.firstElementChild);
 	});
 	// Show / Hide sidebar and show menu
 	dom.onclick(".sidebar-toggle", el => !dom.swap("active", menu))
 		.removeClass("hide", menu);
 
 	// Onclose event tab/browser of client user
-	window.addEventListener("unload", ev => {
+	/*window.addEventListener("unload", ev => {
 		//dom.ajax("/session/destroy.html");
-	});
+	});*/
 });
