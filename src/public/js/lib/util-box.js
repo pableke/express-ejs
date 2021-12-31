@@ -63,26 +63,21 @@ dom.ready(function() {
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
-	let errors = 0; //errors counter
-
 	function showAlert(el) { return dom.removeClass("hide", el.parentNode).animate("fadeIn", el.parentNode); }
 	function closeAlert(el) { return dom.animate("fadeOut", el.parentNode).then(alert => dom.addClass("hide", alert)); }
 	function setAlert(el, txt) { return txt ? showAlert(el).html(txt, el).scroll() : dom; }
 
-	dom.isOk = function() { return (errors == 0); }
-	dom.isError = function() { return (errors > 0); }
+	dom.isOk = valid.isOk;
+	dom.isError = valid.isError;
 	dom.showOk = function(msg) { return setAlert(texts[0], msg); } //green
 	dom.showInfo = function(msg) { return setAlert(texts[1], msg); } //blue
 	dom.showWarn = function(msg) { return setAlert(texts[2], msg); } //yellow
-	dom.showError = function(msg) {
-		errors += msg ? 1 : 0; //inc error counter
-		return setAlert(texts[3], msg); //red
-	}
+	dom.showError = function(msg) { return setAlert(texts[3], msg); } //red
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
 	dom.closeAlerts = function() { //hide all alerts
-		errors = 0; //reinit. error counter
+		valid.start(); //reinit. error counter
 		const tips = dom.siblings(".ui-errtip", inputs); //tips messages
 		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
 	}

@@ -8,6 +8,7 @@ function ValidatorBox() {
 	const DATA = new Map(); //data container
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
+	let errors = 0; //errors counter
 
 	//HTML special chars
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
@@ -211,7 +212,18 @@ function ValidatorBox() {
 	// Data acces functions
 	this.getData = function() { return DATA; }
 	this.get = function(name) { return DATA.get(name); }
-	this.set = function(name, value) { //save if value is defined
-		return isset(value) && DATA.set(name, value);
+
+	// Save value if it is defined else false
+	this.set = function(name, value) {
+		if (isset(value)) {
+			DATA.set(name, value);
+			return true;
+		}
+		errors++;
+		return false;
 	}
+
+	this.start = function() { errors = 0; return self; }
+	this.isOk = function() { return (errors == 0); }
+	this.isError = function() { return (errors > 0); }
 }
