@@ -15,7 +15,8 @@ function I18nBox() {
 		test: { en: {}, es: {} } //ej. test module
 	};
 	const langs = { // Main language container
-		en: { //english
+		en: {
+			lang: "en", // English
 			//inputs errors messages
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
@@ -74,7 +75,8 @@ function I18nBox() {
 			val: function(obj, name) { return obj[name + "_en"] || obj[name]; } //object lang access
 		},
 
-		es: { //spanish
+		es: {
+			lang: "es", // Spanish
 			//inputs errors messages
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "¡Campo obligatorio!",
@@ -160,9 +162,10 @@ function I18nBox() {
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
 	this.addLang = function(lang, data, mod) {
-		let aux = modules[mod];
-		if (aux) // Add default messages to specific module
+		if (mod) { // Add default messages to specific module
+			let aux = modules[mod] = modules[mod] || {}; // Create if not exists
 			aux[lang] = Object.assign(aux[lang] || {}, langs[lang], data);
+		}
 		else
 			langs[lang] = Object.assign(langs[lang] || {}, data);
 		return self;
@@ -171,10 +174,6 @@ function I18nBox() {
 		for (const k in langs)
 			self.addLang(k, langs[k], mod);
 		return self;
-	}
-	this.addModule = function(name, langs) {
-		modules[name] = modules[name] || {};
-		return self.addLangs(langs, name);
 	}
 
 	// Shortcuts

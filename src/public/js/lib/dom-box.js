@@ -37,7 +37,7 @@ function DomBox() {
 	}
 
 	this.getNavLang = function() { return navigator.language || navigator.userLanguage; } //default browser language
-	this.getLang = function() { return self.getAttr(self.get("html"), "lang") || self.getNavLang(); } //get lang by tag
+	this.getLang = function() { return document.documentElement.getAttribute("lang") || self.getNavLang(); } //get lang by tag
 	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
 	//this.unescape = function(html) { return html && parser.parseFromString(html); }
 	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
