@@ -1,10 +1,9 @@
 
 const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
+const qs = require("querystring"); //parse post data
 const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
-
-const dao = require("app/dao/factory.js"); //DAO factory
 const i18n = require("./i18n-box.js"); //languages
 
 // Specific laguage list for modules
@@ -28,7 +27,22 @@ exports.lang = function(req, res, mod) {
 	req.session.lang = res.locals.lang = i18n.setI18n(lang, mod).get("lang"); // Get language found
 
 	// Load specific user menus or public menus on view
-	res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();
+	//res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();
+}
+
+exports.post = function(req, res, next) {
+	let rawData = ""; // Buffer
+	req.on("data", function(chunk) {
+		rawData += chunk;
+		if (rawData.length > UPLOADS.maxFieldsSize) {
+			req.connection.destroy(); //FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+			next("err413"); //Error 413 request too large
+		}
+	});
+	req.on("end", function() {
+		req.body = (req.headers["content-type"] == "application/json") ? JSON.parse(rawData) : qs.parse(rawData);
+		next();
+	});
 }
 
 exports.multipart = function(req, res, next) { //validate all form post

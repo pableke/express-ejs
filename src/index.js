@@ -14,7 +14,7 @@ const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
 const i18n = require("app/i18n/i18n.js"); //languages
 const sb = require("app/lib/session-box.js"); //session storage
-const util = require("app/lib/util-box.js"); //utils
+//const util = require("app/lib/util-box.js"); //utils
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -27,8 +27,8 @@ app.set("view engine", "ejs");
 app.set("views", VIEWS);
 //app.locals.partials = VIEWS + "/partials/";
 //app.locals.components = VIEWS + "/components/"
-app.locals.i18n = i18n.es; //default language
-app.locals.body = {}; //init non-ajax body forms
+//app.locals.i18n = i18n.es; //default language
+//app.locals.body = {}; //init non-ajax body forms
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -52,45 +52,35 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response helpers
-	res.locals.msgs = {}; //init messages
-	res.locals.util = util; //util helpers
+	res.locals.msgs = i18n; // set messages
 	res.locals._tplBody = "web/index"; //default body
-	res.msgs = function() { res.json(res.locals.msgs); } //send msgs as json
-	res.setMsg = function(name, msg) { res.locals.msgs[name] = msg; return res; } //set msg ok
-	res.delMsg = function(name) { delete res.locals.msgs[name]; return res; } //delete msg
-	res.setMsgs = function(data) { res.locals.msgs = data; return res; } //set object data
-	res.addMsgs = function(data) { Object.assign(res.locals.msgs, data); return res; } //add object data
-	res.setOk = function(msg) { return res.setMsg("msgOk", msg); } //set msg ok (green)
-	res.setInfo = function(msg) { return res.setMsg("msgInfo", msg); } //set info (blue)
-	res.setError = function(msg) { return res.setMsg("msgError", msg); } //set msg err (red)
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
 	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
-	res.on("finish", function() { util.ob.clear(res.locals.msgs).clear(res.locals); }); //reset messages and view
-	req.sessionStorage = sb.get(req.session.ssId);
+	//res.on("finish", () => {}); //reset messages and view
+	//req.sessionStorage = sb.get(req.session.ssId);
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
-	if (err.stack && err.message && (typeof(err.message) === "string"))
-		err = err.message; // Is Exception Error Type => response message only
-	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return util.ob.isobj(err) ? res.status(500).json(err) : res.status(500).send(err);
+	if (err.message && (typeof(err.message) === "string"))
+		i18n.setMsgError(err.message); // Is Exception Error Type => response message only
+	else if (typeof(err) === "string")
+		i18n.setMsgError(err); // err = i18n key or string
 
-	// Is non ajax request
-	if (util.ob.isobj(err))
-		res.locals.msgs = err;
-	else
-		res.locals.msgs.msgError = err;
-	return res.status(500).render("index"); //render tpl body specified
+	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
+		(i18n.getNumErrors() > 1) ? res.status(500).json(i18n.toMsgs()) : res.status(500).send(i18n.getError());
+	else // Is non ajax request
+		res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found
-	res.locals.msgs.msgError = res.locals.i18n.err404; //set message error on view
+	i18n.setMsgError("err404"); //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		return res.status(404).send(res.locals.msgs.msgError); //ajax response
-	return res.status(404).build("errors/404"); //show 404 page
+		res.status(404).send(i18n.getError()); //ajax response
+	else
+		res.status(404).build("errors/404"); //show 404 page
 });
 
 // Start servers (db's and http)

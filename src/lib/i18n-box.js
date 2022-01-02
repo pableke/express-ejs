@@ -209,15 +209,14 @@ function I18nBox() {
 	// Validators: data and messages
 	this.getMsgs = () => MSGS;
 	this.getMsg = (name) => MSGS.get(name);
-	this.setMsg = function(name, msg) { MSGS.set(name, msg); return self; }
-	this.setOk = function(msg) { return self.setMsg("msgOk", msg); }
-	this.setInfo = function(msg) { return self.setMsg("msgInfo", msg); }
-	this.setWarn = function(msg) { return self.setMsg("msgWarn", msg); }
-	this.getError = function(name) { return name ? MSGS.get(name) : MSGS.get(KEY_ERROR); }
-	this.setError = function(name, msg, msgtip) {
-		return self.setMsg(KEY_ERROR, self.get(msg) || msg)
-					.setMsg(name, self.get(msgtip) || msgtip);
-	}
+	this.setMsg = (name, msg) => { MSGS.set(name, msg); return self; }
+	this.setOk = (msg) => self.setMsg("msgOk", msg);
+	this.setInfo = (msg) => self.setMsg("msgInfo", msg);
+	this.setWarn = (msg) => self.setMsg("msgWarn", msg);
+	this.getError = (name) => name ? MSGS.get(name) : MSGS.get(KEY_ERROR);
+	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.get(msg) || msg);
+	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.get(msgtip) || msgtip);
+	this.getNumErrors = () => MSGS.size;
 
 	this.getData = (name) => name ? DATA.get(name) : DATA;
 	this.toData = () => Object.fromEntries(DATA); // Build plain object
