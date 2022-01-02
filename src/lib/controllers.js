@@ -5,8 +5,7 @@ const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
 
 const dao = require("app/dao/factory.js"); //DAO factory
-const i18n = require("app/i18n/i18n.js"); //languages
-const valid = require("./validators.js");
+const i18n = require("./i18n-box.js"); //languages
 
 const UPLOADS = {
 	keepExtensions: true,

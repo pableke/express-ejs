@@ -43,22 +43,22 @@ dom.ready(function() {
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
-	dom.loading = function() { return dom.removeClass("hide", _loading).closeAlerts(); }
-	dom.working = function() { return dom.animate("fadeOut", _loading).then(el => dom.addClass("hide", el)); }
+	dom.loading = () => dom.removeClass("hide", _loading).closeAlerts();
+	dom.working = () => dom.animate("fadeOut", _loading).then(el => dom.addClass("hide", el));
 	// End loading div
 
 	// Inputs helpers
 	const inputs = dom.inputs(); //all html inputs
-	dom.getInput = function(selector) { return dom.find(selector, inputs); }
-	dom.getInputs = function(selector) { return dom.filter(selector, inputs); }
-	dom.moveFocus = function(selector) { return dom.focus(dom.getInput(selector)); }
-	dom.findValue = function(selector) { return dom.getValue(dom.getInput(selector)); } //redefine default from dom
-	dom.setValue = function(selector, value) { return dom.val(value, dom.getInputs(selector)); } //redefine default function
-	dom.setAttr = function(selector, name, value) { return dom.attr(name, value, dom.getInputs(selector)); } //redefine default
-	dom.setDateRange = function(el) { return dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id)); }
-	dom.setDates = function(value, list) { return dom.val(value, list).each(dom.setDateRange, list); } //update value and range
-	dom.setDate = function(selector, value) { return dom.setDates(value, dom.getInputs(selector)); }
-	dom.onChangeInput = function(selector, fn) { return dom.change(fn, dom.getInputs(selector)); }
+	dom.getInput = (selector) => dom.find(selector, inputs);
+	dom.getInputs = (selector) => dom.filter(selector, inputs);
+	dom.moveFocus = (selector) => dom.focus(dom.getInput(selector));
+	dom.findValue = (selector) => dom.getValue(dom.getInput(selector)); //redefine default from dom
+	dom.setValue = (selector, value) => dom.val(value, dom.getInputs(selector)); //redefine default function
+	dom.setAttr = (selector, name, value) => dom.attr(name, value, dom.getInputs(selector)); //redefine default
+	dom.setDateRange = (el) => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
+	dom.setDates = (value, list) => dom.val(value, list).each(dom.setDateRange, list); //update value and range
+	dom.setDate = (selector, value) => dom.setDates(value, dom.getInputs(selector));
+	dom.onChangeInput = (selector, fn) => dom.change(fn, dom.getInputs(selector));
 
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
@@ -67,17 +67,17 @@ dom.ready(function() {
 	function closeAlert(el) { return dom.animate("fadeOut", el.parentNode).then(alert => dom.addClass("hide", alert)); }
 	function setAlert(el, txt) { return txt ? showAlert(el).html(txt, el).scroll() : dom; }
 
-	dom.isOk = valid.isOk;
-	dom.isError = valid.isError;
-	dom.showOk = function(msg) { return setAlert(texts[0], msg); } //green
-	dom.showInfo = function(msg) { return setAlert(texts[1], msg); } //blue
-	dom.showWarn = function(msg) { return setAlert(texts[2], msg); } //yellow
-	dom.showError = function(msg) { return setAlert(texts[3], msg); } //red
+	dom.isOk = i18n.isOk;
+	dom.isError = i18n.isError;
+	dom.showOk = (msg) => setAlert(texts[0], msg); //green
+	dom.showInfo = (msg) => setAlert(texts[1], msg); //blue
+	dom.showWarn = (msg) => setAlert(texts[2], msg); //yellow
+	dom.showError = (msg) => setAlert(texts[3], msg); //red
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
 	dom.closeAlerts = function() { //hide all alerts
-		valid.start(); //reinit. error counter
+		i18n.start(); //reinit. error counter
 		const tips = dom.siblings(".ui-errtip", inputs); //tips messages
 		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
 	}
@@ -87,19 +87,20 @@ dom.ready(function() {
 		.click(closeAlert, dom.getAll(".alert-close", alerts));
 
 	// Individual input error messages
-	dom.setError = function(el, msg, msgtip) {
-		msg = i18n.get(msg) || msg;
-		msgtip = i18n.get(msgtip) || msgtip;
+	dom.setError = function(el) {
 		const tip = dom.siblings(".ui-errtip", el);
-		return dom.showError(msg).addClass("ui-error", el).focus(el).html(msgtip, tip).removeClass("hide", tip);
+		return dom.showError(i18n.getError()).addClass("ui-error", el).focus(el)
+					.html(i18n.getMsg(el.name), tip).removeClass("hide", tip);
 	}
 	dom.addError = function(selector, msg, msgtip) {
-		return dom.setError(dom.getInput(selector), msg, msgtip);
+		const el = dom.getInput(selector);
+		i18n.setError(el.name, msg, msgtip);
+		return dom.setError(el);
 	}
 	dom.setErrors = function(data) {
 		dom.closeAlerts(); //init. errros
 		for (const k in data) //errors list
-			dom.addError("[name='" + k + "']", data[k], data[k + "Tip"]);
+			dom.addError("[name='" + k + "']", null, data[k]);
 		return dom.showAlerts(data); //show global menssages
 	}
 
@@ -113,12 +114,18 @@ dom.ready(function() {
 	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter).set();
 
 	// Common validators for fields
-	dom.isGt0 = function(el, msg, msgtip) { return i18n.gt0(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
-	dom.gt0 = function(selector, msg, msgtip) { return dom.isGt0(dom.getInput(selector), msg, msgtip); }
-	dom.isRequired = function(el, msg, msgtip) { return i18n.required(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
-	dom.required = function(selector, msg, msgtip) { return dom.isRequired(dom.getInput(selector), msg, msgtip); }
-	dom.isGeToday = function(el, msg, msgtip) { return i18n.geToday(el.name, el.value) ? dom : dom.setError(el, msg, msgtip); }
-	dom.geToday = function(selector, msg, msgtip) { return dom.isGeToday(dom.getInput(selector), msg, msgtip); }
+	dom.isRequired = (el, msg, msgtip) => i18n.required(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.required = (selector, msg, msgtip) => dom.isRequired(dom.getInput(selector), msg, msgtip);
+	dom.isIntval = (el, min, max, msg, msgtip) => i18n.intval(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
+	dom.intval = (selector, min, max, msg, msgtip) => dom.isIntval(dom.getInput(selector), min, max, msg, msgtip);
+	dom.isIrange = (el, min, max, msg, msgtip) => i18n.irange(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
+	dom.irange = (selector, min, max, msg, msgtip) => dom.isIrange(dom.getInput(selector), min, max, msg, msgtip);
+	dom.isRange = (el, min, max, msg, msgtip) => i18n.range(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
+	dom.range = (selector, min, max, msg, msgtip) => dom.isRange(dom.getInput(selector), min, max, msg, msgtip);
+	dom.isGt0 = (el, msg, msgtip) => i18n.gt0(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
+	dom.isGeToday = (el, msg, msgtip) => i18n.geToday(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
@@ -133,12 +140,12 @@ dom.ready(function() {
 		index = Math.min(Math.max(i, 0), tabs.length - 1);
 		return tabs[index]; //get tab element
 	}
-	dom.setTabs = function() { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
-	dom.goTab = function(tab) { return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll(); }
-	dom.showTab = function(i) { return dom.goTab(dom.getTab(i)); } //show tab by index
-	dom.viewTab = function(id) { return dom.showTab(dom.findIndex("#tab-" + id, tabs)); } //find by id selector
-	dom.prevTab = function() { return dom.showTab(index - 1); }
-	dom.nextTab = function() { return dom.showTab(index + 1); }
+	dom.setTabs = () => { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
+	dom.goTab = (tab) => dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
+	dom.showTab = (i) => dom.goTab(dom.getTab(i)); //show tab by index
+	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
+	dom.prevTab = () => dom.showTab(index - 1);
+	dom.nextTab = () => dom.showTab(index + 1);
 	dom.progressbar = function(i) {
 		const step = "step-" + i; //go to a specific step on progressbar and tab
 		return dom.forEach("ul#progressbar li", li => dom.toggle("active", li.id <= step, li));
@@ -157,8 +164,8 @@ dom.ready(function() {
 		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
 	}
 
-	dom.getTable = function(selector) { return dom.find(selector, tables); }
-	dom.getTables = function(selector) { return dom.filter(selector, tables); }
+	dom.getTable = (selector) => dom.find(selector, tables);
+	dom.getTables = (selector) => dom.filter(selector, tables);
 	dom.reloadTable = function(selector, data, resume, styles) {
 		resume.size = data.length; //numrows
 		return dom.each(table => {

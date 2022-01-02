@@ -5,10 +5,8 @@
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const DATA = new Map(); //data container
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
-	let errors = 0; //errors counter
 
 	//HTML special chars
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
@@ -47,10 +45,14 @@ function ValidatorBox() {
 		return null;
 	}
 
-	this.unescape = function(str) { return str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)); }
-	this.escape = function(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
+	this.unescape = function(str) { return str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null; }
+	this.escape = function(str) { return str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null; }
+	this.text = function(str, min, max) { return fnRange(self.escape(str), min, max) ? str : null; }
 
 	// Validators
+	this.intval = function(num, min, max) {
+		return (isset(num) && fnRange(parseInt(num) || 0, min, max)) ? num : null;
+	}
 	this.range = function(num, min, max) { // NaN comparator always false
 		return (isset(num) && fnRange(num, min, max)) ? num : null;
 	}
@@ -208,22 +210,4 @@ function ValidatorBox() {
 		strength += ((strength > 2) && (fnSize(pass) > 8));
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
 	}
-
-	// Data acces functions
-	this.getData = function() { return DATA; }
-	this.get = function(name) { return DATA.get(name); }
-
-	// Save value if it is defined else false
-	this.set = function(name, value) {
-		if (isset(value)) {
-			DATA.set(name, value);
-			return true;
-		}
-		errors++;
-		return false;
-	}
-
-	this.start = function() { errors = 0; return self; }
-	this.isOk = function() { return (errors == 0); }
-	this.isError = function() { return (errors > 0); }
 }

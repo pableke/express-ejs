@@ -30,9 +30,10 @@ function ArrayBox() {
 
 	// Sorting
 	this.sort = function(arr, fn) { return arr ? arr.sort(fn || cmp) : arr; }
-	this.sortBy = function(arr, field, dir) {
-		function fnAsc(a, b) { return cmp(a[field], b[field]); }
-		function fnDesc(a, b) { return cmp(b[field], a[field]); }
+	this.sortBy = function(arr, field, fnSort, dir) {
+		fnSort = fnSort || cmp; //default sorting
+		function fnAsc(a, b) { return fnSort(a[field], b[field]); }
+		function fnDesc(a, b) { return fnSort(b[field], a[field]); }
 		return (arr && field) ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
 	this.multisort = function(arr, columns, orderby) {
@@ -78,15 +79,28 @@ function ArrayBox() {
 		opts.empty = opts.empty || "";
 
 		const status = { size: fnSize(data) };
-		return data && tpl && data.map(function(obj, i) {
-			status.index = i;
-			status.count = i + 1;
+		return data && tpl && data.map((obj, j) => {
+			status.index = j;
+			status.count = j + 1;
 			return tpl.replace(/@(\w+);/g, function(m, k) {
 				let fn = opts[k]; //field format function
-				let value = fn ? fn(obj[k], obj, i) : (obj[k] ?? status[k]);
+				let value = fn ? fn(obj[k], obj, j) : (obj[k] ?? status[k]);
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);
+	}
+
+	// Client helpers
+	this.parse = function(data) { return data ? JSON.parse(data) : null; }
+	this.read = function(name) { return self.parse(window.sessionStorage.getItem(name)); }
+	this.stringify = function(data) { return isstr(data) ? data : JSON.stringify(data); }
+	this.ss = function(name, data) {
+		data && window.sessionStorage.setItem(name, self.stringify(data));
+		return self;
+	}
+	this.ls = function(name, data) {
+		data && window.localStorage.setItem(name, self.stringify(data));
+		return self;
 	}
 }
 
