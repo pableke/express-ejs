@@ -42,8 +42,8 @@ function DateBox() {
 		return hasParts(parts) ? fnBuild(parts) : null;
 	}
 
-	this.isValid = isDate;
 	this.build = fnBuild;
+	this.isValid = isDate;
 	this.sysdate = function() { return sysdate; }
 	this.isLeap = function(date) { return date && isLeapYear(date.getFullYear()); }
 	this.getDays = function(d1, d2) { return Math.round(Math.abs((d1 - d2) / ONE_DAY)); }

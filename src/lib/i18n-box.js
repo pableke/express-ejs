@@ -273,3 +273,5 @@ function I18nBox() {
 	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
+
+module exports = new I18nBox();

@@ -5,14 +5,8 @@
  */
 function ValidatorBox() {
 	const self = this; //self instance
-	const MSGS = {}; //msgs container
-	const FORMS = {}; //forms by id => unique id
 	const EMPTY = ""; //empty string
 	const sysdate = new Date(); //current
-
-	let data, i18n; //data and messages
-	let inputs = {}; //inputs container
-	let errors = 0; //counter
 
 	//HTML special chars
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
@@ -44,53 +38,61 @@ function ValidatorBox() {
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
-
-	function fnEscape(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
-	this.unescape = function(str) { return str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)); }
-	this.escape = fnEscape;
-
-	// Boolean helpers function
-	this.size = function(value, min, max) { return fnRange(fnSize(value), min, max); } // min/max string/array length
-	this.range = function(value, min, max) { return fnRange(parseFloat(value), min, max); } // NaN comparator always false
-	this.regex = function(re, value) {
+	function fnRegex(re, value) {
 		try {
-			return value && re.test(value);
+			return (value && re.test(value)) ? value : null;
 		} catch(e) {}
-		return false;
-	}
-	// Boolean helpers function
-
-	this.login = function(value) { return self.regex(RE_LOGIN, value) ? value : null; }
-	this.digits = function(value) { return self.regex(RE_DIGITS, value) ? value : null; }
-	this.idlist = function(value) { return self.regex(RE_IDLIST, value) ? value : null; }
-	this.email = function(value) { return self.regex(RE_MAIL, value) ? value.toLowerCase() : null; }
-
-	// Date / Number helpers
-	this.sysdate = function() { return sysdate; } //current date
-	this.isDate = function(date) { return date && date.getTime && !isNaN(date.getTime()); }
-	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
-	// isset function is usfull for integers and floats => 0 is defined (true), otherwise set text error
-	this.isset = function(name, value, err) { return isset(value) ? value : self.addError(name, err); };
-	this.close = function(value, min, max) { return Math.min(Math.max(+value, min), max); } //close number in range
-
-	this.idES = function(value) {
-		value = minify(value);
-		if (value) {
-			if (self.regex(RE_DNI, value))
-				return self.dni(value);
-			if (self.regex(RE_CIF, value))
-				return self.cif(value);
-			if (self.regex(RE_NIE, value))
-				return self.nie(value);
-		}
 		return null;
 	}
-	this.dni = function(value) {
-		var letras = "TRWAGMYFPDXBNJZSQVHLCKE";
-		var letra = letras.charAt(parseInt(value, 10) % 23);
+
+	this.unescape = function(str) { return str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null; }
+	this.escape = function(str) { return str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null; }
+	this.text = function(str, min, max) { return fnRange(self.escape(str), min, max) ? str : null; }
+
+	// Validators
+	this.intval = function(num, min, max) {
+		return (isset(num) && fnRange(parseInt(num) || 0, min, max)) ? num : null;
+	}
+	this.range = function(num, min, max) { // NaN comparator always false
+		return (isset(num) && fnRange(num, min, max)) ? num : null;
+	}
+	this.size = function(str, min, max) {
+		str = fnTrim(str); // min/max string length
+		return fnRange(fnSize(str), min, max) ? str : null;
+	}
+
+	this.gt0 = function(num) { return self.range(num, .001, 1e9); }
+	this.required = function(value) { return self.size(value, 1, 1e4); }
+
+	this.regex = function(re, value) { return fnRegex(re, fnTrim(value)); }
+	this.login = function(value) { return self.regex(RE_LOGIN, value); }
+	this.digits = function(value) { return self.regex(RE_DIGITS, value); }
+	this.idlist = function(value) { return self.regex(RE_IDLIST, value); }
+	this.email = function(value) {
+		value = self.regex(RE_MAIL, value);
+		return value && value.toLowerCase();
+	}
+
+	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+	this.isDate = function(date) { return isDate(date) ? date : null; }
+	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
+	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
+	this.between = function(date, min, max) { return (isDate(date) && fnRange(date.getTime(), min.getTime(), max.getTime())) ? date : null; }
+	this.sysdate = function() { return sysdate; } //current date
+
+	function fnLetraDni(value) {
+		const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+		let letra = letras.charAt(parseInt(value, 10) % 23);
 		return (letra == value.charAt(8)) ? value : null;
 	}
+	this.dni = function(value) {
+		value = fnRegex(RE_DNI, minify(value));
+		return value && fnLetraDni(value);
+	}
 	this.cif = function(value) {
+		value = fnRegex(RE_CIF, minify(value));
+		if (!value) return null;
+
 		var match = value.match(RE_CIF);
 		var letter = match[1];
 		var number  = match[2];
@@ -117,9 +119,15 @@ function ValidatorBox() {
 		return ok ? value : null;
 	}
 	this.nie = function(value) {
+		value = fnRegex(RE_NIE, minify(value));
+		if (!value) return null;
+
 		let prefix = value.charAt(0); //Change the initial letter for the corresponding number and validate as DNI
 		let p0 = (prefix == "X") ? 0 : ((prefix == "Y") ? 1 : ((prefix == "Z") ? 2 : prefix));
-		return self.dni(p0 + value.substr(1));
+		return fnLetraDni(p0 + value.substr(1));
+	}
+	this.idES = function(value) {
+		return self.dni(value) || self.cif(value) || self.nie(value);
 	}
 
 	this.iban = function(IBAN) {
@@ -152,6 +160,18 @@ function ValidatorBox() {
 			checksum = parseInt(fragment, 10) % 97;
 		}
 		return (checksum === 1) ? IBAN : null; //save reformat
+	}
+	this.getEntidad = function(IBAN) {
+		const ENTIDADES = {
+			"2080": "Abanca", "1544": "Andbank España", "0182": "BBVA", "9000": "Banco de España", "0186": "Banco Mediolanum",
+			"0081": "Banco Sabadell", "0049": "Banco Santander", "0128": "Bankinter", "0065": "Barclays Bank", "0058": "BNP Paribas España",
+			"2100": "Caixabank", "0122": "Citibank España", "0154": "Credit Agricole", "0019": "Deutsche Bank", "0239": "Evo Banco",
+			"0162": "HSBC Bank", "2085": "Ibercaja Banco", "1465": "ING", "1000": "Instituto de crédito oficial", "2095": "Kutxabank",
+			"0073": "Openbank", "2103": "Unicaja Banco", "3058": "Cajamar", "3085": "Caja Rural", "3146": "Novanca", "0238": "Banco Pastor"
+		};
+
+		IBAN = minify(IBAN);
+		return IBAN ? ENTIDADES[IBAN.substr(4, 4)] : null;
 	}
 
 	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
@@ -189,133 +209,6 @@ function ValidatorBox() {
 		//Validation for length of password
 		strength += ((strength > 2) && (fnSize(pass) > 8));
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
-	}
-
-	//extends extra validations
-	this.get = function(name) {
-		return self[name];
-	}
-	this.set = function(name, fn) {
-		self[name] = fn;
-		return self;
-	}
-	/*****************************************************************/
-	/************************ FIN VALIDADORES ************************/
-	/*****************************************************************/
-
-	// Error messages
-	this.getI18n = function() {
-		return i18n;
-	}
-	this.setI18n = function(obj) {
-		i18n = obj;
-		return self;
-	}
-
-	// Messages for response
-	this.clear = function(obj) {
-		for (let k in obj) //clear object
-			delete obj[k]; //delete keys
-		return self;
-	}
-	this.getMsgs = function() {
-		return MSGS;
-	}
-	this.getMsg = function(name) {
-		return MSGS[name];
-	}
-	this.setMsg = function(name, msg) {
-		MSGS[name] = msg;
-		return self;
-	}
-	this.getMsgOk = function() {
-		return MSGS.msgOk;
-	}
-	this.setMsgOk = function(msg) {
-		MSGS.msgOk = msg;
-		return self;
-	}
-	this.getMsgInfo = function() {
-		return MSGS.msgInfo;
-	}
-	this.setMsgInfo = function(msg) {
-		MSGS.msgInfo = msg;
-		return self;
-	}
-	this.getMsgWarn = function() {
-		return MSGS.msgWarn;
-	}
-	this.setMsgWarn = function(msg) {
-		MSGS.msgWarn = msg;
-		return self;
-	}
-	this.getMsgError = function() {
-		return MSGS.msgError;
-	}
-	this.setError = function(name, msg) {
-		errors++; //error counter
-		return self.setMsg(name, msg);
-	}
-	this.addError = function(name, msg) {
-		self.setError(name, msg);
-		return null; //no valid data
-	}
-	this.setMsgError = function(msg) {
-		return self.setError("msgError", msg);
-	}
-	this.closeMsgs = function(msg) {
-		return self.setMsgError(msg).getMsgs();
-	}
-
-	// OJO! sobrescritura de forms => id's unicos
-	this.getForm = function(form) {
-		return FORMS[form];
-	}
-	this.setForm = function(form, validators) {
-		FORMS[form] = validators;
-		return self;
-	}
-	this.getFields = function(form) {
-		let fields = self.getForm(form);
-		return fields ? Object.keys(fields) : [];
-	}
-	this.getData = function(name) {
-		return name ? data[name] : data; //read only
-	}
-	this.getInput = function(name) {
-		return inputs[name];
-	}
-	this.setInput = function(name, value) {
-		inputs[name] = fnTrim(value);
-		return self;
-	}
-	this.getInputs = function() {
-		return inputs;
-	}
-	this.setInputs = function(data) {
-		inputs = data;
-		return self;
-	}
-	this.init = function(inputs, i18n) {
-		return self.setInputs(inputs).setI18n(i18n);
-	}
-
-	this.validate = function(form) {
-		data = {}; //init data
-		errors = 0; //init counter
-		sysdate.setTime(Date.now()); //update time
-		let validators = self.clear(MSGS).getForm(form);
-		for (let field in validators) {
-			let fn = validators[field]; //validator to apply
-			// Only escape inputs on server not on client
-			data[field] = fn(field, fnEscape(inputs[field]), i18n);
-		}
-		// Form must be registered
-		if (!validators || (errors > 0))
-			return false;
-		if (validators.onValid) //call valid event
-			return validators.onValid(data);
-		return true; //everything is ok
 	}
 }
 
