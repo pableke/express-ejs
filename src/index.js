@@ -12,9 +12,8 @@ const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
-const i18n = require("app/i18n/i18n.js"); //languages
+const util = require("app/lib/util-box.js"); //languages
 const sb = require("app/lib/session-box.js"); //session storage
-//const util = require("app/lib/util-box.js"); //utils
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -27,8 +26,8 @@ app.set("view engine", "ejs");
 app.set("views", VIEWS);
 //app.locals.partials = VIEWS + "/partials/";
 //app.locals.components = VIEWS + "/components/"
-//app.locals.i18n = i18n.es; //default language
-//app.locals.body = {}; //init non-ajax body forms
+app.locals.msgs = util.i18n; // set messages
+app.locals._tplBody = "web/index"; //default body
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -52,8 +51,6 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response helpers
-	res.locals.msgs = i18n; // set messages
-	res.locals._tplBody = "web/index"; //default body
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
@@ -65,20 +62,21 @@ app.use((req, res, next) => {
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // show log on console
-	if (err.message && (typeof(err.message) === "string"))
-		i18n.setMsgError(err.message); // Is Exception Error Type => response message only
-	else if (typeof(err) === "string")
-		i18n.setMsgError(err); // err = i18n key or string
+	if (err.message && util.sb.isstr(err.message))
+		util.i18n.setMsgError(err.message); // Is Exception Error Type => response message only
+	else if (util.sb.isstr(err))
+		util.i18n.setMsgError(err); // err = i18n key or string
 
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		(i18n.getNumErrors() > 1) ? res.status(500).json(i18n.toMsgs()) : res.status(500).send(i18n.getError());
+		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 
+										: res.status(500).send(util.i18n.getError());
 	else // Is non ajax request
 		res.status(500).render("index"); //render tpl body specified
 });
 app.use("*", (req, res) => { //error 404 page not found
-	i18n.setMsgError("err404"); //set message error on view
+	util.i18n.setMsgError("err404"); //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		res.status(404).send(i18n.getError()); //ajax response
+		res.status(404).send(util.i18n.getError()); //ajax response
 	else
 		res.status(404).build("errors/404"); //show 404 page
 });

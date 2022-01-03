@@ -44,11 +44,12 @@ function DateBox() {
 
 	this.build = fnBuild;
 	this.isValid = isDate;
-	this.sysdate = function() { return sysdate; }
-	this.isLeap = function(date) { return date && isLeapYear(date.getFullYear()); }
-	this.getDays = function(d1, d2) { return Math.round(Math.abs((d1 - d2) / ONE_DAY)); }
-	this.daysInMonth = function(date) { return date ? daysInMonth(date.getFullYear(), date.getMonth()) : 0; }
-	this.toArray = function(date) { return date ? [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()] : []; }
+	this.sysdate = () => sysdate;
+	this.toDate = (str) => str ? new Date(str) : null;
+	this.isLeap = (date) => date && isLeapYear(date.getFullYear());
+	this.getDays = (d1, d2) => Math.round(Math.abs((d1 - d2) / ONE_DAY));
+	this.daysInMonth = (date) => date ? daysInMonth(date.getFullYear(), date.getMonth()) : 0;
+	this.toArray = (date) => date ? [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()] : [];
 	this.addDate = function(date, val) { date && date.setDate(date.getDate() + val); return self; }
 	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
@@ -56,8 +57,8 @@ function DateBox() {
 	this.toISODateString = function(date) { return (date || sysdate).toISOString().substring(0, 10); } //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
-	this.randTime = function(d1, d2) { return Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime()); }
-	this.randDate = function(d1, d2) { return new Date(self.randTime(d1, d2)); }
+	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
+	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
@@ -125,29 +126,31 @@ function DateBox() {
 	}
 
 	//equality operators == != === !== cannot be used to compare (the value of) dates
-	this.lt = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() < d2.getTime()); }
-	this.le = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() <= d2.getTime()); }
-	this.eq = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime()); }
-	this.ge = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime()); }
-	this.gt = function(d1, d2) { return isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime()); }
+	this.lt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() < d2.getTime());
+	this.le = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() <= d2.getTime());
+	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
+	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
+	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
 	this.cmp = function(d1, d2) { //nulls go last
 		if (isDate(d1) && isDate(d2))
 			return d1.getTime() - d2.getTime();
 		return isDate(d1) ? -1 : 1;
 	}
 
-	this.inYear = function(d1, d2) { return d1 && d2 && (d1.getFullYear() == d2.getFullYear()); }
-	this.inMonth = function(d1, d2) { return self.inYear(d1, d2) && (d1.getMonth() == d2.getMonth()); }
-	this.inDay = function(d1, d2) { return self.inMonth(d1, d2) && (d1.getDate() == d2.getDate()); }
-	this.inHour = function(d1, d2) { return self.inDay(d1, d2) && (d1.getHours() == d2.getHours()); }
-	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
-	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
+	this.inYear = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getFullYear() == d2.getFullYear());
+	this.inMonth = (d1, d2) => self.inYear(d1, d2) && (d1.getMonth() == d2.getMonth());
+	this.inDay = (d1, d2) => self.inMonth(d1, d2) && (d1.getDate() == d2.getDate());
+	this.inHour = (d1, d2) => self.inDay(d1, d2) && (d1.getHours() == d2.getHours());
+
+	this.past = (date) => self.lt(date, sysdate);
+	this.future = (date) => self.gt(date, sysdate);
+	this.geToday = (date) => self.inDay(date, sysdate) || self.ge(date, sysdate);
 	this.between = function(date, min, max) { // value into a range
 		if (!isDate(date))
-			return null;
+			return false;
 		min = isDate(min) ? min.getTime() : date.getTime();
 		max = isDate(max) ? max.getTime() : date.getTime();
-		return ((min <= date.getTime()) && (date.getTime() <= max)) ? date : null;
+		return (min <= date.getTime()) && (date.getTime() <= max);
 	}
 
 	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM

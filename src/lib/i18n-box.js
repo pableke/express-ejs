@@ -1,4 +1,9 @@
 
+const dt = require("./date-box.js");
+const nb = require("./number-box.js");
+const sb = require("./string-box.js");
+const valid = require("./validator-box.js");
+
 /**
  * Internacionalization module require: 
  * DateBox (dt), NumberBox (nb), StringBox (sb) and ValidatorBox (valid) modules
@@ -7,8 +12,9 @@
  */
 function I18nBox() {
 	const self = this; //self instance
-	const DOT = "."; //floats separator
-	const COMMA = ","; //floats separator
+	const DATA = new Map(); // Data container
+	const MSGS = new Map(); // Messages container
+	const KEY_ERROR = "msgError"; // Error name message
 
 	const modules = { // Langs container for modules
 		web: { en: {}, es: {} }, //ej. web module
@@ -66,13 +72,13 @@ function I18nBox() {
 
 			//numbers helpers
 			toInt: nb.toInt,
-			isoInt: function(num) { return nb.isoInt(num, COMMA); },
-			fmtInt: function(str) { return nb.fmtInt(str, COMMA); },
-			toFloat: function(str) { return nb.toFloat(str, DOT); },
-			isoFloat: function(num, n) { return nb.isoFloat(num, COMMA, DOT, n); },
-			fmtFloat: function(str, n) { return nb.fmtFloat(str, COMMA, DOT, n); },
-			fmtBool: function(val) { return nb.boolval(val) ? "Yes" : "No"; },
-			val: function(obj, name) { return obj[name + "_en"] || obj[name]; } //object lang access
+			isoInt: nb.enIsoInt,
+			fmtInt: nb.enFmtInt,
+			toFloat: nb.enFloat,
+			isoFloat: nb.enIsoFloat,
+			fmtFloat: nb.enFmtFloat,
+			fmtBool: nb.enBool,
+			val: sb.enVal //object lang access
 		},
 
 		es: {
@@ -126,19 +132,16 @@ function I18nBox() {
 
 			//numbers helpers
 			toInt: nb.toInt,
-			isoInt: function(num) { return nb.isoInt(num, DOT); },
-			fmtInt: function(str) { return nb.fmtInt(str, DOT); },
-			toFloat: function(str) { return nb.toFloat(str, COMMA); },
-			isoFloat: function(num, n) { return nb.isoFloat(num, DOT, COMMA, n); },
-			fmtFloat: function(str, n) { return nb.fmtFloat(str, DOT, COMMA, n); },
-			fmtBool: function(val) { return nb.boolval(val) ? "Sí" : "No"; },
-			val: function(obj, name) { return obj[name]; } //object lang access
+			isoInt: nb.esInt,
+			fmtInt: nb.esFmtInt,
+			toFloat: nb.esFloat,
+			isoFloat: nb.esIsoFloat,
+			fmtFloat: nb.esFmtFloat,
+			fmtBool: nb.esBool,
+			val: sb.val //object lang access
 		}
 	};
 
-	const DATA = new Map(); // Data container
-	const MSGS = new Map(); // Messages container
-	const KEY_ERROR = "msgError"; // Error name message
 	let _lang = langs.es; // Default language
 
 	this.getLangs = function(mod) {
@@ -239,14 +242,14 @@ function I18nBox() {
 	this.isOk = () => !MSGS.has(KEY_ERROR);
 	this.isError = (name) => name ? MSGS.has(name) : MSGS.has(KEY_ERROR);
 
-	this.intval = (name, value, min, max, msg, msgtip) => self.valid(name, valid.intval(value, min, max), msg, msgtip);
-	this.irange = (name, value, min, max, msg, msgtip) => self.valid(name, valid.range(_lang.toInt(value), min, max), msg, msgtip);
-	this.range = (name, value, min, max, msg, msgtip) => self.valid(name, valid.range(_lang.toFloat(value), min, max), msg, msgtip);
-	this.size = (name, value, min, max, msg, msgtip) => self.valid(name, valid.size(value, min, max), msg, msgtip);
-	this.text = (name, value, min, max, msg, msgtip) => self.valid(name, valid.text(value, min, max), msg, msgtip);
-
-	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip);
 	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
+	this.size200 = (name, value, msg, msgtip) => self.valid(name, valid.size200(value), msg, msgtip);
+	this.size300 = (name, value, msg, msgtip) => self.valid(name, valid.size300(value), msg, msgtip);
+	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip);
+
+	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip);
+	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip);
+	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip);
 
 	this.regex = (name, value, msg, msgtip) => self.valid(name, valid.regex(value), msg, msgtip);
 	this.login = (name, value, msg, msgtip) => self.valid(name, valid.login(value), msg, msgtip);
@@ -254,14 +257,10 @@ function I18nBox() {
 	this.idlist = (name, value, msg, msgtip) => self.valid(name, valid.idlist(value), msg, msgtip);
 	this.email = (name, value, msg, msgtip) => self.valid(name, valid.email(value), msg, msgtip);
 
-	this.isDate = (name, value, msg, msgtip) => self.valid(name, _lang.toDate(value), msg, msgtip);
-	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(_lang.toDate(value)), msg, msgtip);
-	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(_lang.toDate(value)), msg, msgtip);
-	this.between = (name, value, min, max, msg, msgtip) => self.valid(name, valid.between(value, min, max), msg, msgtip);
-	this.geToday = function(name, value, msg, msgtip) {
-		let date =_lang.toDate(value);
-		return self.valid(name, dt.inDay(dt.sysdate(), date) ? date : valid.future(date), msg, msgtip);
-	}
+	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.isDate(value), msg, msgtip);
+	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(value), msg, msgtip);
+	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(value), msg, msgtip);
+	this.geToday = (name, value, msg, msgtip) => self.valid(name, valid.geToday(value), msg, msgtip);
 
 	this.dni = (name, value, msg, msgtip) => self.valid(name, valid.dni(value), msg, msgtip);
 	this.cif = (name, value, msg, msgtip) => self.valid(name, valid.cif(value), msg, msgtip);

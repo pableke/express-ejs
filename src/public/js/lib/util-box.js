@@ -116,12 +116,8 @@ dom.ready(function() {
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => i18n.required(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
 	dom.required = (selector, msg, msgtip) => dom.isRequired(dom.getInput(selector), msg, msgtip);
-	dom.isIntval = (el, min, max, msg, msgtip) => i18n.intval(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
-	dom.intval = (selector, min, max, msg, msgtip) => dom.isIntval(dom.getInput(selector), min, max, msg, msgtip);
-	dom.isIrange = (el, min, max, msg, msgtip) => i18n.irange(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
-	dom.irange = (selector, min, max, msg, msgtip) => dom.isIrange(dom.getInput(selector), min, max, msg, msgtip);
-	dom.isRange = (el, min, max, msg, msgtip) => i18n.range(el.name, el.value, min, max, msg, msgtip) ? dom : dom.setError(el);
-	dom.range = (selector, min, max, msg, msgtip) => dom.isRange(dom.getInput(selector), min, max, msg, msgtip);
+	dom.isIntval = (el, msg, msgtip) => i18n.intval(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.intval = (selector, msg, msgtip) => dom.isIntval(dom.getInput(selector), msg, msgtip);
 	dom.isGt0 = (el, msg, msgtip) => i18n.gt0(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
 	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
 	dom.isGeToday = (el, msg, msgtip) => i18n.geToday(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
@@ -137,7 +133,7 @@ dom.ready(function() {
 	let index = dom.findIndex(".active", tabs); //current index tab
 	dom.setFocus(tabs[index]); //try to reallocate focus on active tab
 	dom.getTab = function(i) { //get tab by index
-		index = Math.min(Math.max(i, 0), tabs.length - 1);
+		index = nb.range(i, 0, tabs.length - 1);
 		return tabs[index]; //get tab element
 	}
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
