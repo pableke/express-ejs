@@ -127,7 +127,7 @@ function I18nBox() {
 
 			//numbers helpers
 			toInt: nb.toInt,
-			isoInt: nb.esInt,
+			isoInt: nb.esIsoInt,
 			fmtInt: nb.esFmtInt,
 			toFloat: nb.esFloat,
 			isoFloat: nb.esIsoFloat,
