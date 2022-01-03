@@ -1,5 +1,6 @@
 ﻿
 module.exports = {
+	lang: "en",
 	mmmm0: "January", mmmm1: "February", mmmm2: "March", mmmm3: "April", mmmm4: "May", mmmm5: "June", mmmm6: "July", mmmm7: "August", mmmm8: "September", mmmm9: "October", mmmm10: "November", mmmm11: "December",
 	mmm0: "Jan", mmm1: "Feb", mmm2: "Mar", mmm3: "Apr", mmm4: "May", mmm5: "Jun", mmm6: "Jul", mmm7: "Aug", mmm8: "Sep", mmm9: "Oct", mmm10: "Nov", mmm11: "Dec",
 	dddd1: "Sunday", dddd2: "Monday", dddd3: "Tuesday", dddd4: "Wednesday", dddd5: "Thursday", dddd6: "Friday", dddd7: "Saturday",
