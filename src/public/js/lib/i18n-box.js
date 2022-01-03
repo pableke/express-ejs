@@ -238,12 +238,15 @@ function I18nBox() {
 	this.isError = (name) => name ? MSGS.has(name) : MSGS.has(KEY_ERROR);
 
 	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
+	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip);
+	this.size50 = (name, value, msg, msgtip) => self.valid(name, valid.size50(value), msg, msgtip);
 	this.size200 = (name, value, msg, msgtip) => self.valid(name, valid.size200(value), msg, msgtip);
 	this.size300 = (name, value, msg, msgtip) => self.valid(name, valid.size300(value), msg, msgtip);
 	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip);
 
 	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip);
 	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip);
+	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip);
 	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip);
 
 	this.regex = (name, value, msg, msgtip) => self.valid(name, valid.regex(value), msg, msgtip);
