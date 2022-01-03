@@ -4,13 +4,14 @@ const path = require("path"); //file and directory paths
 const qs = require("querystring"); //parse post data
 const formidable = require("formidable"); //file uploads
 const sharp = require("sharp"); //image resizer
-const i18n = require("./i18n-box.js"); //languages
 
-// Specific laguage list for modules
-i18n.addLang("es", require("../i18n/test/es.js"), "test");
-i18n.addLang("en", require("../i18n/test/en.js"), "test");
-i18n.addLang("es", require("./web/es.js"), "web");
-i18n.addLang("en", require("./web/en.js"), "web");
+const ab = require("./array-box.js");
+const dt = require("./date-box.js");
+const nb = require("./number-box.js");
+const sb = require("./string-box.js");
+const valid = require("./validator-box.js");
+const i18n = require("./i18n-box.js");
+const langs = require("../i18n/i18n.js");
 
 const UPLOADS = {
 	keepExtensions: true,
@@ -20,6 +21,17 @@ const UPLOADS = {
 	maxFields: 1000,
 	multiples: true
 };
+
+i18n.addLangs(langs.main)
+	.addLangs(langs.test, "test")
+	.addLangs(langs.web, "web");
+
+exports.ab = ab;
+exports.dt = dt;
+exports.nb = nb;
+exports.sb = sb;
+exports.valid = valid;
+exports.i18n = i18n;
 
 exports.lang = function(req, res, mod) {
 	// Search for language in request, session and headers by region: es-ES

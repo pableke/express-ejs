@@ -1,5 +1,4 @@
 
-//String Box extensions
 function StringBox() {
 	const self = this; //self instance
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
@@ -99,6 +98,8 @@ function StringBox() {
 		return result;
 	}
 
+	this.val = (obj, name) => obj[name]; // Default access prop
+	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
 	this.format = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
 		opts.empty = opts.empty || "";

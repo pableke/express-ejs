@@ -1,12 +1,16 @@
 
+const dt = require("./date-box.js");
+const nb = require("./number-box.js");
+
 /**
- * ValidatorBox module
+ * ValidatorBox module require
+ * DateBox (dt) and NumberBox (nb)
+ * 
  * @module ValidatorBox
  */
 function ValidatorBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
-	const sysdate = new Date(); //current
 
 	//HTML special chars
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
@@ -37,7 +41,6 @@ function ValidatorBox() {
 	function fnTrim(str) { return str ? str.trim() : str; } //string only
 	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
-	function fnRange(num, min, max) { return (min <= num) && (num <= max); }
 	function fnRegex(re, value) {
 		try {
 			return (value && re.test(value)) ? value : null;
@@ -45,40 +48,54 @@ function ValidatorBox() {
 		return null;
 	}
 
-	this.unescape = function(str) { return str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null; }
-	this.escape = function(str) { return str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null; }
-	this.text = function(str, min, max) { return fnRange(self.escape(str), min, max) ? str : null; }
-
 	// Validators
-	this.intval = function(num, min, max) {
-		return (isset(num) && fnRange(parseInt(num) || 0, min, max)) ? num : null;
-	}
 	this.range = function(num, min, max) { // NaN comparator always false
-		return (isset(num) && fnRange(num, min, max)) ? num : null;
+		return (isset(num) && nb.between(num, min, max)) ? num : null;
 	}
+	this.gt0 = (num) => self.range(num, .001, 1e9);
+	this.intval = (num) => self.range(nb.intval(num), 1, 9);
+	this.intval3 = (num) => self.range(nb.intval(num), 1, 3);
+	this.intval5 = (num) => self.range(nb.intval(num), 1, 5);
+
 	this.size = function(str, min, max) {
 		str = fnTrim(str); // min/max string length
-		return fnRange(fnSize(str), min, max) ? str : null;
+		return nb.between(fnSize(str), min, max) ? str : null;
 	}
+	this.required = (value) => self.size(value, 1, 1000);
+	this.size10 = (str) => self.size(str, 0, 10);
+	this.size50 = (str) => self.size(str, 0, 50);
+	this.size200 = (str) => self.size(str, 0, 200);
+	this.size300 = (str) => self.size(str, 0, 300);
 
-	this.gt0 = function(num) { return self.range(num, .001, 1e9); }
-	this.required = function(value) { return self.size(value, 1, 1e4); }
+	this.unescape = (str) => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
+	this.escape = (str) => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
+	this.text = (str) => nb.between(fnSize(self.escape(str)), 0, 1000) ? str : null;
 
-	this.regex = function(re, value) { return fnRegex(re, fnTrim(value)); }
-	this.login = function(value) { return self.regex(RE_LOGIN, value); }
-	this.digits = function(value) { return self.regex(RE_DIGITS, value); }
-	this.idlist = function(value) { return self.regex(RE_IDLIST, value); }
+	this.regex = (re, value) => fnRegex(re, fnTrim(value));
+	this.login = (value) => self.regex(RE_LOGIN, value);
+	this.digits = (value) => self.regex(RE_DIGITS, value);
+	this.idlist = (value) => self.regex(RE_IDLIST, value);
 	this.email = function(value) {
 		value = self.regex(RE_MAIL, value);
 		return value && value.toLowerCase();
 	}
 
-	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
-	this.isDate = function(date) { return isDate(date) ? date : null; }
-	this.past = function(date) { return (isDate(date) && (date.getTime() < sysdate.getTime())) ? date : null; }
-	this.future = function(date) { return (isDate(date) && (date.getTime() > sysdate.getTime())) ? date : null; }
-	this.between = function(date, min, max) { return (isDate(date) && fnRange(date.getTime(), min.getTime(), max.getTime())) ? date : null; }
-	this.sysdate = function() { return sysdate; } //current date
+	this.isDate = function(str) {
+		let date = dt.toDate(str);
+		return isDate(date) ? date : null;
+	}
+	this.past = function(str) {
+		let date = dt.toDate(str);
+		return dt.past(date) ? date : null;
+	}
+	this.future = function(str) {
+		let date = dt.toDate(str);
+		return dt.future(date) ? date : null;
+	}
+	this.geToday = function(str) {
+		let date = dt.toDate(str);
+		return dt.geToday(date) ? date : null;
+	}
 
 	function fnLetraDni(value) {
 		const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
