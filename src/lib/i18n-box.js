@@ -16,10 +16,7 @@ function I18nBox() {
 	const MSGS = new Map(); // Messages container
 	const KEY_ERROR = "msgError"; // Error name message
 
-	const modules = { // Langs container for modules
-		web: { en: {}, es: {} }, //ej. web module
-		test: { en: {}, es: {} } //ej. test module
-	};
+	const modules = {}; // Languages for modules
 	const langs = { // Main language container
 		en: {
 			lang: "en", // English
@@ -188,7 +185,9 @@ function I18nBox() {
 	this.isoFloat1 = (num) => _lang.isoFloat(num, 1);
 	this.isoFloat = (num) => _lang.isoFloat(num);
 	this.isoFloat3 = (num) => _lang.isoFloat(num, 3);
+	this.fmtFloat1 = (str) => _lang.fmtFloat(str, 1);
 	this.fmtFloat = (str) => _lang.fmtFloat(str);
+	this.fmtFloat3 = (str) => _lang.fmtFloat(str, 3);
 
 	this.toDate = (str) => _lang.toDate(str);
 	this.isoDate = (date) => _lang.isoDate(date);
@@ -274,4 +273,4 @@ function I18nBox() {
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
 
-module exports = new I18nBox();
+module.exports = new I18nBox();

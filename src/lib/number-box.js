@@ -8,8 +8,10 @@ function NumberBox() {
 	const RE_NO_DIGITS = /\D+/g; //no digits character
 
 	//helpers
-	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
-	function rtl(str, size) {
+	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); } // Is defined var
+	function fnWhole(str) { return str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); } // Extract whole part
+	function fnSign(str) { return (str.charAt(0) == "-") ? "-" : EMPTY; } // Get sign number + or -
+	function rtl(str, size) { // Slice string
 		var result = []; //parts container
 		for (var i = str.length; i > size; i -= size)
 			result.unshift(str.substr(i - size, size));
@@ -39,15 +41,16 @@ function NumberBox() {
 
 	// Integers
 	this.toInt = function(str) { // String to Integer
-		if (!str) return null; // not number
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let num = parseInt(sign + str.replace(RE_NO_DIGITS, EMPTY));
-		return isNaN(num) ? null : num;
+		if (str) {
+			let num = parseInt(fnSign(str) + str.replace(RE_NO_DIGITS, EMPTY));
+			return isNaN(num) ? null : num;
+		}
+		return null; // not number
 	}
 
 	function fnInt(str, s) {
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
-		let whole = str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1");
+		let sign = fnSign(str);
+		let whole = fnWhole(str);
 		return whole ? (sign + rtl(whole, 3).join(s)) : null;
 	}
 	this.isoInt = (val, s) => isset(val) ? fnInt(EMPTY + val, s) : null;
@@ -62,22 +65,22 @@ function NumberBox() {
 	// Floats
 	this.toFloat = function(str, d) { //String to Float
 		if (!str) return null; // not number
+		let sign = fnSign(str);
 		let separator = str.lastIndexOf(d);
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY;
 		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
 		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
 		let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
 		return isNaN(num) ? null : num;
 	}
-	this.enFloat = (str) => self.toFloat(val, DOT); // EN String format to Float
-	this.esFloat = (str) => self.toFloat(val, COMMA); // ES String format to Float
+	this.enFloat = (str) => self.toFloat(str, DOT); // EN String format to Float
+	this.esFloat = (str) => self.toFloat(str, COMMA); // ES String format to Float
 
 	function fnFloat(str, s, d, n, dIn) {
 		n = isNaN(n) ? 2 : n; //number of decimals
+		let sign = fnSign(str);
 		let separator = str.lastIndexOf(dIn); //decimal separator
-		let sign = (str.charAt(0) == "-") ? "-" : EMPTY; //+ or -
 		let whole = (separator > 0) ? str.substr(0, separator) : str;
-		whole = (separator == 0) ? ZERO : whole.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); //extract whole part
+		whole = (separator == 0) ? ZERO : fnWhole(whole);
 		if (whole) { //exists whole part?
 			let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 			return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));

@@ -66,7 +66,10 @@ function ValidatorBox() {
 
 	this.unescape = (str) => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
 	this.escape = (str) => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
-	this.text = (str) => nb.between(fnSize(self.escape(str)), 0, 1000) ? str : null;
+	this.text = function(str) {
+		str = self.escape(str);
+		return nb.between(fnSize(str), 0, 1000) ? str : null;
+	}
 
 	this.regex = (re, value) => fnRegex(re, fnTrim(value));
 	this.login = (value) => self.regex(RE_LOGIN, value);
