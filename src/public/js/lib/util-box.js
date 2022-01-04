@@ -94,8 +94,11 @@ dom.ready(function() {
 	}
 	dom.addError = function(selector, msg, msgtip) {
 		const el = dom.getInput(selector);
-		i18n.setError(el.name, msg, msgtip);
-		return dom.setError(el);
+		if (el) { // Element exists?
+			i18n.setError(el.name, msg, msgtip);
+			dom.setError(el);
+		}
+		return dom;
 	}
 	dom.setErrors = function(data) {
 		dom.closeAlerts(); //init. errros
@@ -114,13 +117,13 @@ dom.ready(function() {
 	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter).set();
 
 	// Common validators for fields
-	dom.isRequired = (el, msg, msgtip) => i18n.required(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.required = (selector, msg, msgtip) => dom.isRequired(dom.getInput(selector), msg, msgtip);
-	dom.isIntval = (el, msg, msgtip) => i18n.intval(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.isIntval = (el, msg, msgtip) => (!el || i18n.intval(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.intval = (selector, msg, msgtip) => dom.isIntval(dom.getInput(selector), msg, msgtip);
-	dom.isGt0 = (el, msg, msgtip) => i18n.gt0(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.isGt0 = (el, msg, msgtip) => (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
-	dom.isGeToday = (el, msg, msgtip) => i18n.geToday(el.name, el.value, msg, msgtip) ? dom : dom.setError(el);
+	dom.isGeToday = (el, msg, msgtip) => (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
 
 	// Show/Hide drop down info
