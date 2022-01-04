@@ -1,8 +1,45 @@
 
-const valid = require("app/controllers/validators.js");
-const i18n = require("../src/i18n/i18n.js"); //languages
+const valid = require("../src/lib/validator-box.js");
 
-valid.setI18n(i18n.es);
+describe("Size validators", () => {
+	test("String / text length", () => {
+		expect(valid.required()).toBeFalsy();
+		expect(valid.required("")).toBeFalsy();
+		expect(valid.required("asdfalks dfklasdj flaksdj ddfasdf")).toBe("asdfalks dfklasdj flaksdj ddfasdf");
+		expect(valid.size10("dsfadfgd afsddsfaf")).toBeFalsy();
+		expect(valid.size50("dsfadfgd")).toBeTruthy();
+		expect(valid.size200()).toBe(undefined);
+
+		expect(valid.text()).toBe(null);
+		expect(valid.text("akdsfj \\ adskfl")).toBe("akdsfj &#92; adskfl");
+	});
+});
+
+describe("Range validators", () => {
+	test("Integer / Floats ranges", () => {
+		expect(valid.intval()).toBeFalsy();
+		expect(valid.intval("")).toBeFalsy();
+		expect(valid.intval(0)).toBeFalsy();
+		expect(valid.intval(9)).toBe(9);
+		expect(valid.intval(10)).toBe(null);
+
+		expect(valid.gt0()).toBeFalsy();
+		expect(valid.gt0("")).toBeFalsy();
+		expect(valid.gt0(0)).toBeFalsy();
+		expect(valid.gt0(.01)).toBe(.01);
+		expect(valid.gt0(-.01)).toBe(null);
+	});
+});
+
+describe("RegExp validators", () => {
+	test("E-Mails / Digits", () => {
+		expect(valid.email()).toBeFalsy();
+		expect(valid.email("asdf@asdf.com")).toBe("asdf@asdf.com");
+
+		expect(valid.digits()).toBeFalsy();
+		expect(valid.digits("230948 2")).toBe(null);
+	});
+});
 
 describe("Type validators", () => {
 	test("Loggin RegExp", () => {
@@ -41,32 +78,5 @@ describe("Type validators", () => {
 		expect(valid.creditCardNumber("4000056655665556")).toBe("4000056655665556");
 		expect(valid.creditCardNumber(" 4000 056655665 556 ")).toBe("4000056655665556");
 		expect(valid.creditCardNumber(" 4242 4242 4242 4242 ")).toBe("4242424242424242");
-	});
-});
-
-describe("Form validators", () => {
-	test("No Forms Found", () => {
-		expect(valid.setInputs({}).validate()).toBeFalsy();
-		expect(valid.setInputs({}).validate(null)).toBeFalsy();
-		expect(valid.setInputs({}).validate("")).toBeFalsy();
-		expect(valid.setInputs({}).validate("kk")).toBeFalsy();
-	});
-	test("No Data Inputs", () => {
-		expect(valid.validate("/login.html")).toBe(false);
-		expect(valid.setInputs({}).validate("/contact.html")).toBe(false);
-		expect(valid.setInputs({}).validate("/signup.html")).toBe(false);
-		expect(valid.setInputs({}).validate("/menu/filter.html")).toBe(true);
-	});
-	test("Data Inputs", () => {
-		expect(valid.setInputs({ usuario: "kk", clave: null }).validate("/login.html")).toBe(false);
-		expect(valid.setInputs({ fn: "", n1: "1", d1: "", d2: null }).validate("/menu/filter.html")).toBe(true);
-		expect(valid.setInputs({ n1: null, d1: "kkk" }).validate("/menu/filter.html")).toBe(true);
-	});
-	test("Data Parse", () => {
-		valid.setInputs({ fn: "", n1: "1", d1: "", d2: null }).validate("/menu/filter.html");
-		expect(valid.getData()).toEqual({ fn: "", n1: 1, n2: null, d1: null, d2: null });
-
-		valid.setInputs({ fn: "", n1: "1", d1: "2021-02-26", d2: null }).validate("/menu/filter.html");
-		expect(valid.getData()).toEqual({ fn: "", n1: 1, n2: null, d1: new Date("2021-02-26"), d2: null });
 	});
 });

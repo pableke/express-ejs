@@ -61,11 +61,9 @@ app.use((req, res, next) => {
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
-	console.log("> Log:", err); // show log on console
-	if (err.message && util.sb.isstr(err.message))
-		util.i18n.setMsgError(err.message); // Is Exception Error Type => response message only
-	else if (util.sb.isstr(err))
-		util.i18n.setMsgError(err); // err = i18n key or string
+	console.log("> Log:", err); // Show log for console
+	let msg = "" + (err.message || err); // Exception or message to string
+	util.i18n.setMsgError(msg); // i18n key or string
 
 	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 
