@@ -65,7 +65,7 @@ app.use((err, req, res, next) => { //global handler error
 	let msg = "" + (err.message || err); // Exception or message to string
 	util.i18n.setMsgError(msg); // i18n key or string
 
-	if (req.xhr) // is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
+	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 
 										: res.status(500).send(util.i18n.getError());
 	else // Is non ajax request

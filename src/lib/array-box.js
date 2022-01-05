@@ -36,12 +36,14 @@ function ArrayBox() {
 		function fnDesc(a, b) { return fnSort(b[field], a[field]); }
 		return (arr && field) ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
-	this.multisort = function(arr, columns, orderby) {
+	this.multisort = function(arr, columns, orderby, sorts) {
+		sorts = sorts || []; //sort functions
 		orderby = orderby || []; //columns direction
 		function fnMultisort(a, b, index) { //recursive function
 			index = index || 0; //index columns to ordered
 			let name = columns[index]; //current column
-			let value = (orderby[index] == "desc") ? cmp(b[field], a[field]) : cmp(a[name], b[name]);
+			let fnSort = sorts[index] || cmp; //default sorting
+			let value = (orderby[index] == "desc") ? fnSort(b[field], a[field]) : fnSort(a[name], b[name]);
 			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b, index) : value;
 		}
 		arr.sort(fnMultisort);
