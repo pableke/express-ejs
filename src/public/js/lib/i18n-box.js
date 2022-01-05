@@ -210,7 +210,7 @@ function I18nBox() {
 	this.setOk = (msg) => self.setMsg("msgOk", msg);
 	this.setInfo = (msg) => self.setMsg("msgInfo", msg);
 	this.setWarn = (msg) => self.setMsg("msgWarn", msg);
-	this.getError = (name) => name ? MSGS.get(name) : MSGS.get(KEY_ERROR);
+	this.getError = (name) => MSGS.get(name || KEY_ERROR);
 	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.get(msg) || msg);
 	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.get(msgtip) || msgtip);
 	this.getNumErrors = () => MSGS.size;
@@ -234,7 +234,7 @@ function I18nBox() {
 		return false;
 	}
 	this.isOk = () => !MSGS.has(KEY_ERROR);
-	this.isError = (name) => name ? MSGS.has(name) : MSGS.has(KEY_ERROR);
+	this.isError = (name) => MSGS.has(name || KEY_ERROR);
 
 	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
 	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip);

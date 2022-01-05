@@ -98,6 +98,8 @@ dom.ready(function() {
 			i18n.setError(el.name, msg, msgtip);
 			dom.setError(el);
 		}
+		else // Only show error
+			dom.showError(i18n.setMsgError(msg).getError());
 		return dom;
 	}
 	dom.setErrors = function(data) {
