@@ -13,7 +13,6 @@ const app = express(); //instance app
 const env = require("dotenv").config(); //load env const
 const dao = require("app/dao/factory.js"); //DAO factory
 const util = require("app/lib/util-box.js"); //languages
-const sb = require("app/lib/session-box.js"); //session storage
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -50,13 +49,21 @@ app.use(session({ //session config
 
 // Routes
 app.use((req, res, next) => {
-	// Initialize response helpers
+	// Initialize response function helpers
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
 	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
+
+	// Search for language in request, session and headers by region: es-ES
+	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
+	req.session.lang = res.locals.lang = util.i18n.setI18n(lang, mod).get("lang"); // Get language found
+
+	// Load specific user menus or public menus on view
+	const tpl = '<li id="@id;" data-padre="@padre;"><a href="#" title="Sub Nav Link 11">@name;</a></li>';
+	let menus = req.session.menus || util.ab.format(dao.web.myjson.menus.getPublic(), tpl);
+	req.session.menus = res.locals.menus = menus; // Store menus in session and view
 	//res.on("finish", () => {}); //reset messages and view
-	//req.sessionStorage = sb.get(req.session.ssId);
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
@@ -80,7 +87,6 @@ app.use("*", (req, res) => { //error 404 page not found
 });
 
 // Start servers (db's and http)
-sb.open(); //open session storage
 dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
 const server = app.listen(port, err => {
@@ -96,7 +102,6 @@ function fnExit(signal) { //exit handler
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
 
-	sb.close();
 	dao.close();
 	server.close();
 

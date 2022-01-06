@@ -33,15 +33,6 @@ exports.sb = sb;
 exports.valid = valid;
 exports.i18n = i18n;
 
-exports.lang = function(req, res, mod) {
-	// Search for language in request, session and headers by region: es-ES
-	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = i18n.setI18n(lang, mod).get("lang"); // Get language found
-
-	// Load specific user menus or public menus on view
-	//res.locals.menus = req.sessionStorage ? req.sessionStorage.menus : dao.web.myjson.menus.getPublic();
-}
-
 exports.post = function(req, res, next) {
 	let rawData = ""; // Buffer
 	req.on("data", function(chunk) {
