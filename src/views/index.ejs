@@ -28,7 +28,15 @@
 
 <body>
 	<header></header>
-	<nav></nav>
+	<nav>
+		<ul class="menu-phone">
+			<li><a href="#" class="d-phone sidebar-toggle" title="Show/hide left menu"><i class="fas fa-bars nav-icon"></i>Left Menu</a></li>
+		</ul>
+		<ul class="menu hide">
+			<li data-orden="0"><a href="#" class="d-phone sidebar-toggle" title="Show/hide left menu"><i class="fas fa-arrow-left nav-icon"></i>Left Menu</a></li>
+			<%=menus%>
+		</ul>
+	</nav>
 	<main>
 		<%-include(_tplBody)%>
 	</main>
