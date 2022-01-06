@@ -2,9 +2,7 @@
 const { i18n } = require("../src/lib/util-box.js");
 
 describe("I18N Messages", () => {
-	test("ES Error Messages", () => {
-		i18n.setI18n("es"); // Set ES language
-
+	test("Common I18n Messages", () => {
 		expect(i18n.get()).toBe(undefined);
 		expect(i18n.get(null)).toBe(undefined);
 
@@ -12,27 +10,27 @@ describe("I18N Messages", () => {
 		expect(i18n.setMsgError(null).getError()).toBe(null);
 		expect(i18n.setMsgError("").getError()).toBe("");
 		expect(i18n.setMsgError("kk").getError()).toBe("kk");
-		expect(i18n.setMsgError("errRequired").getError()).toBe("¡Campo obligatorio!");
-		expect(i18n.setMsgError("¡Campo obligatorio!").getError()).toBe("¡Campo obligatorio!");
+	});
 
-		expect(i18n.setError("test", "errRequired", "errRequired").getError("test")).toBe("¡Campo obligatorio!");
+	test("ES Error Messages", () => {
+		const MSG = "¡Campo obligatorio!";
+		i18n.setI18n("es"); // Set ES language
+
+		expect(i18n.setMsgError("errRequired").getError()).toBe(MSG);
+		expect(i18n.setMsgError(MSG).getError()).toBe(MSG);
+
+		expect(i18n.setError("test", "errRequired", "errRequired").getError("test")).toBe(MSG);
 		expect(i18n.setError("test", "errRequired", "Test Error").getError("test")).toBe("Test Error");
 	});
 
 	test("EN Error Messages", () => {
-		i18n.setI18n("en"); // Set ES language
+		const MSG = "Required value!";
+		i18n.setI18n("en"); // Set EN language
 
-		expect(i18n.get()).toBe(undefined);
-		expect(i18n.get(null)).toBe(undefined);
+		expect(i18n.setMsgError("errRequired").getError()).toBe(MSG);
+		expect(i18n.setMsgError(MSG).getError()).toBe(MSG);
 
-		expect(i18n.setMsgError().getError()).toBe(undefined);
-		expect(i18n.setMsgError(null).getError()).toBe(null);
-		expect(i18n.setMsgError("").getError()).toBe("");
-		expect(i18n.setMsgError("kk").getError()).toBe("kk");
-		expect(i18n.setMsgError("errRequired").getError()).toBe("Required value!");
-		expect(i18n.setMsgError("Required value!").getError()).toBe("Required value!");
-
-		expect(i18n.setError("test", "errRequired", "errRequired").getError("test")).toBe("Required value!");
+		expect(i18n.setError("test", "errRequired", "errRequired").getError("test")).toBe(MSG);
 		expect(i18n.setError("test", "errRequired", "Test Error").getError("test")).toBe("Test Error");
 	});
 });
