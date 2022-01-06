@@ -5,11 +5,11 @@ function NumberBox() {
 	const ZERO = "0"; //left decimals zeros
 	const DOT = "."; //floats separator
 	const COMMA = ","; //floats separator
-	const RE_NO_DIGITS = /\D+/g; //no digits character
 
 	//helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); } // Is defined var
-	function fnWhole(str) { return str.replace(RE_NO_DIGITS, EMPTY).replace(/^0+(\d+)/, "$1"); } // Extract whole part
+	function fnWhole(str) { return str.replace(/\D+/g, EMPTY); } // Extract whole part
+	function fnTrim0(str) { return fnWhole(str).replace(/^0+(\d+)/, "$1"); } // Extract whole part withot left zeros
 	function fnSign(str) { return (str.charAt(0) == "-") ? "-" : EMPTY; } // Get sign number + or -
 	function rtl(str, size) { // Slice string
 		var result = []; //parts container
@@ -42,7 +42,7 @@ function NumberBox() {
 	// Integers
 	this.toInt = function(str) { // String to Integer
 		if (str) {
-			let num = parseInt(fnSign(str) + str.replace(RE_NO_DIGITS, EMPTY));
+			let num = parseInt(fnSign(str) + fnWhole(str));
 			return isNaN(num) ? null : num;
 		}
 		return null; // not number
@@ -50,7 +50,7 @@ function NumberBox() {
 
 	function fnInt(str, s) {
 		let sign = fnSign(str);
-		let whole = fnWhole(str);
+		let whole = fnTrim0(str);
 		return whole ? (sign + rtl(whole, 3).join(s)) : null;
 	}
 	this.isoInt = (val, s) => isset(val) ? fnInt(EMPTY + val, s) : null;
@@ -64,13 +64,15 @@ function NumberBox() {
 
 	// Floats
 	this.toFloat = function(str, d) { //String to Float
-		if (!str) return null; // not number
-		let sign = fnSign(str);
-		let separator = str.lastIndexOf(d);
-		let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
-		let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
-		let num = parseFloat(sign + whole.replace(RE_NO_DIGITS, EMPTY) + decimal); //float value
-		return isNaN(num) ? null : num;
+		if (str) {
+			let sign = fnSign(str);
+			let separator = str.lastIndexOf(d);
+			let whole = (separator < 0) ? str : str.substr(0, separator); //extract whole part
+			let decimal = (separator < 0) ? EMPTY : (DOT + str.substr(separator + 1)); //decimal part
+			let num = parseFloat(sign + fnWhole(whole) + decimal); //float value
+			return isNaN(num) ? null : num;
+		}
+		return null; // not number
 	}
 	this.enFloat = (str) => self.toFloat(str, DOT); // EN String format to Float
 	this.esFloat = (str) => self.toFloat(str, COMMA); // ES String format to Float
@@ -80,7 +82,7 @@ function NumberBox() {
 		let sign = fnSign(str);
 		let separator = str.lastIndexOf(dIn); //decimal separator
 		let whole = (separator > 0) ? str.substr(0, separator) : str;
-		whole = (separator == 0) ? ZERO : fnWhole(whole);
+		whole = (separator == 0) ? ZERO : fnTrim0(whole);
 		if (whole) { //exists whole part?
 			let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
 			return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
