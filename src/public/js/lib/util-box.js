@@ -130,7 +130,7 @@ dom.ready(function() {
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
-		return !dom.swapClass("i.fas", "fa-chevron-double-down fa-chevron-double-up", el).toggleHide(".extra-info-" + el.id);
+		return !dom.swapClass("i.fas", "fa-angle-double-down fa-angle-double-up", el).toggleHide(".extra-info-" + el.id);
 	});
 
 	// Tabs handler

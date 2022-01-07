@@ -1,11 +1,12 @@
 
+const ab = require("app/lib/array-box.js");
+
 // Menus DAO
 module.exports = function(table) {
+	const TPL_MENU = '<li id="@id;" data-padre="@padre;"><a href="#" title="@title;">@nm;</a></li>';
 	const _parents = [];
 	const _submenus = [];
-
-	let um = table.db().get("um");
-	let _publicMenus = [];
+	let _publicMenus;
 
 	function hasParent(menu) { return menu && menu.padre; }
 	function isPublic(menu) { return ((menu.mask&1) == 1); }
@@ -15,10 +16,10 @@ module.exports = function(table) {
 
 	table.onLoad = function(menus) {
 		menus.each(menu => { menu.alta = new Date(menu.alta); });
-		_publicMenus = menus.filter(isPublic);
+		_publicMenus = ab.format(menus.filter(isPublic), TPL_MENU);
 	}
 	table.onCommit = function() {
-		_publicMenus = table.filter(isPublic);
+		_publicMenus = ab.format(table.filter(isPublic), TPL_MENU);
 	}
 
 	table.isPublic = isPublic;
