@@ -1,8 +1,6 @@
 
 const jwt = require("jsonwebtoken");
 const dao = require("app/dao/factory.js");
-const ob = require("app/lib/object-box.js");
-const sb = require("app/lib/session-box.js");
 
 const TPL_LOGIN = "web/forms/public/login";
 const TPL_ADMIN = "web/list/index";
@@ -12,7 +10,6 @@ exports.view = function(req, res) {
 }
 
 function fnLogout(req) {
-	sb.destroy(req.session.ssId);
 	delete req.session.ssId; //remove user id
 	//remove session: regenerated next request
 	req.session.destroy(); //specific destroy
@@ -27,11 +24,7 @@ exports.check = function(req, res, next) {
 
 		// Build session storage data
 		req.session.ssId = user.id;
-		req.sessionStorage = sb.init(user.id);
 		let menus = dao.web.myjson.um.getAllMenus(user.id); //get specific user menus
-		req.sessionStorage.menus = res.locals.menus = menus; //update user menus on view and session
-		req.sessionStorage.user = Object.assign({}, user);
-		req.sessionStorage.list = {};
 
 		// access allowed => go private area
 		if (req.session.redirTo) { //session helper
@@ -55,7 +48,6 @@ exports.auth = function(req, res, next) {
 		fnLogout(req); //time session expired
 		return next(res.locals.i18n.endSession);
 	}
-	req.sessionStorage = sb.get(req.session.ssId);
 	if (req.sessionStorage) {
 		//req.session.touch(); //Updates the .maxAge property
 		delete req.session.redirTo;
@@ -83,7 +75,6 @@ exports.OAuth2 = function(req, res, next) {
 		jwt.verify(token.substr(7), process.env.JWT_KEY, (err, user) => {
 			if (err || !user || !user.id)
 				return next(err || res.locals.i18n.err401);
-			req.sessionStorage = sb.get(user.id);
 			req.sessionStorage ? next() : next(res.locals.i18n.sesNotFound);
 		});
 	}
@@ -93,7 +84,6 @@ exports.OAuth2 = function(req, res, next) {
 
 exports.home = function(req, res) {
 	// Reset list configuration
-	ob.deepClear(req.sessionStorage.list);
 	res.build(TPL_ADMIN);
 }
 

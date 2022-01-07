@@ -25,8 +25,8 @@ app.set("view engine", "ejs");
 app.set("views", VIEWS);
 //app.locals.partials = VIEWS + "/partials/";
 //app.locals.components = VIEWS + "/components/"
-app.locals.msgs = util.i18n; // set messages
 app.locals._tplBody = "web/index"; //default body
+app.locals.msgs = util.i18n; // set messages
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -54,16 +54,14 @@ app.use((req, res, next) => {
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
 	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
+	//res.on("finish", () => {}); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = util.i18n.setI18n(lang, mod).get("lang"); // Get language found
+	req.session.lang = res.locals.lang = util.i18n.setI18n(lang).get("lang"); // Get language found
 
 	// Load specific user menus or public menus on view
-	const tpl = '<li id="@id;" data-padre="@padre;"><a href="#" title="Sub Nav Link 11">@name;</a></li>';
-	let menus = req.session.menus || util.ab.format(dao.web.myjson.menus.getPublic(), tpl);
-	req.session.menus = res.locals.menus = menus; // Store menus in session and view
-	//res.on("finish", () => {}); //reset messages and view
+	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic();
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes
@@ -87,13 +85,12 @@ app.use("*", (req, res) => { //error 404 page not found
 });
 
 // Start servers (db's and http)
-dao.open(); //open db's factories
 const port = process.env.PORT || 3000;
 const server = app.listen(port, err => {
-	if (err)
-		console.log(err);
-	else
-		console.log("> Server listening on http://localhost:" + port);
+	if (err) // If error => stop
+		return console.log(err);
+	dao.open(); //open db's factories
+	console.log("> Server listening on http://localhost:" + port);
 });
 
 //capture Node.js Signals and Events
