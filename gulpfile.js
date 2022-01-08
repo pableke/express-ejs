@@ -73,7 +73,7 @@ gulp.task("symlinks", () => {
 	//gulp.src("src/components").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
-	//gulp.src("src/i18n").pipe(gulp.symlink("node_modules/app"));
+	gulp.src("src/i18n").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/lib").pipe(gulp.symlink("node_modules/app"));
 	return gulp.src("src/views").pipe(gulp.symlink("node_modules/app"));
 });

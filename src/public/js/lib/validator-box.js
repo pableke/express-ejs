@@ -66,10 +66,16 @@ function ValidatorBox() {
 
 	this.unescape = (str) => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
 	this.escape = (str) => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
-	this.text = function(str) {
+
+	function fnText(str, min, max) {
 		str = self.escape(str);
-		return nb.between(fnSize(str), 0, 1000) ? str : null;
+		return nb.between(fnSize(str), min, max) ? str : null;
 	}
+	this.text10 = (str) => fnText(str, 0, 10);
+	this.text50 = (str) => fnText(str, 0, 50);
+	this.text200 = (str) => fnText(str, 0, 200);
+	this.text300 = (str) => fnText(str, 0, 300);
+	this.text = (str) => fnText(str, 0, 1000);
 
 	this.regex = (re, value) => fnRegex(re, fnTrim(value));
 	this.login = (value) => self.regex(RE_LOGIN, value);
