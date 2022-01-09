@@ -257,7 +257,7 @@ dom.ready(function() {
 		if (padre) { // Move child with his parent
 			let li = dom.get("li[id='" + padre + "']", menu);
 			if (li) {
-				let children = li.dataset.children || 0;
+				let children = +li.dataset.children || 0;
 				if (!children) { // Is first child?
 					li.innerHTML += '<ul class="sub-menu"></ul>';
 					li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
