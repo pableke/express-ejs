@@ -6,7 +6,7 @@ ul.menu { position: sticky; display: inline-block; width: 100%; padding: 5px; z-
 ul.menu ul { position: absolute; left: 0; display: none; background-color: #f8f9fa; }
 /* First li level: starts hide and after fadeIn by JS */
 ul.menu li { position: relative; float: left; list-style: none; z-index: 3; }
-ul.menu li:hover { color: #fff; background-color: #2c3e50; border-radius: 2px; }
+ul.menu li:hover { color: #000; background-color: #2c3e50; }
 ul.menu li:hover > a { color: #fff; }
 ul.menu li:hover > a > .nav-tri:after { content: "\25BE"; }
 /* Next deep level in tree */
