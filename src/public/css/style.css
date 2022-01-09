@@ -6,11 +6,62 @@ body {
 	font-weight: 400;
 	line-height: 1.5;
 	color: #212529;
+	/*background-color: #161623;*/
+}
+body::before {
+	content: "";
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: linear-gradient(#f00, #f0f);
+	clip-path: circle(30% at right 70%);
+	z-index: -1;
+}
+body::after {
+	content: "";
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: linear-gradient(#2196f3, #e91e63);
+	clip-path: circle(20% at 10% 10%);
+	z-index: -1;
 }
 
 /* Cards clases */
 .card { border-left: 6px solid #1976D2; }
 .card h1 { margin: 1em; color: #1976D2; border-bottom: 1px solid #1976D2; }
+
+.cards-glass {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 1200px;
+	flex-wrap: wrap;
+}
+.card-glass {
+	position: relative;
+	display: flex;
+	width: 280px;
+	height: 400px; margin: 30px;
+	box-shadow: 20ox 20px 50px rgba(0, 0, 0, .5);
+	border-radius: 15px;
+	background: rgba(0, 0, 0, .1);
+	overflow: hidden;
+	justify-content: center;
+	align-items: center;
+	border-top: 1px solid rgba(255, 255, 255, .5);
+	border-left: 1px solid rgba(255, 255, 255, .5);
+	backdrop-filter:  blur(5px);
+}
+.card-glass .content {
+	text-align: center;
+	transition: 5s;
+}
+.card-glass p {
+	padding: 20px;
+	text-align: center;
+}
 
 /* Specific styles */
 .hide, .d-none { display: none !important; } /* force display none */

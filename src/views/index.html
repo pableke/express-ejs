@@ -18,6 +18,7 @@
 	<script type="text/javascript" src="public/js/lib-min.js"></script>
 </head>
 <body>
+	<nav>
 	<ul class="menu-phone">
 		<li><a href="#" class="d-phone sidebar-toggle" title="Show/hide left menu"><i class="fas fa-bars nav-icon"></i>Left Menu</a></li>
 	</ul>
@@ -41,54 +42,78 @@
 		<li id="14" data-padre="12"><a href="#" title="Sub Nav Link 9">Sub Nav Link 9</a></li>
 		<li id="15" data-padre="12"><a href="#" title="Sub Nav Link 10">Sub Nav Link 10</a></li>
 	</ul>
+	</nav>
 
-	<!-- progressbar -->
-	<ul id="progressbar">
-		<li class="active">Account Setup</li>
-		<li>Social Profiles</li>
-		<li>Personal Details</li>
-		<li>Resume</li>
-	</ul>
-
-	<div>
-		<br/>
-		<input type="button" name="previous" class="prev-tab action-button" value="Previous" />
-		<a href="#tab-1">go 2</a>
-		<input type="button" name="submit" class="next-tab action-button" value="Submit" />
-		<br/>
-		<a href="show-first">Fade In Alerts</a> / 
-		<a href="close-first">Fade Out Alerts</a>
-		<br/>
-		<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin"></i></a>
-		<br/><br/>
-	</div>
-
-	<div>
-		<b class="sort sort-desc"></b><b class="sort sort-none"></b><b class="sort sort-asc"></b>
-		<br/><br/>
-	</div>
-
-	<div>
-		<ul class="tags">
-			<li>asdfasd asdf</li>
-			<li>asdfa sdf</li>
+	<main>
+		<!-- progressbar -->
+		<ul id="progressbar">
+			<li class="active">Account Setup</li>
+			<li>Social Profiles</li>
+			<li>Personal Details</li>
+			<li>Resume</li>
 		</ul>
-	</div>
 
-	<script type="text/javascript">
-		dom.onclick("a[href='show-first']", el => {
-			const alert = dom.get("div.alert");
-			dom.removeClass("hide", alert).animate("fadeIn", alert);
-		});
-		dom.onclick("a[href='close-first']", el => {
-			const alert = dom.get("div.alert");
-			dom.animate("fadeOut", alert).then(el => dom.addClass("hide", el));
-		});
+		<div class="cards-glass">
+			<div class="card-glass">
+				<div class="content">
+					<h1>Card 1</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
+			</div>
+			<div class="card-glass">
+				<div class="content">
+					<h1>Card 2</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
+			</div>
+			<div class="card-glass">
+				<div class="content">
+					<h1>Card 3</h1>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
+			</div>
+		</div>
 
-		dom.onclick("a[href='loading']", el => {
-			setTimeout(dom.loading().working, 500);
-		});
-	</script>
+		<div>
+			<br/>
+			<input type="button" name="previous" class="prev-tab action-button" value="Previous" />
+			<a href="#tab-1">go 2</a>
+			<input type="button" name="submit" class="next-tab action-button" value="Submit" />
+			<br/>
+			<a href="show-first">Fade In Alerts</a> / 
+			<a href="close-first">Fade Out Alerts</a>
+			<br/>
+			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin"></i></a>
+			<br/><br/>
+		</div>
+
+		<div>
+			<b class="sort sort-desc"></b><b class="sort sort-none"></b><b class="sort sort-asc"></b>
+			<br/><br/>
+		</div>
+
+		<div>
+			<ul class="tags">
+				<li>asdfasd asdf</li>
+				<li>asdfa sdf</li>
+			</ul>
+		</div>
+
+		<script type="text/javascript">
+			dom.onclick("a[href='show-first']", el => {
+				const alert = dom.get("div.alert");
+				dom.removeClass("hide", alert).animate("fadeIn", alert);
+			});
+			dom.onclick("a[href='close-first']", el => {
+				const alert = dom.get("div.alert");
+				dom.animate("fadeOut", alert).then(el => dom.addClass("hide", el));
+			});
+
+			dom.onclick("a[href='loading']", el => {
+				setTimeout(dom.loading().working, 500);
+			});
+		</script>
+	</main>
 
 	<div class="alerts">
 		<div class="alert alert-success hide">
