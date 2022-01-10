@@ -78,7 +78,7 @@ dom.ready(function() {
 	}
 	dom.closeAlerts = function() { //hide all alerts
 		i18n.start(); //reinit. error counter
-		const tips = dom.siblings(".ui-errtip", inputs); //tips messages
+		const tips = dom.getAll(".ui-errtip"); //tips messages
 		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
 	}
 
@@ -88,7 +88,7 @@ dom.ready(function() {
 
 	// Individual input error messages
 	dom.setError = function(el) {
-		const tip = dom.siblings(".ui-errtip", el);
+		const tip = dom.get(".ui-errtip", el.parentNode);
 		return dom.showError(i18n.getError()).addClass("ui-error", el).focus(el)
 					.html(i18n.getMsg(el.name), tip).removeClass("hide", tip);
 	}
@@ -136,7 +136,6 @@ dom.ready(function() {
 	// Tabs handler
 	let tabs = dom.getAll(".tab-content.tab-active");
 	let index = dom.findIndex(".active", tabs); //current index tab
-	dom.setFocus(tabs[index]); //try to reallocate focus on active tab
 	dom.getTab = function(i) { //get tab by index
 		index = nb.range(i, 0, tabs.length - 1);
 		return tabs[index]; //get tab element
@@ -206,7 +205,7 @@ dom.ready(function() {
 
 		function fnFalse() { return false; }
 		function fnParam(data) { return data; }
-		function fnGetIds(el) { return dom.siblings("[type=hidden]", el); }
+		function fnGetIds(el) { return dom.get("[type=hidden]", el.parentNode); }
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -280,4 +279,10 @@ dom.ready(function() {
 	/*window.addEventListener("unload", ev => {
 		//dom.ajax("/session/destroy.html");
 	});*/
+
+	// Update error input styles and reallocate focus
+	dom.setFocus(tabs[index]).reverse(el => {
+		const tip = dom.get(".ui-errtip", el.parentNode);
+		dom.empty(tip) || dom.addClass("ui-error", el).focus(el);
+	}, inputs);
 });

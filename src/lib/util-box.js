@@ -12,6 +12,7 @@ const sb = require("./string-box.js");
 const valid = require("./validator-box.js");
 const i18n = require("./i18n-box.js");
 const langs = require("../i18n/i18n.js");
+const dao = require("app/dao/factory.js");
 
 const UPLOADS = {
 	keepExtensions: true,
@@ -32,6 +33,13 @@ exports.nb = nb;
 exports.sb = sb;
 exports.valid = valid;
 exports.i18n = i18n;
+
+exports.menus = function(req, res, id) { // Build menus
+	let lang = i18n.get("lang"); // current language
+	let menus = dao.web.myjson.um.getAllMenus(id); //specific user menus
+	let tpl = dao.web.myjson.menus.format(lang, menus); //build template
+	res.locals.menus = req.session.menus = tpl; //set on view and session
+}
 
 exports.post = function(req, res, next) {
 	let rawData = ""; // Buffer
