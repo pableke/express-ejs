@@ -70,9 +70,11 @@ hr { margin: 12px 0; border-top: 1px solid #1976d2; }
 /* Specific styles */
 .hide, .d-none { display: none !important; } /* force display none */
 .disabled { opacity: 0.5; pointer-events: none; text-decoration: none; }
-.text-block { margin: 15px auto; padding: 10px; width: 96%; border-radius: 8px; }
 .simple { background-color: transparent; border-color: transparent; text-decoration: none; color: inherit; }
 .simple:hover { text-decoration: none; color: inherit; }
+.text-block { margin: 15px auto; padding: 10px; width: 96%; border-radius: 8px; }
+.texterr { color: red; }
+.icon { margin: 0 4px; }
 
 .loading { position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background-color: rgba(255, 255, 255, .7); }
 .loading-content { position: absolute; top: 50%; left: 50%; text-align: center; z-index: 100; }

@@ -9,18 +9,21 @@ module.exports = function(table) {
 
 	function isParent(menu) { return menu && menu.padre; }
 	function isPublic(menu) { return ((menu.mask&1) == 1); }
+	function fnFormat(lang, menus) {
+		return ab.format(menus, ("en" == lang) ? TPL_MENU_EN : TPL_MENU_ES);
+	}
 
 	table.onLoad = function(menus) {
 		menus.each(menu => { menu.alta = new Date(menu.alta); });
 		let aux = menus.filter(isPublic);
-		esMenus = ab.format(aux, TPL_MENU_ES);
-		enMenus = ab.format(aux, TPL_MENU_EN);
+		esMenus = fnFormat("es", aux);
+		enMenus = fnFormat("en", aux);
 	}
 
 	//table.onCommit = fnUpdate;
 	table.isPublic = isPublic;
 	table.getPublic = (lang) => ("en" == lang) ? enMenus : esMenus;
-	table.format = (lang, menus)  => ab.format(menus, ("en" == lang) ? TPL_MENU_EN : TPL_MENU_ES);
+	table.format = fnFormat;
 
 	function addSubmenus(menu) {
 		table.each(submenu => {

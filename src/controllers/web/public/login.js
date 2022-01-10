@@ -1,7 +1,7 @@
 
 const jwt = require("jsonwebtoken");
 const dao = require("app/dao/factory.js");
-const { i18n, menus } = require("app/lib/util-box.js");
+const util = require("app/lib/util-box.js");
 
 const TPL_LOGIN = "web/forms/public/login";
 const TPL_ADMIN = "web/list/index";
@@ -19,20 +19,21 @@ function fnLogout(req) {
 }
 
 exports.check = function(req, res, next) {
-		menus(req, res, 1);
-	try {
-		let { usuario, clave } = req.body;
-		i18n.required("clave", clave, "errUserNotFound", "errClave"); //password
-		i18n.required("usuario", usuario, "errUserNotFound", "errUsuario"); //email or login
-		if (i18n.isError())
-			return next(i18n.getError());
+	res.setBody(TPL_LOGIN); //if error => go login
+	let lang = res.locals.lang; // current language
+	let { usuario, clave } = req.body; // post data
+	util.i18n.start().login("clave", clave, "errUserNotFound", "errClave"); //password
+	util.i18n.user("usuario", usuario, "errUserNotFound", "errUsuario"); //email or login
+	if (util.i18n.isError())
+		return next(util.i18n.getError());
 
+	try {
 		let user = dao.web.myjson.users.getUser(usuario, clave);
-		req.session.user = user;
-		menus(req, user.id);
+		util.menus(req, user.id); // update private menus
+		req.session.user = user; //store user data in session
 
 		// access allowed => go private area
-		i18n.setOk("msgLogin"); // logIn == ok
+		util.i18n.setOk("msgLogin"); // logIn == ok
 		if (req.session.redirTo) { //session helper
 			res.redirect(req.session.redirTo);
 			delete req.session.redirTo;
@@ -90,16 +91,11 @@ exports.home = function(req, res) {
 
 exports.logout = function(req, res) {
 	fnLogout(req); //click logout user
-	i18n.setOk("msgLogout");
+	util.i18n.setOk("msgLogout");
 	res.build(TPL_LOGIN);
 }
 
 exports.destroy = function(req, res) {
 	fnLogout(req); //onclose even client
     res.status(200).send("ok"); //response ok
-}
-
-exports.error = function(err, req, res, next) {
-	res.setBody(TPL_LOGIN); //same body
-	next(err); //go next error handler
 }

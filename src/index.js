@@ -27,6 +27,7 @@ app.set("views", VIEWS);
 //app.locals.components = VIEWS + "/components/"
 app.locals._tplBody = "web/index"; //default body
 app.locals.msgs = util.i18n; // set messages
+app.locals.body = {}; // data on response
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -69,7 +70,7 @@ app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	console.log("> Log:", err); // Show log for console
 	let msg = "" + (err.message || err); // Exception or message to string
-	util.i18n.setMsgError(msg); // i18n key or string
+	res.locals.body = util.i18n.setMsgError(msg).toData(); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 

@@ -6,7 +6,7 @@
 		<form id="login" method="post" action="/login.html">
 			<div class="input-group">
 				<label for="usuario" class="required"><%=msgs.get("lblUsuario")%>:</label>
-				<input type="text" id="usuario" name="usuario" value="<%=msgs.getData("usuario")%>" maxlength="200" tabindex="1" 
+				<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" maxlength="200" tabindex="1" 
 					class="input-item ui-control ui-text" title="<%=msgs.get('titUsuario')%>" placeholder="<%=msgs.get('phUsuario')%>" />
 				<i class="input-item input-icon fas fa-key"></i>
 				<div class="ui-errtip"><%=msgs.getMsg("usuario")%></div>
@@ -20,8 +20,8 @@
 			</div>
 
 			<hr/>
-			<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=msgs.get("lblAcceder")%> &raquo;</button>
-			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=msgs.get("lblLimpiar")%></button>
+			<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=msgs.get("lblAcceder")%><i class="fas fa-angle-double-right icon"></i></button>
+			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;"><i class="fas fa-undo-alt icon"></i><%=msgs.get("lblLimpiar")%></button>
 			</div>
 		</form>
 </div>
