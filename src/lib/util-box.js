@@ -35,7 +35,7 @@ exports.valid = valid;
 exports.i18n = i18n;
 
 exports.menus = function(req, res, id) { // Build menus
-	let lang = i18n.get("lang"); // current language
+	let lang = res.locals.lang; // current language
 	let menus = dao.web.myjson.um.getAllMenus(id); //specific user menus
 	let tpl = dao.web.myjson.menus.format(lang, menus); //build template
 	res.locals.menus = req.session.menus = tpl; //set on view and session

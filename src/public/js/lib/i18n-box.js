@@ -153,7 +153,7 @@ function I18nBox() {
 	}
 
 	this.get = (name) => _lang[name];
-	this.find = (name) => _lang[name] || name;
+	this.tr = (name) => _lang[name] || name;
 	this.set = function(name, value) { _lang[name] = value; return self; }
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
@@ -208,12 +208,12 @@ function I18nBox() {
 	this.getMsgs = () => MSGS;
 	this.getMsg = (name) => MSGS.get(name);
 	this.setMsg = (name, msg) => { MSGS.set(name, msg); return self; }
-	this.setOk = (msg) => self.setMsg("msgOk", self.find(msg));
-	this.setInfo = (msg) => self.setMsg("msgInfo", self.find(msg));
-	this.setWarn = (msg) => self.setMsg("msgWarn", self.find(msg));
+	this.setOk = (msg) => self.setMsg("msgOk", self.tr(msg));
+	this.setInfo = (msg) => self.setMsg("msgInfo", self.tr(msg));
+	this.setWarn = (msg) => self.setMsg("msgWarn", self.tr(msg));
 	this.getError = (name) => MSGS.get(name || KEY_ERROR);
-	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.find(msg));
-	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.find(msgtip));
+	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.tr(msg));
+	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.tr(msgtip));
 	this.getNumErrors = () => MSGS.size;
 
 	this.getData = (name) => name ? DATA.get(name) : DATA;
@@ -266,8 +266,8 @@ function I18nBox() {
 	this.cif = (name, value, msg, msgtip) => self.valid(name, valid.cif(value), msg, msgtip);
 	this.nie = (name, value, msg, msgtip) => self.valid(name, valid.nie(value), msg, msgtip);
 	this.idES = (name, value, msg, msgtip) => self.valid(name, valid.idES(value), msg, msgtip);
+	this.user = (name, value, msg, msgtip) => self.valid(name, valid.email(value) || valid.idES(value), msg, msgtip);
 
 	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
-
