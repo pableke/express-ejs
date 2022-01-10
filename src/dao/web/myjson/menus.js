@@ -3,27 +3,24 @@ const ab = require("app/lib/array-box.js");
 
 // Menus DAO
 module.exports = function(table) {
-	const TPL_MENU = '<li id="@id;" data-padre="@padre;"><a href="#" title="@title;">@nm;</a></li>';
-	const _parents = [];
-	const _submenus = [];
-	let _publicMenus;
+	const TPL_MENU_ES = '<li id="@id;" data-padre="@padre;"><a href="@href;" title="@title;"><i class="@ico; nav-icon"></i>@nm;</a></li>';
+	const TPL_MENU_EN = '<li id="@id;" data-padre="@padre;"><a href="@href;" title="@title_en;"><i class="@ico; nav-icon"></i>@nm_en;</a></li>';
+	let esMenus, enMenus;
 
-	function hasParent(menu) { return menu && menu.padre; }
+	function isParent(menu) { return menu && menu.padre; }
 	function isPublic(menu) { return ((menu.mask&1) == 1); }
-	function hasChildren(menu) { return menu && ((menu.mask&8) == 8); }
-	function setParent(menu) { menu.mask |= 8; return table; }
-	function fnSetFinal(menu) { menu.mask &= ~8; return table; }
 
 	table.onLoad = function(menus) {
 		menus.each(menu => { menu.alta = new Date(menu.alta); });
-		_publicMenus = ab.format(menus.filter(isPublic), TPL_MENU);
-	}
-	table.onCommit = function() {
-		_publicMenus = ab.format(table.filter(isPublic), TPL_MENU);
+		let aux = menus.filter(isPublic);
+		esMenus = ab.format(aux, TPL_MENU_ES);
+		enMenus = ab.format(aux, TPL_MENU_EN);
 	}
 
+	//table.onCommit = fnUpdate;
 	table.isPublic = isPublic;
-	table.getPublic = function() { return _publicMenus; }
+	table.getPublic = (lang) => ("en" == lang) ? enMenus : esMenus;
+	table.format = (lang, menus)  => ab.format(menus, ("en" == lang) ? TPL_MENU_EN : TPL_MENU_ES);
 
 	function addSubmenus(menu) {
 		table.each(submenu => {
@@ -44,7 +41,7 @@ module.exports = function(table) {
 		return submenus;
 	}
 	table.getSiblings = function(menu) {
-		return hasParent(menu) ? table.filter(row => (row.padre == menu.padre)) : [];
+		return isParent(menu) ? table.filter(row => (row.padre == menu.padre)) : [];
 	}
 	table.getChildren = function(id) {
 		return id ? table.filter(row => (row.padre == id)) : [];

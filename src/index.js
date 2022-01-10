@@ -36,6 +36,7 @@ app.use(express.json({ limit: "90mb" }));
 app.set("trust proxy", 1) // trust first proxy
 app.use(session({ //session config
 	resave: false,
+	rolling: true, // Reset expiration to maxAge
 	saveUninitialized: false,
 	genid: req => uuid.v1(), //use UUIDs for session IDs
 	secret: process.env.SESSION_SECRET,
@@ -54,14 +55,14 @@ app.use((req, res, next) => {
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
 	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
 	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
-	//res.on("finish", () => {}); // Close response event
+	res.on("finish", () => { util.i18n.reset(); }); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
 	req.session.lang = res.locals.lang = util.i18n.setI18n(lang).get("lang"); // Get language found
 
 	// Load specific user menus or public menus on view
-	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic();
+	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic(lang);
 	next(); //go next middleware
 });
 app.use(require("./routes/routes.js")); //add all routes

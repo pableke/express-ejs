@@ -265,7 +265,7 @@ module.exports = {
 	msgGuardar: "¿Desea guardar los cambios del elemento?",
 	msgGuardarOk: "Datos guardados correctamente",
 	msgUpdateOk: "Datos actualizados correctamente",
-	msgFormLogin: "Formulario para el control de acceso al panel de administración del sistema",
+	msgFormLogin: "Control de acceso al panel de administración del sistema",
 	msgSendValidate: "Datos registrados correctamente, se ha enviado un correo de verificación a su E-Mail",
 	msgValidateOk: "Bienvenid@ a la WEB de la Casa del Bosque",
 	msgFormCliente: "Formulario de alta como nuevo cliente",

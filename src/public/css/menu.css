@@ -1,7 +1,15 @@
 
 /* Menu dropdown */
 ul.menu-phone { display: none; }
-ul.menu { position: sticky; display: inline-block; width: 100%; padding: 5px; z-index: 3; background-color: #f8f9fa; }
+ul.menu {
+	position: sticky;
+	display: inline-block;
+	width: 100%;
+	padding: 5px;
+	background-color: #f8f9fa;
+	opacity: .9;
+	z-index: 3;
+}
 /* This hides all dropdowns */
 ul.menu ul { position: absolute; left: 0; display: none; background-color: #f8f9fa; }
 /* First li level: starts hide and after fadeIn by JS */
@@ -60,6 +68,7 @@ ul.tags li:hover { background-color: crimson; color: white; }
 		min-height: 100vh;
 		background-color: #f8f9fa;
 		transition: all 500ms linear;
+		opacity: 1;
 	}
 	ul.menu:hover { left: 0; }
 	ul.menu.active { left: 0; }

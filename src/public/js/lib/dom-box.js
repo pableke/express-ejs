@@ -214,7 +214,7 @@ function DomBox() {
 	this.html = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerHTML = value; }, list); }
 	this.setHtml = function(selector, value, el) { return self.html(value, self.getAll(selector, el)); }
 	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
-	this.empty = function(el) { return !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
+	this.empty = function(el) { return !el || !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
 	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
 	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
 	this.mask = function(name, mask, list) { return self.each((el, i) => el.classList.toggle(name, (mask>>i)&1), list); } //toggle class by mask

@@ -1,14 +1,9 @@
 
 const bcrypt = require("bcrypt"); //encrypt
+const i18n = require("app/lib/i18n-box.js");
 
 // User DAO
 module.exports = function(table) {
-	function fnError(msg, field, err) {
-		let error = { msgError: msg };
-		error[field] = err;
-		return error;
-	}
-
 	table.onLoad = function(users) { // build date types
 		users.each(user => { user.alta = new Date(user.alta); });
 	}
@@ -24,9 +19,9 @@ module.exports = function(table) {
 	table.getUser = function(login, pass, msgs) {
 		let user = table.findByLogin(login);
 		if (!user) // Search for user
-			throw fnError(msgs.errUserNotFound, "usuario", msgs.errUsuario);
+			throw i18n.setError("usuario", "errUserNotFound", "errUsuario");
 		if (!bcrypt.compareSync(pass, user.clave)) // Validate user password
-			throw fnError(msgs.errUserNotFound, "clave", msgs.errClave);
+			throw i18n.setError("clave", "errUserNotFound", "errClave");
 		return user;
 	}
 

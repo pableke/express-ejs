@@ -1,24 +1,27 @@
 
-<div class="wrapper">
-	<h1><%=i18n.msgFormLogin%></h1>
-	<hr/>
+<div class="cards-glass">
+	<div class="card-glass card-glass-520">
+		<h2><%=msgs.get("msgFormLogin")%></h2>
 
-	<form id="login" method="post" action="/login.html">
-		<div class="input-group">
-			<label for="usuario" class="required"><%=i18n.lblUsuario%>:</label>
-			<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titUsuario;" placeholder="<%=i18n.phUsuario%>" />
-			<i class="input-item input-icon fas fa-key"></i>
-			<span class="msg-error"><%=msgs.usuario%></span>
-		</div>
-		<div class="input-group">
-			<label for="clave" class="required"><%=i18n.lblClave%>:</label>
-			<input type="password" id="clave" name="clave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="@titClave;" placeholder="********" />
-			<i class="input-item input-icon fas fa-ellipsis-h"></i>
-			<span class="msg-error"><%=msgs.clave%></span>
-		</div>
+		<form id="login" method="post" action="/login.html">
+			<div class="input-group">
+				<label for="usuario" class="required"><%=msgs.get("lblUsuario")%>:</label>
+				<input type="text" id="usuario" name="usuario" value="<%=msgs.getData("usuario")%>" maxlength="200" tabindex="1" 
+					class="input-item ui-control ui-text" title="<%=msgs.get('titUsuario')%>" placeholder="<%=msgs.get('phUsuario')%>" />
+				<i class="input-item input-icon fas fa-key"></i>
+				<div class="ui-errtip"><%=msgs.getMsg("usuario")%></div>
+			</div>
+			<div class="input-group">
+				<label for="clave" class="required"><%=msgs.get("lblClave")%>:</label>
+				<input type="password" id="clave" name="clave" value="" maxlength="200" tabindex="2" 
+					class="input-item input-control ui-text" title="<%=msgs.get('titClave')%>" placeholder="********" />
+				<i class="input-item input-icon fas fa-ellipsis-h"></i>
+				<div class="ui-errtip"><%=msgs.getMsg("clave")%></div>
+			</div>
 
-		<hr/>
-		<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=i18n.lblAcceder%> &raquo;</button>
-		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
-	</form>
+			<hr/>
+			<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=msgs.get("lblAcceder")%> &raquo;</button>
+			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=msgs.get("lblLimpiar")%></button>
+			</div>
+		</form>
 </div>

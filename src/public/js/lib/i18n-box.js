@@ -153,6 +153,7 @@ function I18nBox() {
 	}
 
 	this.get = (name) => _lang[name];
+	this.find = (name) => _lang[name] || name;
 	this.set = function(name, value) { _lang[name] = value; return self; }
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
@@ -207,12 +208,12 @@ function I18nBox() {
 	this.getMsgs = () => MSGS;
 	this.getMsg = (name) => MSGS.get(name);
 	this.setMsg = (name, msg) => { MSGS.set(name, msg); return self; }
-	this.setOk = (msg) => self.setMsg("msgOk", msg);
-	this.setInfo = (msg) => self.setMsg("msgInfo", msg);
-	this.setWarn = (msg) => self.setMsg("msgWarn", msg);
+	this.setOk = (msg) => self.setMsg("msgOk", self.find(msg));
+	this.setInfo = (msg) => self.setMsg("msgInfo", self.find(msg));
+	this.setWarn = (msg) => self.setMsg("msgWarn", self.find(msg));
 	this.getError = (name) => MSGS.get(name || KEY_ERROR);
-	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.get(msg) || msg);
-	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.get(msgtip) || msgtip);
+	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.find(msg));
+	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.find(msgtip));
 	this.getNumErrors = () => MSGS.size;
 
 	this.getData = (name) => name ? DATA.get(name) : DATA;
@@ -220,11 +221,8 @@ function I18nBox() {
 	this.toMsgs = () => Object.fromEntries(MSGS); // Build plain object
 
 	// Save value if it is defined else error
-	this.start = function(lang, mod) {
-		DATA.clear();
-		MSGS.clear();
-		return self.setI18n(lang, mod);
-	}
+	this.reset = function() { DATA.clear(); MSGS.clear(); return self; }
+	this.start = (lang, mod) => self.reset().setI18n(lang, mod);
 	this.valid = function(name, value, msg, msgtip) {
 		if (sb.isset(value)) {
 			DATA.set(name, value);
@@ -272,3 +270,4 @@ function I18nBox() {
 	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
+
