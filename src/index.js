@@ -25,9 +25,9 @@ app.set("view engine", "ejs");
 app.set("views", VIEWS);
 //app.locals.partials = VIEWS + "/partials/";
 //app.locals.components = VIEWS + "/components/"
-app.locals._tplBody = "web/index"; //default body
-app.locals.msgs = util.i18n; // set messages
-app.locals.body = {}; // data on response
+app.locals._tplBody = "web/index"; // Default body
+app.locals.msgs = util.i18n.getMsgs(); // Set messages
+app.locals.body = {}; // Set data on response
 
 // Express configurations
 app.use("/public", express.static(path.join(__dirname, "public"))); // static files
@@ -60,7 +60,8 @@ app.use((req, res, next) => {
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = util.i18n.setI18n(lang).get("lang"); // Get language found
+	req.session.lang = res.locals.lang = util.i18n.setI18n(lang).get("lang"); // Set language id
+	res.locals.i18n = util.i18n.getLang(); // Set texts on view
 
 	// Load specific user menus or public menus on view
 	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic(lang);
@@ -68,15 +69,20 @@ app.use((req, res, next) => {
 });
 app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
-	console.log("> Log:", err); // Show log for console
-	let msg = "" + (err.message || err); // Exception or message to string
-	res.locals.body = util.i18n.setMsgError(msg).toData(); // i18n key or string
+	if (util.sb.isstr(err)) // Exception or message to string
+		util.i18n.setMsgError(err); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 
 										: res.status(500).send(util.i18n.getError());
-	else // Is non ajax request
-		res.status(500).render("index"); //render tpl body specified
+	else {
+		// Is non ajax request => reload data formated and render body
+		res.locals.body = Object.assign(req.body, util.i18n.toData());
+		res.status(500).render("index"); // Render tpl body
+	}
+
+	// Show log error for console
+	console.error("> Log:", util.i18n.getError());
 });
 app.use("*", (req, res) => { //error 404 page not found
 	util.i18n.setMsgError("err404"); //set message error on view

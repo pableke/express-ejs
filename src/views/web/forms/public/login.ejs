@@ -1,27 +1,28 @@
 
-<div class="cards-glass">
-	<div class="card-glass card-glass-520">
-		<h2><%=msgs.get("msgFormLogin")%></h2>
+<div class="form-glass">
+	<h2><%=i18n.msgFormLogin%></h2>
 
-		<form id="login" method="post" action="/login.html">
-			<div class="input-group">
-				<label for="usuario" class="required"><%=msgs.get("lblUsuario")%>:</label>
-				<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" maxlength="200" tabindex="1" 
-					class="input-item ui-control ui-text" title="<%=msgs.get('titUsuario')%>" placeholder="<%=msgs.get('phUsuario')%>" />
-				<i class="input-item input-icon fas fa-key"></i>
-				<div class="ui-errtip"><%=msgs.getMsg("usuario")%></div>
-			</div>
-			<div class="input-group">
-				<label for="clave" class="required"><%=msgs.get("lblClave")%>:</label>
-				<input type="password" id="clave" name="clave" value="" maxlength="200" tabindex="2" 
-					class="input-item input-control ui-text" title="<%=msgs.get('titClave')%>" placeholder="********" />
-				<i class="input-item input-icon fas fa-ellipsis-h"></i>
-				<div class="ui-errtip"><%=msgs.getMsg("clave")%></div>
-			</div>
+	<form id="login" method="post" action="/login.html">
+		<div class="input-item input-group-row">
+			<label for="usuario" class="required"><%=i18n.lblUsuario%>:</label>
+			<input type="text" id="usuario" name="usuario" value="<%=body.usuario%>" maxlength="200" tabindex="1" 
+				class="input-item ui-control ui-text" title="<%=i18n.titUsuario%>" placeholder="<%=i18n.phUsuario%>" />
+			<i class="input-item input-icon fas fa-key"></i>
+			<div class="ui-errtip"><%=msgs.get("usuario")%></div>
+		</div>
+		<div class="input-item input-group-row">
+			<label for="clave" class="required"><%=i18n.lblClave%>:</label>
+			<input type="password" id="clave" name="clave" value="" maxlength="200" tabindex="2" 
+				class="input-item input-control ui-text" title="<%=i18n.titClave%>" placeholder="********" />
+			<i class="input-item input-icon fas fa-ellipsis-h"></i>
+			<div class="ui-errtip"><%=msgs.get("clave")%></div>
+		</div>
 
-			<hr/>
-			<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=msgs.get("lblAcceder")%><i class="fas fa-angle-double-right icon"></i></button>
-			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;"><i class="fas fa-undo-alt icon"></i><%=msgs.get("lblLimpiar")%></button>
-			</div>
-		</form>
+		<hr/>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>"><%=i18n.lblAcceder%><i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i><%=i18n.lblLimpiar%></button>
+		</div>
+	</form>
 </div>
+
+<script src="public/js/web-min.js"></script>

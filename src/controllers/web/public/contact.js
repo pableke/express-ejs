@@ -1,24 +1,30 @@
 
 const mailer = require("app/lib/mailer.js");
+//const util = require("app/lib/util-box.js");
+const i18n = require("app/lib/i18n-box.js");
+
+const TPL_CONTACT = "web/forms/public/contact";
 
 exports.view = function(req, res) {
-	res.build("web/forms/public/contact");
+	res.build(TPL_CONTACT);
 }
 
 exports.send = function(req, res, next) {
-	let i18n = res.locals.i18n;
+	res.setBody(TPL_CONTACT); // set body tpl
+	let lang = res.locals.lang; // current language
+	let { nombre, correo, asunto, info } = req.body; // post data
+	i18n.start(lang).text("info", info, "errSendContact", "errRequired"); //textarea
+	i18n.text200("asunto", asunto, "errSendContact", "errAsunto"); //asunto
+	i18n.email("correo", correo, "errSendContact", "errCorreo"); //email
+	i18n.text200("nombre", nombre, "errSendContact", "errRequired"); //nombre
+	if (i18n.isError())
+		return next(i18n);
 
 	mailer.send({
 		to: "pableke@gmail.com",
-		subject: i18n.lblFormContact,
+		subject: i18n.get("lblFormContact"),
 		tpl: "web/emails/contact.ejs",
 		data: res.locals
-	}).then(info => res.setOk(i18n.msgCorreo).msgs())
-		.catch(err => next(i18n.errSendMail));
-}
-
-// Error handlers
-exports.error = function(err, req, res, next) {
-	res.setBody("web/forms/public/contact"); //same body
-	next(err); //go next error handler
+	}).then(info => res.send(i18n.get("msgCorreo")))
+		.catch(err => next("errSendMail"));
 }

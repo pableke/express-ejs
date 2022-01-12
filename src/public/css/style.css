@@ -31,7 +31,7 @@ body::after {
 }
 
 /* Tag clases */
-hr { margin: 12px 0; border-top: 1px solid #1976d2; }
+hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
 /* Cards clases */
 .card { border-left: 6px solid #1976D2; }
@@ -46,9 +46,9 @@ hr { margin: 12px 0; border-top: 1px solid #1976d2; }
 	max-width: 1200px;
 	flex-wrap: wrap;
 }
-.card-glass {
+.card-glass, .form-glass {
 	position: relative;
-	margin: 30px; padding: 20px;
+	margin: 30px auto; padding: 20px;
 	width: 280px; height: 400px;
 	color: #fff; text-align: center;
 	background: rgba(0, 0, 0, .1);
@@ -59,10 +59,11 @@ hr { margin: 12px 0; border-top: 1px solid #1976d2; }
 	backdrop-filter: blur(5px);
 	overflow: hidden;
 }
-.card-glass-520 {
-	width: 520px;
+.form-glass {
+	width: 90%; max-width: 900px;
+	height: 100%;
 }
-.card-glass h2 {
+.card-glass h2, .form-glass h2 {
 	margin: 5px auto;
 	width: 96%;
 }

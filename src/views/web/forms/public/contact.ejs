@@ -1,38 +1,47 @@
 
-<div class="wrapper">
-	<h1><%=i18n.lblFormContact%></h1>
-	<hr/>
+<div class="form-glass">
+	<h2><%=i18n.lblFormContact%></h2>
 
 	<form id="contact" action="/contact.html" method="post" class="ajax">
-		<div class="input-group">
-			<label for="nm" class="required"><%=i18n.lblNombre%>:</label>
-			<input type="text" id="nm" name="nm" value="" size="20" maxlength="200" class="input-item input-control" tabindex="1" title="User name" placeholder="Joe" />
+		<input type="hidden" id="token" name="token" />
+
+		<div class="input-item input-group-row">
+			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nombre" name="nombre" value="<%=body.nombre%>" maxlength="200" tabindex="1" 
+				class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nm%></span>
+			<div class="ui-errtip"><%=msgs.get("nombre")%></div>
 		</div>
 
-		<div class="input-group">
+		<div class="input-item input-group-row">
 			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
-			<input type="text" id="correo" name="correo" value="" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
+			<input type="text" id="correo" name="correo" value="<%=body.correo%>" maxlength="200" tabindex="2" 
+				class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
 			<i class="input-item input-icon far fa-envelope"></i>
-			<div class="msg-error"><%=msgs.correo%></div>
+			<div class="ui-errtip"><%=msgs.get("correo")%></div>
 		</div>
 
-		<div class="input-group">
-			<label for="asunto" class="required">Subject:</label>
-			<input type="text" id="asunto" name="asunto" value="" size="40" maxlength="200" class="input-item input-control" tabindex="7" placeholder="Type a resume" />
-			<span class="msg-error"><%=msgs.asunto%></span>
+		<div class="input-item input-group-row">
+			<label for="asunto" class="required"><%=i18n.lblAsunto%>:</label>
+			<input type="text" id="asunto" name="asunto" value="<%=body.asunto%>" maxlength="200" tabindex="7" 
+				class="input-item ui-control ui-text" placeholder="Type a resume" />
+			<i class="input-item input-icon fas fa-at"></i>
+			<div class="ui-errtip"><%=msgs.get("asunto")%></div>
 		</div>
 
-		<div class="input-group">
+		<div class="input-item input-group-row">
 			<label for="info" class="required">Informacion:</label>
-			<textarea id="info" name="info" class="input-item input-control" tabindex="8" cols="62" rows="6" maxlength="600"></textarea>
+			<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"><%=body.info%></textarea>
 			<span class="msg-error"></span>
 			<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
+			<div class="ui-errtip"><%=msgs.get("info")%></div>
 		</div>
 
 		<hr/>
-		<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;"><%=i18n.lblEnviar%> &raquo;</button>
-		<button type="reset" class="btn btn-light" tabindex="101" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>"><%=i18n.lblEnviar%><i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i><%=i18n.lblLimpiar%></button>
 	</form>
 </div>
+
+<script src="public/js/web-min.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ"></script>

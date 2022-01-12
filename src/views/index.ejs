@@ -4,10 +4,10 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="author" content="Pablo Rosique Vidal" />
-	<meta name="keywords" content="<%=msgs.get("msgMetaKeywords")%>" />
-	<meta name="description" content="<%=msgs.get("msgMetaDescription")%>" />
+	<meta name="keywords" content="<%=i18n.msgMetaKeywords%>" />
+	<meta name="description" content="<%=i18n.msgMetaDesc%>" />
 
-	<title><%=msgs.get("lblEmpresaNombre")%></title>
+	<title><%=i18n.lblEmpresaNombre%></title>
 	<link rel="icon" type="image/x-icon" href="/public/img/upct-azul-logo.png" />
 
 	<!-- google fonts -->
@@ -50,22 +50,22 @@
 	<div class="alerts">
 		<div class="alert alert-success hide">
 			<div class="alert-icon"><img src="/public/img/png/check.png"></div>
-			<div class="alert-text"><%=msgs.getMsg("msgOk")%></div>
+			<div class="alert-text"><%=msgs.get("msgOk")%></div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-info hide">
 			<div class="alert-icon"><img src="/public/img/png/info-about.png"></div>
-			<div class="alert-text"><%=msgs.getMsg("msgInfo")%></div>
+			<div class="alert-text"><%=msgs.get("msgInfo")%></div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-warn hide">
 			<div class="alert-icon"><img src="/public/img/png/warning2.png"></div>
-			<div class="alert-text"><%=msgs.getMsg("msgWarn")%></div>
+			<div class="alert-text"><%=msgs.get("msgWarn")%></div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-danger hide">
 			<div class="alert-icon"><img src="/public/img/png/error.png"></div>
-			<div class="alert-text"><%=msgs.getMsg("msgError")%></div>
+			<div class="alert-text"><%=msgs.get("msgError")%></div>
 			<div class="alert-close">&times;</div>
 		</div>
 	</div>
