@@ -32,9 +32,8 @@ dom.ready(function() {
 				.event("animationend", handleAnimationEnd, list);
 		});
 	}
-	dom.cssAnimate = function(selector, animation) {
-		return dom.animate(animation, dom.getAll(selector));
-	}
+	dom.fadeIn = (list) => { dom.removeClass("hide", list).animate("fadeIn", ); return dom; }
+	dom.fadeOut = (list) => { dom.animate("fadeOut", list).then(el => dom.addClass("hide", el)); return dom; }
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
@@ -44,7 +43,7 @@ dom.ready(function() {
 	// Loading div
 	const _loading = _top.previousElementSibling;
 	dom.loading = () => dom.removeClass("hide", _loading).closeAlerts();
-	dom.working = () => dom.animate("fadeOut", _loading).then(el => dom.addClass("hide", el));
+	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
 
 	// Inputs helpers
@@ -63,9 +62,9 @@ dom.ready(function() {
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
-	function showAlert(el) { return dom.removeClass("hide", el.parentNode).animate("fadeIn", el.parentNode); }
-	function closeAlert(el) { return dom.animate("fadeOut", el.parentNode).then(alert => dom.addClass("hide", alert)); }
-	function setAlert(el, txt) { return txt ? showAlert(el).html(txt, el).scroll() : dom; }
+	function setAlert(el, txt) {
+		return txt ? dom.fadeIn(el.parentNode).html(txt, el).scroll() : dom;
+	}
 
 	dom.isOk = i18n.isOk;
 	dom.isError = i18n.isError;
@@ -79,12 +78,12 @@ dom.ready(function() {
 	dom.closeAlerts = function() { //hide all alerts
 		i18n.start(); //reinit. error counter
 		const tips = dom.getAll(".ui-errtip"); //tips messages
-		return dom.each(closeAlert, texts).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
+		return dom.addClass("hide", alerts.children).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
 	}
 
 	// Show posible server messages and close click event
-	dom.each(el => { el.firstChild && showAlert(el); }, texts)
-		.click(closeAlert, dom.getAll(".alert-close", alerts));
+	dom.each(el => { el.firstChild && dom.fadeIn(el.parentNode); }, texts)
+		.click(el => dom.fadeOut(el.parentNode), dom.getAll(".alert-close", alerts));
 
 	// Individual input error messages
 	dom.setError = function(el) {
@@ -103,7 +102,9 @@ dom.ready(function() {
 		return dom;
 	}
 	dom.setErrors = function(data) {
-		dom.closeAlerts(); //init. errros
+		dom.closeAlerts(); //close prev errros
+		if (sb.isstr(data)) //Is string
+			return dom.showError(data);
 		for (const k in data) //errors list
 			dom.addError("[name='" + k + "']", null, data[k]);
 		return dom.showAlerts(data); //show global menssages
@@ -121,6 +122,12 @@ dom.ready(function() {
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.required = (selector, msg, msgtip) => dom.isRequired(dom.getInput(selector), msg, msgtip);
+	dom.isLogin = (el, msg, msgtip) => (!el || i18n.login(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	dom.login = (selector, msg, msgtip) => dom.isLogin(dom.getInput(selector), msg, msgtip);
+	dom.isEmail = (el, msg, msgtip) => (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+	dom.email = (selector, msg, msgtip) => dom.isEmail(dom.getInput(selector), msg, msgtip);
+	dom.isUser = (el, msg, msgtip) => (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+	dom.user = (selector, msg, msgtip) => dom.isUser(dom.getInput(selector), msg, msgtip);
 	dom.isIntval = (el, msg, msgtip) => (!el || i18n.intval(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.intval = (selector, msg, msgtip) => dom.isIntval(dom.getInput(selector), msg, msgtip);
 	dom.isGt0 = (el, msg, msgtip) => (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
@@ -195,7 +202,7 @@ dom.ready(function() {
 		return dom.loading().fetch({
 			action: action,
 			resolve: resolve || dom.showOk,
-			reject: reject || dom.showError
+			reject: reject || dom.setErrors
 		}).catch(dom.showError) //error handler
 			.finally(dom.working); //allways
 	}

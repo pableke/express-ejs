@@ -3,6 +3,7 @@ const fs = require("fs"); //file system module
 const path = require("path"); //file and directory paths
 const nodemailer = require("nodemailer"); //send emails
 const ejs = require("ejs"); //tpl engine
+const i18n = require("app/lib/i18n-box.js");
 
 // create reusable transporter object using the default SMTP transport
 // allow non secure apps to access gmail: https://myaccount.google.com/lesssecureapps
@@ -27,7 +28,7 @@ const MESSAGE = {
 	from: "info@gmail.com", // sender address
 	to: "pablo.rosique@upct.es", // list of receivers
 	tpl: "tests/emails/test.ejs", // default template
-	subject: "", // Subject line
+	subject: "Mailer no reply", // Subject line
 	text: "Email submitted", // plain text body
 	html: "<html><body>Email submitted</body></html>" // html contents
 	/*attachments: [ // array of attachment objects

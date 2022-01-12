@@ -22,10 +22,10 @@ exports.check = function(req, res, next) {
 	res.setBody(TPL_LOGIN); //if error => go login
 	let lang = res.locals.lang; // current language
 	let { usuario, clave } = req.body; // post data
-	util.i18n.start().login("clave", clave, "errUserNotFound", "errClave"); //password
+	util.i18n.start(lang).login("clave", clave, "errUserNotFound", "errClave"); //password
 	util.i18n.user("usuario", usuario, "errUserNotFound", "errUsuario"); //email or login
 	if (util.i18n.isError())
-		return next(util.i18n.getError());
+		return next(util.i18n);
 
 	try {
 		let user = dao.web.myjson.users.getUser(usuario, clave);
@@ -41,20 +41,19 @@ exports.check = function(req, res, next) {
 		else
 			res.build(TPL_ADMIN);
 	} catch (ex) {
-		next(ex.getError());
+		next(ex);
 	}
 }
 exports.auth = function(req, res, next) {
 	res.setBody(TPL_LOGIN); //if error => go login
 	if (!req.session || !req.sessionID) //not session found
 		return next("err401");
+	// Update session helper
 	req.session.redirTo = !req.xhr && (req.method == "GET") && req.originalUrl;
-	if (!req.session.ssId) //user not logged
+	if (!req.session.user) //user not logged
 		return next("err401");
-	if (req.session.cookie.maxAge < 1) {
-		fnLogout(req); //time session expired
+	if (req.session.cookie.maxAge < 1) //time session expired
 		return next("endSession");
-	}
 	delete req.session.redirTo;
 	next(); //next middleware
 }
