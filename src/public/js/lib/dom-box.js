@@ -252,10 +252,18 @@ function DomBox() {
 	}
 
 	const TEMPLATES = {}; //container
+	this.setTpl = function(name, tpl) {
+		TEMPLATES[name] = tpl;
+		return self;
+	}
+	this.loadTemplates = function() {
+		return self.each(tpl => self.setTpl(tpl.id, tpl.innerHTML), self.getAll("template"));
+	}
 	this.render = function(el, formatter) {
-		el.id = el.id || fnId(); //tpl associate by id
-		TEMPLATES[el.id] = TEMPLATES[el.id] || el.innerHTML;
-		el.innerHTML = formatter(TEMPLATES[el.id]);
+		el.id = el.id || fnId(); // force unique id for element
+		let key = el.dataset.tpl || el.id; // tpl asociated
+		TEMPLATES[key] = TEMPLATES[key] || el.innerHTML;
+		el.innerHTML = formatter(TEMPLATES[key]);
 		el.classList.toggle(HIDE, !el.innerHTML);
 		return self;
 	}

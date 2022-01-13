@@ -108,7 +108,7 @@ gulp.task("watch", () => {
 	gulp.watch(MODULES, gulp.series("copy-modules"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_LIB, gulp.series("minify-js"));
-	gulp.watch(JS_WEB, gulp.series("minify-js-uae"));
+	gulp.watch(JS_UAE, gulp.series("minify-js-uae"));
 	gulp.watch(JS_WEB, gulp.series("minify-js-web"));
 	// Other watchers ...
 });

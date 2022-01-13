@@ -78,12 +78,41 @@
 			<a href="close-first">Fade Out Alerts</a>
 			<br/>
 			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin"></i></a>
-			<br/><br/>
-		</div>
 
-		<div>
-			<b class="sort sort-desc"></b><b class="sort sort-none"></b><b class="sort sort-asc"></b>
-			<br/><br/>
+			<table id="pruebas" data-size="2" data-total="50">
+				<thead>
+					<tr>
+						<th>C1<a href="#" class="sort sort-none"></a></th>
+						<th>C2<a href="#" class="sort sort-none"></a></th>
+						<th>C3<a href="#" class="sort sort-none"></a></th>
+					</tr>
+				</thead>
+				<tbody id="pruebas-row">
+					<tr class="tb-data">
+						<td>F1 - C1</td>
+						<td>F1 - C2</td>
+						<td>F1 - C3</td>
+					</tr>
+					<tr class="tb-data">
+						<td>F2 - C1</td>
+						<td>F2 - C2</td>
+						<td>F2 - C3</td>
+					</tr>
+				</tbody>
+				<tbody class="no-data">
+					<tr><td colspan="3"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
+				</tbody>
+				<tfoot>
+					<tr><td colspan="3">Filas: @size; / @total;</td></tr>
+				</tfoot>
+			</table>
+			<template id="pruebas-row">
+				<tr class="tb-data">
+					<td>F1 - C1</td>
+					<td>F1 - C2</td>
+					<td>F1 - C3</td>
+				</tr>
+			</template>
 		</div>
 
 		<div class="text-block alert-primary">
@@ -110,6 +139,10 @@
 
 			dom.onclick("a[href='loading']", el => {
 				setTimeout(dom.loading().working, 500);
+			});
+
+			dom.ready(function() {
+				dom.loadTemplates().reloadTable("#pruebas", [{}, {}, {}], { total: 50 });
 			});
 		</script>
 	</main>

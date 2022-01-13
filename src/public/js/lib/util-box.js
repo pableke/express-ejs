@@ -165,10 +165,16 @@ dom.ready(function() {
 	});
 
 	// Tables helper
-	const tables = dom.getAll("table.tb-xeco");
+	const tables = dom.getAll("table");
 	function fnToggleTbody(table) {
 		let tr = dom.get("tr.tb-data", table); //has data rows?
 		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
+	}
+	function fnToggleOrder(links, link, dir) {
+		dir = dir || (dom.hasClass("sort-asc", link) ? "desc" : "asc");
+		dom.removeClass("sort-asc sort-desc", links) // Remove prev order
+			.addClass("sort-none", links) // Reset all orderable columns
+			.swap("sort-none sort-" + dir, link); // Column to order table
 	}
 
 	dom.getTable = (selector) => dom.find(selector, tables);
@@ -176,16 +182,21 @@ dom.ready(function() {
 	dom.reloadTable = function(selector, data, resume, styles) {
 		resume.size = data.length; //numrows
 		return dom.each(table => {
+			const links = dom.getAll(".sort", table.tHead); // All orderable columns
+			const link = dom.find(".sort-" + resume.sortBy, links); // Ordered column
+			link && fnToggleOrder(links, link, resume.sortDir); // Update sort icons
+
 			dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles))
 				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles));
 			fnToggleTbody(table); // Toggle body if no data
-
-			const columns = dom.getAll(".sort", table.tHead); // All orderable columns
-			dom.removeClass("sort-asc sort-desc", columns).addClass("sort-none", columns) // Reset all orderable columns
-				.swap("sort-none sort-" + resume.sortDir, dom.find(".sort-" + resume.sortBy, columns)); // Column to order table
 		}, dom.getTables(selector));
 	}
-	dom.each(fnToggleTbody, tables);
+	dom.each(table => { // Initialize all tables
+		const links = dom.getAll(".sort", table.tHead); // All orderable columns
+		dom.click(el => fnToggleOrder(links, el), links) // Add click event for order table
+			.render(table.tFoot, tpl => sb.format(table.dataset, tpl)); // Try to update footer
+		fnToggleTbody(table); // Toggle body if no data
+	}, tables);
 
 	// Extends internacionalization
 	dom.tr = function(selector, opts) {
