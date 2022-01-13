@@ -1,5 +1,5 @@
 
-table { margin:auto; width:96%; border-collapse: collapse; }
+table { margin: 20px auto; width:96%; border-collapse: collapse; }
 thead { border-bottom: solid 1px #000; }
 tfoot { font-weight:bold; border-top: 1px dashed #000; }
 
@@ -11,8 +11,9 @@ tr.data:hover { background-color: #E6E6FA; }
 .sort {
 	display: inline-block;
 	margin-left: 5px;
+	width: 40px;
 	font-size: x-large;
-	cursor: pointer;
+	text-decoration: none;
 }
 .sort-none:after { content: "\25B4\25BE"; }
 .sort-desc:after { content: "\25BE"; }

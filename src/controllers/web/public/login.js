@@ -34,12 +34,11 @@ exports.check = function(req, res, next) {
 
 		// access allowed => go private area
 		util.i18n.setOk("msgLogin"); // logIn == ok
-		if (req.session.redirTo) { //session helper
+		if (req.session.redirTo) //session helper
 			res.redirect(req.session.redirTo);
-			delete req.session.redirTo;
-		}
 		else
 			res.build(TPL_ADMIN);
+		delete req.session.redirTo;
 	} catch (ex) {
 		next(ex);
 	}

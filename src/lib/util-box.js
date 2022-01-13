@@ -84,3 +84,6 @@ exports.multipart = function(req, res, next) { //validate all form post
 	form.once("end", () => next());
 	form.parse(req);
 }
+
+exports.pagination = function(req, res, data, resume) {
+}

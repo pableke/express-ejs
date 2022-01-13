@@ -21,6 +21,7 @@ dom.ready(function() {
 		});
 	}, dom.get("#contact"));
 
+	// Non AJAX Forms
 	dom.submit((form) => {
 		return dom.closeAlerts()
 					.login("#clave", "errUserNotFound", "errRegex") //password

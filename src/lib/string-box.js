@@ -71,22 +71,22 @@ function StringBox() {
 
 	//chunk string in multiple parts
 	this.ltr = function(str, size) {
-		var result = []; //parts container
+		const result = []; //parts container
 		for (var i = fnSize(str); i > size; i -= size)
 			result.unshift(str.substr(i - size, size));
 		(i > 0) && result.unshift(str.substr(0, i));
 		return result;
 	}
 	this.rtl = function(str, size) {
-		var result = []; //parts container
+		const result = []; //parts container
 		var n = fnSize(str); //maxlength
 		for (var i = 0; i < n; i += size)
 			result.push(str.substr(i, size));
 		return result;
 	}
 	this.slices = function(str, sizes) {
+		const result = []; //parts container
 		var j = 0; //string position
-		var result = []; //parts container
 		var k = fnSize(str); //maxlength
 		for (let i = 0; (j < k) && (i < sizes.length); i++) {
 			let n = sizes[i];
