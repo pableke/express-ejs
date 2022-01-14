@@ -79,12 +79,12 @@
 			<br/>
 			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin"></i></a>
 
-			<table id="pruebas" data-size="2" data-total="50">
+			<table id="pruebas" data-sort-by="c2" data-sort-dir="desc" data-page-size="1" data-total="50">
 				<thead>
 					<tr>
-						<th>C1<a href="#" class="sort sort-none"></a></th>
-						<th>C2<a href="#" class="sort sort-none"></a></th>
-						<th>C3<a href="#" class="sort sort-none"></a></th>
+						<th>C1<a href="#" class="sort sort-none sort-c1"></a></th>
+						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
+						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
 					</tr>
 				</thead>
 				<tbody id="pruebas-row">
@@ -102,16 +102,22 @@
 				<tbody class="no-data">
 					<tr><td colspan="3"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
-				<tfoot>
-					<tr><td colspan="3">Filas: @size; / @total;</td></tr>
+				<tfoot data-tpl="pruebas-footer">
+					<tr><td colspan="3">Filas: 2 / 3</td></tr>
 				</tfoot>
 			</table>
+			<div class="pagination"></div>
+
+			<!-- pruebas templates -->
 			<template id="pruebas-row">
 				<tr class="tb-data">
 					<td>F1 - C1</td>
 					<td>F1 - C2</td>
 					<td>F1 - C3</td>
 				</tr>
+			</template>
+			<template id="pruebas-footer">
+				<tr><td colspan="3">Filas: @size; / @total;</td></tr>
 			</template>
 		</div>
 
@@ -142,7 +148,8 @@
 			});
 
 			dom.ready(function() {
-				dom.loadTemplates().reloadTable("#pruebas", [{}, {}, {}], { total: 50 });
+				dom.loadTemplates().reloadTable("#pruebas", [{}, {}, {}], {})
+					.event("pagination-end", console.log, dom.get(".pagination"));
 			});
 		</script>
 	</main>

@@ -148,6 +148,7 @@ dom.ready(function() {
 		return tabs[index]; //get tab element
 	}
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
+	dom.hrefIndex = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
 	dom.goTab = (tab) => dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 	dom.showTab = (i) => dom.goTab(dom.getTab(i)); //show tab by index
 	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
@@ -160,43 +161,9 @@ dom.ready(function() {
 	dom.onclick("a[href='#prev-tab']", dom.prevTab);
 	dom.onclick("a[href='#next-tab']", dom.nextTab);
 	dom.onclick("a[href^='#tab-']", el => {
-		let i = el.href.substr(el.href.lastIndexOf("-") + 1);
+		const i = dom.hrefIndex(el.href, tabs.length - 1);
 		return !dom.progressbar(i).viewTab(i);
 	});
-
-	// Tables helper
-	const tables = dom.getAll("table");
-	function fnToggleTbody(table) {
-		let tr = dom.get("tr.tb-data", table); //has data rows?
-		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
-	}
-	function fnToggleOrder(links, link, dir) {
-		dir = dir || (dom.hasClass("sort-asc", link) ? "desc" : "asc");
-		dom.removeClass("sort-asc sort-desc", links) // Remove prev order
-			.addClass("sort-none", links) // Reset all orderable columns
-			.swap("sort-none sort-" + dir, link); // Column to order table
-	}
-
-	dom.getTable = (selector) => dom.find(selector, tables);
-	dom.getTables = (selector) => dom.filter(selector, tables);
-	dom.reloadTable = function(selector, data, resume, styles) {
-		resume.size = data.length; //numrows
-		return dom.each(table => {
-			const links = dom.getAll(".sort", table.tHead); // All orderable columns
-			const link = dom.find(".sort-" + resume.sortBy, links); // Ordered column
-			link && fnToggleOrder(links, link, resume.sortDir); // Update sort icons
-
-			dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles))
-				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles));
-			fnToggleTbody(table); // Toggle body if no data
-		}, dom.getTables(selector));
-	}
-	dom.each(table => { // Initialize all tables
-		const links = dom.getAll(".sort", table.tHead); // All orderable columns
-		dom.click(el => fnToggleOrder(links, el), links) // Add click event for order table
-			.render(table.tFoot, tpl => sb.format(table.dataset, tpl)); // Try to update footer
-		fnToggleTbody(table); // Toggle body if no data
-	}, tables);
 
 	// Extends internacionalization
 	dom.tr = function(selector, opts) {
