@@ -351,5 +351,5 @@ function DomBox() {
 	this.onkeydown = function(selector, fn) { return self.keydown(fn, self.getAll(selector)); }
 	this.submit = function(fn, list) { return self.each((el, i) => fnEvent("submit", el, i, fn), list); }
 	this.onsubmit = function(selector, fn) { return self.submit(fn, self.getAll(selector)); }
-	this.trigger = function(name, list) { return self.each(el => el.dispatchEvent(new Event(name)), list); }
+	this.trigger = function(name, ev, list) { return self.each(el => el.dispatchEvent(ev || new Event(name)), list); }
 }
