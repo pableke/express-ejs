@@ -14,8 +14,7 @@ dom.ready(function() {
 			.addClass("sort-none", links) // Reset all orderable columns
 			.swap("sort-none sort-" + dir, link); // Column to order table
 	}
-
-	dom.pagination = function(table) { // Paginate table
+	function fnPagination(table) { // Paginate table
 		const pageSize = nb.intval(table.dataset.pageSize);
 		const pagination = dom.get(".pagination", table.parentNode);
 		if (pagination && (pageSize > 0)) {
@@ -24,52 +23,56 @@ dom.ready(function() {
 
 			function renderPagination(page) {
 				let output = ""; // Output buffer
-				function addPage(i, text) {
+				function addControl(i, text) {
 					i = nb.range(i, 0, pages - 1); // Close range limit
-					text = text || (i + 1); // Define text to show
+					output += '<a href="#page-' + i + '">' + text + '</a>';
+				}
+				function addPage(i) {
+					i = nb.range(i, 0, pages - 1); // Close range limit
 					output += '<a href="#page-' + i + '"';
 					output += (i == page) ? ' class="active">' : '>';
-					output += text + '</a>';
+					output += (i + 1) + '</a>';
 				}
 
 				let i = 0; // Index
-				addPage(page - 1, "&laquo;");
+				addControl(page - 1, "&laquo;");
 				(pages > 1) && addPage(0);
 				i = Math.max(page - 3, 1);
-				(i > 2) && addPage(i - 1, "...");
+				(i > 2) && addControl(i - 1, "...");
 				let max = Math.min(page + 3, pages);
 				while (i < max)
 					addPage(i++);
-				(i < (pages - 1)) && addPage(i, "...");
+				(i < (pages - 1)) && addControl(i, "...");
 				(i < pages) && addPage(pages - 1);
-				addPage(page + 1, "&raquo;");
+				addControl(page + 1, "&raquo;");
 				pagination.innerHTML = output;
 
 				dom.click(el => { // Reload pagination click event
 					const i = dom.hrefIndex(el.href, pages - 1); // Current index
 					const params = { index: i * pageSize, length: pageSize }; // Event data
-					const ev = new CustomEvent("pagination-end", { "detail": params });
+					const ev = new CustomEvent("pagination", { "detail": params });
 
 					renderPagination(i); // Render all pages
 					table.dataset.page = i; // Update current
-					pagination.dispatchEvent(ev); // Triger event
+					table.dispatchEvent(ev); // Triger event
 				}, dom.getAll("a", pagination));
 			}
 			renderPagination(table.dataset.page);
 		}
-		return dom;
 	}
 
-	dom.reloadTable = function(selector, data, resume, styles) {
+	dom.renderTable = function(table, data, resume, styles) {
 		resume.size = data.length; //numrows
-		return dom.each(table => {
-			resume.total = +table.dataset.total || resume.size; // Total rows
-			dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
-				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
+		resume.total = +table.dataset.total || resume.size; // Total rows
+		dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
+			.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 
-			fnToggleTbody(table); // Toggle body if no data
-			dom.pagination(table); // Update pagination
-		}, dom.getTables(selector));
+		fnToggleTbody(table); // Toggle body if no data
+		fnPagination(table); // Update pagination
+		return dom;
+	}
+	dom.renderTables = function(selector, data, resume, styles) {
+		return dom.each(table => dom.renderTable(table, data, resume, styles), dom.getTables(selector));
 	}
 
 	// Initialize all tables
@@ -87,6 +90,6 @@ dom.ready(function() {
 		}, links); // Add click event for order table
 
 		fnToggleTbody(table); // Toggle body if no data
-		dom.pagination(table); // Update pagination
+		fnPagination(table); // Update pagination
 	}, tables);
 });
