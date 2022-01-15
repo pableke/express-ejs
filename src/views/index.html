@@ -148,8 +148,10 @@
 			});
 
 			dom.ready(function() {
-				dom.loadTemplates().reloadTable("#pruebas", [{}, {}, {}], {})
-					.event("pagination-end", console.log, dom.get(".pagination"));
+				const table = dom.getTable("#pruebas");
+				dom.loadTemplates()
+					.renderTable(table, [{}, {}, {}], {})
+					.event("pagination", console.log, table);
 			});
 		</script>
 	</main>

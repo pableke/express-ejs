@@ -257,7 +257,7 @@ function DomBox() {
 		return self;
 	}
 	this.loadTemplates = function() {
-		return self.each(tpl => self.setTpl(tpl.id, tpl.innerHTML), self.getAll("template"));
+		return self.each(tpl => self.setTpl(tpl.id, tpl.innerHTML), self.getAll("template[id]"));
 	}
 	this.render = function(el, formatter) {
 		el.id = el.id || fnId(); // force unique id for element
