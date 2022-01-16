@@ -150,8 +150,8 @@
 				dom.loadTemplates()
 					.event("change", el => console.log("change"), table)
 					.event("find", (el, i, ev) => console.log("find", ev.detail), table)
+					.event("remove", (el, i, ev) => console.log("remove", ev.detail), table) // OJO: recalcular resumen para footer
 					.event("pagination", (el, i, ev) => console.log("pagination", ev.detail), table)
-					.event("remove", (el, i, ev) => { console.log("remove", ev.detail); dom.renderTfoot(table, resume); }, table)
 					.renderTable(table, data, resume);
 
 				dom.onclick("a[href='show-first']", el => {
