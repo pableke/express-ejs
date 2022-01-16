@@ -85,6 +85,7 @@
 						<th>C1<a href="#" class="sort sort-none sort-c1"></a></th>
 						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
 						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
+						<th>Acciones</th>
 					</tr>
 				</thead>
 				<tbody id="pruebas-row">
@@ -92,11 +93,13 @@
 						<td>F1 - C1</td>
 						<td>F1 - C2</td>
 						<td>F1 - C3</td>
+						<td><a href="#remove-@index;"><i class="fa fa-times"></i></a></td>
 					</tr>
 					<tr class="tb-data">
 						<td>F2 - C1</td>
 						<td>F2 - C2</td>
 						<td>F2 - C3</td>
+						<td><a href="#remove-@index;"><i class="fa fa-times"></i></a></td>
 					</tr>
 				</tbody>
 				<tbody class="no-data">
@@ -114,10 +117,14 @@
 					<td>F1 - C1</td>
 					<td>F1 - C2</td>
 					<td>F1 - C3</td>
+					<td>
+						<a href="#find-@index;">Editar</a>
+						<a href="#remove-@index;"><i class="fa fa-times"></i></a>
+					</td>
 				</tr>
 			</template>
 			<template id="pruebas-footer">
-				<tr><td colspan="3">Filas: @size; / @total;</td></tr>
+				<tr><td colspan="4">Filas: @size; / @total;</td></tr>
 			</template>
 		</div>
 
@@ -134,24 +141,34 @@
 		</div>
 
 		<script type="text/javascript">
-			dom.onclick("a[href='show-first']", el => {
-				const alert = dom.get("div.alert");
-				dom.removeClass("hide", alert).animate("fadeIn", alert);
-			});
-			dom.onclick("a[href='close-first']", el => {
-				const alert = dom.get("div.alert");
-				dom.animate("fadeOut", alert).then(el => dom.addClass("hide", el));
-			});
-
-			dom.onclick("a[href='loading']", el => {
-				setTimeout(dom.loading().working, 500);
-			});
 
 			dom.ready(function() {
 				const table = dom.getTable("#pruebas");
+				const data = [{id:1}, {id:2}, {id:3}];
+				const resume = {};
+
 				dom.loadTemplates()
-					.renderTable(table, [{}, {}, {}], {})
-					.event("pagination", console.log, table);
+					.event("change", el => console.log("change"), table)
+					.event("find", (el, i, ev) => console.log("find", ev.detail), table)
+					.event("pagination", (el, i, ev) => console.log("pagination", ev.detail), table)
+					.event("remove", (el, i, ev) => { console.log("remove", ev.detail); dom.renderTfoot(table, resume); }, table)
+					.renderTable(table, data, resume);
+
+				dom.onclick("a[href='show-first']", el => {
+					resume.total++;
+					data.push({id:4});
+					dom.renderTable(table, data, resume);
+					const alert = dom.get("div.alert");
+					dom.removeClass("hide", alert).animate("fadeIn", alert);
+				});
+				dom.onclick("a[href='close-first']", el => {
+					const alert = dom.get("div.alert");
+					dom.animate("fadeOut", alert).then(el => dom.addClass("hide", el));
+				});
+
+				dom.onclick("a[href='loading']", el => {
+					setTimeout(dom.loading().working, 500);
+				});
 			});
 		</script>
 	</main>
