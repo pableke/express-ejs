@@ -62,13 +62,10 @@ dom.ready(function() {
 		return dom;
 	}
 
-	dom.renderTfoot = function(table, resume, styles) {
-		return dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)); // Render footer
-	}
 	dom.renderRows = function(table, data, resume, styles) {
 		resume.size = data.length; // Numrows
 		resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
-		dom.renderTfoot(table, resume, styles) // Render footer
+		dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
 			.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 
 		dom.click((el, i) => { // Find data event
@@ -79,7 +76,7 @@ dom.ready(function() {
 			if (i18n.confirm(msg)) {
 				const ev = new CustomEvent("remove", { "detail": data[i] });
 
-				el.closest("tr").remove(); // Remove from table view
+				el.closest("tr").remove(); // Remove from view
 				data.splice(i, 1); // Remove from data
 
 				resume.total--;
