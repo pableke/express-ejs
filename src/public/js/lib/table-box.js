@@ -7,7 +7,7 @@ dom.ready(function() {
 
 	function fnToggleTbody(table) {
 		let tr = dom.get("tr.tb-data", table); //has data rows?
-		dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
+		return dom.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
 	}
 	function fnToggleOrder(links, link, dir) { // Update all sort indicators
 		dom.removeClass("sort-asc sort-desc", links) // Remove prev order
@@ -19,7 +19,7 @@ dom.ready(function() {
 		const pagination = dom.get(".pagination", table.parentNode);
 		if (pagination && (pageSize > 0)) {
 			table.dataset.page = nb.intval(table.dataset.page);
-			let pages = Math.ceil(+table.dataset.total / pageSize);
+			let pages = Math.ceil(table.dataset.total / pageSize);
 
 			function renderPagination(page) {
 				let output = ""; // Output buffer
@@ -59,17 +59,42 @@ dom.ready(function() {
 			}
 			renderPagination(table.dataset.page);
 		}
+		return dom;
+	}
+
+	dom.renderTfoot = function(table, resume, styles) {
+		return dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)); // Render footer
+	}
+	dom.renderRows = function(table, data, resume, styles) {
+		resume.size = data.length; // Numrows
+		resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
+		dom.renderTfoot(table, resume, styles) // Render footer
+			.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
+
+		dom.click((el, i) => { // Find data event
+			table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
+		}, dom.getAll("a[href^='#find-']", table));
+		dom.click((el, i) => { // Remove event
+			let msg = styles?.remove || "remove";
+			if (i18n.confirm(msg)) {
+				const ev = new CustomEvent("remove", { "detail": data[i] });
+
+				el.closest("tr").remove(); // Remove from table view
+				data.splice(i, 1); // Remove from data
+
+				resume.total--;
+				table.dispatchEvent(ev); // Triger event
+				dom.renderRows(table, data, resume, styles);
+			}
+		}, dom.getAll("a[href^='#remove-']", table));
+
+		table.dispatchEvent(new Event("change")); // Triger event
+		return fnToggleTbody(table); // Toggle body if no data
 	}
 
 	dom.renderTable = function(table, data, resume, styles) {
-		resume.size = data.length; //numrows
-		resume.total = +table.dataset.total || resume.size; // Total rows
-		dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
-			.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
-
-		fnToggleTbody(table); // Toggle body if no data
-		fnPagination(table); // Update pagination
-		return dom;
+		dom.renderRows(table, data, resume, styles);
+		return fnPagination(table); // Update pagination
 	}
 	dom.renderTables = function(selector, data, resume, styles) {
 		return dom.each(table => dom.renderTable(table, data, resume, styles), dom.getTables(selector));

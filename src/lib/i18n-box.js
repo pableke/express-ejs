@@ -202,7 +202,7 @@ function I18nBox() {
 	this.acTime = (str) => _lang.acTime(str);
 
 	this.fmtBool = (val) => _lang.fmtBool(val);
-	this.confirm = (key) => confirm(_lang[key]);
+	this.confirm = (msg) => confirm(self.tr(msg));
 	this.val = (obj, name) => _lang.val(obj, name);
 	this.arrval = function(name, i) {
 		let arr = _lang[name];
