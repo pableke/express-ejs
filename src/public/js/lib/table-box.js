@@ -111,6 +111,13 @@ dom.ready(function() {
 			fnToggleOrder(links, el, dir); // Update all sort indicators
 		}, links); // Add click event for order table
 
+		dom.click(el => { // Find data event
+			table.dispatchEvent(new CustomEvent("find", { "detail": el }));
+		}, dom.getAll("a[href^='#find-']", table));
+		dom.click(el => { // Remove event
+			table.dispatchEvent(new CustomEvent("remove", { "detail": el }));
+		}, dom.getAll("a[href^='#remove-']", table));
+
 		fnToggleTbody(table); // Toggle body if no data
 		fnPagination(table); // Update pagination
 	}, tables);

@@ -52,10 +52,11 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response function helpers
+	res.msgs = function() { res.json(util.i18n.toMsgs()); } //send object messages
 	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
 	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
-	res.setHtml = function(contents) { return res.setMsg("html", ejs.render(contents, "utf-8"), res.locals); }
-	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl))); }
+	res.setHtml = function(contents) { util.i18n.setMsg("html", ejs.render(contents, res.locals)); return res; }
+	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl), "utf-8")); }
 	res.on("finish", () => { util.i18n.reset(); }); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
@@ -73,8 +74,7 @@ app.use((err, req, res, next) => { //global handler error
 		util.i18n.setMsgError(err); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		(util.i18n.getNumErrors() > 1) ? res.status(500).json(util.i18n.toMsgs()) 
-										: res.status(500).send(util.i18n.getError());
+		(util.i18n.getNumErrors() > 1) ? res.status(500).msgs() : res.status(500).send(util.i18n.getError());
 	else {
 		// Is non ajax request => reload data formated and render body
 		res.locals.body = Object.assign(req.body, util.i18n.toData());
