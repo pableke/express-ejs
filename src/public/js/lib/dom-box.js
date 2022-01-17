@@ -36,8 +36,8 @@ function DomBox() {
 		return self.set(param); //param = element or array
 	}
 
-	this.getNavLang = function() { return navigator.language || navigator.userLanguage; } //default browser language
-	this.getLang = function() { return document.documentElement.getAttribute("lang") || self.getNavLang(); } //get lang by tag
+	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
+	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
 	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
 	//this.unescape = function(html) { return html && parser.parseFromString(html); }
 	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
@@ -137,12 +137,13 @@ function DomBox() {
 	// Inputs selectors and focusableds
 	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
-	this.inputs = function(el) { return self.getAll("input,textarea,select", el); }
+	this.inputs = el => self.getAll("input,textarea,select", el);
 	this.focus = function(el) { el && el.focus(); return self; }
-	this.setFocus = function(el) {
+	this.setFocus = el => self.refocus(self.inputs(el));
+	this.refocus = function(list) {
 		return self.reverse(input => { //set focus on first input
 			fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
-		}, self.inputs(el));
+		}, list);
 	}
 
 	function addPrev(el, selector, results) {

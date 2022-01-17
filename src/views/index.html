@@ -93,26 +93,26 @@
 						<td>F1 - C1</td>
 						<td>F1 - C2</td>
 						<td>F1 - C3</td>
-						<td>
-							<a id="1" href="#find-0"><i class="fas fa-search"></i></a>
-							<a id="1" href="#remove-0"><i class="fa fa-times"></i></a>
+						<td class="text-center">
+							<a id="1" href="#find-0"><i class="fas fa-search icon"></i></a>
+							<a id="1" href="#remove-0"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
 					<tr class="tb-data">
 						<td>F2 - C1</td>
 						<td>F2 - C2</td>
 						<td>F2 - C3</td>
-						<td>
-							<a id="2" href="#find-1"><i class="fas fa-search"></i></a>
-							<a id="2" href="#remove-1"><i class="fa fa-times"></i></a>
+						<td class="text-center">
+							<a id="2" href="#find-1"><i class="fas fa-search icon"></i></a>
+							<a id="2" href="#remove-1"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
 				</tbody>
 				<tbody class="no-data">
-					<tr><td colspan="3"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
+					<tr><td colspan="4"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
 				<tfoot data-tpl="pruebas-footer">
-					<tr><td colspan="3">Filas: 2 / 3</td></tr>
+					<tr><td colspan="4">Filas: 2 / 3</td></tr>
 				</tfoot>
 			</table>
 			<div class="pagination"></div>
@@ -123,9 +123,9 @@
 					<td>F1 - C1</td>
 					<td>F1 - C2</td>
 					<td>F1 - C3</td>
-					<td>
-						<a href="#find-@index;"><i class="fas fa-search"></i></a>
-						<a href="#remove-@index;"><i class="fa fa-times"></i></a>
+					<td class="text-center">
+						<a href="#find-@index;"><i class="fas fa-search icon"></i></a>
+						<a href="#remove-@index;"><i class="fa fa-times icon text-err"></i></a>
 					</td>
 				</tr>
 			</template>
@@ -151,7 +151,7 @@
 			dom.ready(function() {
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1}, {id:2}, {id:3}];
-				const resume = {};
+				const resume = { total: 50 };
 
 				dom.loadTemplates()
 					.event("change", el => console.log("change"), table)

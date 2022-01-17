@@ -1,12 +1,13 @@
 
 table { margin: 20px auto; width:96%; border-collapse: collapse; }
 thead { border-bottom: solid 1px #000; }
-tfoot { font-weight:bold; border-top: 1px dashed #000; }
+tfoot { font-weight: bold; border-top: 1px dashed #000; }
+tfoot td { padding-top: 3px; }
 
 tbody.no-data td { padding: 1rem; text-align: center; }
-tr.data:nth-child(odd) { background-color: #fff; }
-tr.data:nth-child(even) { background-color: #eee; }
-tr.data:hover { background-color: #E6E6FA; }
+tr.tb-data:nth-child(odd) { background-color: #fff; }
+tr.tb-data:nth-child(even) { background-color: #eee; }
+tr.tb-data:hover { background-color: #E6E6FA; }
 
 .sort {
 	display: inline-block;

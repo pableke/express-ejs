@@ -74,7 +74,7 @@ app.use((err, req, res, next) => { //global handler error
 		util.i18n.setMsgError(err); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		(util.i18n.getNumErrors() > 1) ? res.status(500).msgs() : res.status(500).send(util.i18n.getError());
+		(util.i18n.getNumMsgs() > 1) ? res.status(500).msgs() : res.status(500).send(util.i18n.getError());
 	else {
 		// Is non ajax request => reload data formated and render body
 		res.locals.body = Object.assign(req.body, util.i18n.toData());
