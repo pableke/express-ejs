@@ -10,19 +10,19 @@ dom.ready(function() {
 	}
 
 	// AJAX Forms
-	dom.submit((form) => {
+	dom.submit(form => {
 		dom.closeAlerts()
 			.required("#info", "errSendContact", "errRequired")
 			.required("#asunto", "errSendContact", "errRequired")
 			.email("#correo", "errSendContact", "errCorreo")
 			.required("#nombre", "errSendContact", "errRequired");
-		dom.isOk() && dom.ajax(form.action, (msg) => {
+		dom.isOk() && dom.send(form, (msg) => {
 			dom.showOk(msg).val("", form.elements).moveFocus("#nombre");
 		});
 	}, dom.get("#contact"));
 
 	// Non AJAX Forms
-	dom.submit((form) => {
+	dom.submit(form => {
 		return dom.closeAlerts()
 					.login("#clave", "errUserNotFound", "errRegex") //password
 					.user("#usuario", "errUserNotFound", "errRegex") //email or login

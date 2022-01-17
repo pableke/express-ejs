@@ -214,7 +214,7 @@ function I18nBox() {
 	this.getError = (name) => MSGS.get(name || KEY_ERROR);
 	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.tr(msg));
 	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.tr(msgtip));
-	this.getNumErrors = () => MSGS.size;
+	this.getNumMsgs = () => MSGS.size;
 
 	this.getData = (name) => name ? DATA.get(name) : DATA;
 	this.toData = () => Object.fromEntries(DATA); // Build plain object
