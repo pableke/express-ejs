@@ -23,7 +23,7 @@ dom.ready(function() {
 
 	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
-	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, tabs.length - 1)));
+	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 20)));
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
