@@ -1,31 +1,29 @@
 
 // Tabs handler
 dom.ready(function() {
-	let tabs = dom.getAll(".tab-content.tab-active");
+	let progressbar = dom.get("#progressbar");
+	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
-	dom.getTab = function(i) { //get tab by index
-		index = nb.range(i, 0, tabs.length - 1);
-		return tabs[index]; //get tab element
-	}
-	dom.setTabs = () => { tabs = dom.getAll(".tab-content.tab-active"); return dom; }
+	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 	dom.hrefIndex = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
-	dom.goTab = (tab) => dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
-	dom.showTab = (i) => dom.goTab(dom.getTab(i)); //show tab by index
-	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
-	dom.prevTab = () => dom.showTab(index - 1);
-	dom.nextTab = () => dom.showTab(index + 1);
-	dom.progressbar = function(i) {
-		const step = "step-" + i; //go to a specific step on progressbar and tab
-		return dom.forEach("ul#progressbar li", li => dom.toggle("active", li.id <= step, li));
+	dom.showTab = function(i) { //show tab by index
+		index = nb.range(i, 0, tabs.length - 1);
+		if (progressbar) { // progressbar is optional
+			const step = "step-" + index; //go to a specific step on progressbar
+			dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
+		}
+		const tab = tabs[index]; // current tab
+		return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 	}
 
-	dom.onclick("a[href='#prev-tab']", dom.prevTab);
-	dom.onclick("a[href='#next-tab']", dom.nextTab);
-	dom.onclick("a[href^='#tab-']", el => {
-		const i = dom.hrefIndex(el.href, tabs.length - 1);
-		return !dom.progressbar(i).viewTab(i);
-	});
+	dom.prevTab = () => dom.showTab(index - 1);
+	dom.nextTab = () => dom.showTab(index + 1);
+	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
+
+	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
+	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
+	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, tabs.length - 1)));
 
 	// Show/Hide drop down info
 	dom.onclick(".show-info", el => {
