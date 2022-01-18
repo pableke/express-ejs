@@ -47,38 +47,30 @@
 	<main>
 		<!-- progressbar -->
 		<ul id="progressbar">
-			<li class="active">Account Setup</li>
-			<li>Social Profiles</li>
-			<li>Personal Details</li>
-			<li>Resume</li>
+			<li id="step-0" class="active">Account Setup</li>
+			<li id="step-1">Social Profiles</li>
+			<li id="step-2">Personal Details</li>
+			<li id="step-3">Resume</li>
 		</ul>
 
-		<div class="cards-glass">
-			<div class="card-glass">
-				<h2>Card 1</h2>
-				<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
-			</div>
-			<div class="card-glass">
-				<h2>Card 2</h2>
-				<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
-			</div>
-			<div class="card-glass">
-				<h2>Card 3</h2>
-				<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+		<div id="tab-0" class="tab-content active">
+			<div class="cards-glass">
+				<div class="card-glass">
+					<h2>Card 1</h2>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
+				<div class="card-glass">
+					<h2>Card 2</h2>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
+				<div class="card-glass">
+					<h2>Card 3</h2>
+					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
+				</div>
 			</div>
 		</div>
 
-		<div>
-			<br/>
-			<input type="button" name="previous" class="prev-tab action-button" value="Previous" />
-			<a href="#tab-1">go 2</a>
-			<input type="button" name="submit" class="next-tab action-button" value="Submit" />
-			<br/>
-			<a href="show-first">Fade In Alerts</a> / 
-			<a href="close-first">Fade Out Alerts</a>
-			<br/>
-			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin"></i></a>
-
+		<div id="tab-1" class="tab-content">
 			<table id="pruebas" data-sort-by="c2" data-sort-dir="desc" data-page-size="1" data-total="50">
 				<thead>
 					<tr>
@@ -134,11 +126,23 @@
 			</template>
 		</div>
 
+		<div class="navbar">
+			<a href="#prev-tab" class="btn btn-success"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+			<a href="#tab-1" class="btn btn-success">go 2</a>
+			<a href="#next-tab" class="btn btn-success">Sig.<i class="fas fa-angle-double-right icon"></i></a>
+			<br/>
+			<a href="show-first">Fade In Alerts</a> / 
+			<a href="close-first">Fade Out Alerts</a>
+			<br/>
+			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin icon"></i></a>
+		</div>
+
 		<div class="text-block alert-primary">
 			<span>Lorem ipsum dolor sit amet consectetur adipisicing elit. A, dolorum, veritatis tenetur ea dolor quo consequuntur ullam molestias fugit quam.</span>
 			<a id="test" href="#" class="show-info">Más Info <i class="fas fa-angle-double-down"></i></a>
 			<span class="extra-info-test hide"><hr/>Lorem ipsum dolor, sit amet consectetur adipisicing, elit. Corrupti rem aut, minus asperiores, sunt eligendi hic ipsum maiores itaque numquam sequi eius voluptates consequuntur debitis impedit quae dolore ad, enim?</span>
 		</div>
+
 		<div>
 			<ul class="tags">
 				<li>asdfasd asdf</li>
@@ -147,7 +151,6 @@
 		</div>
 
 		<script type="text/javascript">
-
 			dom.ready(function() {
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1}, {id:2}, {id:3}];
