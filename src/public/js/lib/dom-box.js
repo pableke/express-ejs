@@ -68,6 +68,12 @@ function DomBox() {
 			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
 		});
 	}
+	this.copyToClipboard = function(str) {
+		TEXT.value = str;
+		TEXT.select(); //select text
+		document.execCommand("copy");
+		return self;
+	}
 
 	// Iterators
 	this.each = function(cb, list) {
@@ -206,6 +212,7 @@ function DomBox() {
 	this.getAttr = function(el, name) { return el && el.getAttribute(name); }
 	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
 	this.setAttr = function(selector, name, value, el) { return self.attr(name, value, self.getAll(selector, el)); }
+	this.removeAttr = function(name, list) { return self.each(el => el.removeAttribute(name), list); }
 	this.getText = function(el) { return el && el.innerText; }
 	this.findText = function(selector, el) { return self.getText(self.get(selector, el)); }
 	this.text = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerText = value; }, list); }
@@ -353,4 +360,11 @@ function DomBox() {
 	this.submit = function(fn, list) { return self.each((el, i) => fnEvent("submit", el, i, fn), list); }
 	this.onsubmit = function(selector, fn) { return self.submit(fn, self.getAll(selector)); }
 	this.trigger = function(name, ev, list) { return self.each(el => el.dispatchEvent(ev || new Event(name)), list); }
+
+	this.ready(function() {
+		// Necesario para clipboard
+		TEXT.style.position = "absolute";
+		TEXT.style.left = "-9999px";
+		document.body.prepend(TEXT);
+	});
 }

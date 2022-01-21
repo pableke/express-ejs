@@ -60,6 +60,18 @@ function DateBox() {
 	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 
+	this.toUTC = function(date) {
+		date && date.setTime(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+		return self;
+	}
+	this.utcToDate = function(date) {
+		if (date) {
+			date.setFullYear(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+			date.setHours(date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+		}
+		return self;
+	}
+
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
 		const d1 = new Date(date.getFullYear(), 0, 1);

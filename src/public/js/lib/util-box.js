@@ -54,6 +54,7 @@ dom.ready(function() {
 	dom.findValue = (selector) => dom.getValue(dom.getInput(selector)); //redefine default from dom
 	dom.setValue = (selector, value) => dom.val(value, dom.getInputs(selector)); //redefine default function
 	dom.setAttr = (selector, name, value) => dom.attr(name, value, dom.getInputs(selector)); //redefine default
+	dom.delAttr = (selector, name) => dom.removeAttr(name, dom.getInputs(selector));
 	dom.setDateRange = (el) => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
 	dom.setDates = (value, list) => dom.val(value, list).each(dom.setDateRange, list); //update value and range
 	dom.setDate = (selector, value) => dom.setDates(value, dom.getInputs(selector));
