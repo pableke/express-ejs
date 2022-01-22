@@ -46,19 +46,11 @@ dom.ready(function() {
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
 
-	// Inputs helpers
-	const inputs = dom.inputs(); //all html inputs
-	dom.getInput = (selector) => dom.find(selector, inputs);
-	dom.getInputs = (selector) => dom.filter(selector, inputs);
-	dom.moveFocus = (selector) => dom.focus(dom.getInput(selector));
-	dom.findValue = (selector) => dom.getValue(dom.getInput(selector)); //redefine default from dom
-	dom.setValue = (selector, value) => dom.val(value, dom.getInputs(selector)); //redefine default function
-	dom.setAttr = (selector, name, value) => dom.attr(name, value, dom.getInputs(selector)); //redefine default
-	dom.delAttr = (selector, name) => dom.removeAttr(name, dom.getInputs(selector));
-	dom.setDateRange = (el) => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
+	// Extra inputs helpers
+	const inputs = dom.getInputs(); // All inputs list
+	dom.setDateRange = el => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
 	dom.setDates = (value, list) => dom.val(value, list).each(dom.setDateRange, list); //update value and range
 	dom.setDate = (selector, value) => dom.setDates(value, dom.getInputs(selector));
-	dom.onChangeInput = (selector, fn) => dom.change(fn, dom.getInputs(selector));
 
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
@@ -118,8 +110,9 @@ dom.ready(function() {
 	dom.onChangeInput(".ui-date", dom.setDateRange); //auto range date inputs
 
 	// Initialize all textarea counter
+	const ta = dom.getInputs("textarea.counter");
 	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value)), el.parentNode); }
-	dom.set(dom.getInputs("textarea.counter")).attr("maxlength", "600").keyup(fnCounter).each(fnCounter).set();
+	dom.attr("maxlength", "600", ta).keyup(fnCounter, ta).each(fnCounter, ta);
 
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
@@ -220,8 +213,8 @@ dom.ready(function() {
 		//dom.ajax("/session/destroy.html");
 	});*/
 
-	// Update error input styles and reallocate focus
-	dom.refocus(inputs).reverse(el => {
+	// Set error input styles and reallocate focus
+	dom.reverse(el => {
 		const tip = dom.get(".ui-errtip", el.parentNode);
 		dom.empty(tip) || dom.addClass("ui-error", el).focus(el);
 	}, inputs);

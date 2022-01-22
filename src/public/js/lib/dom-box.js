@@ -9,8 +9,6 @@ function DomBox() {
 	const HIDE = "hide"; //css display: none
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
-	//const parser = new DOMParser(); //parser
-	let elements; //elements container
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
@@ -22,24 +20,10 @@ function DomBox() {
 	this.get = function(selector, el) { return (el || document).querySelector(selector); }
 	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
 	this.closest = function(selector, el) { return el && el.closest(selector); }
-	this.toArray = function() { return elements ? Array.from(elements) : []; }
-	this.set = function(list) {
-		delete elements; //prev container
-		elements = list; //new container
-		return self;
-	}
-	this.load = function(param, parent) {
-		if (!param)
-			return self;
-		if ((typeof param === "string") || (param instanceof String))
-			return self.set(self.getAll(param, parent));
-		return self.set(param); //param = element or array
-	}
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
 	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
 	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
-	//this.unescape = function(html) { return html && parser.parseFromString(html); }
 	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
 	this.escape = function(text) { DIV.innerHTML = text; return DIV.innerHTML; }
 	this.buildPath = function(parts, url) {
@@ -77,7 +61,6 @@ function DomBox() {
 
 	// Iterators
 	this.each = function(cb, list) {
-		list = list || elements;
 		if (isElem(list))
 			cb(list, 0);
 		else {
@@ -87,11 +70,7 @@ function DomBox() {
 		}
 		return self;
 	}
-	this.forEach = function(selector, cb) {
-		return self.each(cb, self.getAll(selector));
-	}
 	this.reverse = function(cb, list) {
-		list = list || elements;
 		if (isElem(list))
 			cb(list, 0);
 		else {
@@ -100,27 +79,18 @@ function DomBox() {
 		}
 		return self;
 	}
-	this.inverse = function(selector, cb) {
-		return self.reverse(cb, self.getAll(selector));
-	}
 
 	function fnItem(i, list) {
 		if (isElem(list))
 			return list;
 		return fnSize(list) ? list[i] : null;
 	}
-	this.first = function(list) { return fnItem(0, list || elements); } //first element
-	this.elem = function(i, list) { return fnItem(i, list || elements); } //by position
-	this.last = function(list) { //last element
-		list = list || elements;
-		return fnItem(fnSize(list)-1, list);
-	}
+	this.first = list => fnItem(0, list); //first element
+	this.elem = (i, list) => fnItem(i, list); //by position
+	this.last = (list) => fnItem(fnSize(list)-1, list); //last element
 
 	// Filters
 	this.findIndex = function(selector, list) {
-		list = list || elements;
-		if (isElem(list))
-			return list.matches(selector) ? 0 : -1;
 		let size = fnSize(list);
 		for (let i = 0; i < size; i++) {
 			if (list[i].matches(selector))
@@ -129,7 +99,6 @@ function DomBox() {
 		return -1;
 	}
 	this.find = function(selector, list) {
-		list = list || elements;
 		if (isElem(list))
 			return list.matches(selector) ? list : null;
 		return list[self.findIndex(selector, list)];
@@ -205,34 +174,41 @@ function DomBox() {
 			el.value = value;
 		return self;
 	}
-	this.getValue = function(el) { return el && el.value; }
-	this.findValue = function(selector, el) { return self.getValue(self.get(selector, el)); }
-	this.val = function(value, list) { return self.each(el => fnSetVal(el, value), list); }
-	this.setValue = function(selector, value, el) { return self.val(value, self.getAll(selector, el)); }
-	this.getAttr = function(el, name) { return el && el.getAttribute(name); }
-	this.attr = function(name, value, list) { return self.each(el => el.setAttribute(name, value), list); }
-	this.setAttr = function(selector, name, value, el) { return self.attr(name, value, self.getAll(selector, el)); }
-	this.removeAttr = function(name, list) { return self.each(el => el.removeAttribute(name), list); }
-	this.getText = function(el) { return el && el.innerText; }
-	this.findText = function(selector, el) { return self.getText(self.get(selector, el)); }
+	this.getValue = el => el && el.value;
+	this.val = (value, list) => self.each(el => fnSetVal(el, value), list);
+
+	this.getAttr = (el, name) => el && el.getAttribute(name);
+	this.attr = (name, value, list) => self.each(el => el.setAttribute(name, value), list);
+	this.removeAttr = (name, list) => self.each(el => el.removeAttribute(name), list);
+
+	this.getText = el => el && el.innerText;
+	this.findText = (selector, el) => self.getText(self.get(selector, el));
 	this.text = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerText = value; }, list); }
-	this.setText = function(selector, value, el) { return self.text(value, self.getAll(selector, el)); }
-	this.getHtml = function(el) { return el && el.innerHTML; }
-	this.findHtml = function(selector, el) { return self.getHtml(self.get(selector, el)); }
+	this.setText = (selector, value, el) => self.text(value, self.getAll(selector, el));
+
+	this.getHtml = el => el && el.innerHTML;
+	this.findHtml = (selector, el) => self.getHtml(self.get(selector, el));
 	this.html = function(value, list) { value = value || EMPTY; return self.each(el => { el.innerHTML = value; }, list); }
-	this.setHtml = function(selector, value, el) { return self.html(value, self.getAll(selector, el)); }
-	this.replace = function(value, list) { return self.each(el => { el.outerHTML = value; }, list); }
-	this.empty = function(el) { return !el || !el.innerHTML || (el.innerHTML.trim() === EMPTY); }
-	this.add = function(node, list) { return self.each(el => node.appendChild(el), list); }
-	this.append = function(text, list) { DIV.innerHTML = text; return self.each(el => self.add(el, DIV.childNodes), list || document.body); }
-	this.mask = function(name, mask, list) { return self.each((el, i) => el.classList.toggle(name, (mask>>i)&1), list); } //toggle class by mask
-	this.optText = function(sel) { return sel ? self.getText(sel.options[sel.selectedIndex]) : null; }
+	this.setHtml = (selector, value, el) => self.html(value, self.getAll(selector, el));
+
+	this.mask = (name, mask, list) => self.each((el, i) => el.classList.toggle(name, (mask>>i)&1), list); //toggle class by mask
+	this.optText = sel => sel ? self.getText(sel.options[sel.selectedIndex]) : null;
 	this.select = function(mask, list) {
 		return self.each(el => { //iterate over all selects
 			let option = self.mask(HIDE, ~mask, el.options).get("[value='" + el.value + "']", el);
 			if (self.hasClass(HIDE, option)) //current option is hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		}, list);
+	}
+
+	this.empty = el => !el || !el.innerHTML || (el.innerHTML.trim() === EMPTY);
+	this.replace = (value, list) => self.each(el => { el.outerHTML = value; }, list);
+	this.add = (node, list) => self.each(el => node.appendChild(el), list);
+	this.append = function(text, list) {
+		return self.each(el => {
+			DIV.innerHTML = text; // As clone
+			self.add(el, DIV.childNodes);
+		}, list || document.body);
 	}
 
 	// Format and parse contents
@@ -283,15 +259,10 @@ function DomBox() {
 	}
 
 	// Styles
-	this.isVisible = function(el) { return el && fnVisible(el); }
-	this.visible = function(selector, el) { return self.isVisible(dom.get(selector, el)); }
-	this.show = function(list, display) {
-		display = display || "block";
-		return self.each(el => { el.style.display = display; }, list);
-	}
-	this.hide = function(list) {
-		return self.each(el => { el.style.display = "none"; }, list);
-	}
+	this.isVisible = el => el && fnVisible(el);
+	this.visible = (selector, el) => self.isVisible(self.get(selector, el));
+	this.show = list => self.each(el => el.classList.add(HIDE), list);
+	this.hide = list => self.each(el => el.classList.remove(HIDE), list);
 	this.hasClass = function(name, list) {
 		const el = self.first(list); //first element
 		return el && fnSplit(name).some(name => el.classList.contains(name));
@@ -315,26 +286,21 @@ function DomBox() {
 	this.removeStyle = function(selector, name, el) {
 		return self.removeClass(name, self.getAll(selector, el));
 	}
+
 	this.toggle = function(name, force, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
 		return self.each(el => names.forEach(name => el.classList.toggle(name, force)), list);
 	}
-	this.toggleClass = function(selector, name, force, el) {
-		return self.toggle(name, force, self.getAll(selector, el));
-	}
-	this.toggleHide = function(selector, force, el) {
-		return self.toggleClass(selector, HIDE, force, el);
-	}
+	this.toggleClass = (selector, name, force, el) => self.toggle(name, force, self.getAll(selector, el));
+	this.toggleHide = (selector, force, el) => self.toggleClass(selector, HIDE, force, el);
+
 	this.swap = function(name, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
 		return self.each(el => names.forEach(name => el.classList.toggle(name)), list);
 	}
-	this.swapClass = function(selector, name, el) {
-		return self.swap(name, self.getAll(selector, el));
-	}
-	this.swapHide = function(selector, el) {
-		return self.swapClass(selector, HIDE, el);
-	}
+	this.swapClass = (selector, name, el) => self.swap(name, self.getAll(selector, el));
+	this.swapHide = (selector, el) => self.swapClass(selector, HIDE, el);
+
 	this.css = function(prop, value, list) {
 		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", EMPTY).toUpperCase());
 		return self.each(el => { el.style[camelProp] = value; }, list);
@@ -345,23 +311,33 @@ function DomBox() {
 		el.addEventListener(name, ev => fn(el, i, ev) || ev.preventDefault());
 		return self;
 	}
-	this.event = function(name, fn, list) { return self.each((el, i) => fnEvent(name, el, i, fn), list); }
-	this.addEvent = function(name, selector, fn) { return self.event(name, fn, self.getAll(selector)); }
-
-	this.ready = function(fn) { return fnEvent("DOMContentLoaded", document, 0, fn); }
-	this.click = function(fn, list) { return self.each((el, i) => fnEvent("click", el, i, fn), list); }
-	this.onclick = function(selector, fn) { return self.click(fn, self.getAll(selector)); }
-	this.change = function(fn, list) { return self.each((el, i) => fnEvent("change", el, i, fn), list); }
-	this.onchange = function(selector, fn) { return self.change(fn, self.getAll(selector)); }
-	this.keyup = function(fn, list) { return self.each((el, i) => fnEvent("keyup", el, i, fn), list); }
-	this.onkeyup = function(selector, fn) { return self.keyup(fn, self.getAll(selector)); }
-	this.keydown = function(fn, list) { return self.each((el, i) => fnEvent("keydown", el, i, fn), list); }
-	this.onkeydown = function(selector, fn) { return self.keydown(fn, self.getAll(selector)); }
-	this.submit = function(fn, list) { return self.each((el, i) => fnEvent("submit", el, i, fn), list); }
-	this.onsubmit = function(selector, fn) { return self.submit(fn, self.getAll(selector)); }
-	this.trigger = function(name, ev, list) { return self.each(el => el.dispatchEvent(ev || new Event(name)), list); }
+	this.event = (name, fn, list) => self.each((el, i) => fnEvent(name, el, i, fn), list);
+	this.ready = fn => fnEvent("DOMContentLoaded", document, 0, fn);
+	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
+	this.onclick = (selector, fn) => self.click(fn, self.getAll(selector));
+	this.change = (fn, list) => self.each((el, i) => fnEvent("change", el, i, fn), list);
+	this.onchange = (selector, fn) => self.change(fn, self.getAll(selector));
+	this.keyup = (fn, list) => self.each((el, i) => fnEvent("keyup", el, i, fn), list);
+	this.onkeyup = (selector, fn) => self.keyup(fn, self.getAll(selector));
+	this.keydown = (fn, list) => self.each((el, i) => fnEvent("keydown", el, i, fn), list);
+	this.onkeydown = (selector, fn) => self.keydown(fn, self.getAll(selector));
+	this.submit = (fn, list) => self.each((el, i) => fnEvent("submit", el, i, fn), list);
+	this.onsubmit = (selector, fn) => self.submit(fn, self.getAll(selector));
+	this.trigger = (name, ev, list) => self.each(el => el.dispatchEvent(ev || new Event(name)), list);
 
 	this.ready(function() {
+		const inputs = self.inputs(); //all html inputs
+		self.getInput = selector => self.find(selector, inputs);
+		self.getInputs = selector => selector ? self.filter(selector, inputs) : inputs;
+
+		self.moveFocus = selector => self.focus(self.getInput(selector));
+		self.findValue = selector => self.getValue(self.getInput(selector));
+		self.setValue = (selector, value) => self.val(value, self.getInputs(selector));
+		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
+		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
+		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
+		self.refocus(inputs); // Set focus on first visible input
+
 		// Necesario para clipboard
 		TEXT.style.position = "absolute";
 		TEXT.style.left = "-9999px";
