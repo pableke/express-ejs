@@ -251,12 +251,8 @@ function DomBox() {
 		el.classList.toggle(HIDE, !el.innerHTML);
 		return self;
 	}
-	this.format = function(formatter, list) {
-		return self.each(self.render, list);
-	}
-	this.reformat = function(selector, formatter) {
-		return self.format(formatter, self.getAll(selector));
-	}
+	this.format = (formatter, list) => self.each(self.render, list);
+	this.reformat = (selector, formatter) => self.format(formatter, self.getAll(selector));
 
 	// Styles
 	this.isVisible = el => el && fnVisible(el);
