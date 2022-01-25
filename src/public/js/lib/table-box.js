@@ -62,7 +62,7 @@ dom.ready(function() {
 		return dom;
 	}
 
-	dom.renderRows = function(table, data, resume, styles) {
+	function fnRenderRows(table, data, resume, styles) {
 		resume.size = data.length; // Numrows
 		resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
 		dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
@@ -75,26 +75,31 @@ dom.ready(function() {
 			let msg = styles?.remove || "remove";
 			if (i18n.confirm(msg)) {
 				const ev = new CustomEvent("remove", { "detail": data[i] });
-
-				el.closest("tr").remove(); // Remove from view
-				data.splice(i, 1); // Remove from data
-
 				resume.total--;
+				data.splice(i, 1); // Remove from data
 				table.dispatchEvent(ev); // Triger event
-				dom.renderRows(table, data, resume, styles);
 			}
 		}, dom.getAll("a[href^='#remove-']", table));
 
-		table.dispatchEvent(new Event("change")); // Triger event
+		table.dispatchEvent(new Event("render")); // Triger event
 		return fnToggleTbody(table); // Toggle body if no data
 	}
+	dom.renderRows = function(table, data, resume, styles) {
+		return table ? fnRenderRows(table, data, resume, styles) : dom;
+	}
+	dom.renderTablesRows = function(selector, data, resume, styles) {
+		return dom.each(table => fnRenderRows(table, data, resume, styles), dom.getTables(selector));
+	}
 
-	dom.renderTable = function(table, data, resume, styles) {
+	function fnRenderTable(table, data, resume, styles) {
 		dom.renderRows(table, data, resume, styles);
 		return fnPagination(table); // Update pagination
 	}
+	dom.renderTable = function(table, data, resume, styles) {
+		return table ? fnRenderTable(table, data, resume, styles) : dom;
+	}
 	dom.renderTables = function(selector, data, resume, styles) {
-		return dom.each(table => dom.renderTable(table, data, resume, styles), dom.getTables(selector));
+		return dom.each(table => fnRenderTable(table, data, resume, styles), dom.getTables(selector));
 	}
 
 	// Initialize all tables
