@@ -17,13 +17,18 @@ const strip = require("gulp-strip-comments");
 // Settings
 const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs"];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
-const CSS_FILES = [ "src/public/css/style.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/form.css", "src/public/css/table.css", "src/public/css/print.css" ];
+const CSS_FILES = [
+	"src/public/css/style.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/form.css", "src/public/css/table.css", "src/public/css/print.css"
+];
 const JS_LIB = [
 	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/graph-box.js", 
-	"src/public/js/lib/i18n-box.js", "src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/tree-box.js", 
-	"src/public/js/lib/validator-box.js", 
-	"src/public/js/lib/util-box.js", "src/public/js/lib/table-box.js", "src/public/js/lib/tabs-box.js" ];
-const JS_UAE = [ "src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/i18n-box.js", "src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/validator-box.js" ];
+	"src/public/js/lib/i18n-box.js", "src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/tree-box.js", "src/public/js/lib/validator-box.js", 
+	"src/public/js/lib/util-box.js", "src/public/js/lib/table-box.js", "src/public/js/lib/tabs-box.js"
+];
+const JS_UAE = [
+	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/i18n-box.js", 
+	"src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/validator-box.js", "src/public/js/lib/table-box.js"
+];
 const JS_WEB = [ "src/public/js/web/form.js" ];
 
 // Task to minify all views (HTML's and EJS's)
