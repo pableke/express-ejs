@@ -22,7 +22,7 @@ dom.ready(function() {
 			const animationName = "animate__animated animate__" + animation;
 
 			// When the animation ends, we clean the classes and resolve the Promise
-			function handleAnimationEnd(el, i, ev) {
+			function handleAnimationEnd(el, ev) {
 				dom.removeClass(animationName, list);
 				ev.stopPropagation();
 				resolve(el);
@@ -38,7 +38,7 @@ dom.ready(function() {
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, _top); }
-	dom.click(() => !dom.scroll(), _top);
+	dom.click(el => !dom.scroll(), _top);
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
@@ -202,7 +202,7 @@ dom.ready(function() {
 			}
 		};
 		$(inputs).autocomplete(opts);
-		return dom.keydown((el, i, ev) => { // Reduce server calls, only for backspace or alfanum
+		return dom.keydown((el, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
 		}, inputs);
 	}

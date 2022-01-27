@@ -5,8 +5,10 @@ dom.ready(function() {
 	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
+	dom.getTab = (id) => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 	dom.hrefIndex = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
+
 	dom.showTab = function(i) { //show tab by index
 		index = nb.range(i, 0, tabs.length - 1);
 		if (progressbar) { // progressbar is optional
@@ -16,7 +18,6 @@ dom.ready(function() {
 		const tab = tabs[index]; // current tab
 		return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 	}
-
 	dom.prevTab = () => dom.showTab(index - 1);
 	dom.nextTab = () => dom.showTab(index + 1);
 	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector

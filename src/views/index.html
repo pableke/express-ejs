@@ -86,8 +86,8 @@
 						<td>F1 - C2</td>
 						<td>F1 - C3</td>
 						<td class="text-center">
-							<a id="1" href="#find-0"><i class="fas fa-search icon"></i></a>
-							<a id="1" href="#remove-0"><i class="fa fa-times icon text-err"></i></a>
+							<a id="1" href="#find"><i class="fas fa-search icon"></i></a>
+							<a id="1" href="#remove"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
 					<tr class="tb-data">
@@ -95,8 +95,8 @@
 						<td>F2 - C2</td>
 						<td>F2 - C3</td>
 						<td class="text-center">
-							<a id="2" href="#find-1"><i class="fas fa-search icon"></i></a>
-							<a id="2" href="#remove-1"><i class="fa fa-times icon text-err"></i></a>
+							<a id="2" href="#find"><i class="fas fa-search icon"></i></a>
+							<a id="2" href="#remove"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
 				</tbody>
@@ -116,8 +116,8 @@
 					<td>F1 - C2</td>
 					<td>F1 - C3</td>
 					<td class="text-center">
-						<a href="#find-@index;"><i class="fas fa-search icon"></i></a>
-						<a href="#remove-@index;"><i class="fa fa-times icon text-err"></i></a>
+						<a href="#find"><i class="fas fa-search icon"></i></a>
+						<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
 					</td>
 				</tr>
 			</template>
@@ -157,10 +157,13 @@
 				const resume = { total: 50 };
 
 				dom.loadTemplates()
-					.event("change", el => console.log("change"), table)
-					.event("find", (el, i, ev) => console.log("find", ev.detail), table)
-					.event("remove", (el, i, ev) => console.log("remove", ev.detail), table) // OJO: recalcular resumen para footer
-					.event("pagination", (el, i, ev) => console.log("pagination", ev.detail), table)
+					.event("change", (el, ev) => console.log("change"), table)
+					.event("find", (el, ev) => console.log("find", ev.detail), table)
+					.event("pagination", (el, ev) => console.log("pagination", ev.detail), table)
+					.event("remove", (el, ev) => {
+						console.log("remove", ev.detail, el);
+						dom.renderRows(table, data, resume);
+					}, table)
 					//.renderTable(table, data, resume);
 
 				dom.onclick("a[href='show-first']", el => {

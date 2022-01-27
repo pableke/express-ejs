@@ -304,7 +304,7 @@ function DomBox() {
 
 	// Events
 	function fnEvent(name, el, i, fn) {
-		el.addEventListener(name, ev => fn(el, i, ev) || ev.preventDefault());
+		el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault());
 		return self;
 	}
 	this.event = (name, fn, list) => self.each((el, i) => fnEvent(name, el, i, fn), list);
