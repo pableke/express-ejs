@@ -157,13 +157,13 @@
 				const resume = { total: 50 };
 
 				dom.loadTemplates()
-					.event("change", (el, ev) => console.log("change"), table)
-					.event("find", (el, ev) => console.log("find", ev.detail), table)
-					.event("pagination", (el, ev) => console.log("pagination", ev.detail), table)
-					.event("remove", (el, ev) => {
-						console.log("remove", ev.detail, el);
+					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
+					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
+					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
+					.onRemoveRow("#pruebas", (table, ev) => {
+						console.log("remove", ev.detail, table);
 						dom.renderRows(table, data, resume);
-					}, table)
+					})
 					//.renderTable(table, data, resume);
 
 				dom.onclick("a[href='show-first']", el => {

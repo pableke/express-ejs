@@ -323,13 +323,13 @@ function DomBox() {
 	this.trigger = (name, ev, list) => self.each(el => el.dispatchEvent(ev || new Event(name)), list);
 
 	this.ready(function() {
-		const forms = self.getAll("form"); //all html forms
-		const inputs = []; //all html inputs
+		const elements = self.getAll("table,form," + INPUTS);
+		const tables = self.filter("table", elements); //all html tables
+		const forms = self.filter("form", elements); //all html forms
+		const inputs = self.filter(INPUTS, elements); //all html inputs
 
-		self.each(form => { // load all inputs
-			self.each(el => addMatch(el, INPUTS, inputs), form.elements);
-		}, forms);
-
+		self.getTable = selector => self.find(selector, tables);
+		self.getTables = selector => selector ? self.filter(selector, tables) : tables;
 		self.getForm = selector => self.find(selector, forms);
 		self.getForms = selector => self.filter(selector, forms);
 		self.getInput = selector => self.find(selector, inputs);
@@ -341,12 +341,139 @@ function DomBox() {
 		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
 		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
 
-		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.onChangeForm = (selector, fn) => self.change(fn, self.getForms(selector));
 		self.onSubmitForm = (selector, fn) => self.submit(fn, self.getForms(selector));
+		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.refocus(inputs); // Set focus on first visible input
 
-		// Necesario para clipboard
+		// Tables/rows helper
+		self.onFindRow = (selector, fn) => self.event("find", fn, self.getTables(selector));
+		self.onRemoveRow = (selector, fn) => self.event("remove", fn, self.getTables(selector));
+		self.onChangeTable = (selector, fn) => self.change(fn, self.getTables(selector));
+		self.onRenderTable = (selector, fn) => self.event("render", fn, self.getTables(selector));
+		self.onPaginationTable = (selector, fn) => self.event("pagination", fn, self.getTables(selector));
+
+		function fnToggleTbody(table) {
+			let tr = self.get("tr.tb-data", table); //has data rows?
+			return self.toggle("hide", !tr, table.tBodies[0]).toggle("hide", tr, table.tBodies[1]);
+		}
+		function fnToggleOrder(links, link, dir) { // Update all sort indicators
+			self.removeClass("sort-asc sort-desc", links) // Remove prev order
+				.addClass("sort-none", links) // Reset all orderable columns
+				.swap("sort-none sort-" + dir, link); // Column to order table
+		}
+		function fnPagination(table) { // Paginate table
+			const pageSize = nb.intval(table.dataset.pageSize);
+			const pagination = self.get(".pagination", table.parentNode);
+			if (pagination && (pageSize > 0)) {
+				table.dataset.page = nb.intval(table.dataset.page);
+				let pages = Math.ceil(table.dataset.total / pageSize);
+
+				function renderPagination(page) {
+					let output = ""; // Output buffer
+					function addControl(i, text) {
+						i = nb.range(i, 0, pages - 1); // Close range limit
+						output += '<a href="#" data-page="' + i + '">' + text + '</a>';
+					}
+					function addPage(i) {
+						i = nb.range(i, 0, pages - 1); // Close range limit
+						output += '<a href="#" data-page="' + i + '"';
+						output += (i == page) ? ' class="active">' : '>';
+						output += (i + 1) + '</a>';
+					}
+
+					let i = 0; // Index
+					addControl(page - 1, "&laquo;");
+					(pages > 1) && addPage(0);
+					i = Math.max(page - 3, 1);
+					(i > 2) && addControl(i - 1, "...");
+					let max = Math.min(page + 3, pages);
+					while (i < max)
+						addPage(i++);
+					(i < (pages - 1)) && addControl(i, "...");
+					(i < pages) && addPage(pages - 1);
+					addControl(page + 1, "&raquo;");
+					pagination.innerHTML = output;
+
+					self.click(el => { // Reload pagination click event
+						const i = +el.dataset.page; // Current page
+						const params = { index: i * pageSize, length: pageSize }; // Event data
+
+						renderPagination(i); // Render all pages
+						table.dataset.page = i; // Update current
+						table.dispatchEvent(new CustomEvent("pagination", { "detail": params })); // Triger event
+					}, self.getAll("a", pagination));
+				}
+				renderPagination(table.dataset.page);
+			}
+			return dom;
+		}
+
+		function fnRenderRows(table, data, resume, styles) {
+			resume.size = data.length; // Numrows
+			resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
+			self.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
+				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
+
+			self.click((el, ev, i) => { // Find data event
+				table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
+			}, self.getAll("a[href='#find']", table));
+			self.click((el, ev, i) => { // Remove event
+				if (confirm(styles?.remove)) {
+					resume.total--; // dec. total rows
+					const obj = data.splice(i, 1)[0]; // Remove from data
+					table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Triger event
+				}
+			}, self.getAll("a[href='#remove']", table));
+
+			table.dispatchEvent(new Event("render")); // Triger event
+			return fnToggleTbody(table); // Toggle body if no data
+		}
+		self.renderRows = function(table, data, resume, styles) {
+			return table ? fnRenderRows(table, data, resume, styles) : dom;
+		}
+		self.renderTablesRows = function(selector, data, resume, styles) {
+			return self.each(table => fnRenderRows(table, data, resume, styles), self.getTables(selector));
+		}
+
+		function fnRenderTable(table, data, resume, styles) {
+			self.renderRows(table, data, resume, styles);
+			return fnPagination(table); // Update pagination
+		}
+		self.renderTable = function(table, data, resume, styles) {
+			return table ? fnRenderTable(table, data, resume, styles) : dom;
+		}
+		self.renderTables = function(selector, data, resume, styles) {
+			return self.each(table => fnRenderTable(table, data, resume, styles), self.getTables(selector));
+		}
+
+		// Initialize all tables
+		self.each(table => {
+			const links = self.getAll(".sort", table.tHead); // All orderable columns
+			if (table.dataset.sortDir) {
+				fnToggleOrder(links, // Update sort icons
+							self.find(".sort-" + table.dataset.sortBy, links), // Ordered column
+							table.dataset.sortDir); // Sort direction
+			}
+
+			self.click(el => { // Sort event click
+				const dir = self.hasClass("sort-asc", el) ? "desc" : "asc"; // Toggle sort direction
+				fnToggleOrder(links, el, dir); // Update all sort indicators
+			}, links); // Add click event for order table
+
+			/*self.click(el => { // Find data event
+				table.dispatchEvent(new CustomEvent("find", { "detail": el }));
+			}, self.getAll("a[href='#find']", table));
+			self.click(el => { // Remove event
+				if (i18n.confirm("remove"))
+					table.dispatchEvent(new CustomEvent("remove", { "detail": el }));
+			}, self.getAll("a[href='#remove']", table));*/
+
+			fnToggleTbody(table); // Toggle body if no data
+			fnPagination(table); // Update pagination
+		}, tables);
+
+		// Clipboard function
 		TEXT.style.position = "absolute";
 		TEXT.style.left = "-9999px";
 		document.body.prepend(TEXT);
