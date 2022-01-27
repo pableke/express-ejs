@@ -23,11 +23,11 @@ const CSS_FILES = [
 const JS_LIB = [
 	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/graph-box.js", 
 	"src/public/js/lib/i18n-box.js", "src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/tree-box.js", "src/public/js/lib/validator-box.js", 
-	"src/public/js/lib/util-box.js", "src/public/js/lib/table-box.js", "src/public/js/lib/tabs-box.js"
+	"src/public/js/lib/util-box.js", "src/public/js/lib/tabs-box.js"
 ];
 const JS_UAE = [
 	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/i18n-box.js", 
-	"src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/validator-box.js", "src/public/js/lib/table-box.js"
+	"src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/validator-box.js"
 ];
 const JS_WEB = [ "src/public/js/web/form.js" ];
 
