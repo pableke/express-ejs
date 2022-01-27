@@ -155,6 +155,7 @@
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1}, {id:2}, {id:3}];
 				const resume = { total: 50 };
+				const styles = { remove: i18n.get("remove") }
 
 				dom.loadTemplates()
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
@@ -162,14 +163,15 @@
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
 					.onRemoveRow("#pruebas", (table, ev) => {
 						console.log("remove", ev.detail, table);
-						dom.renderRows(table, data, resume);
+						dom.renderRows(table, data, resume, styles);
 					})
-					//.renderTable(table, data, resume);
+					.renderTable(table, data, resume, styles);
 
 				dom.onclick("a[href='show-first']", el => {
 					resume.total++;
 					data.push({id:4});
-					dom.renderTable(table, data, resume);
+					dom.renderTable(table, data, resume, styles);
+
 					const alert = dom.get("div.alert");
 					dom.removeClass("hide", alert).animate("fadeIn", alert);
 				});

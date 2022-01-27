@@ -33,7 +33,7 @@ function I18nBox() {
 			errRefCircular: "Circular reference",
 
 			//confirm cuestions
-			remove: "Are you sure to delete element?",
+			remove: "Are you sure to delete this element?",
 			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
 			cancelOk: "Element canceled successfully!",
