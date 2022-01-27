@@ -108,15 +108,15 @@ dom.ready(function() {
 						table.dataset.sortDir); // Sort direction
 		}
 
-		dom.click((el, ev) => { // Sort event click
+		dom.click(el => { // Sort event click
 			const dir = dom.hasClass("sort-asc", el) ? "desc" : "asc"; // Toggle sort direction
 			fnToggleOrder(links, el, dir); // Update all sort indicators
 		}, links); // Add click event for order table
 
-		dom.click((el, ev) => { // Find data event
+		dom.click(el => { // Find data event
 			table.dispatchEvent(new CustomEvent("find", { "detail": el }));
 		}, dom.getAll("a[href='#find']", table));
-		dom.click((el, ev) => { // Remove event
+		dom.click(el => { // Remove event
 			if (i18n.confirm("remove"))
 				table.dispatchEvent(new CustomEvent("remove", { "detail": el }));
 		}, dom.getAll("a[href='#remove']", table));
