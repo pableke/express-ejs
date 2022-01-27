@@ -25,11 +25,11 @@ dom.ready(function() {
 				let output = ""; // Output buffer
 				function addControl(i, text) {
 					i = nb.range(i, 0, pages - 1); // Close range limit
-					output += '<a href="#page-' + i + '">' + text + '</a>';
+					output += '<a href="#" data-page="' + i + '">' + text + '</a>';
 				}
 				function addPage(i) {
 					i = nb.range(i, 0, pages - 1); // Close range limit
-					output += '<a href="#page-' + i + '"';
+					output += '<a href="#" data-page="' + i + '"';
 					output += (i == page) ? ' class="active">' : '>';
 					output += (i + 1) + '</a>';
 				}
@@ -48,13 +48,12 @@ dom.ready(function() {
 				pagination.innerHTML = output;
 
 				dom.click(el => { // Reload pagination click event
-					const i = dom.hrefIndex(el.href, pages - 1); // Current index
+					const i = +el.dataset.page; // Current page
 					const params = { index: i * pageSize, length: pageSize }; // Event data
-					const ev = new CustomEvent("pagination", { "detail": params });
 
 					renderPagination(i); // Render all pages
 					table.dataset.page = i; // Update current
-					table.dispatchEvent(ev); // Triger event
+					table.dispatchEvent(new CustomEvent("pagination", { "detail": params })); // Triger event
 				}, dom.getAll("a", pagination));
 			}
 			renderPagination(table.dataset.page);
@@ -68,18 +67,16 @@ dom.ready(function() {
 		dom.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
 			.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 
-		dom.click((el, i) => { // Find data event
+		dom.click((el, ev, i) => { // Find data event
 			table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
-		}, dom.getAll("a[href^='#find-']", table));
-		dom.click((el, i) => { // Remove event
-			let msg = styles?.remove || "remove";
-			if (i18n.confirm(msg)) {
-				const ev = new CustomEvent("remove", { "detail": data[i] });
-				resume.total--;
-				data.splice(i, 1); // Remove from data
-				table.dispatchEvent(ev); // Triger event
+		}, dom.getAll("a[href='#find']", table));
+		dom.click((el, ev, i) => { // Remove event
+			if (i18n.confirm(styles?.remove || "remove")) {
+				resume.total--; // dec. total rows
+				const obj = data.splice(i, 1)[0]; // Remove from data
+				table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Triger event
 			}
-		}, dom.getAll("a[href^='#remove-']", table));
+		}, dom.getAll("a[href='#remove']", table));
 
 		table.dispatchEvent(new Event("render")); // Triger event
 		return fnToggleTbody(table); // Toggle body if no data
@@ -111,17 +108,18 @@ dom.ready(function() {
 						table.dataset.sortDir); // Sort direction
 		}
 
-		dom.click(el => { // Sort event click
-			let dir = dom.hasClass("sort-asc", el) ? "desc" : "asc"; // Toggle sort direction
+		dom.click((el, ev) => { // Sort event click
+			const dir = dom.hasClass("sort-asc", el) ? "desc" : "asc"; // Toggle sort direction
 			fnToggleOrder(links, el, dir); // Update all sort indicators
 		}, links); // Add click event for order table
 
-		dom.click(el => { // Find data event
+		dom.click((el, ev) => { // Find data event
 			table.dispatchEvent(new CustomEvent("find", { "detail": el }));
-		}, dom.getAll("a[href^='#find-']", table));
-		dom.click(el => { // Remove event
-			table.dispatchEvent(new CustomEvent("remove", { "detail": el }));
-		}, dom.getAll("a[href^='#remove-']", table));
+		}, dom.getAll("a[href='#find']", table));
+		dom.click((el, ev) => { // Remove event
+			if (i18n.confirm("remove"))
+				table.dispatchEvent(new CustomEvent("remove", { "detail": el }));
+		}, dom.getAll("a[href='#remove']", table));
 
 		fnToggleTbody(table); // Toggle body if no data
 		fnPagination(table); // Update pagination
