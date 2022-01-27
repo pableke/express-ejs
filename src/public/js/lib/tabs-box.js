@@ -27,9 +27,8 @@ dom.ready(function() {
 	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 20)));
 
 	// Show/Hide drop down info
-	dom.onclick(".show-info", el => {
-		return !dom.swapClass("i.fas", "fa-angle-double-down fa-angle-double-up", el).toggleHide(".extra-info-" + el.id);
-	});
+	dom.onclick(".toggle-angle", el => !dom.swapClass("i.fas", "fa-angle-double-down fa-angle-double-up", el).toggleHide(".info-" + el.id));
+	dom.onclick(".toggle-caret", el => !dom.swapClass("i.fas", "fa-caret-right fa-caret-down", el).toggleHide(".info-" + el.id));
 
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu"); // Find unique menu
