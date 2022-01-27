@@ -2,8 +2,14 @@
 // Tables helper
 dom.ready(function() {
 	const tables = dom.getAll("table");
-	dom.getTable = (selector) => dom.find(selector, tables);
-	dom.getTables = (selector) => dom.filter(selector, tables);
+	dom.getTable = selector => dom.find(selector, tables);
+	dom.getTables = selector => dom.filter(selector, tables);
+
+	dom.onFindRow = (selector, fn) => dom.event("find", fn, dom.getTables(selector));
+	dom.onRemoveRow = (selector, fn) => dom.event("remove", fn, dom.getTables(selector));
+	dom.onChangeTable = (selector, fn) => dom.change(fn, dom.getTables(selector));
+	dom.onRenderTable = (selector, fn) => dom.event("render", fn, dom.getTables(selector));
+	dom.onPaginationTable = (selector, fn) => dom.event("pagination", fn, dom.getTables(selector));
 
 	function fnToggleTbody(table) {
 		let tr = dom.get("tr.tb-data", table); //has data rows?

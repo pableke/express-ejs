@@ -10,7 +10,7 @@ dom.ready(function() {
 	}
 
 	// AJAX Forms
-	dom.submit(form => {
+	dom.onSubmitForm("#contact", form => {
 		dom.closeAlerts()
 			.required("#info", "errSendContact", "errRequired")
 			.required("#asunto", "errSendContact", "errRequired")
@@ -19,13 +19,13 @@ dom.ready(function() {
 		dom.isOk() && dom.send(form, (msg) => {
 			dom.showOk(msg).val("", form.elements).moveFocus("#nombre");
 		});
-	}, dom.get("#contact"));
+	});
 
 	// Non AJAX Forms
-	dom.submit(form => {
+	dom.onSubmitForm("#login", form => {
 		return dom.closeAlerts()
 					.login("#clave", "errUserNotFound", "errRegex") //password
 					.user("#usuario", "errUserNotFound", "errRegex") //email or login
 					.isOk();
-	}, dom.get("#login"));
+	});
 });
