@@ -110,9 +110,10 @@ function DomBox() {
 	}
 
 	// Inputs selectors and focusableds
+	const INPUTS = "input,textarea,select";
 	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
-	this.inputs = el => self.getAll("input,textarea,select", el);
+	this.inputs = el => self.getAll(INPUTS, el);
 	this.focus = function(el) { el && el.focus(); return self; }
 	this.setFocus = el => self.refocus(self.inputs(el));
 	this.refocus = function(list) {
@@ -322,7 +323,15 @@ function DomBox() {
 	this.trigger = (name, ev, list) => self.each(el => el.dispatchEvent(ev || new Event(name)), list);
 
 	this.ready(function() {
-		const inputs = self.inputs(); //all html inputs
+		const forms = self.getAll("form"); //all html forms
+		const inputs = []; //all html inputs
+
+		self.each(form => { // load all inputs
+			self.each(el => addMatch(el, INPUTS, inputs), form.elements);
+		}, forms);
+
+		self.getForm = selector => self.find(selector, forms);
+		self.getForms = selector => self.filter(selector, forms);
 		self.getInput = selector => self.find(selector, inputs);
 		self.getInputs = selector => selector ? self.filter(selector, inputs) : inputs;
 
@@ -331,7 +340,10 @@ function DomBox() {
 		self.setValue = (selector, value) => self.val(value, self.getInputs(selector));
 		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
 		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
+
 		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
+		self.onChangeForm = (selector, fn) => self.change(fn, self.getForms(selector));
+		self.onSubmitForm = (selector, fn) => self.submit(fn, self.getForms(selector));
 		self.refocus(inputs); // Set focus on first visible input
 
 		// Necesario para clipboard
