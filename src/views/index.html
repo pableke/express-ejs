@@ -167,11 +167,9 @@
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
-					.onRemoveRow("#pruebas", (table, ev) => {
-						console.log("remove", ev.detail, table);
-						dom.renderRows(table, data, resume, styles);
-					})
-					.renderTable(table, data, resume, styles);
+					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume, styles))
+					.renderTable(table, data, resume, styles)
+					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
 
 				dom.onclick("a[href='show-first']", el => {
 					resume.total++;

@@ -17,9 +17,10 @@ function DomBox() {
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 
-	this.get = function(selector, el) { return (el || document).querySelector(selector); }
-	this.getAll = function(selector, el) { return (el || document).querySelectorAll(selector); }
-	this.closest = function(selector, el) { return el && el.closest(selector); }
+	this.get = (selector, el) => (el || document).querySelector(selector);
+	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
+	this.closest = (selector, el) => el && el.closest(selector);
+	this.matches = (selector, el) => el && el.matches(selector);
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
 	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
@@ -71,12 +72,8 @@ function DomBox() {
 		return self;
 	}
 	this.reverse = function(cb, list) {
-		if (isElem(list))
-			cb(list, 0);
-		else {
-			for (let i = fnSize(list) - 1; i > -1; i--)
-				cb(list[i], i, list);
-		}
+		for (let i = fnSize(list) - 1; i > -1; i--)
+			cb(list[i], i, list);
 		return self;
 	}
 
@@ -99,8 +96,6 @@ function DomBox() {
 		return -1;
 	}
 	this.find = function(selector, list) {
-		if (isElem(list))
-			return list.matches(selector) ? list : null;
 		return list[self.findIndex(selector, list)];
 	}
 	this.filter = function(selector, list) {
@@ -346,6 +341,7 @@ function DomBox() {
 		self.onSubmitForm = (selector, fn) => self.submit(fn, self.getForms(selector));
 		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.refocus(inputs); // Set focus on first visible input
+
 
 		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event("find", fn, self.getTables(selector));
