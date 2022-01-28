@@ -105,10 +105,20 @@ function StringBox() {
 		opts = opts || {}; //default settings
 		opts.empty = opts.empty || "";
 
-		return data && tpl && tpl.replace(/@(\w+);/g, function(m, k) {
+		return data && tpl && tpl.replace(/@(\w+);/g, (m, k) => {
 			let fn = opts[k]; //field format function
 			let value = fn ? fn(data[k], data) : data[k];
 			return value ?? opts.empty; //string formated
 		});
+	}
+	this.entries = function(data, tpl, opts) {
+		opts = opts || {}; //default settings
+		let output = "";
+		for (const k in data) {
+			let fn = opts[k]; //field format function
+			let value = fn ? fn(data[k], data) : data[k];
+			output += tpl.replace(/@key;/g, k).replace(/@value;/g, value);
+		}
+		return output;
 	}
 }
