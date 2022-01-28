@@ -113,11 +113,11 @@ function StringBox() {
 	}
 	this.entries = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
-		let output = "";
+		let output = ""; //result buffer
 		for (const k in data) {
 			let fn = opts[k]; //field format function
 			let value = fn ? fn(data[k], data) : data[k];
-			output += tpl.replace(/@key;/g, k).replace(/@value;/g, value);
+			output += tpl.replace("@key;", k).replace("@value;", value);
 		}
 		return output;
 	}
