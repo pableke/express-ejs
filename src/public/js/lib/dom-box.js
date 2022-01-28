@@ -171,6 +171,7 @@ function DomBox() {
 		return self;
 	}
 	this.getValue = el => el && el.value;
+	this.setValue = (el, value) => el ? fnSetVal(el, value) : self;
 	this.val = (value, list) => self.each(el => fnSetVal(el, value), list);
 
 	this.getAttr = (el, name) => el && el.getAttribute(name);
@@ -260,21 +261,16 @@ function DomBox() {
 		const el = self.first(list); //first element
 		return el && fnSplit(name).some(name => el.classList.contains(name));
 	}
-	this.setClass = function(value, list) {
-		return self.each(el => { el.className = value; }, list);
-	}
 	this.addClass = function(name, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
-		function fnAdd(el) { names.forEach(name => el.classList.add(name)); }
-		return self.each(fnAdd, list);
+		return self.each(el => { names.forEach(name => el.classList.add(name)); }, list);
 	}
 	this.addStyle = function(selector, name, el) {
 		return self.addClass(name, self.getAll(selector, el));
 	}
 	this.removeClass = function(name, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
-		function fnRemove(el) { names.forEach(name => el.classList.remove(name)); }
-		return self.each(fnRemove, list);
+		return self.each(el => { names.forEach(name => el.classList.remove(name)); }, list);
 	}
 	this.removeStyle = function(selector, name, el) {
 		return self.removeClass(name, self.getAll(selector, el));
@@ -304,6 +300,9 @@ function DomBox() {
 		el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault());
 		return self;
 	}
+	function fnAddEvent(name, el, fn) {
+		return el ? fnEvent(name, el , 0, fn) : self;
+	}
 	this.event = (name, fn, list) => self.each((el, i) => fnEvent(name, el, i, fn), list);
 	this.ready = fn => fnEvent("DOMContentLoaded", document, 0, fn);
 	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
@@ -332,21 +331,26 @@ function DomBox() {
 		self.getInputs = selector => selector ? self.filter(selector, inputs) : inputs;
 
 		self.moveFocus = selector => self.focus(self.getInput(selector));
-		self.findValue = selector => self.getValue(self.getInput(selector));
-		self.setValue = (selector, value) => self.val(value, self.getInputs(selector));
+		self.getVal = selector => self.getValue(self.getInput(selector));
+		self.setVal = (selector, value) => self.val(value, self.getInputs(selector));
+		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
 		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
 		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
 
-		self.onChangeForm = (selector, fn) => self.change(fn, self.getForms(selector));
-		self.onSubmitForm = (selector, fn) => self.submit(fn, self.getForms(selector));
-		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
+		self.onChangeForm = (selector, fn) => fnAddEvent("change", self.getForm(selector), fn);
+		self.onSubmitForm = (selector, fn) => fnAddEvent("submit", self.getForm(selector), fn);
+		self.onChangeForms = (selector, fn) => self.change(fn, self.getForms(selector));
+		self.onSubmitForms = (selector, fn) => self.submit(fn, self.getForms(selector));
+		self.onChangeInput = (selector, fn) => fnAddEvent("change", self.getInput(selector), fn);
+		self.onChangeInputs = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.refocus(inputs); // Set focus on first visible input
 
 
 		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event("find", fn, self.getTables(selector));
 		self.onRemoveRow = (selector, fn) => self.event("remove", fn, self.getTables(selector));
-		self.onChangeTable = (selector, fn) => self.change(fn, self.getTables(selector));
+		self.onChangeTable = (selector, fn) => fnAddEvent("change", self.getTable(selector), fn);
+		self.onChangeTables = (selector, fn) => self.change(fn, self.getTables(selector));
 		self.onRenderTable = (selector, fn) => self.event("render", fn, self.getTables(selector));
 		self.onPaginationTable = (selector, fn) => self.event("pagination", fn, self.getTables(selector));
 
