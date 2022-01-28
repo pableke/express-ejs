@@ -253,7 +253,8 @@ function DomBox() {
 	}
 	this.format = (formatter, list) => self.each(self.render, list);
 	this.reformat = (selector, formatter) => self.format(formatter, self.getAll(selector));
-	this.replace = (value, list) => self.each(el => { el.outerHTML = value; }, list);
+	this.replace = (selector, value) => self.each(el => { el.outerHTML = value; }, self.getAll(selector));
+	this.parse = (selector, formatter)  => self.each(el => { el.outerHTML = formatter(el.outerHTML); }, self.getAll(selector));
 
 	// Styles
 	this.isVisible = el => el && fnVisible(el);
