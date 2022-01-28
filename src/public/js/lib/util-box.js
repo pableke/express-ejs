@@ -139,6 +139,11 @@ dom.ready(function() {
 			dom.render(el, tpl => i18n.format(tpl, opts));
 		}, elements);
 	}
+	dom.parse = function(selector, data) {
+		return dom.each(el => {
+			el.outerHTML = sb.entries(data, el.outerHTML);
+		}, dom.getAll(selector));
+	}
 
 	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {

@@ -203,7 +203,6 @@ function DomBox() {
 	}
 
 	this.empty = el => !el || !el.innerHTML || (el.innerHTML.trim() === EMPTY);
-	this.replace = (value, list) => self.each(el => { el.outerHTML = value; }, list);
 	this.add = (node, list) => self.each(el => node.appendChild(el), list);
 	this.append = function(text, list) {
 		return self.each(el => {
@@ -254,6 +253,7 @@ function DomBox() {
 	}
 	this.format = (formatter, list) => self.each(self.render, list);
 	this.reformat = (selector, formatter) => self.format(formatter, self.getAll(selector));
+	this.replace = (value, list) => self.each(el => { el.outerHTML = value; }, list);
 
 	// Styles
 	this.isVisible = el => el && fnVisible(el);
@@ -329,7 +329,7 @@ function DomBox() {
 		const inputs = self.filter(INPUTS, elements); //all html inputs
 
 		self.getTable = selector => self.find(selector, tables);
-		self.getTables = selector => selector ? self.filter(selector, tables) : tables;
+		self.getTables = selector => self.filter(selector, tables);
 		self.getForm = selector => self.find(selector, forms);
 		self.getForms = selector => self.filter(selector, forms);
 		self.getInput = selector => self.find(selector, inputs);
@@ -346,7 +346,7 @@ function DomBox() {
 		self.onChangeInput = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.refocus(inputs); // Set focus on first visible input
 
-		// Tables/rows helper
+		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event("find", fn, self.getTables(selector));
 		self.onRemoveRow = (selector, fn) => self.event("remove", fn, self.getTables(selector));
 		self.onChangeTable = (selector, fn) => self.change(fn, self.getTables(selector));
@@ -432,7 +432,7 @@ function DomBox() {
 		self.renderRows = function(table, data, resume, styles) {
 			return table ? fnRenderRows(table, data, resume, styles) : dom;
 		}
-		self.renderTablesRows = function(selector, data, resume, styles) {
+		self.list = function(selector, data, resume, styles) {
 			return self.each(table => fnRenderRows(table, data, resume, styles), self.getTables(selector));
 		}
 
@@ -472,6 +472,8 @@ function DomBox() {
 			fnToggleTbody(table); // Toggle body if no data
 			fnPagination(table); // Update pagination
 		}, tables);
+		/**************** Tables/rows helper ****************/
+
 
 		// Clipboard function
 		TEXT.style.position = "absolute";
