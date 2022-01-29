@@ -27,13 +27,13 @@ function DomBox() {
 	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
 	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
 	this.escape = function(text) { DIV.innerHTML = text; return DIV.innerHTML; }
-	this.buildPath = function(parts, url) {
+	/*this.buildPath = function(parts, url) {
 		url = url || window.location.pathname;
 		let aux = new URLSearchParams(parts);
 		let params = new URLSearchParams(window.location.search);
 		aux.forEach((v, k) => params.set(k, v));
 		return url + "?" + params.toString();
-	}
+	}*/
 	this.scroll = function(el, win) {
 		win = win || window; //window to apply scroll
 		el = el || win.document.body; //destination elem
@@ -167,7 +167,7 @@ function DomBox() {
 			el.selectedIndex = value ? self.findIndex("[value='" + value + "']", el.options) : 0;
 		}
 		else
-			el.value = value;
+			el.value = value ?? EMPTY;
 		return self;
 	}
 	this.getValue = el => el && el.value;
@@ -296,6 +296,7 @@ function DomBox() {
 	}
 
 	// Events
+	const ON_CHANGE = "change";
 	function fnEvent(name, el, i, fn) {
 		el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault());
 		return self;
@@ -304,18 +305,29 @@ function DomBox() {
 		return el ? fnEvent(name, el , 0, fn) : self;
 	}
 	this.event = (name, fn, list) => self.each((el, i) => fnEvent(name, el, i, fn), list);
-	this.ready = fn => fnEvent("DOMContentLoaded", document, 0, fn);
-	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
-	this.onclick = (selector, fn) => self.click(fn, self.getAll(selector));
-	this.change = (fn, list) => self.each((el, i) => fnEvent("change", el, i, fn), list);
-	this.onchange = (selector, fn) => self.change(fn, self.getAll(selector));
-	this.keyup = (fn, list) => self.each((el, i) => fnEvent("keyup", el, i, fn), list);
-	this.onkeyup = (selector, fn) => self.keyup(fn, self.getAll(selector));
-	this.keydown = (fn, list) => self.each((el, i) => fnEvent("keydown", el, i, fn), list);
-	this.onkeydown = (selector, fn) => self.keydown(fn, self.getAll(selector));
-	this.submit = (fn, list) => self.each((el, i) => fnEvent("submit", el, i, fn), list);
-	this.onsubmit = (selector, fn) => self.submit(fn, self.getAll(selector));
+	this.addEvent = (selector, name, fn) => self.event(name, fn, self.getAll(selector));
 	this.trigger = (name, ev, list) => self.each(el => el.dispatchEvent(ev || new Event(name)), list);
+	this.ready = fn => fnEvent("DOMContentLoaded", document, 0, fn);
+
+	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
+	this.onClick = (selector, fn) => self.click(fn, self.getAll(selector));
+	this.onclick = self.onClick;
+
+	this.change = (fn, list) => self.each((el, i) => fnEvent(ON_CHANGE, el, i, fn), list);
+	this.onChange = (selector, fn) => self.change(fn, self.getAll(selector));
+	this.onchange = self.onChange;
+
+	this.keyup = (fn, list) => self.each((el, i) => fnEvent("keyup", el, i, fn), list);
+	this.onKeyup = (selector, fn) => self.keyup(fn, self.getAll(selector));
+	this.onkeyup = self.onKeyup;
+
+	this.keydown = (fn, list) => self.each((el, i) => fnEvent("keydown", el, i, fn), list);
+	this.onKeydown = (selector, fn) => self.keydown(fn, self.getAll(selector));
+	this.onkeydown = self.onKeydown;
+
+	this.submit = (fn, list) => self.each((el, i) => fnEvent("submit", el, i, fn), list);
+	this.onSubmit = (selector, fn) => self.submit(fn, self.getAll(selector));
+	this.onsubmit = self.onSubmit;
 
 	this.ready(function() {
 		const elements = self.getAll("table,form," + INPUTS);
@@ -336,12 +348,20 @@ function DomBox() {
 		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
 		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
 		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
+		self.setInput = (selector, value, fnChange) => {
+			const el = self.getInput(selector);
+			if (el) {
+				fnEvent(ON_CHANGE, el, 0, fnChange);
+				fnSetVal(el, value);
+			}
+			return self;
+		}
 
-		self.onChangeForm = (selector, fn) => fnAddEvent("change", self.getForm(selector), fn);
+		self.onChangeForm = (selector, fn) => fnAddEvent(ON_CHANGE, self.getForm(selector), fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent("submit", self.getForm(selector), fn);
 		self.onChangeForms = (selector, fn) => self.change(fn, self.getForms(selector));
 		self.onSubmitForms = (selector, fn) => self.submit(fn, self.getForms(selector));
-		self.onChangeInput = (selector, fn) => fnAddEvent("change", self.getInput(selector), fn);
+		self.onChangeInput = (selector, fn) => fnAddEvent(ON_CHANGE, self.getInput(selector), fn);
 		self.onChangeInputs = (selector, fn) => self.change(fn, self.getInputs(selector));
 		self.refocus(inputs); // Set focus on first visible input
 
@@ -349,7 +369,7 @@ function DomBox() {
 		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event("find", fn, self.getTables(selector));
 		self.onRemoveRow = (selector, fn) => self.event("remove", fn, self.getTables(selector));
-		self.onChangeTable = (selector, fn) => fnAddEvent("change", self.getTable(selector), fn);
+		self.onChangeTable = (selector, fn) => fnAddEvent(ON_CHANGE, self.getTable(selector), fn);
 		self.onChangeTables = (selector, fn) => self.change(fn, self.getTables(selector));
 		self.onRenderTable = (selector, fn) => fnAddEvent("render", self.getTable(selector), fn);
 		self.onRenderTables = (selector, fn) => self.event("render", fn, self.getTables(selector));
