@@ -12,7 +12,6 @@ function DomBox() {
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSize(list) { return list ? list.length : 0; } //string o array
-	function isElem(el) { return el && (el.nodeType === 1); } //is DOMElement
 	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
@@ -64,12 +63,14 @@ function DomBox() {
 
 	// Iterators
 	this.each = function(cb, list) {
-		if (isElem(list))
-			cb(list, 0);
-		else {
-			let size = fnSize(list);
-			for (let i = 0; i < size; i++)
-				cb(list[i], i, list);
+		if (list) {
+			if (list.nodeType === 1)
+				cb(list, 0); //is DOMElement
+			else {
+				let size = fnSize(list);
+				for (let i = 0; i < size; i++)
+					cb(list[i], i, list);
+			}
 		}
 		return self;
 	}
@@ -78,15 +79,6 @@ function DomBox() {
 			cb(list[i], i, list);
 		return self;
 	}
-
-	function fnItem(i, list) {
-		if (isElem(list))
-			return list;
-		return fnSize(list) ? list[i] : null;
-	}
-	this.first = list => fnItem(0, list); //first element
-	this.elem = (i, list) => fnItem(i, list); //by position
-	this.last = (list) => fnItem(fnSize(list)-1, list); //last element
 
 	// Filters
 	this.findIndex = function(selector, list) {
@@ -152,7 +144,7 @@ function DomBox() {
 	this.select = function(mask, list) {
 		return self.each(el => { //iterate over all selects
 			let option = self.mask(HIDE, ~mask, el.options).get("[value='" + el.value + "']", el);
-			if (self.hasClass(HIDE, option)) //current option is hidden => force change
+			if (self.hasClass(option, HIDE)) //current option is hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		}, list);
 	}
@@ -216,10 +208,7 @@ function DomBox() {
 	this.visible = (selector, el) => self.isVisible(self.get(selector, el));
 	this.show = list => self.each(el => el.classList.add(HIDE), list);
 	this.hide = list => self.each(el => el.classList.remove(HIDE), list);
-	this.hasClass = function(name, list) {
-		const el = self.first(list); //first element
-		return el && fnSplit(name).some(name => el.classList.contains(name));
-	}
+	this.hasClass = (el, name) => el && fnSplit(name).some(name => el.classList.contains(name));
 	this.addClass = function(name, list) {
 		const names = fnSplit(name); // Split value by " " (class separator)
 		return self.each(el => { names.forEach(name => el.classList.add(name)); }, list);
@@ -438,7 +427,7 @@ function DomBox() {
 			}
 
 			self.click(el => { // Sort event click
-				const dir = self.hasClass("sort-asc", el) ? "desc" : "asc"; // Toggle sort direction
+				const dir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
 				fnToggleOrder(links, el, dir); // Update all sort indicators
 			}, links); // Add click event for order table
 
