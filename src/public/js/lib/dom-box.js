@@ -351,7 +351,8 @@ function DomBox() {
 		self.onRemoveRow = (selector, fn) => self.event("remove", fn, self.getTables(selector));
 		self.onChangeTable = (selector, fn) => fnAddEvent("change", self.getTable(selector), fn);
 		self.onChangeTables = (selector, fn) => self.change(fn, self.getTables(selector));
-		self.onRenderTable = (selector, fn) => self.event("render", fn, self.getTables(selector));
+		self.onRenderTable = (selector, fn) => fnAddEvent("render", self.getTable(selector), fn);
+		self.onRenderTables = (selector, fn) => self.event("render", fn, self.getTables(selector));
 		self.onPaginationTable = (selector, fn) => self.event("pagination", fn, self.getTables(selector));
 
 		function fnToggleTbody(table) {
