@@ -21,6 +21,8 @@ function DomBox() {
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
 	this.matches = (selector, el) => el && el.matches(selector);
+	this.sibling = (selector, el) => el && self.get(selector, el.parentNode);
+	this.siblings = (selector, el) => el && self.getAll(selector, el.parentNode);
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
 	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
@@ -115,49 +117,6 @@ function DomBox() {
 		return self.reverse(input => { //set focus on first input
 			fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
 		}, list);
-	}
-
-	function addPrev(el, selector, results) {
-		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
-			addMatch(sibling, selector, results);
-	}
-	function addNext(el, selector, results) {
-		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
-			addMatch(sibling, selector, results);
-	}
-	function addSiblings(el, selector, results) {
-		addPrev(el, selector, results);
-		addNext(el, selector, results);
-	}
-	function addAllPrev(el, results) {
-		for (let sibling = el.previousElementSibling; sibling; sibling = sibling.previousElementSibling)
-			results.push(sibling);
-	}
-	function addAllNext(el, results) {
-		for (let sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling)
-			results.push(sibling);
-	}
-	function addAllSiblings(el, results) {
-		addAllPrev(el, results);
-		addAllNext(el, results);
-	}
-	this.prev = function(selector, list) {
-		let results = []; //elem container
-		selector ? self.each(el => addPrev(el, selector, results), list)
-				: self.each(el => addAllPrev(el, results), list);
-		return results;
-	}
-	this.next = function(selector, list) {
-		let results = []; //elem container
-		selector ? self.each(el => addNext(el, selector, results), list)
-				: self.each(el => addAllNext(el, results), list);
-		return results;
-	}
-	this.siblings = function(selector, list) {
-		let results = []; //elem container
-		selector ? self.each(el => addSiblings(el, selector, results), list)
-				: self.each(el => addAllSiblings(el, results), list);
-		return results;
 	}
 
 	// Contents
@@ -306,7 +265,7 @@ function DomBox() {
 	}
 	this.event = (name, fn, list) => self.each((el, i) => fnEvent(name, el, i, fn), list);
 	this.addEvent = (selector, name, fn) => self.event(name, fn, self.getAll(selector));
-	this.trigger = (name, ev, list) => self.each(el => el.dispatchEvent(ev || new Event(name)), list);
+	this.trigger = (el, name) => { el && el.dispatchEvent(new Event(name)); return self; }
 	this.ready = fn => fnEvent("DOMContentLoaded", document, 0, fn);
 
 	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
@@ -423,7 +382,7 @@ function DomBox() {
 
 						renderPagination(i); // Render all pages
 						table.dataset.page = i; // Update current
-						table.dispatchEvent(new CustomEvent("pagination", { "detail": params })); // Triger event
+						table.dispatchEvent(new CustomEvent("pagination", { "detail": params })); // Trigger event
 					}, self.getAll("a", pagination));
 				}
 				renderPagination(table.dataset.page);
@@ -444,11 +403,11 @@ function DomBox() {
 				if (confirm(styles?.remove)) {
 					resume.total--; // dec. total rows
 					const obj = data.splice(i, 1)[0]; // Remove from data
-					table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Triger event
+					table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Trigger event
 				}
 			}, self.getAll("a[href='#remove']", table));
 
-			table.dispatchEvent(new Event("render")); // Triger event
+			table.dispatchEvent(new Event("render")); // Trigger event
 			return fnToggleTbody(table); // Toggle body if no data
 		}
 		self.renderRows = function(table, data, resume, styles) {
