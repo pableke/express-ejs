@@ -5,18 +5,29 @@ dom.ready(function() {
 	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
-	dom.getTab = (id) => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
-	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 	dom.hrefIndex = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
+	dom.getTab = (id) => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
+	dom.getTabs = () => tabs; //all tabs
+	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
+
+	dom.onSaveTab = (id, fn) => dom.event("save-" + id, fn, dom.getTab(id));
+	dom.onChangeTab = (id, fn) => dom.event("tab-" + id, fn, dom.getTab(id));
 
 	dom.showTab = function(i) { //show tab by index
-		index = nb.range(i, 0, tabs.length - 1);
-		if (progressbar) { // progressbar is optional
-			const step = "step-" + index; //go to a specific step on progressbar
-			dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
+		i = nb.range(i, 0, tabs.length - 1); // Force range
+
+		const tab = tabs[i]; // current tab
+		tab.dispatchEvent(new Event(tab.id)); // Trigger event
+
+		if (dom.isOk()) { // Only change tab if ok
+			if (progressbar) { // progressbar is optional
+				const step = "step-" + i; //go to a specific step on progressbar
+				dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
+			}
+			index = i; // set current index
+			dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 		}
-		const tab = tabs[index]; // current tab
-		return dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
+		return dom;
 	}
 	dom.prevTab = () => dom.showTab(index - 1);
 	dom.nextTab = () => dom.showTab(index + 1);
@@ -25,6 +36,7 @@ dom.ready(function() {
 	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
 	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 20)));
+	dom.onClickElem("a[href='#save-tab']", el => !tabs[index].dispatchEvent(new Event("save-" + index))); // Trigger event
 
 	// Show/Hide drop down info
 	dom.onclick(".toggle-angle", el => !dom.swapClass("i.fas", "fa-angle-double-down fa-angle-double-up", el).toggleHide(".info-" + el.id));

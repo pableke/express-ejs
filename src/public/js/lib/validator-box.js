@@ -53,6 +53,7 @@ function ValidatorBox() {
 	this.intval = (num) => self.range(nb.intval(num), 1, 9);
 	this.intval3 = (num) => self.range(nb.intval(num), 1, 3);
 	this.intval5 = (num) => self.range(nb.intval(num), 1, 5);
+	this.fk = (num) => self.range(nb.intval(num), 1, Infinity);
 
 	this.size = function(str, min, max) {
 		str = fnTrim(str); // min/max string length

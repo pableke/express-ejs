@@ -80,7 +80,7 @@ dom.ready(function() {
 
 	// Individual input error messages
 	dom.setError = function(el) {
-		const tip = dom.get(".ui-errtip", el.parentNode);
+		const tip = dom.sibling(".ui-errtip", el);
 		return dom.showError(i18n.getError()).addClass("ui-error", el).focus(el)
 					.html(i18n.getMsg(el.name), tip).removeClass("hide", tip);
 	}
@@ -127,6 +127,8 @@ dom.ready(function() {
 	dom.intval = (selector, msg, msgtip) => dom.isIntval(dom.getInput(selector), msg, msgtip);
 	dom.isGt0 = (el, msg, msgtip) => (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
+	dom.isFk = (el, msg, msgtip) => (!el || i18n.fk(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	dom.fk = (selector, msg, msgtip) => dom.isFk(dom.getInput(selector), msg, msgtip);
 	dom.isGeToday = (el, msg, msgtip) => (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
 

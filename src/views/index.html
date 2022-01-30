@@ -47,9 +47,9 @@
 	<main>
 		<!-- progressbar -->
 		<ul id="progressbar">
-			<li id="step-0" class="active">Account Setup</li>
-			<li id="step-1">Social Profiles</li>
-			<li id="step-2">Personal Details</li>
+			<li id="step-0" class="active">Home</li>
+			<li id="step-1">Tables</li>
+			<li id="step-2">Forms</li>
 			<li id="step-3">Resume</li>
 		</ul>
 
@@ -67,12 +67,6 @@
 					<h2>Card 3</h2>
 					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
 				</div>
-			</div>
-			<div class="">
-				<select>
-					<option value="">Seleccione una entidad ...</option>
-					<option id="entidades" value="@key;">@value;</option>
-				</select>
 			</div>
 		</div>
 
@@ -132,10 +126,22 @@
 			</template>
 		</div>
 
+		<div id="tab-2" class="tab-content">
+			<form id="test">
+			<div class="navbar">
+				<select>
+					<option value="">Seleccione una entidad ...</option>
+					<option id="entidades" value="@key;">@value;</option>
+				</select>
+			</div>
+			</form>
+		</div>
+
 		<div class="navbar">
-			<a href="#prev-tab" class="btn btn-success"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-			<a href="#tab-1" class="btn btn-success">go 2</a>
-			<a href="#next-tab" class="btn btn-success">Sig.<i class="fas fa-angle-double-right icon"></i></a>
+			<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+			<a href="#save-tab" class="btn btn-success"><i class="fas fa-save icon"></i>Save</a>
+			<a href="#tab-1" class="btn btn-primary">go 2</a>
+			<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
 			<br/>
 			<a href="show-first">Fade In Alerts</a> / 
 			<a href="close-first">Fade Out Alerts</a>
@@ -164,6 +170,8 @@
 				const styles = { remove: i18n.get("remove") }
 
 				dom.loadTemplates()
+					.onSaveTab("2", () => console.log("saving... tab-2"))
+					.onChangeTab("1", () => console.log("tab-1"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
