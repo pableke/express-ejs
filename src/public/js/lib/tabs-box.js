@@ -12,11 +12,20 @@ dom.ready(function() {
 
 	dom.onSaveTab = (id, fn) => dom.event("save-" + id, fn, dom.getTab(id));
 	dom.onChangeTab = (id, fn) => dom.event("tab-" + id, fn, dom.getTab(id));
+	dom.onExitTab = fn => dom.event("exit", fn, tabs[0]);
+
+	dom.isFirstTab = () => (index == 0);
+	dom.isLastTab = () => (index == (tabs.length - 1));
 
 	dom.showTab = function(i) { //show tab by index
-		i = nb.range(i, 0, tabs.length - 1); // Force range
+		let size = tabs.length; // tabs length
+		i = nb.range(i, 0, size - 1); // Force range
 
 		const tab = tabs[i]; // current tab
+		if ((i == 0) && (index == 0)) {
+			tab.dispatchEvent(new Event("exit")); // Trigger event
+			return dom; // exit tabs form
+		}
 		tab.dispatchEvent(new Event(tab.id)); // Trigger event
 
 		if (dom.isOk()) { // Only change tab if ok
@@ -25,16 +34,21 @@ dom.ready(function() {
 				dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
 			}
 			index = i; // set current index
-			dom.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
+			dom.toggleHide("[href='#tab-0']", index < 2)
+				.toggleHide("[href='#next-tab']", index >= (size - 1))
+				.toggleHide("[href='#last-tab']", index >= (size - 2))
+				.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 		}
 		return dom;
 	}
 	dom.prevTab = () => dom.showTab(index - 1);
 	dom.nextTab = () => dom.showTab(index + 1);
+	dom.lastTab = () => dom.showTab(tabs.length + 1);
 	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
 
 	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
+	dom.onclick("a[href='#last-tab']", () => !dom.lastTab());
 	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 20)));
 	dom.onClickElem("a[href='#save-tab']", el => !tabs[index].dispatchEvent(new Event("save-" + index))); // Trigger event
 
