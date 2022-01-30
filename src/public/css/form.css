@@ -55,7 +55,7 @@ label.required:after {
 /* Buttons */
 .btn {
 	display: inline-block;
-	margin: .5em; padding: .45em 1em;
+	margin: .2em; padding: .45em 1em;
 	border-radius: 6px;
 	text-decoration: none;
 	text-align: center;
