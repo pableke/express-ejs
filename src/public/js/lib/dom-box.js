@@ -159,7 +159,7 @@ function DomBox() {
 	}
 
 	// Format and parse contents
-	this.import = function(inputs, data, opts) {
+	/*this.import = function(inputs, data, opts) {
 		opts = opts || {}; //default settings
 		if (!data) //no data => clear inputs
 			return self.val(EMPTY, inputs);
@@ -180,7 +180,7 @@ function DomBox() {
 		}, inputs);
 		delete data.undefined; //no name element
 		return data;
-	}
+	}*/
 
 	const TEMPLATES = {}; //container
 	this.setTpl = function(name, tpl) {
@@ -259,6 +259,7 @@ function DomBox() {
 
 	this.click = (fn, list) => self.each((el, i) => fnEvent("click", el, i, fn), list);
 	this.onClick = (selector, fn) => self.click(fn, self.getAll(selector));
+	this.onClickElem = (selector, fn) => fnAddEvent("click", self.get(selector), fn);
 	this.onclick = self.onClick;
 
 	this.change = (fn, list) => self.each((el, i) => fnEvent(ON_CHANGE, el, i, fn), list);
@@ -357,8 +358,8 @@ function DomBox() {
 					(pages > 1) && addPage(0);
 					i = Math.max(page - 3, 1);
 					(i > 2) && addControl(i - 1, "...");
-					let max = Math.min(page + 3, pages);
-					while (i < max)
+					let max = Math.min(page + 3, pages - 1);
+					while (i <= max)
 						addPage(i++);
 					(i < (pages - 1)) && addControl(i, "...");
 					(i < pages) && addPage(pages - 1);

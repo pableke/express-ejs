@@ -246,6 +246,7 @@ function I18nBox() {
 	this.text300 = (name, value, msg, msgtip) => self.valid(name, valid.text300(value), msg, msgtip);
 	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip);
 
+	this.fk = (name, value, msg, msgtip) => self.valid(name, valid.fk(value), msg, msgtip);
 	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip);
 	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip);
 	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip);
