@@ -295,6 +295,7 @@ function DomBox() {
 		self.getVal = selector => self.getValue(self.getInput(selector));
 		self.setVal = (selector, value) => self.val(value, self.getInputs(selector));
 		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
+		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getVal(i2));
 		self.setAttr = (selector, name, value) => self.attr(name, value, self.getInputs(selector));
 		self.delAttr = (selector, name) => self.removeAttr(name, self.getInputs(selector));
 		self.setInput = (selector, value, fnChange) => {
