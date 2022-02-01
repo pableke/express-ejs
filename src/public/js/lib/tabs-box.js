@@ -1,7 +1,6 @@
 
 // Tabs handler
 dom.ready(function() {
-	let progressbar = dom.get("#progressbar");
 	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
@@ -18,8 +17,8 @@ dom.ready(function() {
 	dom.isLastTab = () => (index == (tabs.length - 1));
 
 	dom.showTab = function(i) { //show tab by index
-		let size = tabs.length; // tabs length
-		i = nb.range(i, 0, size - 1); // Force range
+		let size = tabs.length - 1; // tabs length
+		i = nb.range(i, 0, size); // Force range
 
 		const tab = tabs[i]; // current tab
 		if ((i == 0) && (index == 0)) {
@@ -29,14 +28,15 @@ dom.ready(function() {
 		tab.dispatchEvent(new Event(tab.id)); // Trigger event
 
 		if (dom.isOk()) { // Only change tab if ok
+			const progressbar = dom.get("#progressbar");
 			if (progressbar) { // progressbar is optional
 				const step = "step-" + i; //go to a specific step on progressbar
 				dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
 			}
 			index = i; // set current index
 			dom.toggleHide("[href='#tab-0']", index < 2)
-				.toggleHide("[href='#next-tab']", index >= (size - 1))
-				.toggleHide("[href='#last-tab']", index >= (size - 2))
+				.toggleHide("[href='#next-tab']", index >= size)
+				.toggleHide("[href='#last-tab']", index >= (size - 1))
 				.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
 		}
 		return dom;
