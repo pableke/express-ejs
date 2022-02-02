@@ -184,11 +184,11 @@
 					dom.renderTable(table, data, resume, styles);
 
 					const alert = dom.get("div.alert");
-					dom.removeClass("hide", alert).animate("fadeIn", alert);
+					dom.show(alert).animate("fadeIn", alert);
 				});
 				dom.onclick("a[href='close-first']", el => {
 					const alert = dom.get("div.alert");
-					dom.animate("fadeOut", alert).then(el => dom.addClass("hide", el));
+					dom.animate("fadeOut", alert).then(el => dom.hide(el));
 				});
 
 				dom.onclick("a[href='loading']", el => {

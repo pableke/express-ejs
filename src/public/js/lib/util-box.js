@@ -16,47 +16,45 @@ dom.ready(function() {
 	i18n.setI18n(dom.getLang());
 
 	// Extends with animationCSS lib
-	dom.animate = function(animation, list) {
+	dom.animate = function(list, animation) {
 		// We create a Promise and return it
 		return new Promise((resolve, reject) => {
 			const animationName = "animate__animated animate__" + animation;
 
 			// When the animation ends, we clean the classes and resolve the Promise
-			function handleAnimationEnd(el, ev) {
-				dom.removeClass(animationName, list);
-				ev.stopPropagation();
-				resolve(el);
-			}
-
-			dom.addClass(animationName, list)
-				.event("animationend", handleAnimationEnd, list);
+			dom.addClass(list, animationName)
+				.event(list, "animationend", (el, ev) => {
+					dom.removeClass(list, animationName);
+					ev.stopPropagation();
+					resolve(el);
+				});
 		});
 	}
-	dom.fadeIn = (list) => { dom.removeClass("hide", list).animate("fadeIn", ); return dom; }
-	dom.fadeOut = (list) => { dom.animate("fadeOut", list).then(el => dom.addClass("hide", el)); return dom; }
+	dom.fadeIn = list => { dom.show(list).animate(list, "fadeIn"); return dom; }
+	dom.fadeOut = list => { dom.animate(list, "fadeOut").then(dom.hide); return dom; }
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
-	window.onscroll = function() { dom.toggle("hide", this.pageYOffset < 80, _top); }
-	dom.click(el => !dom.scroll(), _top);
+	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
+	dom.click(_top, el => !dom.scroll());
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
-	dom.loading = () => dom.removeClass("hide", _loading).closeAlerts();
+	dom.loading = () => dom.show(_loading).closeAlerts();
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
 
 	// Extra inputs helpers
 	const inputs = dom.getInputs(); // All inputs list
 	dom.setDateRange = el => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
-	dom.setDates = (value, list) => dom.val(value, list).each(dom.setDateRange, list); //update value and range
+	dom.setDates = (value, list) => dom.val(value, list).each(list, dom.setDateRange); //update value and range
 	dom.setDate = (selector, value) => dom.setDates(value, dom.getInputs(selector));
 
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
 	function setAlert(el, txt) {
-		return txt ? dom.fadeIn(el.parentNode).html(txt, el).scroll() : dom;
+		return txt ? dom.fadeIn(el.parentNode).html(el, txt).scroll() : dom;
 	}
 
 	dom.isOk = i18n.isOk;
@@ -71,18 +69,18 @@ dom.ready(function() {
 	dom.closeAlerts = function() { //hide all alerts
 		i18n.start(); //reinit. error counter
 		const tips = dom.getAll(".ui-errtip"); //tips messages
-		return dom.addClass("hide", alerts.children).removeClass("ui-error", inputs).html("", tips).addClass("hide", tips);
+		return dom.hide(alerts.children).removeClass(inputs, "ui-error").html(tips, "").hide(tips);
 	}
 
 	// Show posible server messages and close click event
-	dom.each(el => { el.firstChild && dom.fadeIn(el.parentNode); }, texts)
-		.click(el => dom.fadeOut(el.parentNode), dom.getAll(".alert-close", alerts));
+	dom.each(texts, el => { el.firstChild && dom.fadeIn(el.parentNode); })
+		.click(dom.getAll(".alert-close", alerts), el => dom.fadeOut(el.parentNode));
 
 	// Individual input error messages
 	dom.setError = function(el) {
 		const tip = dom.sibling(".ui-errtip", el);
-		return dom.showError(i18n.getError()).addClass("ui-error", el).focus(el)
-					.html(i18n.getMsg(el.name), tip).removeClass("hide", tip);
+		return dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
+					.html(tip, i18n.getMsg(el.name)).show(tip);
 	}
 	dom.addError = function(selector, msg, msgtip) {
 		const el = dom.getInput(selector);
@@ -104,15 +102,15 @@ dom.ready(function() {
 	}
 
 	// Inputs formater
-	dom.each(el => { el.value = i18n.fmtBool(el.value); }, dom.getInputs(".ui-bool"));
-	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
-	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle("texterr", sb.starts(el.value, "-"), el); });
+	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); });
+	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
+	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 	dom.onChangeInputs(".ui-date", dom.setDateRange); //auto range date inputs
 
 	// Initialize all textarea counter
 	const ta = dom.getInputs("textarea.counter");
 	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value)), el.parentNode); }
-	dom.attr("maxlength", "600", ta).keyup(fnCounter, ta).each(fnCounter, ta);
+	dom.attr("maxlength", "600", ta).keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
@@ -136,10 +134,10 @@ dom.ready(function() {
 	dom.tr = function(selector, opts) {
 		const elements = dom.getAll(selector);
 		i18n.set("size", elements.length); //size list
-		return dom.each((el, i) => {
+		return dom.each(elements, (el, i) => {
 			i18n.set("index", i).set("count", i + 1);
 			dom.render(el, tpl => i18n.format(tpl, opts));
-		}, elements);
+		});
 	}
 
 	// Extends dom-box actions (require jquery)
@@ -204,9 +202,9 @@ dom.ready(function() {
 			}
 		};
 		$(inputs).autocomplete(opts);
-		return dom.keydown((el, ev) => { // Reduce server calls, only for backspace or alfanum
+		return dom.keydown(inputs, (el, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
-		}, inputs);
+		});
 	}
 	// Extends dom-box actions
 
@@ -216,8 +214,8 @@ dom.ready(function() {
 	});*/
 
 	// Set error input styles and reallocate focus
-	dom.reverse(el => {
+	dom.reverse(inputs, el => {
 		const tip = dom.get(".ui-errtip", el.parentNode);
-		dom.empty(tip) || dom.addClass("ui-error", el).focus(el);
-	}, inputs);
+		dom.empty(tip) || dom.addClass(el, "ui-error").focus(el);
+	});
 });

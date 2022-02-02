@@ -9,9 +9,9 @@ dom.ready(function() {
 	dom.getTabs = () => tabs; //all tabs
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 
-	dom.onSaveTab = (id, fn) => dom.event("save-" + id, fn, dom.getTab(id));
-	dom.onChangeTab = (id, fn) => dom.event("tab-" + id, fn, dom.getTab(id));
-	dom.onExitTab = fn => dom.event("exit", fn, tabs[0]);
+	dom.onSaveTab = (id, fn) => dom.event(dom.getTab(id), "save-" + id, fn);
+	dom.onChangeTab = (id, fn) => dom.event(dom.getTab(id), "tab-" + id, fn);
+	dom.onExitTab = fn => dom.event(tabs[0], "exit", fn);
 
 	dom.isFirstTab = () => (index == 0);
 	dom.isLastTab = () => (index == (tabs.length - 1));
@@ -31,13 +31,13 @@ dom.ready(function() {
 			const progressbar = dom.get("#progressbar");
 			if (progressbar) { // progressbar is optional
 				const step = "step-" + i; //go to a specific step on progressbar
-				dom.each(li => dom.toggle("active", li.id <= step, li), progressbar.children);
+				dom.each(progressbar.children, li => dom.toggle(li, "active", li.id <= step));
 			}
 			index = i; // set current index
 			dom.toggleHide("[href='#tab-0']", index < 2)
 				.toggleHide("[href='#next-tab']", index >= size)
 				.toggleHide("[href='#last-tab']", index >= (size - 1))
-				.removeClass("active", tabs).addClass("active", tab).setFocus(tab).scroll();
+				.removeClass(tabs, "active").addClass(tab, "active").setFocus(tab).scroll();
 		}
 		return dom;
 	}
@@ -53,8 +53,8 @@ dom.ready(function() {
 	dom.onClickElem("a[href='#save-tab']", el => !tabs[index].dispatchEvent(new Event("save-" + index))); // Trigger event
 
 	// Show/Hide drop down info
-	dom.onclick(".toggle-angle", el => !dom.swapClass("i.fas", "fa-angle-double-down fa-angle-double-up", el).toggleHide(".info-" + el.id));
-	dom.onclick(".toggle-caret", el => !dom.swapClass("i.fas", "fa-caret-right fa-caret-down", el).toggleHide(".info-" + el.id));
+	dom.onclick(".toggle-angle", el => !dom.toggle(dom.get("i.fas", el), "fa-angle-double-down fa-angle-double-up").toggleHide(".info-" + el.id));
+	dom.onclick(".toggle-caret", el => !dom.toggle(dom.get("i.fas", el), "fa-caret-right fa-caret-down").toggleHide(".info-" + el.id));
 
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu"); // Find unique menu
@@ -70,7 +70,7 @@ dom.ready(function() {
 				if (!children) { // Is first child?
 					li.innerHTML += '<ul class="sub-menu"></ul>';
 					li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
-					dom.click(el => !dom.swap("active", li), li.firstElementChild); //usfull on sidebar
+					dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
 				}
 				mask &= li.dataset.mask ?? 4; // Propage disabled
 				li.dataset.children = children + 1; // add child num
@@ -79,9 +79,8 @@ dom.ready(function() {
 		}
 		else // force reorder lebel 1
 			menu.appendChild(child);
-		dom.toggle("disabled", !(mask & 4), child.firstElementChild);
+		dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
 	});
 	// Show / Hide sidebar and show menu
-	dom.onclick(".sidebar-toggle", el => !dom.swap("active", menu))
-		.removeClass("hide", menu);
+	dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
 });
