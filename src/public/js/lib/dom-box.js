@@ -1,6 +1,8 @@
 
 /**
- * Vanilla JS DOM-Box module
+ * Vanilla JS DOM-Box module, require:
+ * ArrayBox (ab), StringBox (sb) and i18nBox (i18n)
+ * 
  * @module DomBox
  */
 function DomBox() {
