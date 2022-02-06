@@ -358,9 +358,10 @@ function DomBox() {
 				table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
 			});
 			self.click(self.getAll("a[href='#remove']", table), (el, ev, i) => {
-				if (confirm(styles?.remove)) {
-					resume.total--; // dec. total rows
-					const obj = data.splice(i, 1)[0]; // Remove from data
+				const msg = styles?.remove || "remove"; // specific message
+				if (i18n.confirm(msg)) { // confirm before trigger event
+					resume.total--; // decrement total rows number
+					const obj = data.splice(i, 1)[0]; // Remove from data array
 					table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Trigger event
 				}
 			});
