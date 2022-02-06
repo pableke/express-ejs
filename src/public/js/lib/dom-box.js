@@ -15,6 +15,7 @@ function DomBox() {
 	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
+	function fnQuery(list) { return (typeof(list) === "string") ? document.querySelectorAll(list) : list; }
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
@@ -73,8 +74,7 @@ function DomBox() {
 		}
 
 		// Is NodeList
-		if (typeof(list) === "string") //is query?
-			list = document.querySelectorAll(list);
+		list = fnQuery(list); //is query?
 		let size = fnSize(list); //list size
 		for (let i = 0; (i < size); i++)
 			cb(list[i], i, list);
@@ -102,6 +102,10 @@ function DomBox() {
 		let results = []; //elem container
 		self.each(list, el => addMatch(el, selector, results));
 		return results;
+	}
+	this.map = function(list, cb) {
+		list = fnQuery(list); //is query?
+		return [...list].map(cb);
 	}
 
 	// Inputs selectors and focusableds
@@ -167,13 +171,8 @@ function DomBox() {
 
 	// Format and parse contents
 	const TEMPLATES = {}; //container
-	this.setTpl = function(name, tpl) {
-		TEMPLATES[name] = tpl;
-		return self;
-	}
-	this.loadTemplates = function() {
-		return self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
-	}
+	this.setTpl = (name, tpl) => { TEMPLATES[name] = tpl; return self; }
+	this.loadTemplates = () =>self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
 	this.render = function(el, formatter) {
 		el.id = el.id || fnId(); // force unique id for element
 		let key = el.dataset.tpl || el.id; // tpl asociated
@@ -257,6 +256,7 @@ function DomBox() {
 
 		self.moveFocus = selector => self.focus(self.getInput(selector));
 		self.getVal = selector => self.getValue(self.getInput(selector));
+		self.values = selector => self.getInputs(selector).map(el => el.value);
 		self.setVal = (selector, value) => self.val(self.getInputs(selector), value);
 		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
 		self.getOptText = selector => self.optText(self.getInput(selector));
