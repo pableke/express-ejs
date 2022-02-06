@@ -1,7 +1,7 @@
 
 /**
  * ValidatorBox module require
- * DateBox (dt) and NumberBox (nb)
+ * StringBox (sb), DateBox (dt) and NumberBox (nb)
  * 
  * @module ValidatorBox
  */
@@ -195,10 +195,17 @@ function ValidatorBox() {
 		"0487": "Banco Mare Nostrum", "2090": "Caja de Ahorros Mediterraneo", "0030": "Banco Español de Crédito", "0146": "Citibank"
 	};
 	this.getEntidades = () => ENTIDADES;
-	this.getEntidad = function(IBAN) {
-		IBAN = minify(IBAN);
-		return IBAN ? ENTIDADES[IBAN.substr(4, 4)] : null;
-	}
+	this.getIban1 = iban => sb.substr(iban, 0, 4);
+	this.getIban2 = iban => sb.substr(iban, 4, 4);
+	this.getEntidad = iban => ENTIDADES[self.getIban2(iban)];
+	this.getIban3 = iban => sb.substr(iban, 8, 4);
+	this.getOficina = iban => sb.substr(iban, 8, 4);
+	this.getDC = iban => sb.substr(iban, 12, 2);
+	this.getIban4 = iban => sb.substr(iban, 12, 4);
+	this.getIban5 = iban => sb.substr(iban, 16, 4);
+	this.getIban6 = iban => sb.substr(iban, 20, 4);
+	this.getIban7 = iban => sb.substr(iban, 24, 4);
+	this.getIban8 = iban => sb.substr(iban, 28, 4);
 
 	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
 		cardNo = minify(cardNo);
