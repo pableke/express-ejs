@@ -26,16 +26,18 @@ function StringBox() {
 	this.isstr = isstr;
 	this.trim = fnTrim;
 	this.size = fnSize;
-	this.eq = function(str1, str2) { return tr(str1) == tr(str2); }
-	this.iiOf = function(str1, str2) { return tr(str1).indexOf(tr(str2)); }
-	this.substr = function(str, i, n) { return str ? str.substr(i, n) : str; }
-	this.indexOf = function(str1, str2) { return str1 ? str1.indexOf(str2) : -1; }
-	this.lastIndexOf = function(str1, str2) { return str1 ? str1.lastIndexOf(str2) : -1; }
-	this.prevIndexOf = function(str1, str2, i) { return str1 ? str1.substr(0, i).lastIndexOf(str2) : -1; }
-	this.starts = function(str1, str2) { return str1 && str1.startsWith(str2); }
-	this.ends = function(str1, str2) { return str1 && str1.endsWith(str2); }
-	this.prefix = function(str1, str2) { return self.starts(str1, str2) ? str1 : (str2 + str1); }
-	this.suffix = function(str1, str2) { return self.ends(str1, str2) ? str1 : (str1 + str2); }
+	this.eq = (str1, str2) => (tr(str1) == tr(str2));
+	this.iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
+	this.upper = str => str ? str.toUpperCase(str) : str;
+	this.lower = str => str ? str.toLowerCase(str) : str;
+	this.substr = (str, i, n) => str ? str.substr(i, n) : str;
+	this.indexOf = (str1, str2) => str1 ? str1.indexOf(str2) : -1;
+	this.lastIndexOf = (str1, str2) => str1 ? str1.lastIndexOf(str2) : -1;
+	this.prevIndexOf = (str1, str2, i) => str1 ? str1.substr(0, i).lastIndexOf(str2) : -1;
+	this.starts = (str1, str2) => str1 && str1.startsWith(str2);
+	this.ends = (str1, str2) => str1 && str1.endsWith(str2);
+	this.prefix = (str1, str2) => self.starts(str1, str2) ? str1 : (str2 + str1);
+	this.suffix = (str1, str2) => self.ends(str1, str2) ? str1 : (str1 + str2);
 	this.trunc = (str, size) => (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str;
 	this.itrunc = function(str, size) {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
