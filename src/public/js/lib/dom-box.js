@@ -282,6 +282,15 @@ function DomBox() {
 		self.onChangeInputs = (selector, fn) => self.change(self.getInputs(selector), fn);
 		self.refocus(inputs); // Set focus on first visible input
 
+		// Extends internacionalization
+		self.tr = function(selector, opts) {
+			const elements = self.getAll(selector);
+			i18n.set("size", elements.length); //size list
+			return self.each(elements, (el, i) => {
+				i18n.set("index", i).set("count", i + 1);
+				self.render(el, tpl => i18n.format(tpl, opts));
+			});
+		}
 
 		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event(self.getTables(selector), "find", fn);
@@ -346,7 +355,7 @@ function DomBox() {
 				}
 				renderPagination(table.dataset.page);
 			}
-			return dom;
+			return self;
 		}
 
 		function fnRenderRows(table, data, resume, styles) {
@@ -372,7 +381,7 @@ function DomBox() {
 			return fnToggleTbody(table); // Toggle body if no data
 		}
 		self.renderRows = function(table, data, resume, styles) {
-			return table ? fnRenderRows(table, data, resume, styles) : dom;
+			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
 		self.list = function(selector, data, resume, styles) {
 			return self.each(self.getTables(selector), table => fnRenderRows(table, data, resume, styles));
@@ -383,7 +392,7 @@ function DomBox() {
 			return fnPagination(table); // Update pagination
 		}
 		self.renderTable = function(table, data, resume, styles) {
-			return table ? fnRenderTable(table, data, resume, styles) : dom;
+			return table ? fnRenderTable(table, data, resume, styles) : self;
 		}
 		self.renderTables = function(selector, data, resume, styles) {
 			return self.each(self.getTables(selector), table => fnRenderTable(table, data, resume, styles));
@@ -408,7 +417,6 @@ function DomBox() {
 			fnPagination(table); // Update pagination
 		});
 		/**************** Tables/rows helper ****************/
-
 
 		// Clipboard function
 		TEXT.style.position = "absolute";
