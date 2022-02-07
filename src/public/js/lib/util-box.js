@@ -13,7 +13,8 @@ const dom = new DomBox(); //HTML-DOM box
 
 //DOM is fully loaded
 dom.ready(function() {
-	i18n.setI18n(dom.getLang());
+	i18n.setI18n(dom.getLang()); // Set language
+	const inputs = dom.getInputs(); // All inputs list
 
 	// Extends with animationCSS lib
 	dom.animate = function(list, animation) {
@@ -43,12 +44,6 @@ dom.ready(function() {
 	dom.loading = () => dom.show(_loading).closeAlerts();
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
-
-	// Extra inputs helpers
-	const inputs = dom.getInputs(); // All inputs list
-	dom.setDateRange = el => dom.attr("max", el.value, dom.getInput(".ui-min-" + el.id)).attr("min", el.value, dom.getInput(".ui-max-" + el.id));
-	dom.setDates = (value, list) => dom.val(value, list).each(list, dom.setDateRange); //update value and range
-	dom.setDate = (selector, value) => dom.setDates(value, dom.getInputs(selector));
 
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
@@ -105,12 +100,11 @@ dom.ready(function() {
 	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); });
 	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
-	dom.onChangeInputs(".ui-date", dom.setDateRange); //auto range date inputs
 
 	// Initialize all textarea counter
 	const ta = dom.getInputs("textarea.counter");
 	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value)), el.parentNode); }
-	dom.attr("maxlength", "600", ta).keyup(ta, fnCounter).each(ta, fnCounter);
+	dom.attr(ta, "maxlength", "600").keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
@@ -129,16 +123,6 @@ dom.ready(function() {
 	dom.fk = (selector, msg, msgtip) => dom.isFk(dom.getInput(selector), msg, msgtip);
 	dom.isGeToday = (el, msg, msgtip) => (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
-
-	// Extends internacionalization
-	dom.tr = function(selector, opts) {
-		const elements = dom.getAll(selector);
-		i18n.set("size", elements.length); //size list
-		return dom.each(elements, (el, i) => {
-			i18n.set("index", i).set("count", i + 1);
-			dom.render(el, tpl => i18n.format(tpl, opts));
-		});
-	}
 
 	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {
