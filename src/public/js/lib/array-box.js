@@ -80,13 +80,16 @@ function ArrayBox() {
 		opts.separator = opts.separator || "";
 		opts.empty = opts.empty || "";
 
+		let fnAux = function(obj, name) { return obj[name]; };
+		let fnVal = opts.getValue || fnAux;
+
 		const status = { size: fnSize(data) };
 		return data && tpl && data.map((obj, j) => {
 			status.index = j;
 			status.count = j + 1;
 			return tpl.replace(/@(\w+);/g, function(m, k) {
 				let fn = opts[k]; //field format function
-				let value = fn ? fn(obj[k], obj, j) : (obj[k] ?? status[k]);
+				let value = fn ? fn(obj[k], obj, j) : (fnVal(obj, k) ?? status[k]);
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);

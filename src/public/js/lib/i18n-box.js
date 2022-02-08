@@ -155,7 +155,11 @@ function I18nBox() {
 	this.get = (name) => _lang[name];
 	this.tr = (name) => _lang[name] || name;
 	this.set = function(name, value) { _lang[name] = value; return self; }
-	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
+	this.format = function(tpl, opts) {
+		opts = opts || {}; //default settings
+		opts.getValue = _lang.val; //lang value
+		return sb.format(_lang, tpl, opts);
+	}
 
 	this.addLang = function(lang, data, mod) {
 		if (mod) { // Add default messages to specific module
