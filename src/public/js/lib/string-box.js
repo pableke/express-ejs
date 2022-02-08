@@ -106,10 +106,11 @@ function StringBox() {
 	this.format = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
 		opts.empty = opts.empty || "";
+		let fnVal = opts.getValue || self.val;
 
 		return data && tpl && tpl.replace(/@(\w+);/g, (m, k) => {
 			let fn = opts[k]; //field format function
-			let value = fn ? fn(data[k], data) : data[k];
+			let value = fn ? fn(data[k], data) : fnVal(data, k);
 			return value ?? opts.empty; //string formated
 		});
 	}
