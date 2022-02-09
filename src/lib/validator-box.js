@@ -1,7 +1,7 @@
 
 /**
  * ValidatorBox module require
- * DateBox (dt) and NumberBox (nb)
+ * StringBox (sb), DateBox (dt) and NumberBox (nb)
  * 
  * @module ValidatorBox
  */
@@ -49,39 +49,40 @@ function ValidatorBox() {
 	this.range = function(num, min, max) { // NaN comparator always false
 		return (isset(num) && nb.between(num, min, max)) ? num : null;
 	}
-	this.gt0 = (num) => self.range(num, .001, 1e9);
-	this.intval = (num) => self.range(nb.intval(num), 1, 9);
-	this.intval3 = (num) => self.range(nb.intval(num), 1, 3);
-	this.intval5 = (num) => self.range(nb.intval(num), 1, 5);
-	this.fk = (num) => self.range(nb.intval(num), 1, Infinity);
+	this.gt0 = num => self.range(num, .001, 1e9);
+	this.intval = num => self.range(nb.intval(num), 1, 9);
+	this.intval3 = num => self.range(nb.intval(num), 1, 3);
+	this.intval5 = num => self.range(nb.intval(num), 1, 5);
+	this.fk = num => self.range(nb.intval(num), 1, Infinity);
 
 	this.size = function(str, min, max) {
 		str = fnTrim(str); // min/max string length
 		return nb.between(fnSize(str), min, max) ? str : null;
 	}
-	this.required = (value) => self.size(value, 1, 1000);
-	this.size10 = (str) => self.size(str, 0, 10);
-	this.size50 = (str) => self.size(str, 0, 50);
-	this.size200 = (str) => self.size(str, 0, 200);
-	this.size300 = (str) => self.size(str, 0, 300);
+	this.required = value => self.size(value, 1, 1000);
+	this.size10 = str => self.size(str, 0, 10);
+	this.size50 = str => self.size(str, 0, 50);
+	this.size200 = str => self.size(str, 0, 200);
+	this.size300 = str => self.size(str, 0, 300);
 
-	this.unescape = (str) => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
-	this.escape = (str) => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
+	this.unescape = str => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
+	this.escape = str => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
 
 	function fnText(str, min, max) {
 		str = self.escape(str);
 		return nb.between(fnSize(str), min, max) ? str : null;
 	}
-	this.text10 = (str) => fnText(str, 0, 10);
-	this.text50 = (str) => fnText(str, 0, 50);
-	this.text200 = (str) => fnText(str, 0, 200);
-	this.text300 = (str) => fnText(str, 0, 300);
-	this.text = (str) => fnText(str, 0, 1000);
+	this.text10 = str => fnText(str, 0, 10);
+	this.text50 = str => fnText(str, 0, 50);
+	this.text200 = str => fnText(str, 0, 200);
+	this.text300 = str => fnText(str, 0, 300);
+	this.text = str => fnText(str, 0, 1000);
 
 	this.regex = (re, value) => fnRegex(re, fnTrim(value));
-	this.login = (value) => self.regex(RE_LOGIN, value);
-	this.digits = (value) => self.regex(RE_DIGITS, value);
-	this.idlist = (value) => self.regex(RE_IDLIST, value);
+	this.login = value => self.regex(RE_LOGIN, value);
+	this.digits = value => self.regex(RE_DIGITS, value);
+	this.idlist = value => self.regex(RE_IDLIST, value);
+	this.swift = value => self.regex(RE_SWIFT, value);
 	this.email = function(value) {
 		value = self.regex(RE_MAIL, value);
 		return value && value.toLowerCase();
@@ -172,22 +173,18 @@ function ValidatorBox() {
 		if (!code || (fnSize(IBAN) !== CODE_LENGTHS[code[1]]))
 			return null;
 
-		let digits = (code[3] + code[1] + code[2]).replace(/[A-Z]/g, (letter) => {
-			return letter.charCodeAt(0) - 55;
-		});
-
-		let fragment = EMPTY;
+		let digits = (code[3] + code[1] + code[2]).replace(/[A-Z]/g, letter => (letter.charCodeAt(0) - 55));
 		let digital = digits.toString();
 		let checksum = digital.slice(0, 2);
 		for (let offset = 2; offset < digital.length; offset += 7) {
-			fragment = checksum + digital.substring(offset, offset + 7);
+			let fragment = checksum + digital.substring(offset, offset + 7);
 			checksum = parseInt(fragment, 10) % 97;
 		}
 		return (checksum === 1) ? IBAN : null; //save reformat
 	}
 
 	const ENTIDADES = {
-		"0000": "Tesoro Público", "2080": "Abanca", "1544": "Andbank España", "0182": "BBVA", "9000": "Banco de España", "0186": "Banco Mediolanum",
+		"2080": "Abanca", "1544": "Andbank España", "0182": "BBVA", "9000": "Banco de España", "0186": "Banco Mediolanum",
 		"0081": "Banco Sabadell", "0049": "Banco Santander", "0128": "Bankinter", "0065": "Barclays Bank", "0058": "BNP Paribas España",
 		"2100": "Caixabank", "0122": "Citibank España", "0154": "Credit Agricole", "0019": "Deutsche Bank", "0239": "Evo Banco",
 		"0162": "HSBC Bank", "2085": "Ibercaja Banco", "1465": "ING", "1000": "Instituto de crédito oficial", "2095": "Kutxabank",
@@ -195,10 +192,17 @@ function ValidatorBox() {
 		"0487": "Banco Mare Nostrum", "2090": "Caja de Ahorros Mediterraneo", "0030": "Banco Español de Crédito", "0146": "Citibank"
 	};
 	this.getEntidades = () => ENTIDADES;
-	this.getEntidad = function(IBAN) {
-		IBAN = minify(IBAN);
-		return IBAN ? ENTIDADES[IBAN.substr(4, 4)] : null;
-	}
+	this.getIban1 = iban => sb.substr(iban, 0, 4);
+	this.getIban2 = iban => sb.substr(iban, 4, 4);
+	this.getEntidad = iban => ENTIDADES[self.getIban2(iban)];
+	this.getIban3 = iban => sb.substr(iban, 8, 4);
+	this.getOficina = iban => sb.substr(iban, 8, 4);
+	this.getDC = iban => sb.substr(iban, 12, 2);
+	this.getIban4 = iban => sb.substr(iban, 12, 4);
+	this.getIban5 = iban => sb.substr(iban, 16, 4);
+	this.getIban6 = iban => sb.substr(iban, 20, 4);
+	this.getIban7 = iban => sb.substr(iban, 24, 4);
+	this.getIban8 = iban => sb.substr(iban, 28, 4);
 
 	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
 		cardNo = minify(cardNo);

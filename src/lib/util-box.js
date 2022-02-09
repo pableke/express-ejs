@@ -34,13 +34,6 @@ exports.sb = sb;
 exports.valid = valid;
 exports.i18n = i18n;
 
-exports.menus = function(req, res, id) { // Build menus
-	let lang = res.locals.lang; // current language
-	let menus = dao.web.myjson.um.getAllMenus(id); //specific user menus
-	let tpl = dao.web.myjson.menus.format(lang, menus); //build template
-	res.locals.menus = req.session.menus = tpl; //set on view and session
-}
-
 exports.post = function(req, res, next) {
 	let rawData = ""; // Buffer
 	req.on("data", function(chunk) {
@@ -83,7 +76,4 @@ exports.multipart = function(req, res, next) { //validate all form post
 	form.once("error", err => next(err));
 	form.once("end", () => next());
 	form.parse(req);
-}
-
-exports.pagination = function(req, res, data, resume) {
 }

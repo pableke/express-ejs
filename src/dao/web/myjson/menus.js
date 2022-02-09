@@ -1,28 +1,26 @@
 
 const ab = require("app/lib/array-box.js");
+const sb = require("app/lib/string-box.js");
 
 // Menus DAO
 module.exports = function(table) {
-	const TPL_MENU_ES = '<li id="@id;" data-padre="@padre;"><a href="@href;" title="@title;"><i class="@ico; nav-icon"></i>@nm;</a></li>';
-	const TPL_MENU_EN = '<li id="@id;" data-padre="@padre;"><a href="@href;" title="@title_en;"><i class="@ico; nav-icon"></i>@nm_en;</a></li>';
+	const TPL_MENU = '<li id="@id;" data-padre="@padre;"><a href="@href;" title="@title;"><i class="@ico; nav-icon"></i>@nm;</a></li>';
 	let esMenus, enMenus;
 
 	function isParent(menu) { return menu && menu.padre; }
 	function isPublic(menu) { return ((menu.mask&1) == 1); }
-	function fnFormat(lang, menus) {
-		return ab.format(menus, ("en" == lang) ? TPL_MENU_EN : TPL_MENU_ES);
-	}
+	function fnFormat(menus, opts) { return ab.format(menus, TPL_MENU, opts); }
 
 	table.onLoad = function(menus) {
 		menus.each(menu => { menu.alta = new Date(menu.alta); });
 		let aux = menus.filter(isPublic);
-		esMenus = fnFormat("es", aux);
-		enMenus = fnFormat("en", aux);
+		esMenus = fnFormat(aux, { getValue: sb.val });
+		enMenus = fnFormat(aux, { getValue: sb.enVal });
 	}
 
 	//table.onCommit = fnUpdate;
 	table.isPublic = isPublic;
-	table.getPublic = (lang) => ("en" == lang) ? enMenus : esMenus;
+	table.getPublic = lang => ("en" == lang) ? enMenus : esMenus;
 	table.format = fnFormat;
 
 	function addSubmenus(menu) {

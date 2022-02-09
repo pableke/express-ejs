@@ -82,6 +82,7 @@ function ValidatorBox() {
 	this.login = value => self.regex(RE_LOGIN, value);
 	this.digits = value => self.regex(RE_DIGITS, value);
 	this.idlist = value => self.regex(RE_IDLIST, value);
+	this.swift = value => self.regex(RE_SWIFT, value);
 	this.email = function(value) {
 		value = self.regex(RE_MAIL, value);
 		return value && value.toLowerCase();

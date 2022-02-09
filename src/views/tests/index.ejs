@@ -1,19 +1,25 @@
 
-<div class="wrapper">
+<!-- progressbar -->
+<ul id="progressbar">
+	<li id="step-0" class="active">Home</li>
+	<li id="step-1">Messages</li>
+	<li id="step-2">Tables</li>
+	<li id="step-3">Forms</li>
+	<li id="step-4">Resume</li>
+</ul>
+
+<div id="tab-0" class="tab-content active">
 	<div class="alert active alert-primary">
 		<div><i class="fas fa-volume-up"></i></div>
 		<div><b>Info:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-note">
 		<div><i class="fas fa-bell"></i></div>
 		<div><b>Note:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-secondary">
 		<div><i class="fas fa-exclamation-circle"></i></div>
 		<div><b>Secondary:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-warn">
 		<div><i class="fas fa-exclamation-triangle"></i></div>
@@ -21,24 +27,28 @@
 			<b>Warn:</b> <span>Area de pruebas</span>
 			<p><b>Extra info:</b> añkjfdsaldñlka fjasñlkadjf asñlk adñlkajf asñlkdsfdjk aslsñlkadfkjk asñsdñlkafjlk asñldkfdjk aksldjf alskfdj asñlkdsfdjk aslsñlkadfkjk asñsdñlkafjlk asñldkfdjk aksldjf alskfdj</p>
 		</div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-error">
 		<div><i class="fas fa-exclamation-triangle"></i></div>
 		<div><b>Error:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-danger">
 		<div><i class="fas fa-exclamation-triangle"></i></div>
 		<div><b>Danger:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 	<div class="alert active alert-dark">
 		<div><i class="fas fa-exclamation-triangle"></i></div>
 		<div><b>Dark:</b> <span>Area de pruebas</span></div>
-		<div class="alert-close">&times;</div>
 	</div>
 
+	<div class="text-block alert-primary">
+		<span>Lorem ipsum dolor sit amet consectetur adipisicing elit. A, dolorum, veritatis tenetur ea dolor quo consequuntur ullam molestias fugit quam.</span>
+		<a id="test" href="#" class="toggle-angle">Más Info <i class="fas fa-angle-double-down"></i></a>
+		<span class="info-test hide"><hr/>Lorem ipsum dolor, sit amet consectetur adipisicing, elit. Corrupti rem aut, minus asperiores, sunt eligendi hic ipsum maiores itaque numquam sequi eius voluptates consequuntur debitis impedit quae dolore ad, enim?</span>
+	</div>
+</div>
+
+<div id="tab-1" class="tab-content">
 	<div class="cards-glass">
 		<div class="card-glass">
 			<h2>Card 1</h2>
@@ -53,10 +63,125 @@
 			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
 		</div>
 	</div>
-
-	<div class="text-block alert-primary">
-		<span>Lorem ipsum dolor sit amet consectetur adipisicing elit. A, dolorum, veritatis tenetur ea dolor quo consequuntur ullam molestias fugit quam.</span>
-		<a id="test" href="#" class="show-info icon">Más Info <i class="fas fa-angle-double-down icon"></i></a>
-		<span class="extra-info-test hide"><hr/>Lorem ipsum dolor, sit amet consectetur adipisicing, elit. Corrupti rem aut, minus asperiores, sunt eligendi hic ipsum maiores itaque numquam sequi eius voluptates consequuntur debitis impedit quae dolore ad, enim?</span>
-	</div>
 </div>
+
+<div id="tab-2" class="tab-content">
+	<table id="pruebas" data-sort-by="c2" data-sort-dir="desc" data-page-size="1" data-total="50">
+		<thead>
+			<tr>
+				<th>C1<a href="#" class="sort sort-none sort-c1"></a></th>
+				<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
+				<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody id="pruebas-row">
+			<tr class="tb-data">
+				<td>F1 - C1</td>
+				<td>F1 - C2</td>
+				<td>F1 - C3</td>
+				<td class="text-center">
+					<a id="1" href="#find"><i class="fas fa-search icon"></i></a>
+					<a id="1" href="#remove"><i class="fa fa-times icon text-err"></i></a>
+				</td>
+			</tr>
+			<tr class="tb-data">
+				<td>F2 - C1</td>
+				<td>F2 - C2</td>
+				<td>F2 - C3</td>
+				<td class="text-center">
+					<a id="2" href="#find"><i class="fas fa-search icon"></i></a>
+					<a id="2" href="#remove"><i class="fa fa-times icon text-err"></i></a>
+				</td>
+			</tr>
+		</tbody>
+		<tbody class="no-data">
+			<tr><td colspan="4"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
+		</tbody>
+		<tfoot data-tpl="pruebas-footer">
+			<tr><td colspan="4">Filas: 2 / 3</td></tr>
+		</tfoot>
+	</table>
+	<div class="pagination"></div>
+
+	<!-- pruebas templates -->
+	<template id="pruebas-row">
+		<tr class="tb-data">
+			<td>F1 - C1</td>
+			<td>F1 - C2</td>
+			<td>F1 - C3</td>
+			<td class="text-center">
+				<a href="#find"><i class="fas fa-search icon"></i></a>
+				<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
+			</td>
+		</tr>
+	</template>
+	<template id="pruebas-footer">
+		<tr><td colspan="4">Filas: @size; / @total;</td></tr>
+	</template>
+</div>
+
+<div id="tab-3" class="tab-content">
+	<form id="test">
+	<div class="navbar">
+		<select>
+			<option value="">Seleccione una entidad ...</option>
+			<option id="entidades" value="@key;">@value;</option>
+		</select>
+	</div>
+	</form>
+</div>
+
+<div class="navbar">
+	<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+	<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+	<a href="#save-tab" class="btn btn-success"><i class="fas fa-save icon"></i>Save</a>
+	<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
+	<a href="#last-tab" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
+	<br/>
+	<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin icon"></i></a>
+</div>
+
+<div>
+	<ul class="tags">
+		<li>asdfasd asdf</li>
+		<li>asdfa sdf</li>
+	</ul>
+</div>
+
+<script type="text/javascript">
+	dom.ready(function() {
+		const table = dom.getTable("#pruebas");
+		const data = [{id:1}, {id:2}, {id:3}];
+		const resume = { total: 50 };
+		const styles = { remove: i18n.get("remove") }
+
+		dom.loadTemplates()
+			.onSaveTab("2", () => console.log("saving... tab-2"))
+			.onChangeTab("1", () => console.log("tab-1"))
+			.onExitTab(() => console.log("exit tabs"))
+			.onChangeTable("#pruebas", (table, ev) => console.log("change"))
+			.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
+			.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
+			.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume, styles))
+			.renderTable(table, data, resume, styles)
+			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
+
+		dom.onclick("a[href='show-first']", el => {
+			resume.total++;
+			data.push({id:4});
+			dom.renderTable(table, data, resume, styles);
+
+			const alert = dom.get("div.alert");
+			dom.show(alert).animate("fadeIn", alert);
+		});
+		dom.onclick("a[href='close-first']", el => {
+			const alert = dom.get("div.alert");
+			dom.animate("fadeOut", alert).then(el => dom.hide(el));
+		});
+
+		dom.onclick("a[href='loading']", el => {
+			setTimeout(dom.loading().working, 500);
+		});
+	});
+</script>
