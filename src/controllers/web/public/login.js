@@ -29,7 +29,9 @@ exports.check = function(req, res, next) {
 
 	try {
 		let user = dao.web.myjson.users.getUser(usuario, clave);
-		util.menus(req, user.id); // update private menus
+		let menus = dao.web.myjson.um.getAllMenus(user.id); //specific user menus
+		let tpl = dao.web.myjson.menus.format(menus, { getValue: util.i18n.val }); //build template
+		res.locals.menus = req.session.menus = tpl; //set on view and session
 		req.session.user = user; //store user data in session
 
 		// access allowed => go private area

@@ -38,7 +38,7 @@ function I18nBox() {
 			errRefCircular: "Circular reference",
 
 			//confirm cuestions
-			remove: "Are you sure to delete element?",
+			remove: "Are you sure to delete this element?",
 			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
 			cancelOk: "Element canceled successfully!",
@@ -157,9 +157,9 @@ function I18nBox() {
 		return self;
 	}
 
-	this.get = (name) => _lang[name];
-	this.tr = (name) => _lang[name] || name;
-	this.set = function(name, value) { _lang[name] = value; return self; }
+	this.get = name => _lang[name];
+	this.tr = name => _lang[name] || name;
+	this.set = (name, value) => { _lang[name] = value; return self; }
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
 	this.addLang = function(lang, data, mod) {
@@ -178,31 +178,31 @@ function I18nBox() {
 	}
 
 	// Shortcuts
-	this.toInt = (str) => _lang.toInt(str);
-	this.isoInt = (num) => _lang.isoInt(num);
-	this.fmtInt = (str) => _lang.fmtInt(str);
+	this.toInt = str => _lang.toInt(str);
+	this.isoInt = num => _lang.isoInt(num);
+	this.fmtInt = str => _lang.fmtInt(str);
 
-	this.toFloat = (str) => _lang.toFloat(str);
-	this.isoFloat1 = (num) => _lang.isoFloat(num, 1);
-	this.isoFloat = (num) => _lang.isoFloat(num);
-	this.isoFloat3 = (num) => _lang.isoFloat(num, 3);
-	this.fmtFloat1 = (str) => _lang.fmtFloat(str, 1);
-	this.fmtFloat = (str) => _lang.fmtFloat(str);
-	this.fmtFloat3 = (str) => _lang.fmtFloat(str, 3);
+	this.toFloat = str => _lang.toFloat(str);
+	this.isoFloat1 = num => _lang.isoFloat(num, 1);
+	this.isoFloat = num => _lang.isoFloat(num);
+	this.isoFloat3 = num => _lang.isoFloat(num, 3);
+	this.fmtFloat1 = str => _lang.fmtFloat(str, 1);
+	this.fmtFloat = str => _lang.fmtFloat(str);
+	this.fmtFloat3 = str => _lang.fmtFloat(str, 3);
 
-	this.toDate = (str) => _lang.toDate(str);
-	this.isoDate = (date) => _lang.isoDate(date);
-	this.fmtDate = (str) => _lang.fmtDate(str);
-	this.acDate = (str) => _lang.acDate(str);
+	this.toDate = str => _lang.toDate(str);
+	this.isoDate = date => _lang.isoDate(date);
+	this.fmtDate = str => _lang.fmtDate(str);
+	this.acDate = str => _lang.acDate(str);
 
-	this.toTime = (str) => _lang.toTime(str);
-	this.minTime = (date) => _lang.minTime(date);
-	this.isoTime = (date) => _lang.isoTime(date);
-	this.fmtTime = (str) => _lang.fmtTime(str);
-	this.acTime = (str) => _lang.acTime(str);
+	this.toTime = str => _lang.toTime(str);
+	this.minTime = date => _lang.minTime(date);
+	this.isoTime = date => _lang.isoTime(date);
+	this.fmtTime = str => _lang.fmtTime(str);
+	this.acTime = str => _lang.acTime(str);
 
-	this.fmtBool = (val) => _lang.fmtBool(val);
-	this.confirm = (msg) => confirm(self.tr(msg));
+	this.fmtBool = val => _lang.fmtBool(val);
+	this.confirm = msg => confirm(self.tr(msg));
 	this.val = (obj, name) => _lang.val(obj, name);
 	this.arrval = function(name, i) {
 		let arr = _lang[name];
@@ -211,22 +211,22 @@ function I18nBox() {
 
 	// Validators: data and messages
 	this.getMsgs = () => MSGS;
-	this.getMsg = (name) => MSGS.get(name);
+	this.getMsg = name => MSGS.get(name);
 	this.setMsg = (name, msg) => { MSGS.set(name, msg); return self; }
-	this.setOk = (msg) => self.setMsg("msgOk", self.tr(msg));
-	this.setInfo = (msg) => self.setMsg("msgInfo", self.tr(msg));
-	this.setWarn = (msg) => self.setMsg("msgWarn", self.tr(msg));
-	this.getError = (name) => MSGS.get(name || KEY_ERROR);
-	this.setMsgError = (msg) => self.setMsg(KEY_ERROR, self.tr(msg));
+	this.setOk = msg => self.setMsg("msgOk", self.tr(msg));
+	this.setInfo = msg => self.setMsg("msgInfo", self.tr(msg));
+	this.setWarn = msg => self.setMsg("msgWarn", self.tr(msg));
+	this.getError = name => MSGS.get(name || KEY_ERROR);
+	this.setMsgError = msg => self.setMsg(KEY_ERROR, self.tr(msg));
 	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.tr(msgtip));
 	this.getNumMsgs = () => MSGS.size;
 
-	this.getData = (name) => name ? DATA.get(name) : DATA;
+	this.getData = name => name ? DATA.get(name) : DATA;
 	this.toData = () => Object.fromEntries(DATA); // Build plain object
 	this.toMsgs = () => Object.fromEntries(MSGS); // Build plain object
 
 	// Save value if it is defined else error
-	this.reset = function() { DATA.clear(); MSGS.clear(); return self; }
+	this.reset = () => { DATA.clear(); MSGS.clear(); return self; }
 	this.start = (lang, mod) => self.reset().setI18n(lang, mod);
 	this.valid = function(name, value, msg, msgtip) {
 		if (sb.isset(value)) {
@@ -237,7 +237,7 @@ function I18nBox() {
 		return false;
 	}
 	this.isOk = () => !MSGS.has(KEY_ERROR);
-	this.isError = (name) => MSGS.has(name || KEY_ERROR);
+	this.isError = name => MSGS.has(name || KEY_ERROR);
 
 	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
 	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip);
@@ -275,6 +275,7 @@ function I18nBox() {
 	this.user = (name, value, msg, msgtip) => self.valid(name, valid.email(value) || valid.idES(value), msg, msgtip);
 
 	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
+	this.swift = (name, value, msg, msgtip) => self.valid(name, valid.swift(value), msg, msgtip);
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
 

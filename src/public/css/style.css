@@ -30,7 +30,7 @@ body::after {
 	z-index: -1;
 }
 
-/* Tag clases */
+main { display: inline-block; margin: 8px 0; width: 100%; }
 hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
 /* Cards clases */
@@ -79,7 +79,7 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 .icon { margin: 1px 4px; }
 
 /* Tabs classes */
-.tab-content { display: none; min-height: 550px; padding: 2px; }
+.tab-content { display: none; width: 100%; min-height: 70vh; max-height: 90vh; padding: 2px; }
 .tab-content.active { display: inherit; }
 
 .loading { position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background-color: rgba(255, 255, 255, .7); }

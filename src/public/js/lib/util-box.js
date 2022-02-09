@@ -54,10 +54,10 @@ dom.ready(function() {
 
 	dom.isOk = i18n.isOk;
 	dom.isError = i18n.isError;
-	dom.showOk = (msg) => setAlert(texts[0], msg); //green
-	dom.showInfo = (msg) => setAlert(texts[1], msg); //blue
-	dom.showWarn = (msg) => setAlert(texts[2], msg); //yellow
-	dom.showError = (msg) => setAlert(texts[3], msg); //red
+	dom.showOk = msg => setAlert(texts[0], msg); //green
+	dom.showInfo = msg => setAlert(texts[1], msg); //blue
+	dom.showWarn = msg => setAlert(texts[2], msg); //yellow
+	dom.showError = msg => setAlert(texts[3], msg); //red
 	dom.showAlerts = function(msgs) { //show posible multiple messages types
 		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
 	}
@@ -150,7 +150,6 @@ dom.ready(function() {
 		let _search = false; //call source indicator (reduce calls)
 
 		function fnFalse() { return false; }
-		function fnParam(data) { return data; }
 		function fnGetIds(el) { return dom.get("[type=hidden]", el.parentNode); }
 
 		opts = opts || {}; //default config
@@ -161,10 +160,10 @@ dom.ready(function() {
 		opts.open = opts.open || fnFalse; //triggered if the value has changed
 		opts.focus = opts.focus || fnFalse; //no change focus on select
 		opts.load = opts.load || fnFalse; //triggered when select an item
-		opts.sort = opts.sort || fnParam; //sort array data received
+		opts.sort = opts.sort || data => data; //sort array data received
 		opts.remove = opts.remove || fnFalse; //triggered when no item selected
-		opts.render = opts.render || function() { return "-"; }; //render on input
-		opts.search = function(ev, ui) { return _search; }; //lunch source
+		opts.render = opts.render || () => "-"; //render on input
+		opts.search = (ev, ui) => _search; //lunch source
 		opts.select = function(ev, ui) { //triggered when select an item
 			opts.load(ui.item, this, fnGetIds(this)); //update inputs
 			return false; //preserve inputs values from load event

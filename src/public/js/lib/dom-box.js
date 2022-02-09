@@ -359,8 +359,11 @@ function DomBox() {
 		}
 
 		function fnRenderRows(table, data, resume, styles) {
+			styles = styles || {}; // Default styles
+			styles.getValue = styles.getValue || i18n.val;
 			resume.size = data.length; // Numrows
 			resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
+
 			self.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
 				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 
@@ -369,7 +372,7 @@ function DomBox() {
 				table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
 			});
 			self.click(self.getAll("a[href='#remove']", table), (el, ev, i) => {
-				const msg = styles?.remove || "remove"; // specific message
+				const msg = styles.remove || "remove"; // specific message
 				if (i18n.confirm(msg)) { // confirm before trigger event
 					resume.total--; // decrement total rows number
 					const obj = data.splice(i, 1)[0]; // Remove from data array
