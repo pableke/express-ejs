@@ -60,18 +60,6 @@ function DateBox() {
 	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 
-	this.toUTC = function(date) {
-		date && date.setTime(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
-		return self;
-	}
-	this.utcToDate = function(date) {
-		if (date) {
-			date.setFullYear(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-			date.setHours(date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
-		}
-		return self;
-	}
-
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
 		const d1 = new Date(date.getFullYear(), 0, 1);
@@ -187,16 +175,16 @@ function DateBox() {
 	}
 
 	function fnEnDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
-	this.enDate = (str) => str ? toDateTime(splitDate(str)) : null; //parse to Date object
-	this.isoEnDate = (date) => isDate(date) ? fnEnDate(date) : null; //yyyy-mm-dd
-	this.isoEnDateTime = (date) => isDate(date) ? (fnEnDate(date) + " " + fnIsoTime(date)) : null; //yyyy-mm-dd hh:MM:ss
-	this.fmtEnDate = (str) => parseable(str) ? rangeDate(splitDate(str)).map(lpad).join("-") : null; //String to formated String
-	this.acEnDate = (str) => str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY);
+	this.enDate = str => str ? toDateTime(splitDate(str)) : null; //parse to Date object
+	this.isoEnDate = date => isDate(date) ? fnEnDate(date) : null; //yyyy-mm-dd
+	this.isoEnDateTime = date => isDate(date) ? (fnEnDate(date) + " " + fnIsoTime(date)) : null; //yyyy-mm-dd hh:MM:ss
+	this.fmtEnDate = str => parseable(str) ? rangeDate(splitDate(str)).map(lpad).join("-") : null; //String to formated String
+	this.acEnDate = str => str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY);
 
 	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
-	this.esDate = (str) => str ? toDateTime(swap(splitDate(str))) : null; //parse to Date object
-	this.isoEsDate = (date) => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
-	this.isoEsDateTime = (date) => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
-	this.fmtEsDate = (str) => parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; //String to formated String
-	this.acEsDate = (str) => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
+	this.esDate = str => str ? toDateTime(swap(splitDate(str))) : null; //parse to Date object
+	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
+	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
+	this.fmtEsDate = str => parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; //String to formated String
+	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
 }

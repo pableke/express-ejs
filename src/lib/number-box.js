@@ -23,6 +23,7 @@ function NumberBox() {
 	this.le0 = (num) => isset(num) && (num <= 0);
 	this.gt0 = (num) => isset(num) && (num > 0);
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
+	this.maxval = (val, max) => self.range(val, 0, max); //force max value
 	this.between = (num, min, max) => (min <= num) && (num <= max);
 	this.cmp = function(n1, n2) { //nulls go last
 		if (!isNaN(n1) && !isNaN(n2))
