@@ -114,6 +114,7 @@ function DomBox() {
 
 	this.getAttr = (el, name) => el && el.getAttribute(name);
 	this.setAttr = (el, name, value) => { el && el.setAttribute(name, value); return self; };
+	this.delAttr = (el, name, value) => { el && el.removeAttribute(name, value); return self; };
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
 
@@ -241,7 +242,7 @@ function DomBox() {
 		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getVal(i2));
 		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
 		self.setAttrInputs = (selector, name, value) => self.attr(self.getInputs(selector), name, value);
-		self.delAttrInput = (selector, name) => self.removeAttr(self.getInput(selector), name);
+		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
 		self.delAttrInputs = (selector, name) => self.removeAttr(self.getInputs(selector), name);
 		self.setInput = (selector, value, fnChange) => {
 			const el = self.getInput(selector);

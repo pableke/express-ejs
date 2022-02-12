@@ -187,4 +187,9 @@ function DateBox() {
 	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
 	this.fmtEsDate = str => parseable(str) ? swap(rangeDate(swap(splitDate(str)))).map(lpad).join("/") : null; //String to formated String
 	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
+
+	// Override toJSON to ignore TZ-offset
+	Date.prototype.toJSON = function() {
+		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
+	}
 }
