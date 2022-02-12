@@ -123,20 +123,20 @@
 				</thead>
 				<tbody id="pruebas-row">
 					<tr class="tb-data">
-						<td>F1 - C1</td>
-						<td>F1 - C2</td>
-						<td>F1 - C3</td>
+						<td><a id="1" href="#find">@name;</a></td>
+						<td>F@count; - C2</td>
+						<td>F@count; - C3</td>
 						<td class="text-center">
-							<a id="1" href="#find"><i class="fas fa-search icon"></i></a>
+							<a id="1" href="#select"><i class="fas fa-search icon"></i></a>
 							<a id="1" href="#remove"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
 					<tr class="tb-data">
-						<td>F2 - C1</td>
-						<td>F2 - C2</td>
-						<td>F2 - C3</td>
+						<td><a id="2" href="#find">@name;</a></td>
+						<td>F@count; - C2</td>
+						<td>F@count; - C3</td>
 						<td class="text-center">
-							<a id="2" href="#find"><i class="fas fa-search icon"></i></a>
+							<a id="2" href="#select"><i class="fas fa-search icon"></i></a>
 							<a id="2" href="#remove"><i class="fa fa-times icon text-err"></i></a>
 						</td>
 					</tr>
@@ -153,11 +153,11 @@
 			<!-- pruebas templates -->
 			<template id="pruebas-row">
 				<tr class="tb-data">
-					<td>F1 - C1</td>
-					<td>F1 - C2</td>
-					<td>F1 - C3</td>
+					<td><a id="1" href="#find">@name;</a></td>
+					<td>F@count; - C2</td>
+					<td>F@count; - C3</td>
 					<td class="text-center">
-						<a href="#find"><i class="fas fa-search icon"></i></a>
+						<a href="#select"><i class="fas fa-search icon"></i></a>
 						<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
 					</td>
 				</tr>
@@ -198,7 +198,7 @@
 		<script type="text/javascript">
 			dom.ready(function() {
 				const table = dom.getTable("#pruebas");
-				const data = [{id:1}, {id:2}, {id:3}];
+				const data = [{id:1,name:"Row 1"}, {id:2,name:"Row 2"}, {id:3,name:"Row 3"}];
 				const resume = { total: 50 };
 				const styles = { remove: i18n.get("remove") }
 
@@ -208,6 +208,7 @@
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
+					.onSelectRow("#pruebas", (table, ev) => console.log("select", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
 					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume, styles))
 					.renderTable(table, data, resume, styles)

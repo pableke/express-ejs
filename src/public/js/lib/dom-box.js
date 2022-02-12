@@ -13,10 +13,8 @@ function DomBox() {
 	const TEXT = document.createElement("textarea");
 
 	function fnLog(data) { console.log("Log:", data); }
-	function fnSize(list) { return list ? list.length : 0; } //string o array
 	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
-	function addMatch(el, selector, results) { el.matches(selector) && results.push(el); }
 	function fnQuery(list) { return (typeof(list) === "string") ? document.querySelectorAll(list) : list; }
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
@@ -28,9 +26,9 @@ function DomBox() {
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
 	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
-	this.redir = function(url, target) { url && window.open(url, target || "_blank"); return self; };
-	this.unescape = function(html) { TEXT.innerHTML = html; return TEXT.value; }
-	this.escape = function(text) { DIV.innerHTML = text; return DIV.innerHTML; }
+	this.redir = (url, target) => { url && window.open(url, target || "_blank"); return self; };
+	this.unescape = html => { TEXT.innerHTML = html; return TEXT.value; }
+	this.escape = text => { DIV.innerHTML = text; return DIV.innerHTML; }
 	/*this.buildPath = function(parts, url) {
 		url = url || window.location.pathname;
 		let aux = new URLSearchParams(parts);
@@ -70,52 +68,29 @@ function DomBox() {
 			return self;
 
 		// Is DOMElement
-		if (list.nodeType === 1) {
+		if (list.nodeType === 1)
 			cb(list, 0);
-			return self;
-		}
-
-		// Is NodeList
-		list = fnQuery(list); //is query?
-		let size = fnSize(list); //list size
-		for (let i = 0; (i < size); i++)
-			cb(list[i], i, list);
+		else // Is Selector or NodeList
+			ab.each(fnQuery(list), cb);
 		return self;
 	}
 	this.reverse = function(list, cb) {
-		for (let i = fnSize(list) - 1; i > -1; i--)
-			cb(list[i], i, list);
+		ab.reverse(list, cb);
 		return self;
 	}
 
 	// Filters
-	this.findIndex = function(selector, list) {
-		let size = fnSize(list);
-		for (let i = 0; i < size; i++) {
-			if (list[i].matches(selector))
-				return i;
-		}
-		return -1;
-	}
-	this.find = function(selector, list) {
-		return list[self.findIndex(selector, list)];
-	}
-	this.filter = function(selector, list) {
-		let results = []; //elem container
-		self.each(list, el => addMatch(el, selector, results));
-		return results;
-	}
-	this.map = function(list, cb) {
-		list = fnQuery(list); //is query?
-		return [...list].map(cb);
-	}
+	this.findIndex = (selector, list)  => [...list].findIndex(el => el.matches(selector));
+	this.find = (selector, list)  => [...list].find(el => el.matches(selector));
+	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
+	this.map = (list, cb)  => [...fnQuery(list)].map(cb);
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
 	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
 	this.inputs = el => self.getAll(INPUTS, el);
-	this.focus = function(el) { el && el.focus(); return self; }
+	this.focus = el => { el && el.focus(); return self; }
 	this.setFocus = el => self.refocus(self.inputs(el));
 	this.refocus = function(list) {
 		return self.reverse(list, input => { //set focus on first input
@@ -138,6 +113,7 @@ function DomBox() {
 	this.val = (list, value) => self.each(list, el => fnSetVal(el, value));
 
 	this.getAttr = (el, name) => el && el.getAttribute(name);
+	this.setAttr = (el, name, value) => { el && el.setAttribute(name, value); return self; };
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
 
@@ -263,8 +239,10 @@ function DomBox() {
 		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
 		self.getOptText = selector => self.optText(self.getInput(selector));
 		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getVal(i2));
-		self.setAttr = (selector, name, value) => self.attr(self.getInputs(selector), name, value);
-		self.delAttr = (selector, name) => self.removeAttr(self.getInputs(selector), name);
+		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
+		self.setAttrInputs = (selector, name, value) => self.attr(self.getInputs(selector), name, value);
+		self.delAttrInput = (selector, name) => self.removeAttr(self.getInput(selector), name);
+		self.delAttrInputs = (selector, name) => self.removeAttr(self.getInputs(selector), name);
 		self.setInput = (selector, value, fnChange) => {
 			const el = self.getInput(selector);
 			if (el) {
@@ -294,6 +272,7 @@ function DomBox() {
 
 		/**************** Tables/rows helper ****************/
 		self.onFindRow = (selector, fn) => self.event(self.getTables(selector), "find", fn);
+		self.onSelectRow = (selector, fn) => self.event(self.getTables(selector), "select", fn);
 		self.onRemoveRow = (selector, fn) => self.event(self.getTables(selector), "remove", fn);
 		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), ON_CHANGE, fn);
 		self.onChangeTables = (selector, fn) => self.change(self.getTables(selector), fn);
@@ -350,7 +329,7 @@ function DomBox() {
 
 						renderPagination(i); // Render all pages
 						table.dataset.page = i; // Update current
-						table.dispatchEvent(new CustomEvent("pagination", { "detail": params })); // Trigger event
+						table.dispatchEvent(new CustomEvent("pagination", { detail: params })); // Trigger event
 					});
 				}
 				renderPagination(table.dataset.page);
@@ -367,16 +346,19 @@ function DomBox() {
 			self.render(table.tFoot, tpl => sb.format(resume, tpl, styles)) // Render footer
 				.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 
-			// Find and remove events
+			// Find, select and remove events
 			self.click(self.getAll("a[href='#find']", table), (el, ev, i) => {
-				table.dispatchEvent(new CustomEvent("find", { "detail": data[i] }));
+				table.dispatchEvent(new CustomEvent("find", { detail: data[i] }));
+			});
+			self.click(self.getAll("a[href='#select']", table), (el, ev, i) => {
+				table.dispatchEvent(new CustomEvent("select", { detail: i }));
 			});
 			self.click(self.getAll("a[href='#remove']", table), (el, ev, i) => {
 				const msg = styles.remove || "remove"; // specific message
 				if (i18n.confirm(msg)) { // confirm before trigger event
 					resume.total--; // decrement total rows number
 					const obj = data.splice(i, 1)[0]; // Remove from data array
-					table.dispatchEvent(new CustomEvent("remove", { "detail": obj })); // Trigger event
+					table.dispatchEvent(new CustomEvent("remove", { detail: obj })); // Trigger event
 				}
 			});
 

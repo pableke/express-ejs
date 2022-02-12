@@ -9,8 +9,8 @@ function ArrayBox() {
 	this.size = fnSize;
 	this.empty = arr => (fnSize(arr) < 1);
 	this.find = (arr, fn) => arr ? arr.find(fn) : null;
-	this.ifind = (arr, fn) => arr ? arr.findIndex(fn) : -1;
 	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
+	this.findIndex = (arr, fn) => arr ? arr.findIndex(fn) : -1;
 	this.intersect = (a1, a2) => a2 ? a1.filter(e => (a2.indexOf(e) > -1)) : [];
 	this.shuffle = arr => arr.sort(() => (0.5 - Math.random()));
 	this.unique = (a1, a2) => a2 ? a1.concat(a2.filter(item => (a1.indexOf(item) < 0))) : a1;
@@ -54,12 +54,12 @@ function ArrayBox() {
 	this.each = function(arr, fn) {
 		let size = fnSize(arr); //max
 		for (let i = 0; (i < size); i++)
-			fn(arr[i], i); //callback
+			fn(arr[i], i, arr); //callback
 		return self;
 	}
 	this.reverse = function(arr, fn) {
 		for (let i = fnSize(arr) - 1; i > -1; i--)
-			fn(arr[i], i); //callback
+			fn(arr[i], i, arr); //callback
 		return self;
 	}
 	this.extract = function(arr, fn) {
@@ -69,9 +69,15 @@ function ArrayBox() {
 		return self;
 	}
 	this.flush = function(arr, fn) {
-		let i = self.ifind(arr, fn);
+		let i = self.findIndex(arr, fn);
 		(i > -1) && arr.splice(i, 1);
 		return self;
+	}
+
+	this.toObject = function(keys, values) {
+		const result = {}; // Output
+		keys.forEach((k, i) => { result[k] = values[i]; });
+		return result;
 	}
 
 	// Serialization

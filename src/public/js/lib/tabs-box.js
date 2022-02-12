@@ -4,7 +4,7 @@ dom.ready(function() {
 	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
-	dom.hrefIndex = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
+	dom.hrefIndex = (href, max) => nb.maxval(+href.substr(href.lastIndexOf("-") + 1) || 0, max);
 	dom.getTab = (id) => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
 	dom.getTabs = () => tabs; //all tabs
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
@@ -17,7 +17,7 @@ dom.ready(function() {
 	dom.isLastTab = () => (index == (tabs.length - 1));
 
 	dom.showTab = function(i) { //show tab by index
-		let size = tabs.length - 1; // tabs length
+		const size = tabs.length - 1; // tabs length
 		i = nb.range(i, 0, size); // Force range
 
 		const tab = tabs[i]; // current tab
@@ -44,12 +44,12 @@ dom.ready(function() {
 	dom.prevTab = () => dom.showTab(index - 1);
 	dom.nextTab = () => dom.showTab(index + 1);
 	dom.lastTab = () => dom.showTab(tabs.length + 1);
-	dom.viewTab = (id) => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
+	dom.viewTab = id => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
 
 	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
 	dom.onclick("a[href='#last-tab']", () => !dom.lastTab());
-	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 20)));
+	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 50)));
 	dom.onClickElem("a[href='#save-tab']", el => !tabs[index].dispatchEvent(new Event("save-" + index))); // Trigger event
 
 	// Show/Hide drop down info
