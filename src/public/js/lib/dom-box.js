@@ -114,9 +114,9 @@ function DomBox() {
 
 	this.getAttr = (el, name) => el && el.getAttribute(name);
 	this.setAttr = (el, name, value) => { el && el.setAttribute(name, value); return self; };
-	this.delAttr = (el, name, value) => { el && el.removeAttribute(name, value); return self; };
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
+	this.delAttr = (el, name) => { el && el.removeAttribute(name); return self; };
 
 	this.getText = el => el && el.innerText;
 	this.findText = (selector, el) => self.getText(self.get(selector, el));
@@ -237,9 +237,9 @@ function DomBox() {
 		self.getVal = selector => self.getValue(self.getInput(selector));
 		self.values = selector => self.getInputs(selector).map(el => el.value);
 		self.setVal = (selector, value) => self.val(self.getInputs(selector), value);
-		self.setInputValue = (selector, value) => self.setValue(self.getInput(selector), value);
+		self.setValueInput = (selector, value) => self.setValue(self.getInput(selector), value);
+		self.copyVal = (i1, i2) => self.setValueInput(i1, self.getVal(i2));
 		self.getOptText = selector => self.optText(self.getInput(selector));
-		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getVal(i2));
 		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
 		self.setAttrInputs = (selector, name, value) => self.attr(self.getInputs(selector), name, value);
 		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
