@@ -170,10 +170,17 @@
 		<div id="tab-3" class="tab-content">
 			<form id="test">
 			<div class="navbar">
-				<select>
-					<option value="">Seleccione una entidad ...</option>
-					<option id="entidades" value="@key;">@value;</option>
-				</select>
+				<div class="input-items input-control-block">
+					<label for="name" class="required">Nombre:</label>
+					<input type="text" id="name" name="name" value="" />
+				</div>
+				<div class="input-items input-control-block">
+					<label for="entidad" class="required">Entidades:</label>
+					<select id="entidad">
+						<option value="">Seleccione una entidad ...</option>
+						<option id="entidades" value="@key;">@value;</option>
+					</select>
+				</div>
 			</div>
 			</form>
 		</div>
@@ -208,7 +215,7 @@
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
-					.onSelectRow("#pruebas", (table, ev) => console.log("select", ev.detail))
+					.onSelectRow("#pruebas", (table, ev) => dom.setValueInput("#name", data[ev.detail].name).viewTab(3))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
 					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume, styles))
 					.renderTable(table, data, resume, styles)
