@@ -13,7 +13,6 @@ function DomBox() {
 	const TEXT = document.createElement("textarea");
 
 	function fnLog(data) { console.log("Log:", data); }
-	function fnId() { return "_" + Math.random().toString(36).substr(2, 9); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
 	function fnQuery(list) { return (typeof(list) === "string") ? document.querySelectorAll(list) : list; }
 
@@ -153,7 +152,7 @@ function DomBox() {
 	this.setTpl = (name, tpl) => { TEMPLATES[name] = tpl; return self; }
 	this.loadTemplates = () =>self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
 	this.render = function(el, formatter) {
-		el.id = el.id || fnId(); // force unique id for element
+		el.id = el.id || ("_" + sb.rand()); // force unique id for element
 		let key = el.dataset.tpl || el.id; // tpl asociated
 		TEMPLATES[key] = TEMPLATES[key] || el.innerHTML;
 		el.innerHTML = formatter(TEMPLATES[key]);
