@@ -19,7 +19,6 @@ function DomBox() {
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
-	this.matches = (selector, el) => el && el.matches(selector);
 	this.sibling = (selector, el) => el && self.get(selector, el.parentNode);
 	this.siblings = (selector, el) => el && self.getAll(selector, el.parentNode);
 
@@ -79,16 +78,22 @@ function DomBox() {
 	}
 
 	// Filters
+	function fnFind(selector, list) { return list.find(el => el.matches(selector)); }
+	function fnFilter(selector, list) { return list.filter(el => el.matches(selector)); }
 	this.findIndex = (selector, list)  => [...list].findIndex(el => el.matches(selector));
-	this.find = (selector, list)  => [...list].find(el => el.matches(selector));
-	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
+	this.find = (selector, list)  => fnFind(selector, [...list]);
+	this.filter = (selector, list) => fnFilter(selector, [...list]);
 	this.map = (list, cb)  => [...fnQuery(list)].map(cb);
+	this.values = list => self.map(list, el => el.value);
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
 	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
 	this.inputs = el => self.getAll(INPUTS, el);
+	this.checked = el => self.getAll("input:checked", el);
+	this.checks = el => self.getAll("input[type=checkbox]", el);
+	this.check = (list, value) => self.each(list, el => { el.checked = value; });
 	this.focus = el => { el && el.focus(); return self; }
 	this.setFocus = el => self.refocus(self.inputs(el));
 	this.refocus = function(list) {
@@ -99,10 +104,8 @@ function DomBox() {
 
 	// Contents
 	function fnSetVal(el, value) {
-		if (el.tagName === "SELECT") {
-			value = value || el.getAttribute("value");
+		if (el.tagName === "SELECT")
 			el.selectedIndex = value ? self.findIndex("[value='" + value + "']", el.options) : 0;
-		}
 		else
 			el.value = value ?? EMPTY;
 		return self;
@@ -128,11 +131,12 @@ function DomBox() {
 	this.setHtml = (selector, value, el) => self.html(self.getAll(selector, el), value);
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, (mask>>i)&1)); //toggle class by mask
+	this.swap = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
 	this.optText = sel => sel ? self.getText(sel.options[sel.selectedIndex]) : null;
 	this.select = function(list, mask) {
 		return self.each(list, el => { //iterate over all selects
-			let option = self.mask(el.options, ~mask, HIDE).get("[value='" + el.value + "']", el);
-			if (self.hasClass(option, HIDE)) //current option is hidden => force change
+			const option = el.options[el.selectedIndex]; // get current option
+			if (self.swap(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		});
 	}
@@ -150,7 +154,7 @@ function DomBox() {
 	// Format and parse contents
 	const TEMPLATES = {}; //container
 	this.setTpl = (name, tpl) => { TEMPLATES[name] = tpl; return self; }
-	this.loadTemplates = () =>self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
+	this.loadTemplates = () => self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
 	this.render = function(el, formatter) {
 		el.id = el.id || ("_" + sb.rand()); // force unique id for element
 		let key = el.dataset.tpl || el.id; // tpl asociated
@@ -225,16 +229,15 @@ function DomBox() {
 		const forms = self.filter("form", elements); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
 
-		self.getTable = selector => self.find(selector, tables);
-		self.getTables = selector => self.filter(selector, tables);
-		self.getForm = selector => self.find(selector, forms);
-		self.getForms = selector => self.filter(selector, forms);
-		self.getInput = selector => self.find(selector, inputs);
-		self.getInputs = selector => selector ? self.filter(selector, inputs) : inputs;
+		self.getTable = selector => fnFind(selector, tables);
+		self.getTables = selector => fnFilter(selector, tables);
+		self.getForm = selector => fnFind(selector, forms);
+		self.getForms = selector => fnFilter(selector, forms);
+		self.getInput = selector => fnFind(selector, inputs);
+		self.getInputs = selector => selector ? fnFilter(selector, inputs) : inputs;
 
 		self.moveFocus = selector => self.focus(self.getInput(selector));
 		self.getVal = selector => self.getValue(self.getInput(selector));
-		self.values = selector => self.getInputs(selector).map(el => el.value);
 		self.setVal = (selector, value) => self.val(self.getInputs(selector), value);
 		self.setValueInput = (selector, value) => self.setValue(self.getInput(selector), value);
 		self.copyVal = (i1, i2) => self.setValueInput(i1, self.getVal(i2));
@@ -271,6 +274,8 @@ function DomBox() {
 		}
 
 		/**************** Tables/rows helper ****************/
+		self.getCheckRows = selector => self.checks(self.getTable(selector));
+		self.getCheckedRows = selector => self.checked(self.getTable(selector));
 		self.onFindRow = (selector, fn) => self.event(self.getTables(selector), "find", fn);
 		self.onSelectRow = (selector, fn) => self.event(self.getTables(selector), "select", fn);
 		self.onRemoveRow = (selector, fn) => self.event(self.getTables(selector), "remove", fn);
