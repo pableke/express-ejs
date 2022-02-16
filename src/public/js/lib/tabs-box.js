@@ -10,7 +10,9 @@ dom.ready(function() {
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 
 	dom.onSaveTab = (id, fn) => dom.event(dom.getTab(id), "save-" + id, fn);
+	dom.onPrevTab = (id, fn) => dom.event(dom.getTab(id), "prev-" + id, fn);
 	dom.onChangeTab = (id, fn) => dom.event(dom.getTab(id), "tab-" + id, fn);
+	dom.onNextTab = (id, fn) => dom.event(dom.getTab(id), "next-" + id, fn);
 	dom.onExitTab = fn => dom.event(tabs[0], "exit", fn);
 
 	dom.isFirstTab = () => (index == 0);
@@ -25,7 +27,14 @@ dom.ready(function() {
 			tab.dispatchEvent(new Event("exit")); // Trigger event
 			return dom; // exit tabs form
 		}
-		tab.dispatchEvent(new Event(tab.id)); // Trigger event
+
+		const id = dom.hrefIndex(tab.id, 50);
+		if (i > index) // Trigger next event
+			tab.dispatchEvent(new Event("next-" + id));
+		else if (i < index) // Trigger prev event
+			tab.dispatchEvent(new Event("prev-" + id));
+		// Always trigger change event
+		tab.dispatchEvent(new Event(tab.id));
 
 		if (dom.isOk()) { // Only change tab if ok
 			tab = tabs[i]; // next tab
@@ -42,6 +51,7 @@ dom.ready(function() {
 		}
 		return dom;
 	}
+
 	dom.prevTab = () => dom.showTab(index - 1);
 	dom.nextTab = () => dom.showTab(index + 1);
 	dom.lastTab = () => dom.showTab(tabs.length + 1);
@@ -51,7 +61,11 @@ dom.ready(function() {
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
 	dom.onclick("a[href='#last-tab']", () => !dom.lastTab());
 	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 50)));
-	dom.onClickElem("a[href='#save-tab']", el => !tabs[index].dispatchEvent(new Event("save-" + index))); // Trigger event
+	dom.onClickElem("a[href='#save-tab']", el => { // Trigger save event
+		const tab = tabs[index]; // Current tab
+		const id = dom.hrefIndex(tab.id, 50);
+		tab.dispatchEvent(new Event("save-" + id));
+	});
 
 	// Show/Hide drop down info
 	dom.onclick(".toggle-angle", el => !dom.toggle(dom.get("i.fas", el), "fa-angle-double-down fa-angle-double-up").toggleHide(".info-" + el.id));
