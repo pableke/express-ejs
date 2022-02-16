@@ -142,9 +142,9 @@ function DateBox() {
 	this.inDay = (d1, d2) => self.inMonth(d1, d2) && (d1.getDate() == d2.getDate());
 	this.inHour = (d1, d2) => self.inDay(d1, d2) && (d1.getHours() == d2.getHours());
 
-	this.past = (date) => self.lt(date, sysdate);
-	this.future = (date) => self.gt(date, sysdate);
-	this.geToday = (date) => self.inDay(date, sysdate) || self.ge(date, sysdate);
+	this.past = date => self.lt(date, sysdate);
+	this.future = date => self.gt(date, sysdate);
+	this.geToday = date => self.inDay(date, sysdate) || self.ge(date, sysdate);
 	this.between = function(date, min, max) { // value into a range
 		if (!isDate(date))
 			return false;
