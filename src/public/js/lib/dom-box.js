@@ -373,6 +373,9 @@ function DomBox() {
 		self.renderRows = function(table, data, resume, styles) {
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
+		self.table = function(selector, data, resume, styles) {
+			return self.renderRows(self.getTable(selector), data, resume, styles);
+		}
 		self.list = function(selector, data, resume, styles) {
 			return self.each(self.getTables(selector), table => fnRenderRows(table, data, resume, styles));
 		}

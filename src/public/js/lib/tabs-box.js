@@ -5,7 +5,7 @@ dom.ready(function() {
 	let index = dom.findIndex(".active", tabs); //current index tab
 
 	dom.hrefIndex = (href, max) => nb.maxval(+href.substr(href.lastIndexOf("-") + 1) || 0, max);
-	dom.getTab = (id) => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
+	dom.getTab = id => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
 	dom.getTabs = () => tabs; //all tabs
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
 
@@ -20,7 +20,7 @@ dom.ready(function() {
 		const size = tabs.length - 1; // tabs length
 		i = nb.range(i, 0, size); // Force range
 
-		const tab = tabs[i]; // current tab
+		let tab = tabs[index]; // current tab
 		if ((i == 0) && (index == 0)) {
 			tab.dispatchEvent(new Event("exit")); // Trigger event
 			return dom; // exit tabs form
@@ -28,6 +28,7 @@ dom.ready(function() {
 		tab.dispatchEvent(new Event(tab.id)); // Trigger event
 
 		if (dom.isOk()) { // Only change tab if ok
+			tab = tabs[i]; // next tab
 			const progressbar = dom.get("#progressbar");
 			if (progressbar) { // progressbar is optional
 				const step = "step-" + i; //go to a specific step on progressbar
