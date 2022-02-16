@@ -102,9 +102,12 @@ dom.ready(function() {
 	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 
 	// Initialize all textarea counter
-	const ta = dom.getInputs("textarea.counter");
-	function fnCounter(el) { dom.setText("#counter-" + el.id, Math.abs(el.getAttribute("maxlength") - sb.size(el.value)), el.parentNode); }
-	dom.attr(ta, "maxlength", "600").keyup(ta, fnCounter).each(ta, fnCounter);
+	const ta = dom.getInputs("textarea[maxlength]");
+	function fnCounter(el) {
+		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
+		dom.setText(".counter", value, el.parentNode);
+	}
+	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
 	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
@@ -121,6 +124,8 @@ dom.ready(function() {
 	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
 	dom.isFk = (el, msg, msgtip) => (!el || i18n.fk(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.fk = (selector, msg, msgtip) => dom.isFk(dom.getInput(selector), msg, msgtip);
+	dom.isPast = (el, msg, msgtip) => (!el || i18n.past(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	dom.past = (selector, msg, msgtip) => dom.isPast(dom.getInput(selector), msg, msgtip);
 	dom.isGeToday = (el, msg, msgtip) => (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
 
@@ -167,7 +172,7 @@ dom.ready(function() {
 		opts.select = function(ev, ui) { //triggered when select an item
 			opts.load(ui.item, this, fnGetIds(this)); //update inputs
 			return false; //preserve inputs values from load event
-		};
+		}
 		opts.source = function(req, res) {
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
 				let label = sb.iwrap(opts.render(item), req.term); //decore matches
@@ -176,14 +181,14 @@ dom.ready(function() {
 			dom.ajax(opts.action + "?term=" + req.term, data => {
 				res(opts.sort(data).slice(0, opts.maxResults));
 			});
-		};
+		}
 		// Triggered when the field is blurred, if the value has changed
 		opts.change = function(ev, ui) {
 			if (!ui.item) { //item selected?
 				dom.val("", this).val("", fnGetIds(this));
 				opts.remove(this);
 			}
-		};
+		}
 		$(inputs).autocomplete(opts);
 		return dom.keydown(inputs, (el, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
