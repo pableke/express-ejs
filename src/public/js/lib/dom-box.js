@@ -83,6 +83,7 @@ function DomBox() {
 	this.findIndex = (selector, list)  => [...list].findIndex(el => el.matches(selector));
 	this.find = (selector, list)  => fnFind(selector, [...list]);
 	this.filter = (selector, list) => fnFilter(selector, [...list]);
+	this.sort = (list, cb)  => [...fnQuery(list)].sort(cb);
 	this.map = (list, cb)  => [...fnQuery(list)].map(cb);
 	this.values = list => self.map(list, el => el.value);
 

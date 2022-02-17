@@ -100,19 +100,6 @@ function ArrayBox() {
 			});
 		}).join(opts.separator);
 	}
-
-	// Client helpers
-	this.parse = data => data ? JSON.parse(data) : null;
-	this.read = name => self.parse(window.sessionStorage.getItem(name));
-	this.stringify = data => isstr(data) ? data : JSON.stringify(data);
-	this.ss = function(name, data) {
-		data && window.sessionStorage.setItem(name, self.stringify(data));
-		return self;
-	}
-	this.ls = function(name, data) {
-		data && window.localStorage.setItem(name, self.stringify(data));
-		return self;
-	}
 }
 
 module.exports = new ArrayBox();

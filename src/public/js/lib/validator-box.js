@@ -17,6 +17,7 @@ function ValidatorBox() {
 	const RE_DIGITS = /^\d+$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
+	const RE_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
 	const RE_IPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
 	const RE_IPv6 = /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/;
@@ -79,6 +80,7 @@ function ValidatorBox() {
 	this.text = str => fnText(str, 0, 1000);
 
 	this.regex = (re, value) => fnRegex(re, fnTrim(value));
+	this.date = value => self.regex(RE_DATE, value);
 	this.login = value => self.regex(RE_LOGIN, value);
 	this.digits = value => self.regex(RE_DIGITS, value);
 	this.idlist = value => self.regex(RE_IDLIST, value);

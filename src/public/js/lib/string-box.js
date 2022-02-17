@@ -64,7 +64,7 @@ function StringBox() {
 	this.words = str => self.split(str, /\s+/);
 
 	this.ilike = (str1, str2) => self.iiOf(str1, str2) > -1; //object value type = string
-	this.olike = (obj, names, val) => names.some(k => self.ilike(obj[k], val));
+	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
 	this.between = function(value, min, max) { // value into a range
 		min = min ?? value;

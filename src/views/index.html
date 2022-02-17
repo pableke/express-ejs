@@ -168,6 +168,11 @@
 		</div>
 
 		<div id="tab-3" class="tab-content">
+			<div>
+				<a href="#prev-item">prev</a>
+				<a href="#next-item">next</a>
+			</div>
+
 			<form id="test">
 			<div class="navbar">
 				<div class="input-items input-control-block">
@@ -207,7 +212,12 @@
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1,name:"Row 1"}, {id:2,name:"Row 2"}, {id:3,name:"Row 3"}];
 				const resume = { total: 50 };
-				const styles = { remove: i18n.get("remove") }
+				let row, index, size;
+
+				function fnLoad(i) {
+					index = i; // save current item-index
+					return dom.setValueInput("#name", data[index].name);
+				}
 
 				dom.loadTemplates()
 					.onSaveTab("2", () => console.log("saving... tab-2"))
@@ -215,16 +225,19 @@
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
-					.onSelectRow("#pruebas", (table, ev) => dom.setValueInput("#name", data[ev.detail].name).viewTab(3))
+					.onSelectRow("#pruebas", (table, ev) => !fnLoad(ev.detail).viewTab(3))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
-					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume, styles))
-					.renderTable(table, data, resume, styles)
+					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume))
+					.renderTable(table, data, resume)
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
+
+				dom.onClickElem("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
+				dom.onClickElem("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
 
 				dom.onclick("a[href='show-first']", el => {
 					resume.total++;
 					data.push({id:4});
-					dom.renderTable(table, data, resume, styles);
+					dom.renderTable(table, data, resume);
 
 					const alert = dom.get("div.alert");
 					dom.show(alert).animate("fadeIn", alert);
