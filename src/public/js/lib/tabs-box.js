@@ -4,7 +4,7 @@ dom.ready(function() {
 	let tabs = dom.getAll(".tab-content");
 	let index = dom.findIndex(".active", tabs); //current index tab
 
-	dom.hrefIndex = (href, max) => nb.maxval(+href.substr(href.lastIndexOf("-") + 1) || 0, max);
+	dom.getElemId = (href, max) => nb.range(+href.substr(href.lastIndexOf("-") + 1) || 0, 0, max);
 	dom.getTab = id => tabs[dom.findIndex("#tab-" + id, tabs)]; //find by id selector
 	dom.getTabs = () => tabs; //all tabs
 	dom.setTabs = () => { tabs = dom.getAll(".tab-content"); return dom; }
@@ -18,7 +18,7 @@ dom.ready(function() {
 	dom.isFirstTab = () => (index == 0);
 	dom.isLastTab = () => (index == (tabs.length - 1));
 
-	dom.showTab = function(i) { //show tab by index
+	function fnShowTab(i) { //show tab by index
 		const size = tabs.length - 1; // tabs length
 		i = nb.range(i, 0, size); // Force range
 
@@ -28,7 +28,7 @@ dom.ready(function() {
 			return dom; // exit tabs form
 		}
 
-		const id = dom.hrefIndex(tab.id, 50);
+		const id = dom.getElemId(tab.id, 50);
 		if (i > index) // Trigger next event
 			tab.dispatchEvent(new Event("next-" + id));
 		else if (i < index) // Trigger prev event
@@ -52,18 +52,18 @@ dom.ready(function() {
 		return dom;
 	}
 
-	dom.prevTab = () => dom.showTab(index - 1);
-	dom.nextTab = () => dom.showTab(index + 1);
-	dom.lastTab = () => dom.showTab(tabs.length + 1);
-	dom.viewTab = id => dom.showTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
+	dom.prevTab = () => fnShowTab(index - 1);
+	dom.nextTab = () => fnShowTab(index + 1);
+	dom.viewTab = id => fnShowTab(dom.findIndex("#tab-" + id, tabs)); //find by id selector
+	dom.lastTab = () => fnShowTab(99);
 
 	dom.onclick("a[href='#prev-tab']", () => !dom.prevTab());
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
 	dom.onclick("a[href='#last-tab']", () => !dom.lastTab());
-	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.hrefIndex(el.href, 50)));
+	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.getElemId(el.href, 50)));
 	dom.onClickElem("a[href='#save-tab']", el => { // Trigger save event
 		const tab = tabs[index]; // Current tab
-		const id = dom.hrefIndex(tab.id, 50);
+		const id = dom.getElemId(tab.id, 50);
 		tab.dispatchEvent(new Event("save-" + id));
 	});
 
@@ -73,8 +73,7 @@ dom.ready(function() {
 
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu"); // Find unique menu
-	const children = Array.from(menu.children); // JS Array
-	children.sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
+	const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
 	children.forEach(child => {
 		let padre = child.dataset.padre; // Has parent?
 		let mask = child.dataset.mask ?? 4; // Default mask = active

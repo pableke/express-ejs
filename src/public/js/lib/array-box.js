@@ -102,8 +102,8 @@ function ArrayBox() {
 	}
 
 	// Client helpers
-	this.parse = data => data ? JSON.parse(data) : null;
-	this.read = name => self.parse(window.sessionStorage.getItem(name));
+	this.parse = (data, reviver) => data ? JSON.parse(data, reviver) : null;
+	this.read = (name, reviver) => self.parse(window.sessionStorage.getItem(name), reviver);
 	this.stringify = data => isstr(data) ? data : JSON.stringify(data);
 	this.ss = function(name, data) {
 		data && window.sessionStorage.setItem(name, self.stringify(data));
