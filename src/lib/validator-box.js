@@ -1,4 +1,8 @@
 
+const dt = require("./date-box.js");
+const nb = require("./number-box.js");
+const sb = require("./string-box.js");
+
 /**
  * ValidatorBox module require
  * StringBox (sb), DateBox (dt) and NumberBox (nb)

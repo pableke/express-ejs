@@ -9,11 +9,10 @@ function StringBox() {
 	//helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
-	function fnTrim(str) { return isstr(str) ? str.trim() : str; } //string only
 	function fnSize(str) { return str ? str.length : 0; } //string o array
 	function tr(str) {
 		var output = "";
-		var size = fnSize(fnTrim(str));
+		var size = fnSize(str);
 		for (var i = 0; i < size; i++) {
 			var chr = str.charAt(i);
 			var j = TR1.indexOf(chr);
@@ -24,8 +23,8 @@ function StringBox() {
 
 	this.isset = isset;
 	this.isstr = isstr;
-	this.trim = fnTrim;
 	this.size = fnSize;
+	this.trim = str => isstr(str) ? str.trim() : str;
 	this.eq = (str1, str2) => (tr(str1) == tr(str2));
 	this.iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	this.upper = str => str ? str.toUpperCase(str) : str;
@@ -42,6 +41,11 @@ function StringBox() {
 	this.itrunc = function(str, size) {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
 		return self.trunc(str, (i < 0) ? size : i);
+	}
+	this.cmp = function(a, b) {
+		if (isset(a) && isset(b))
+			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+		return isset(a) ? -1 : 1; //nulls last
 	}
 
 	this.escape = function(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
@@ -101,25 +105,27 @@ function StringBox() {
 		return result;
 	}
 
-	this.val = (obj, name) => obj[name]; // Default access prop
+	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
 	this.format = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
 		opts.empty = opts.empty || "";
-		let fnVal = opts.getValue || self.val;
+		const fnVal = opts.getValue || self.val;
 
-		return data && tpl && tpl.replace(/@(\w+);/g, (m, k) => {
-			let fn = opts[k]; //field format function
-			let value = fn ? fn(data[k], data) : fnVal(data, k);
+		return tpl.replace(/@(\w+);/g, (m, k) => {
+			const fn = opts[k]; //field format function
+			const value = fn ? fn(data[k], data) : fnVal(data, k);
 			return value ?? opts.empty; //string formated
 		});
 	}
 	this.entries = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
+		const fnVal = opts.getValue || self.val;
+
 		let output = ""; //result buffer
 		for (const k in data) {
-			let fn = opts[k]; //field format function
-			let value = fn ? fn(data[k], data) : data[k];
+			const fn = opts[k]; //field format function
+			const value = fn ? fn(data[k], data) : fnVal(data, k);
 			output += tpl.replace("@key;", k).replace("@value;", value);
 		}
 		return output;

@@ -19,16 +19,17 @@ function NumberBox() {
 		return result;
 	}
 
-	this.lt0 = (num) => isset(num) && (num < 0);
-	this.le0 = (num) => isset(num) && (num <= 0);
-	this.gt0 = (num) => isset(num) && (num > 0);
+	this.lt0 = num => isset(num) && (num < 0);
+	this.le0 = num => isset(num) && (num <= 0);
+	this.gt0 = num => isset(num) && (num > 0);
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
-	this.maxval = (val, max) => self.range(val, 0, max); //force max value
+	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
+	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
 	this.between = (num, min, max) => (min <= num) && (num <= max);
-	this.cmp = function(n1, n2) { //nulls go last
-		if (!isNaN(n1) && !isNaN(n2))
-			return n1 - n2;
-		return isNaN(n2) ? -1 : 1;
+	this.cmp = function(n1, n2) {
+		if (isNaN(n1))
+			return 1; //nulls last
+		return isNaN(n2) ? -1 : (n1 - n2);
 	}
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
@@ -55,13 +56,13 @@ function NumberBox() {
 		return whole ? (sign + rtl(whole, 3).join(s)) : null;
 	}
 	this.isoInt = (val, s) => isset(val) ? fnInt(EMPTY + val, s) : null;
-	this.enIsoInt = (val) => self.isoInt(val, COMMA); // Integer to EN String format
-	this.esIsoInt = (val) => self.isoInt(val, DOT); // Integer to ES String format
+	this.enIsoInt = val => self.isoInt(val, COMMA); // Integer to EN String format
+	this.esIsoInt = val => self.isoInt(val, DOT); // Integer to ES String format
 
 	this.fmtInt = function(str, s) { return str && fnInt(str, s); } // String (representing int) to String formated
-	this.enFmtInt = (str) => self.fmtInt(str, COMMA); // reformat EN String
-	this.esFmtInt = (str) => self.fmtInt(str, DOT); // reformat ES String
-	this.intval = (str) => parseInt(str) || 0; //integer
+	this.enFmtInt = str => self.fmtInt(str, COMMA); // reformat EN String
+	this.esFmtInt = str => self.fmtInt(str, DOT); // reformat ES String
+	this.intval = str => parseInt(str) || 0; //integer
 
 	// Floats
 	this.toFloat = function(str, d) { //String to Float
@@ -75,8 +76,8 @@ function NumberBox() {
 		}
 		return null; // not number
 	}
-	this.enFloat = (str) => self.toFloat(str, DOT); // EN String format to Float
-	this.esFloat = (str) => self.toFloat(str, COMMA); // ES String format to Float
+	this.enFloat = str => self.toFloat(str, DOT); // EN String format to Float
+	this.esFloat = str => self.toFloat(str, COMMA); // ES String format to Float
 
 	function fnFloat(str, s, d, n, dIn) {
 		n = isNaN(n) ? 2 : n; //number of decimals
@@ -97,12 +98,12 @@ function NumberBox() {
 	this.fmtFloat = function(str, s, d, n) { return str && fnFloat(str, s, d, n, d); } // String to String formated
 	this.enFmtFloat = (str, n) => self.fmtFloat(str, COMMA, DOT, n); // reformat EN String
 	this.esFmtFloat = (str, n) => self.fmtFloat(str, DOT, COMMA, n); // reformat ES String
-	this.floatval = (str) => parseFloat(str) || 0; //float
+	this.floatval = str => parseFloat(str) || 0; //float
 
 	// Booleans
-	this.boolval = (val) => val && (val !== "false") && (val !== "0");
-	this.enBool = (val) => self.boolval(val) ? "Yes" : "No";
-	this.esBool = (val) => self.boolval(val) ? "Sí" : "No";
+	this.boolval = val => val && (val !== "false") && (val !== "0");
+	this.enBool = val => self.boolval(val) ? "Yes" : "No";
+	this.esBool = val => self.boolval(val) ? "Sí" : "No";
 }
 
 module.exports = new NumberBox();

@@ -28,7 +28,7 @@ dom.ready(function() {
 			return dom; // exit tabs form
 		}
 
-		const id = dom.getElemId(tab.id, 50);
+		const id = dom.closeAlerts().getElemId(tab.id, 50);
 		if (i > index) // Trigger next event
 			tab.dispatchEvent(new Event("next-" + id));
 		else if (i < index) // Trigger prev event

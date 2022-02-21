@@ -2,15 +2,17 @@
 function ArrayBox() {
 	const self = this; //self instance
 
+	function fnVoid() {}
+	function fnCmp() { return 0; }
+	function fnValue(obj, name) { return obj[name]; }
 	function fnSize(arr) { return arr ? arr.length : 0; } //string o array
-	function cmp(a, b) { return (a == b) ? 0 : ((a < b) ? -1 : 1); }
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
 
 	this.size = fnSize;
 	this.empty = arr => (fnSize(arr) < 1);
 	this.find = (arr, fn) => arr ? arr.find(fn) : null;
-	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
 	this.findIndex = (arr, fn) => arr ? arr.findIndex(fn) : -1;
+	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
 	this.intersect = (a1, a2) => a2 ? a1.filter(e => (a2.indexOf(e) > -1)) : [];
 	this.shuffle = arr => arr.sort(() => (0.5 - Math.random()));
 	this.unique = (a1, a2) => a2 ? a1.concat(a2.filter(item => (a1.indexOf(item) < 0))) : a1;
@@ -29,14 +31,14 @@ function ArrayBox() {
 	this.clone = (arr) => arr ? arr.slice() : [];
 
 	// Sorting
-	this.sort = (arr, fn) => arr ? arr.sort(fn || cmp) : arr;
-	this.sortBy = function(arr, field, fnSort, dir) {
-		fnSort = fnSort || cmp; //default sorting
-		function fnAsc(a, b) { return fnSort(a[field], b[field]); }
-		function fnDesc(a, b) { return fnSort(b[field], a[field]); }
-		return (arr && field) ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
+	this.sort = (arr, fn) => arr ? arr.sort(fn) : arr;
+	this.sortBy = function(arr, dir, fnSort) {
+		fnSort = fnSort || fnCmp; //default sorting
+		function fnAsc(a, b) { return fnSort(a, b); }
+		function fnDesc(a, b) { return fnSort(b, a); }
+		return arr ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
-	this.multisort = function(arr, columns, orderby, sorts) {
+	/*this.multisort = function(arr, columns, orderby, sorts) {
 		sorts = sorts || []; //sort functions
 		orderby = orderby || []; //columns direction
 		function fnMultisort(a, b, index) { //recursive function
@@ -48,7 +50,7 @@ function ArrayBox() {
 		}
 		arr.sort(fnMultisort);
 		return self;
-	}
+	}*/
 
 	// Iterators
 	this.each = function(arr, fn) {
@@ -86,19 +88,24 @@ function ArrayBox() {
 		opts.separator = opts.separator || "";
 		opts.empty = opts.empty || "";
 
-		let fnAux = function(obj, name) { return obj[name]; };
-		let fnVal = opts.getValue || fnAux;
+		opts.start && opts.start(); //init format
+		const fnUpdate = opts.update || fnVoid; // default void
+		const fnVal = opts.getValue || fnValue;
 
 		const status = { size: fnSize(data) };
-		return data && tpl && data.map((obj, j) => {
+		const aux = data.map((obj, j) => {
+			fnUpdate(obj, j);
 			status.index = j;
 			status.count = j + 1;
 			return tpl.replace(/@(\w+);/g, function(m, k) {
-				let fn = opts[k]; //field format function
-				let value = fn ? fn(obj[k], obj, j) : (fnVal(obj, k) ?? status[k]);
+				const fn = opts[k]; //field format function
+				const value = fn ? fn(obj[k], obj, j) : (fnVal(obj, k) ?? status[k]);
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);
+
+		opts.end && opts.end(); //end format
+		return aux;
 	}
 
 	// Client helpers
