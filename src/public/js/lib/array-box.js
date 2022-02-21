@@ -3,10 +3,10 @@ function ArrayBox() {
 	const self = this; //self instance
 
 	function fnVoid() {}
-	function fnCmp() { return 0; }
 	function fnValue(obj, name) { return obj[name]; }
 	function fnSize(arr) { return arr ? arr.length : 0; } //string o array
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
+	function fnCmp(a, b) { return ((a < b) ? -1 : ((a > b) ? 1 : 0)); }
 
 	this.size = fnSize;
 	this.empty = arr => (fnSize(arr) < 1);
@@ -38,19 +38,19 @@ function ArrayBox() {
 		function fnDesc(a, b) { return fnSort(b, a); }
 		return arr ? arr.sort((dir == "desc") ? fnDesc : fnAsc) : arr;
 	}
-	/*this.multisort = function(arr, columns, orderby, sorts) {
+	this.multisort = function(arr, columns, orderby, sorts) {
 		sorts = sorts || []; //sort functions
 		orderby = orderby || []; //columns direction
 		function fnMultisort(a, b, index) { //recursive function
 			index = index || 0; //index columns to ordered
 			let name = columns[index]; //current column
-			let fnSort = sorts[index] || cmp; //default sorting
+			let fnSort = sorts[index] || fnCmp; //default sorting
 			let value = (orderby[index] == "desc") ? fnSort(b[field], a[field]) : fnSort(a[name], b[name]);
 			return ((value == 0) && (++index < columns.length)) ? fnMultisort(a, b, index) : value;
 		}
 		arr.sort(fnMultisort);
 		return self;
-	}*/
+	}
 
 	// Iterators
 	this.each = function(arr, fn) {
