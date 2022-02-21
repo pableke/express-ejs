@@ -101,14 +101,15 @@ function DomBox() {
 
 	// Contents
 	function fnSetVal(el, value) {
+		value = value ?? EMPTY; // define value as string
 		if (el.tagName === "SELECT")
-			el.selectedIndex = value ? self.findIndex("[value='" + value + "']", el.options) : 0;
+			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
 		else
-			el.value = value ?? EMPTY;
+			el.value = value;
 		return self;
 	}
-	function fnSetText(el, value) { el.innerText = value ?? EMPTY; return self; }
-	function fnSetHtml(el, value) { el.innerHTML = value ?? EMPTY; return self; }
+	function fnSetText(el, value) { el.innerText = value; return self; }
+	function fnSetHtml(el, value) { el.innerHTML = value; return self; }
 
 	this.getValue = el => el && el.value;
 	this.setValue = (el, value) => el ? fnSetVal(el, value) : self;
@@ -122,13 +123,19 @@ function DomBox() {
 
 	this.getText = el => el && el.innerText;
 	this.findText = (selector, el) => self.getText(self.get(selector, el));
-	this.setText = (el, value) => el ? fnSetText(el, value) : self;
-	this.text = (list, value) => self.each(list, el => fnSetText(el, value));
+	this.setText = (el, value) => el ? fnSetText(el, value ?? EMPTY) : self;
+	this.text = function(list, value) {
+		value = value ?? EMPTY; // define value as string
+		return self.each(list, el => fnSetText(el, value));
+	}
 
 	this.getHtml = el => el && el.innerHTML;
 	this.findHtml = (selector, el) => self.getHtml(self.get(selector, el));
-	this.setHtml = (el, value) => el ? fnSetHtml(el, value) : self;
-	this.html = (list, value) => self.each(list, el => fnSetHtml(el, value));
+	this.setHtml = (el, value) => el ? fnSetHtml(el, value ?? EMPTY) : self;
+	this.html = function(list, value) {
+		value = value ?? EMPTY; // define value as string
+		return self.each(list, el => fnSetHtml(el, value));
+	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, (mask>>i)&1)); //toggle class by mask
 	this.swap = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
@@ -410,7 +417,7 @@ function DomBox() {
 
 		function fnSortTable(table, data, resume, styles) {
 			const fnSort = resume.sort || sb.cmp; // function to sort by
-			ab.sortBy(data, table.dataset.sortDir, fnSort);
+			ab.sort(data, table.dataset.sortDir, fnSort); // sort data
 			return fnRenderRows(table, data, resume, styles);
 		}
 		self.sortTable = function(table, data, resume, styles) {
