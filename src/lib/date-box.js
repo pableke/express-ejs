@@ -131,10 +131,10 @@ function DateBox() {
 	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
 	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
 	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
-	this.cmp = function(d1, d2) { //nulls go last
-		if (isDate(d1) && isDate(d2))
+	this.cmp = function(d1, d2) {
+		if (d1 && d2)
 			return d1.getTime() - d2.getTime();
-		return isDate(d1) ? -1 : 1;
+		return d1 ? -1 : 1; //nulls last
 	}
 
 	this.inYear = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getFullYear() == d2.getFullYear());
@@ -142,9 +142,9 @@ function DateBox() {
 	this.inDay = (d1, d2) => self.inMonth(d1, d2) && (d1.getDate() == d2.getDate());
 	this.inHour = (d1, d2) => self.inDay(d1, d2) && (d1.getHours() == d2.getHours());
 
-	this.past = (date) => self.lt(date, sysdate);
-	this.future = (date) => self.gt(date, sysdate);
-	this.geToday = (date) => self.inDay(date, sysdate) || self.ge(date, sysdate);
+	this.past = date => self.lt(date, sysdate);
+	this.future = date => self.gt(date, sysdate);
+	this.geToday = date => self.inDay(date, sysdate) || self.ge(date, sysdate);
 	this.between = function(date, min, max) { // value into a range
 		if (!isDate(date))
 			return false;

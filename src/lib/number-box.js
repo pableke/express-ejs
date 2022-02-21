@@ -27,9 +27,9 @@ function NumberBox() {
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
 	this.between = (num, min, max) => (min <= num) && (num <= max);
 	this.cmp = function(n1, n2) {
-		if (isNaN(n1))
-			return 1; //nulls last
-		return isNaN(n2) ? -1 : (n1 - n2);
+		if (isset(n1) && isset(n2))
+			return n1 - n2;
+		return isset(n1) ? -1 : 1; //nulls last
 	}
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
