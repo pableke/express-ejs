@@ -107,8 +107,8 @@ function DomBox() {
 			el.value = value ?? EMPTY;
 		return self;
 	}
-	function fnSetText(el, value) { el.innerText = value; return self; }
-	function fnSetHtml(el, value) { el.innerHTML = value; return self; }
+	function fnSetText(el, value) { el.innerText = value ?? EMPTY; return self; }
+	function fnSetHtml(el, value) { el.innerHTML = value ?? EMPTY; return self; }
 
 	this.getValue = el => el && el.value;
 	this.setValue = (el, value) => el ? fnSetVal(el, value) : self;
