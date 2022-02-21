@@ -115,7 +115,7 @@
 			<table id="pruebas" data-sort-by="c2" data-sort-dir="desc" data-page-size="1" data-total="50">
 				<thead>
 					<tr>
-						<th>C1<a href="#" class="sort sort-none sort-c1"></a></th>
+						<th>C1<a href="#" class="sort sort-none sort-name"></a></th>
 						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
 						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
 						<th>Acciones</th>
@@ -169,8 +169,10 @@
 
 		<div id="tab-3" class="tab-content">
 			<div>
+				<a href="#first-item">first</a>
 				<a href="#prev-item">prev</a>
 				<a href="#next-item">next</a>
+				<a href="#last-item">last</a>
 			</div>
 
 			<form id="test">
@@ -212,27 +214,35 @@
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1,name:"Row 1"}, {id:2,name:"Row 2"}, {id:3,name:"Row 3"}];
 				const resume = { total: 50 };
-				let row, index, size;
+				let row, index;
 
 				function fnLoad(i) {
 					index = i; // save current item-index
-					return dom.setValueInput("#name", data[index].name);
+					row = data[index]; // current item
+					return dom.setValueInput("#name", row.name);
 				}
+				dom.onChangeInput("#name", el => { row.name = el.value; })
+					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
+					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
 
 				dom.loadTemplates()
-					.onSaveTab("2", () => console.log("saving... tab-2"))
-					.onChangeTab("1", () => console.log("change tab-1"))
+					.renderTable(table, data, resume)
 					.onExitTab(() => console.log("exit tabs"))
-					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
+					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
 					.onSelectRow("#pruebas", (table, ev) => !fnLoad(ev.detail).viewTab(3))
-					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
 					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume))
-					.renderTable(table, data, resume)
-					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
+					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
+					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
+					.click(dom.get(".sort-name", table), el => { // Sort by name
+						resume.sort = (a, b) => sb.cmp(a.name, b.name);
+						dom.sortTable("#pruebas", data, resume);
+					});
 
+				dom.onClickElem("a[href='#first-item']", el => !fnLoad(0));
 				dom.onClickElem("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
 				dom.onClickElem("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
+				dom.onClickElem("a[href='#last-item']", el => !fnLoad(data.length - 1));
 
 				dom.onclick("a[href='show-first']", el => {
 					resume.total++;

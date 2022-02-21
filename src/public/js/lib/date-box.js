@@ -131,10 +131,10 @@ function DateBox() {
 	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
 	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
 	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
-	this.cmp = function(d1, d2) { //nulls go last
-		if (isDate(d1) && isDate(d2))
+	this.cmp = function(d1, d2) {
+		if (d1 && d2)
 			return d1.getTime() - d2.getTime();
-		return isDate(d1) ? -1 : 1;
+		return d1 ? -1 : 1; //nulls last
 	}
 
 	this.inYear = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getFullYear() == d2.getFullYear());

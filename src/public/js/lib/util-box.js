@@ -105,7 +105,7 @@ dom.ready(function() {
 	const ta = dom.getInputs("textarea[maxlength]");
 	function fnCounter(el) {
 		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
-		dom.setText(".counter", value, el.parentNode);
+		dom.text(dom.sibling(".counter", el), value);
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 

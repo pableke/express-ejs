@@ -26,10 +26,10 @@ function NumberBox() {
 	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
 	this.between = (num, min, max) => (min <= num) && (num <= max);
-	this.cmp = function(n1, n2) { //nulls go last
-		if (!isNaN(n1) && !isNaN(n2))
-			return n1 - n2;
-		return isNaN(n2) ? -1 : 1;
+	this.cmp = function(n1, n2) {
+		if (isNaN(n1))
+			return 1; //nulls last
+		return isNaN(n2) ? -1 : (n1 - n2);
 	}
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
