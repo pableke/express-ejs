@@ -14,7 +14,7 @@ const dom = new DomBox(); //HTML-DOM box
 //DOM is fully loaded
 dom.ready(function() {
 	i18n.setI18n(dom.getLang()); // Set language
-	const inputs = dom.getInputs(); // All inputs list
+	const inputs = dom.getAllInputs(); // All inputs list
 
 	// Extends with animationCSS lib
 	dom.animate = function(list, animation) {

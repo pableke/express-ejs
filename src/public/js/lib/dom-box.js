@@ -14,13 +14,16 @@ function DomBox() {
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
-	function fnQuery(list) { return sb.isstr(list) ? document.querySelectorAll(list) : list; }
+	function fnQueryAll(list) { return sb.isstr(list) ? document.querySelectorAll(list) : list; }
+	function fnQuery(elem, parent) {
+		return sb.isstr(elem) ? (parent || document).querySelector(elem) : elem;
+	}
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
+	this.sibling = (selector, el) => el && el.parentNode.querySelector(selector);
+	this.siblings = (selector, el) => el && el.parentNode.querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
-	this.sibling = (selector, el) => el && self.get(selector, el.parentNode);
-	this.siblings = (selector, el) => el && self.getAll(selector, el.parentNode);
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
 	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
@@ -72,15 +75,15 @@ function DomBox() {
 		if (list.nodeType === 1)
 			cb(list, 0);
 		else // Is Selector or NodeList
-			ab.each(fnQuery(list), cb);
+			ab.each(fnQueryAll(list), cb);
 		return self;
 	}
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
 	this.findIndex = (selector, list)  => [...list].findIndex(el => el.matches(selector));
 	this.find = (selector, list)  => fnFind(selector, [...list]);
 	this.filter = (selector, list) => fnFilter(selector, [...list]);
-	this.sort = (list, cb)  => [...fnQuery(list)].sort(cb);
-	this.map = (list, cb)  => [...fnQuery(list)].map(cb);
+	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
+	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
 	this.values = list => self.map(list, el => el.value);
 
 	// Inputs selectors and focusableds
@@ -92,12 +95,6 @@ function DomBox() {
 	this.checks = el => self.getAll("input[type=checkbox]", el);
 	this.check = (list, value) => self.each(list, el => { el.checked = value; });
 	this.focus = el => { el && el.focus(); return self; }
-	this.setFocus = el => self.refocus(self.inputs(el));
-	this.refocus = function(list) {
-		return self.reverse(list, input => { //set focus on first input
-			fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
-		});
-	}
 
 	// Contents
 	function fnSetVal(el, value) {
@@ -108,30 +105,53 @@ function DomBox() {
 			el.value = value;
 		return self;
 	}
-	function fnSetText(el, value) { el.innerText = value; return self; }
-	function fnSetHtml(el, value) { el.innerHTML = value; return self; }
-
-	this.getValue = el => el && el.value;
-	this.setValue = (el, value) => el ? fnSetVal(el, value) : self;
 	this.val = (list, value) => self.each(list, el => fnSetVal(el, value));
-
-	this.getAttr = (el, name) => el && el.getAttribute(name);
-	this.setAttr = (el, name, value) => { el && el.setAttribute(name, value); return self; };
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
-	this.delAttr = (el, name) => { el && el.removeAttribute(name); return self; };
+	this.getAttr = function(el, name, parent) {
+		el = fnQuery(el, parent); //find element
+		return el && el.getAttribute(name);
+	}
+	this.setAttr = function(el, name, value, parent) {
+		el = fnQuery(el, parent); //find element
+		el && el.setAttribute(name, value);
+		return self;
+	}
+	this.delAttr = function(el, name, parent) {
+		el = fnQuery(el, parent); //find element
+		el && el.removeAttribute(name);
+		return self;
+	}
 
-	this.getText = el => el && el.innerText;
-	this.findText = (selector, el) => self.getText(self.get(selector, el));
-	this.setText = (el, value) => el ? fnSetText(el, value ?? EMPTY) : self;
+	function fnSetText(el, value) {
+		el.innerText = value;
+		return self;
+	}
+	this.getText = function(el, parent) {
+		el = fnQuery(el, parent); //find element
+		return el && el.innerText; //text
+	}
+	this.setText = function(el, value, parent) {
+		el = fnQuery(el, parent); //find element
+		return el ? fnSetText(el, value ?? EMPTY) : self;
+	}
 	this.text = function(list, value) {
 		value = value ?? EMPTY; // define value as string
 		return self.each(list, el => fnSetText(el, value));
 	}
 
-	this.getHtml = el => el && el.innerHTML;
-	this.findHtml = (selector, el) => self.getHtml(self.get(selector, el));
-	this.setHtml = (el, value) => el ? fnSetHtml(el, value ?? EMPTY) : self;
+	function fnSetHtml(el, value) {
+		el.innerHTML = value;
+		return self;
+	}
+	this.getHtml = function(el, parent) {
+		el = fnQuery(el, parent); //find element
+		return el && el.innerHTML; //html
+	}
+	this.setHtml = function(el, value, parent) {
+		el = fnQuery(el, parent); //find element
+		return el ? fnSetHtml(el, value ?? EMPTY) : self;
+	}
 	this.html = function(list, value) {
 		value = value ?? EMPTY; // define value as string
 		return self.each(list, el => fnSetHtml(el, value));
@@ -170,7 +190,7 @@ function DomBox() {
 		el.classList.toggle(HIDE, !el.innerHTML);
 		return self;
 	}
-	this.format = (list, formatter) => self.each(list, self.render);
+	this.format = (list, formatter) => self.each(list, el => self.render(el, formatter));
 	this.replace = (selector, value) => self.each(selector, el => { el.outerHTML = value; });
 	this.parse = (selector, formatter)  => self.each(selector, el => { el.outerHTML = formatter(el.outerHTML); });
 
@@ -248,14 +268,15 @@ function DomBox() {
 
 		function fnGetInput(elem) { return sb.isstr(elem) ? fnFind(elem, inputs) : elem; }
 		function fnGetInputs(elem) { return sb.isstr(elem) ? fnFilter(elem, inputs) : elem; }
+		self.getAllInputs = () => inputs;
 		self.getInput = fnGetInput;
-		self.getInputs = selector => fnGetInputs(selector) || inputs;
+		self.getInputs = fnGetInputs;
 
-		self.moveFocus = selector => self.focus(fnGetInput(selector));
-		self.getVal = selector => self.getValue(fnGetInput(selector));
-		self.setVal = (selector, value) => self.val(fnGetInputs(selector), value);
-		self.setValueInput = (selector, value) => self.setValue(fnGetInput(selector), value);
-		self.copyVal = (i1, i2) => self.setValueInput(i1, self.getVal(i2));
+
+		self.getValue = el => { el = fnGetInput(el); return el && el.value; }
+		self.setValue = (el, value) => { el = fnGetInput(el); return el ? fnSetVal(el, value) : self; }
+		self.setValues = (selector, value) => self.val(fnGetInputs(selector), value);
+		self.copyVal = (i1, i2) => self.setValue(i1, self.getValue(i2));
 		self.getOptText = selector => self.optText(fnGetInput(selector));
 		self.setAttrInput = (selector, name, value) => self.setAttr(fnGetInput(selector), name, value);
 		self.setAttrInputs = (selector, name, value) => self.attr(fnGetInputs(selector), name, value);
@@ -270,13 +291,20 @@ function DomBox() {
 			return self;
 		}
 
+		function fnFocus(list) {
+			return self.reverse(list, input => { //set focus on first input
+				fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
+			});
+		}
+		fnFocus(inputs); // Set focus on first visible input
+		self.setFocus = el => sb.isstr(el) ? self.focus(fnFind(el, inputs)) : fnFocus(self.inputs(el));
+
 		self.onChangeForm = (selector, fn) => fnAddEvent(fnGetForm(selector), ON_CHANGE, fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(fnGetForm(selector), "submit", fn);
 		self.onChangeForms = (selector, fn) => fnAddEvents(fnGetForms(selector), ON_CHANGE, fn);
 		self.onSubmitForms = (selector, fn) => fnAddEvents(fnGetForms(selector), "submit", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(fnGetInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(fnGetInputs(selector), ON_CHANGE, fn);
-		self.refocus(inputs); // Set focus on first visible input
 
 		// Extends internacionalization
 		self.tr = function(selector, opts) {
@@ -394,11 +422,11 @@ function DomBox() {
 			table.dispatchEvent(new Event("render")); // Trigger event
 			return fnToggleTbody(table); // Toggle body if no data
 		}
-		self.rows = function(table, data, resume, styles) {
+		self.table = function(table, data, resume, styles) {
 			table = fnGetTable(table); // find table on tables array
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
-		self.renderRows = self.table = self.rows; // Synonyms
+		self.renderRows = self.table; // Synonyms
 		self.list = function(tables, data, resume, styles) {
 			return fnEach(fnGetTables(tables), table => fnRenderRows(table, data, resume, styles));
 		}
