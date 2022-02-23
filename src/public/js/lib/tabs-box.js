@@ -61,7 +61,7 @@ dom.ready(function() {
 	dom.onclick("a[href='#next-tab']", () => !dom.nextTab());
 	dom.onclick("a[href='#last-tab']", () => !dom.lastTab());
 	dom.onclick("a[href^='#tab-']", el => !dom.viewTab(dom.getElemId(el.href, 50)));
-	dom.onClickElem("a[href='#save-tab']", el => { // Trigger save event
+	dom.addClick("a[href='#save-tab']", el => { // Trigger save event
 		const tab = tabs[index]; // Current tab
 		const id = dom.getElemId(tab.id, 50);
 		tab.dispatchEvent(new Event("save-" + id));

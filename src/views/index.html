@@ -219,7 +219,7 @@
 				function fnLoad(i) {
 					index = i; // save current item-index
 					row = data[index]; // current item
-					return dom.setValueInput("#name", row.name);
+					return dom.setValue("#name", row.name);
 				}
 				dom.onChangeInput("#name", el => { row.name = el.value; })
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
@@ -239,10 +239,10 @@
 						dom.sortTable("#pruebas", data, resume);
 					});
 
-				dom.onClickElem("a[href='#first-item']", el => !fnLoad(0));
-				dom.onClickElem("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
-				dom.onClickElem("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
-				dom.onClickElem("a[href='#last-item']", el => !fnLoad(data.length - 1));
+				dom.addClick("a[href='#first-item']", el => !fnLoad(0));
+				dom.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
+				dom.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
+				dom.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
 
 				dom.onclick("a[href='show-first']", el => {
 					resume.total++;

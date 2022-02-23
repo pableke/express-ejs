@@ -37,7 +37,7 @@ dom.ready(function() {
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
-	dom.click(_top, el => !dom.scroll());
+	dom.addClick(_top, el => !dom.scroll());
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
@@ -49,7 +49,7 @@ dom.ready(function() {
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
 	function setAlert(el, txt) {
-		return txt ? dom.fadeIn(el.parentNode).html(el, txt).scroll() : dom;
+		return txt ? dom.fadeIn(el.parentNode).setHtml(el, txt).scroll() : dom;
 	}
 
 	dom.isOk = i18n.isOk;
@@ -75,7 +75,7 @@ dom.ready(function() {
 	dom.setError = function(el) {
 		const tip = dom.sibling(".ui-errtip", el);
 		return dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
-					.html(tip, i18n.getMsg(el.name)).show(tip);
+					.setHtml(tip, i18n.getMsg(el.name)).show(tip);
 	}
 	dom.addError = function(selector, msg, msgtip) {
 		const el = dom.getInput(selector);
@@ -105,7 +105,7 @@ dom.ready(function() {
 	const ta = dom.getInputs("textarea[maxlength]");
 	function fnCounter(el) {
 		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
-		dom.text(dom.sibling(".counter", el), value);
+		dom.setText(dom.sibling(".counter", el), value);
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
