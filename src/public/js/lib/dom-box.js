@@ -14,10 +14,8 @@ function DomBox() {
 
 	function fnLog(data) { console.log("Log:", data); }
 	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
+	function fnQuery(elem, parent) { return sb.isstr(elem) ? self.get(elem, parent) : elem; }
 	function fnQueryAll(list) { return sb.isstr(list) ? document.querySelectorAll(list) : list; }
-	function fnQuery(elem, parent) {
-		return sb.isstr(elem) ? (parent || document).querySelector(elem) : elem;
-	}
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
@@ -68,14 +66,12 @@ function DomBox() {
 	function fnFind(selector, list) { return list.find(el => el.matches(selector)); }
 	function fnFilter(selector, list) { return list.filter(el => el.matches(selector)); }
 	this.each = function(list, cb) {
-		if (!list)
-			return self;
-
-		// Is DOMElement
-		if (list.nodeType === 1)
-			cb(list, 0);
-		else // Is Selector or NodeList
-			ab.each(fnQueryAll(list), cb);
+		if (list) {
+			if (list.nodeType === 1)
+				cb(list); // Is DOMElement
+			else // Is Selector or NodeList
+				ab.each(fnQueryAll(list), cb);
+		}
 		return self;
 	}
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
@@ -158,12 +154,12 @@ function DomBox() {
 	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, (mask>>i)&1)); //toggle class by mask
-	this.swap = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
-	this.optText = sel => sel ? self.getText(sel.options[sel.selectedIndex]) : null;
+	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
+	this.optText = sel => sel && self.getText(sel.options[sel.selectedIndex]);
 	this.select = function(list, mask) {
 		return self.each(list, el => { //iterate over all selects
 			const option = el.options[el.selectedIndex]; // get current option
-			if (self.swap(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
+			if (self.view(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		});
 	}
@@ -196,7 +192,7 @@ function DomBox() {
 
 	// Styles
 	this.isVisible = el => el && fnVisible(el);
-	this.visible = (selector, el) => self.isVisible(self.get(selector, el));
+	this.visible = (el, parent) => self.isVisible(fnQuery(el, parent));
 	this.show = list => self.each(list, el => el.classList.remove(HIDE));
 	this.hide = list => self.each(list, el => el.classList.add(HIDE));
 	this.hasClass = (el, name) => el && fnSplit(name).some(name => el.classList.contains(name));
@@ -230,12 +226,13 @@ function DomBox() {
 	function fnAddEvent(el, name, fn) { return el ? fnEvent(el, name, 0, fn) : self; }
 	function fnAddEvents(list, name, fn) { return fnEach(list, (el, i) => fnEvent(el, name, i, fn)); }
 
-	this.event = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
+	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
+	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
 	this.trigger = (el, name) => { el && el.dispatchEvent(new Event(name)); return self; }
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", 0, fn);
 
 	this.click = (list, fn) => self.each(list, (el, i) => fnEvent(el, "click", i, fn));
-	this.onClickElem = (selector, fn) => fnAddEvent(self.get(selector), "click", fn);
+	this.addClick = (el, fn) => fnAddEvent(fnQuery(el), "click", fn);
 	this.onclick = this.onClick = self.click;
 
 	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, ON_CHANGE, i, fn));
@@ -296,8 +293,8 @@ function DomBox() {
 				fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
 			});
 		}
-		fnFocus(inputs); // Set focus on first visible input
 		self.setFocus = el => sb.isstr(el) ? self.focus(fnFind(el, inputs)) : fnFocus(self.inputs(el));
+		fnFocus(inputs); // Set focus on first visible input
 
 		self.onChangeForm = (selector, fn) => fnAddEvent(fnGetForm(selector), ON_CHANGE, fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(fnGetForm(selector), "submit", fn);
