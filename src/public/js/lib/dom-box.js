@@ -62,7 +62,6 @@ function DomBox() {
 	}
 
 	// Iterators and Filters
-	function fnEach(list, cb) { ab.each(list, cb); return self; }
 	function fnFind(selector, list) { return list.find(el => el.matches(selector)); }
 	function fnFilter(selector, list) { return list.filter(el => el.matches(selector)); }
 	this.each = function(list, cb) {
@@ -81,10 +80,13 @@ function DomBox() {
 	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
 	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
 	this.values = list => self.map(list, el => el.value);
+	this.apply = (selector, list, cb) => {
+		ab.each(list, el => el.matches(selector) && cb(el));
+		return self;
+	}
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
-	const FOCUSABLE = ":not([type=hidden],[readonly],[disabled],[tabindex='-1'])";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
 	this.inputs = el => self.getAll(INPUTS, el);
 	this.checked = el => self.getAll("input:checked", el);
@@ -95,8 +97,10 @@ function DomBox() {
 	// Contents
 	function fnSetVal(el, value) {
 		value = value ?? EMPTY; // define value as string
-		if (el.tagName === "SELECT")
+		if (el.tagName === "SELECT") // select option
 			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
+		else if ((el.tagName === "CHECKBOX") || (el.tagName === "RADIO"))
+			el.checked = (el.value == value);
 		else
 			el.value = value;
 		return self;
@@ -223,8 +227,12 @@ function DomBox() {
 		el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault());
 		return self;
 	}
-	function fnAddEvent(el, name, fn) { return el ? fnEvent(el, name, 0, fn) : self; }
-	function fnAddEvents(list, name, fn) { return fnEach(list, (el, i) => fnEvent(el, name, i, fn)); }
+	function fnAddEvent(el, name, fn) {
+		return el ? fnEvent(el, name, 0, fn) : self;
+	}
+	function fnAddEvents(selector, list, name, fn) {
+		return self.apply(selector, list, (el, i) => fnEvent(el, name, i, fn));
+	}
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
@@ -248,39 +256,30 @@ function DomBox() {
 	this.onsubmit = this.onSubmit = self.submit;
 
 	this.ready(function() {
-		const elements = self.getAll("table,form," + INPUTS);
+		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tables = self.filter("table", elements); //all html tables
 		const forms = self.filter("form", elements); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
+		const tabs = self.filter(".tab-content", elements); //all tabs
 
-		function fnGetTable(elem) { return sb.isstr(elem) ? fnFind(elem, tables) : elem; }
-		function fnGetTables(elem) { return sb.isstr(elem) ? fnFilter(elem, tables) : elem; }
-		self.getTable = fnGetTable;
-		self.getTables = fnGetTables;
+		self.getTable = elem =>  sb.isstr(elem) ? fnFind(elem, tables) : elem;
+		self.getTables = elem => sb.isstr(elem) ? fnFilter(elem, tables) : tables;
+		self.getForm = elem =>  sb.isstr(elem) ? fnFind(elem, forms) : elem;
+		self.getForms = elem => sb.isstr(elem) ? fnFilter(elem, forms) : forms;
+		self.getInput = elem => sb.isstr(elem) ? fnFind(elem, inputs) : elem;
+		self.getInputs = elem => sb.isstr(elem) ? fnFilter(elem, inputs) : inputs;
 
-		function fnGetForm(elem) { return sb.isstr(elem) ? fnFind(elem, forms) : elem; }
-		function fnGetForms(elem) { return sb.isstr(elem) ? fnFilter(elem, forms) : elem; }
-		self.getForm = fnGetForm;
-		self.getForms = fnGetForms;
-
-		function fnGetInput(elem) { return sb.isstr(elem) ? fnFind(elem, inputs) : elem; }
-		function fnGetInputs(elem) { return sb.isstr(elem) ? fnFilter(elem, inputs) : elem; }
-		self.getAllInputs = () => inputs;
-		self.getInput = fnGetInput;
-		self.getInputs = fnGetInputs;
-
-
-		self.getValue = el => { el = fnGetInput(el); return el && el.value; }
-		self.setValue = (el, value) => { el = fnGetInput(el); return el ? fnSetVal(el, value) : self; }
-		self.setValues = (selector, value) => self.val(fnGetInputs(selector), value);
+		self.getValue = el => { el = self.getInput(el); return el && el.value; }
+		self.setValue = (el, value) => { el = self.getInput(el); return el ? fnSetVal(el, value) : self; }
+		self.setValues = (selector, value) => self.apply(selector, inputs, input => fnSetVal(input, value));
 		self.copyVal = (i1, i2) => self.setValue(i1, self.getValue(i2));
-		self.getOptText = selector => self.optText(fnGetInput(selector));
-		self.setAttrInput = (selector, name, value) => self.setAttr(fnGetInput(selector), name, value);
-		self.setAttrInputs = (selector, name, value) => self.attr(fnGetInputs(selector), name, value);
-		self.delAttrInput = (selector, name) => self.delAttr(fnGetInput(selector), name);
-		self.delAttrInputs = (selector, name) => self.removeAttr(fnGetInputs(selector), name);
+		self.getOptText = selector => self.optText(self.getInput(selector));
+		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
+		self.setAttrInputs = (selector, name, value) => self.apply(selector, inputs, input => input.setAttribute(name, value));
+		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
+		self.delAttrInputs = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
 		self.setInput = (selector, value, fnChange) => {
-			const el = fnGetInput(selector);
+			const el = self.getInput(selector);
 			if (el) {
 				fnEvent(el, ON_CHANGE, 0, fnChange);
 				fnSetVal(el, value);
@@ -288,20 +287,17 @@ function DomBox() {
 			return self;
 		}
 
-		function fnFocus(list) {
-			return self.reverse(list, input => { //set focus on first input
-				fnVisible(input) && input.matches(FOCUSABLE) && input.focus();
-			});
-		}
-		self.setFocus = el => sb.isstr(el) ? self.focus(fnFind(el, inputs)) : fnFocus(self.inputs(el));
-		fnFocus(inputs); // Set focus on first visible input
+		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
+		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
+		self.setFocus = el => self.focus(sb.isstr(el) ? fnFind(el, inputs) : [...self.inputs(el)].find(fnFocus));
+		self.focus(inputs.find(fnFocus)); // Set focus on first visible input
 
-		self.onChangeForm = (selector, fn) => fnAddEvent(fnGetForm(selector), ON_CHANGE, fn);
-		self.onSubmitForm = (selector, fn) => fnAddEvent(fnGetForm(selector), "submit", fn);
-		self.onChangeForms = (selector, fn) => fnAddEvents(fnGetForms(selector), ON_CHANGE, fn);
-		self.onSubmitForms = (selector, fn) => fnAddEvents(fnGetForms(selector), "submit", fn);
-		self.onChangeInput = (selector, fn) => fnAddEvent(fnGetInput(selector), ON_CHANGE, fn);
-		self.onChangeInputs = (selector, fn) => fnAddEvents(fnGetInputs(selector), ON_CHANGE, fn);
+		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
+		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
+		self.onChangeForms = (selector, fn) => fnAddEvents(selector, forms, ON_CHANGE, fn);
+		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
+		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
+		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 
 		// Extends internacionalization
 		self.tr = function(selector, opts) {
@@ -314,16 +310,16 @@ function DomBox() {
 		}
 
 		/**************** Tables/rows helper ****************/
-		self.getCheckRows = selector => self.checks(fnGetTable(selector));
-		self.getCheckedRows = selector => self.checked(fnGetTable(selector));
-		self.onFindRow = (selector, fn) => fnAddEvent(fnGetTable(selector), "find", fn);
-		self.onSelectRow = (selector, fn) => fnAddEvent(fnGetTable(selector), "select", fn);
-		self.onRemoveRow = (selector, fn) => fnAddEvent(fnGetTable(selector), "remove", fn);
-		self.onChangeTable = (selector, fn) => fnAddEvent(fnGetTable(selector), ON_CHANGE, fn);
-		self.onChangeTables = (selector, fn) => fnAddEvents(fnGetTables(selector), ON_CHANGE, fn);
-		self.onRenderTable = (selector, fn) => fnAddEvent(fnGetTable(selector), "render", fn);
-		self.onRenderTables = (selector, fn) => fnAddEvents(fnGetTables(selector), "render", fn);
-		self.onPaginationTable = (selector, fn) => fnAddEvent(fnGetTable(selector), "pagination", fn);
+		self.getCheckRows = selector => self.checks(self.getTable(selector));
+		self.getCheckedRows = selector => self.checked(self.getTable(selector));
+		self.onFindRow = (selector, fn) => fnAddEvent(self.getTable(selector), "find", fn);
+		self.onSelectRow = (selector, fn) => fnAddEvent(self.getTable(selector), "select", fn);
+		self.onRemoveRow = (selector, fn) => fnAddEvent(self.getTable(selector), "remove", fn);
+		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), ON_CHANGE, fn);
+		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, ON_CHANGE, fn);
+		self.onRenderTable = (selector, fn) => fnAddEvent(self.getTable(selector), "render", fn);
+		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
+		self.onPaginationTable = (selector, fn) => fnAddEvent(self.getTable(selector), "pagination", fn);
 
 		function fnToggleTbody(table) {
 			let tr = self.get("tr.tb-data", table); //has data rows?
@@ -386,7 +382,7 @@ function DomBox() {
 			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
 		}
 		self.tfoot = function(table, resume, styles) {
-			table = fnGetTable(table); // find table on tables array
+			table = self.getTable(table); // find table on tables array
 			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
 		}
 		self.renderTfoot = self.tfoot;
@@ -420,12 +416,12 @@ function DomBox() {
 			return fnToggleTbody(table); // Toggle body if no data
 		}
 		self.table = function(table, data, resume, styles) {
-			table = fnGetTable(table); // find table on tables array
+			table = self.getTable(table); // find table on tables array
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
 		self.renderRows = self.table; // Synonyms
-		self.list = function(tables, data, resume, styles) {
-			return fnEach(fnGetTables(tables), table => fnRenderRows(table, data, resume, styles));
+		self.list = function(selector, data, resume, styles) {
+			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		}
 
 		function fnRenderTable(table, data, resume, styles) {
@@ -433,11 +429,11 @@ function DomBox() {
 			return fnPagination(table); // Update pagination
 		}
 		self.renderTable = function(table, data, resume, styles) {
-			table = fnGetTable(table); // find table on tables array
+			table = self.getTable(table); // find table on tables array
 			return table ? fnRenderTable(table, data, resume, styles) : self;
 		}
 		self.renderTables = function(selector, data, resume, styles) {
-			return fnEach(fnGetTables(selector), table => fnRenderTable(table, data, resume, styles));
+			return self.apply(selector, tables, table => fnRenderTable(table, data, resume, styles));
 		}
 
 		function fnSortTable(table, data, resume, styles) {
@@ -446,11 +442,11 @@ function DomBox() {
 			return fnRenderRows(table, data, resume, styles);
 		}
 		self.sortTable = function(table, data, resume, styles) {
-			table = fnGetTable(table); // find table on tables array
+			table = self.getTable(table); // find table on tables array
 			return table ? fnSortTable(table, data, resume, styles) : self;
 		}
-		self.sortTables = function(tables, data, resume, styles) {
-			return fnEach(fnGetTables(selector), table => fnSortTable(table, data, resume, styles));
+		self.sortTables = function(selector, data, resume, styles) {
+			return self.apply(selector, tables, table => fnSortTable(table, data, resume, styles));
 		}
 
 		// Initialize all tables
@@ -473,6 +469,69 @@ function DomBox() {
 			fnPagination(table); // Update pagination
 		});
 		/**************** Tables/rows helper ****************/
+
+		/**************** Tabs helper ****************/
+		let index = self.findIndex(".active", tabs); //current index tab
+
+		self.getTabs = () => tabs; //all tabs
+		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; //find by id selector
+		self.getElemId = (str, max) => nb.range(+str.substr(str.lastIndexOf("-") + 1) || 0, 0, max);
+
+		self.onSaveTab = (id, fn) => self.event(self.getTab(id), "save-" + id, fn);
+		self.onPrevTab = (id, fn) => self.event(self.getTab(id), "prev-" + id, fn);
+		self.onChangeTab = (id, fn) => self.event(self.getTab(id), "tab-" + id, fn);
+		self.onNextTab = (id, fn) => self.event(self.getTab(id), "next-" + id, fn);
+		self.onExitTab = fn => self.event(tabs[0], "exit", fn);
+
+		function fnShowTab(i) { //show tab by index
+			const size = tabs.length - 1; // tabs length
+			i = nb.range(i, 0, size); // Force range
+
+			let tab = tabs[index]; // current tab
+			if ((i == 0) && (index == 0)) {
+				tab.dispatchEvent(new Event("exit")); // Trigger event
+				return dom; // exit tabs form
+			}
+
+			const id = self.closeAlerts().getElemId(tab.id, 50);
+			if (i > index) // Trigger next event
+				tab.dispatchEvent(new Event("next-" + id));
+			else if (i < index) // Trigger prev event
+				tab.dispatchEvent(new Event("prev-" + id));
+			// Always trigger change event
+			tab.dispatchEvent(new Event(tab.id));
+
+			if (self.isOk()) { // Only change tab if ok
+				tab = tabs[i]; // next tab
+				const progressbar = self.get("#progressbar");
+				if (progressbar) { // progressbar is optional
+					const step = "step-" + i; //go to a specific step on progressbar
+					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
+				}
+				index = i; // set current index
+				self.toggleHide("[href='#tab-0']", index < 2)
+					.toggleHide("[href='#next-tab']", index >= size)
+					.toggleHide("[href='#last-tab']", index >= (size - 1))
+					.removeClass(tabs, "active").addClass(tab, "active")
+					.setFocus(tab).scroll();
+			}
+			return dom;
+		}
+
+		self.prevTab = () => fnShowTab(index - 1);
+		self.nextTab = () => fnShowTab(index + 1);
+		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
+		self.lastTab = () => fnShowTab(99);
+
+		self.onclick("a[href='#prev-tab']", () => !self.prevTab());
+		self.onclick("a[href='#next-tab']", () => !self.nextTab());
+		self.onclick("a[href='#last-tab']", () => !self.lastTab());
+		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.getElemId(el.href, 50)));
+		self.addClick("a[href='#save-tab']", el => { // Trigger save event
+			const tab = tabs[index]; // Current tab
+			const id = self.getElemId(tab.id, 50);
+			tab.dispatchEvent(new Event("save-" + id));
+		});
 
 		// Clipboard function
 		TEXT.style.position = "absolute";

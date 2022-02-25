@@ -179,14 +179,18 @@
 			<div class="navbar">
 				<div class="input-items input-control-block">
 					<label for="name" class="required">Nombre:</label>
-					<input type="text" id="name" name="name" value="" />
+					<input type="text" id="name" name="name" value="" tabindex="1" />
 				</div>
 				<div class="input-items input-control-block">
 					<label for="entidad" class="required">Entidades:</label>
 					<select id="entidad">
-						<option value="">Seleccione una entidad ...</option>
+						<option value="" tabindex="2">Seleccione una entidad ...</option>
 						<option id="entidades" value="@key;">@value;</option>
 					</select>
+				</div>
+				<div class="input-items input-control-block">
+					<label for="memo" class="required">Memoria:</label>
+					<textarea id="memo" tabindex="3"></textarea>
 				</div>
 			</div>
 			</form>
@@ -212,14 +216,14 @@
 		<script type="text/javascript">
 			dom.ready(function() {
 				const table = dom.getTable("#pruebas");
-				const data = [{id:1,name:"Row 1"}, {id:2,name:"Row 2"}, {id:3,name:"Row 3"}];
+				const data = [{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "01298374 124893 aksdfj"}];
 				const resume = { total: 50 };
 				let row, index;
 
 				function fnLoad(i) {
 					index = i; // save current item-index
 					row = data[index]; // current item
-					return dom.setValue("#name", row.name);
+					return dom.setValue("#name", row.name).setValue("#memo", row.memo);
 				}
 				dom.onChangeInput("#name", el => { row.name = el.value; })
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
