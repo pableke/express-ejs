@@ -14,7 +14,7 @@ const dom = new DomBox(); //HTML-DOM box
 //DOM is fully loaded
 dom.ready(function() {
 	i18n.setI18n(dom.getLang()); // Set language
-	const inputs = dom.getAllInputs(); // All inputs list
+	const inputs = dom.getInputs(); // All inputs list
 
 	// Extends with animationCSS lib
 	dom.animate = function(list, animation) {
@@ -110,24 +110,42 @@ dom.ready(function() {
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
-	dom.isRequired = (el, msg, msgtip) => (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.required = (selector, msg, msgtip) => dom.isRequired(dom.getInput(selector), msg, msgtip);
-	dom.isLogin = (el, msg, msgtip) => (!el || i18n.login(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.login = (selector, msg, msgtip) => dom.isLogin(dom.getInput(selector), msg, msgtip);
-	dom.isEmail = (el, msg, msgtip) => (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
-	dom.email = (selector, msg, msgtip) => dom.isEmail(dom.getInput(selector), msg, msgtip);
-	dom.isUser = (el, msg, msgtip) => (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
-	dom.user = (selector, msg, msgtip) => dom.isUser(dom.getInput(selector), msg, msgtip);
-	dom.isIntval = (el, msg, msgtip) => (!el || i18n.intval(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.intval = (selector, msg, msgtip) => dom.isIntval(dom.getInput(selector), msg, msgtip);
-	dom.isGt0 = (el, msg, msgtip) => (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.gt0 = (selector, msg, msgtip) => dom.isGt0(dom.getInput(selector), msg, msgtip);
-	dom.isFk = (el, msg, msgtip) => (!el || i18n.fk(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.fk = (selector, msg, msgtip) => dom.isFk(dom.getInput(selector), msg, msgtip);
-	dom.isPast = (el, msg, msgtip) => (!el || i18n.past(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.past = (selector, msg, msgtip) => dom.isPast(dom.getInput(selector), msg, msgtip);
-	dom.isGeToday = (el, msg, msgtip) => (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	dom.geToday = (selector, msg, msgtip) => dom.isGeToday(dom.getInput(selector), msg, msgtip);
+	dom.required = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.login = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.login(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.email = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+	}
+	dom.user = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+	}
+	dom.intval = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.intval(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.gt0 = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.fk = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.fk(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.past = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.past(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
+	dom.geToday = (el, msg, msgtip) => {
+		el = dom.getInput(el); // search element
+		return (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
+	}
 
 	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {
@@ -196,10 +214,42 @@ dom.ready(function() {
 	}
 	// Extends dom-box actions
 
+	// Build tree menu as UL > Li > *
+	const menu = dom.get("ul.menu"); // Find unique menu
+	const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
+	children.forEach(child => {
+		let padre = child.dataset.padre; // Has parent?
+		let mask = child.dataset.mask ?? 4; // Default mask = active
+		if (padre) { // Move child with his parent
+			let li = dom.get("li[id='" + padre + "']", menu);
+			if (li) {
+				let children = +li.dataset.children || 0;
+				if (!children) { // Is first child?
+					li.innerHTML += '<ul class="sub-menu"></ul>';
+					li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
+					dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
+				}
+				mask &= li.dataset.mask ?? 4; // Propage disabled
+				li.dataset.children = children + 1; // add child num
+				li.lastElementChild.appendChild(child); // move child
+			}
+		}
+		else // force reorder lebel 1
+			menu.appendChild(child);
+		dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
+	});
+	// Show / Hide sidebar and show menu
+	dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+
 	// Onclose event tab/browser of client user
 	/*window.addEventListener("unload", ev => {
 		//dom.ajax("/session/destroy.html");
 	});*/
+
+	// Show/Hide drop down info
+	dom.onclick(".toggle-angle", el => !dom.toggle(dom.get("i.fas", el), "fa-angle-double-down fa-angle-double-up").toggleHide(".info-" + el.id));
+	dom.onclick(".toggle-caret", el => !dom.toggle(dom.get("i.fas", el), "fa-caret-right fa-caret-down").toggleHide(".info-" + el.id));
+	/**************** Tabs helper ****************/
 
 	// Set error input styles and reallocate focus
 	dom.reverse(inputs, el => {
