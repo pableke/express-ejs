@@ -216,30 +216,32 @@ dom.ready(function() {
 
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu"); // Find unique menu
-	const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
-	children.forEach(child => {
-		let padre = child.dataset.padre; // Has parent?
-		let mask = child.dataset.mask ?? 4; // Default mask = active
-		if (padre) { // Move child with his parent
-			let li = dom.get("li[id='" + padre + "']", menu);
-			if (li) {
-				let children = +li.dataset.children || 0;
-				if (!children) { // Is first child?
-					li.innerHTML += '<ul class="sub-menu"></ul>';
-					li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
-					dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
+	if (menu) { // menu exists?
+		const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
+		children.forEach(child => {
+			let padre = child.dataset.padre; // Has parent?
+			let mask = child.dataset.mask ?? 4; // Default mask = active
+			if (padre) { // Move child with his parent
+				let li = dom.get("li[id='" + padre + "']", menu);
+				if (li) {
+					let children = +li.dataset.children || 0;
+					if (!children) { // Is first child?
+						li.innerHTML += '<ul class="sub-menu"></ul>';
+						li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
+						dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
+					}
+					mask &= li.dataset.mask ?? 4; // Propage disabled
+					li.dataset.children = children + 1; // add child num
+					li.lastElementChild.appendChild(child); // move child
 				}
-				mask &= li.dataset.mask ?? 4; // Propage disabled
-				li.dataset.children = children + 1; // add child num
-				li.lastElementChild.appendChild(child); // move child
 			}
-		}
-		else // force reorder lebel 1
-			menu.appendChild(child);
-		dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
-	});
-	// Show / Hide sidebar and show menu
-	dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+			else // force reorder lebel 1
+				menu.appendChild(child);
+			dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
+		});
+		// Show / Hide sidebar and show menu
+		dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+	}
 
 	// Onclose event tab/browser of client user
 	/*window.addEventListener("unload", ev => {

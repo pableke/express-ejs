@@ -16,8 +16,8 @@ dom.ready(function() {
 			.required("#asunto", "errSendContact", "errRequired")
 			.email("#correo", "errSendContact", "errCorreo")
 			.required("#nombre", "errSendContact", "errRequired");
-		dom.isOk() && dom.send(form, (msg) => {
-			dom.showOk(msg).val("", form.elements).moveFocus("#nombre");
+		dom.isOk() && dom.send(form, msg => {
+			dom.showOk(msg).val(form.elements, "").setFocus("#nombre");
 		});
 	});
 
