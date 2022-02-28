@@ -159,7 +159,6 @@ function DomBox() {
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, (mask>>i)&1)); //toggle class by mask
 	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
-	this.optText = sel => sel && self.getText(sel.options[sel.selectedIndex]);
 	this.select = function(list, mask) {
 		return self.each(list, el => { //iterate over all selects
 			const option = el.options[el.selectedIndex]; // get current option
@@ -257,10 +256,10 @@ function DomBox() {
 
 	this.ready(function() {
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
+		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables
 		const forms = self.filter("form", elements); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
-		const tabs = self.filter(".tab-content", elements); //all tabs
 
 		self.getTable = elem =>  sb.isstr(elem) ? fnFind(elem, tables) : elem;
 		self.getTables = elem => sb.isstr(elem) ? fnFilter(elem, tables) : tables;
@@ -273,11 +272,11 @@ function DomBox() {
 		self.setValue = (el, value) => { el = self.getInput(el); return el ? fnSetVal(el, value) : self; }
 		self.setValues = (selector, value) => self.apply(selector, inputs, input => fnSetVal(input, value));
 		self.copyVal = (i1, i2) => self.setValue(i1, self.getValue(i2));
-		self.getOptText = selector => self.optText(self.getInput(selector));
 		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
 		self.setAttrInputs = (selector, name, value) => self.apply(selector, inputs, input => input.setAttribute(name, value));
 		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
 		self.delAttrInputs = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
+		self.getOptText = select => { select = self.getInput(select); return select && self.getText(select.options[select.selectedIndex]); }
 		self.setInput = (selector, value, fnChange) => {
 			const el = self.getInput(selector);
 			if (el) {
