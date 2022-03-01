@@ -297,6 +297,7 @@ function DomBox() {
 		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
+		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 
 		// Extends internacionalization
 		self.tr = function(selector, opts) {
@@ -485,35 +486,34 @@ function DomBox() {
 		function fnShowTab(i) { //show tab by index
 			const size = tabs.length - 1; // tabs length
 			i = nb.range(i, 0, size); // Force range
-
 			let tab = tabs[index]; // current tab
-			if ((i == 0) && (index == 0)) {
-				tab.dispatchEvent(new Event("exit")); // Trigger event
-				return dom; // exit tabs form
-			}
 
-			const id = self.closeAlerts().getElemId(tab.id, 50);
-			if (i > index) // Trigger next event
-				tab.dispatchEvent(new Event("next-" + id));
-			else if (i < index) // Trigger prev event
-				tab.dispatchEvent(new Event("prev-" + id));
-			// Always trigger change event
-			tab.dispatchEvent(new Event(tab.id));
+			if ((i > 0) || (index > 0)) { // Nav in tabs
+				const id = self.closeAlerts().getElemId(tab.id, 50);
+				if (i > index) // Trigger next event
+					tab.dispatchEvent(new Event("next-" + id));
+				else if (i < index) // Trigger prev event
+					tab.dispatchEvent(new Event("prev-" + id));
+				// Always trigger change event
+				tab.dispatchEvent(new Event(tab.id));
 
-			if (self.isOk()) { // Only change tab if ok
-				tab = tabs[i]; // next tab
-				const progressbar = self.get("#progressbar");
-				if (progressbar) { // progressbar is optional
-					const step = "step-" + i; //go to a specific step on progressbar
-					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
+				if (self.isOk()) { // Only change tab if ok
+					tab = tabs[i]; // next tab
+					const progressbar = self.get("#progressbar");
+					if (progressbar) { // progressbar is optional
+						const step = "step-" + i; //go to a specific step on progressbar
+						self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
+					}
+					index = i; // set current index
+					self.toggleHide("[href='#tab-0']", index < 2)
+						.toggleHide("[href='#next-tab']", index >= size)
+						.toggleHide("[href='#last-tab']", index >= (size - 1))
+						.removeClass(tabs, "active").addClass(tab, "active")
+						.setFocus(tab).scroll();
 				}
-				index = i; // set current index
-				self.toggleHide("[href='#tab-0']", index < 2)
-					.toggleHide("[href='#next-tab']", index >= size)
-					.toggleHide("[href='#last-tab']", index >= (size - 1))
-					.removeClass(tabs, "active").addClass(tab, "active")
-					.setFocus(tab).scroll();
 			}
+			else // Is first tab and click on prev button
+				tab.dispatchEvent(new Event("exit")); // Trigger exit event
 			return dom;
 		}
 

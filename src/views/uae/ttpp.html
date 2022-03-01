@@ -18,12 +18,12 @@
 	<input type="file" id="banco" name="banco">
 
 	<script type="text/javascript">
-		const reader = new FileReader();
-		reader.onload = function(ev) {
-			console.log(rf.parse(ev.target.result).get("n57"));
-		}
-
 		dom.ready(function() {
+			const reader = new FileReader();
+			reader.onload = function(ev) {
+				console.log(rf.parse(ev.target.result).get("n57"));
+			}
+
 			dom.onChangeInput("#banco", el => {
 				let file = el.files && el.files[0];
 				file && reader.readAsText(file, "UTF-8");

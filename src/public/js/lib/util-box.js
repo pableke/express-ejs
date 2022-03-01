@@ -120,11 +120,11 @@ dom.ready(function() {
 	}
 	dom.email = (el, msg, msgtip) => {
 		el = dom.getInput(el); // search element
-		return (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+		return (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	}
 	dom.user = (el, msg, msgtip) => {
 		el = dom.getInput(el); // search element
-		return (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom.val(i18n.getData(el.name), el) : dom.setError(el);
+		return (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
 	}
 	dom.intval = (el, msg, msgtip) => {
 		el = dom.getInput(el); // search element

@@ -9,6 +9,7 @@ function StringBox() {
 	//helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
+	function fnWord(str) { return str.replace(/\W+/g, ""); } //remove no alfanum
 	function fnSize(str) { return str ? str.length : 0; } //string o array
 	function tr(str) {
 		var output = "";
@@ -63,7 +64,8 @@ function StringBox() {
 	this.toDate = str => str ? new Date(str) : null;
 	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
 	this.minify = str => str ? str.trim().replace(/\s{2}/g, "") : str;
-	this.toWord = str => str ? str.trim().replace(/\W+/g, "") : str;
+	this.toWord = str => str ? fnWord() : str;
+	this.toUpperWord = str => str ? fnWord().toUpperCase() : str;
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 
