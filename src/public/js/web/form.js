@@ -10,22 +10,24 @@ dom.ready(function() {
 	}
 
 	// AJAX Forms
-	dom.onSubmitForm("#contact", form => {
-		dom.closeAlerts()
-			.required("#info", "errSendContact", "errRequired")
-			.required("#asunto", "errSendContact", "errRequired")
-			.email("#correo", "errSendContact", "errCorreo")
-			.required("#nombre", "errSendContact", "errRequired");
-		dom.isOk() && dom.send(form, msg => {
-			dom.showOk(msg).val(form.elements, "").setFocus("#nombre");
+	dom.onChangeInput("#correo", el => { el.value = sb.lower(el.value); })
+		.onSubmitForm("#contact", form => {
+			dom.closeAlerts()
+				.required("#info", "errSendContact", "errRequired")
+				.required("#asunto", "errSendContact", "errRequired")
+				.email("#correo", "errSendContact", "errCorreo")
+				.required("#nombre", "errSendContact", "errRequired");
+			dom.isOk() && dom.send(form, msg => {
+				dom.showOk(msg).val(form.elements, "").setFocus("#nombre");
+			});
 		});
-	});
 
 	// Non AJAX Forms
-	dom.onSubmitForm("#login", form => {
-		return dom.closeAlerts()
-					.login("#clave", "errUserNotFound", "errRegex") //password
-					.user("#usuario", "errUserNotFound", "errRegex") //email or login
-					.isOk();
-	});
+	dom.onChangeInput("#usuario", el => { el.value = sb.toUpperWord(el.value); })
+		.onSubmitForm("#login", form => {
+			return dom.closeAlerts()
+						.login("#clave", "errUserNotFound", "errRegex") //password
+						.user("#usuario", "errUserNotFound", "errRegex") //email or login
+						.isOk();
+		});
 });
