@@ -73,13 +73,9 @@ function ArrayBox() {
 		opts.separator = opts.separator || "";
 		opts.empty = opts.empty || "";
 
-		opts.start && opts.start(); //init format
-		const fnUpdate = opts.update || fnVoid; // default void
 		const fnVal = opts.getValue || fnValue;
-
 		const status = { size: fnSize(data) };
-		const aux = data.map((obj, j) => {
-			fnUpdate(obj, j);
+		return data.map((obj, j) => {
 			status.index = j;
 			status.count = j + 1;
 			return tpl.replace(/@(\w+);/g, function(m, k) {
@@ -88,9 +84,6 @@ function ArrayBox() {
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);
-
-		opts.end && opts.end(); //end format
-		return aux;
 	}
 
 	// Client helpers

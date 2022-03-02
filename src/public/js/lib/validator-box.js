@@ -35,7 +35,7 @@ function ValidatorBox() {
 	const RE_DINER_CLUB = /^(?:3(?:0[0-5]|[68][0-9])[0-9]{11})$/;
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
-	function minify(str) { return sb.toUpperWord(str); };
+	const minify = sb.toUpperWord;
 	function fnRegex(re, value) {
 		try {
 			return (value && re.test(value)) ? value : null;

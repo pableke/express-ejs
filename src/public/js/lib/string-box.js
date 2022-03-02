@@ -64,8 +64,8 @@ function StringBox() {
 	this.toDate = str => str ? new Date(str) : null;
 	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
 	this.minify = str => str ? str.trim().replace(/\s{2}/g, "") : str;
-	this.toWord = str => str ? fnWord() : str;
-	this.toUpperWord = str => str ? fnWord().toUpperCase() : str;
+	this.toWord = str => str ? fnWord(str) : str;
+	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 
