@@ -24,7 +24,7 @@ dom.ready(function() {
 
 			// When the animation ends, we clean the classes and resolve the Promise
 			dom.addClass(list, animationName)
-				.event(list, "animationend", (el, ev) => {
+				.events(list, "animationend", (el, ev) => {
 					dom.removeClass(list, animationName);
 					ev.stopPropagation();
 					resolve(el);

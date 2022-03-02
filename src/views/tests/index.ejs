@@ -122,8 +122,10 @@
 
 <div id="tab-3" class="tab-content">
 	<div>
+		<a href="#first-item">first</a>
 		<a href="#prev-item">prev</a>
 		<a href="#next-item">next</a>
+		<a href="#last-item">last</a>
 	</div>
 
 	<form id="test">
@@ -163,14 +165,14 @@
 <script type="text/javascript">
 	dom.ready(function() {
 		const table = dom.getTable("#pruebas");
-		const data = [{id:1,name:"Row 1"}, {id:2,name:"Row 2"}, {id:3,name:"Row 3"}];
+		const data = [{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "01298374 124893 aksdfj"}];
 		const resume = { total: 50 };
 		let row, index;
 
 		function fnLoad(i) {
 			index = i; // save current item-index
 			row = data[index]; // current item
-			return dom.setValue("#name", row.name);
+			return dom.setValue("#name", row.name).setValue("#memo", row.memo);
 		}
 		dom.onChangeInput("#name", el => { row.name = el.value; })
 			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
