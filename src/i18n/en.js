@@ -3,17 +3,13 @@ module.exports = {
 	lang: "en",
 	lblEmpresaNombre: "UPCT / UAE", msgMetaKeywords: "Universidad, cartagena, upct, politécnica", msgMetaDesc: "Universidad politécnica de cartagena",
 
-	mmmm0: "January", mmmm1: "February", mmmm2: "March", mmmm3: "April", mmmm4: "May", mmmm5: "June", mmmm6: "July", mmmm7: "August", mmmm8: "September", mmmm9: "October", mmmm10: "November", mmmm11: "December",
-	mmm0: "Jan", mmm1: "Feb", mmm2: "Mar", mmm3: "Apr", mmm4: "May", mmm5: "Jun", mmm6: "Jul", mmm7: "Aug", mmm8: "Sep", mmm9: "Oct", mmm10: "Nov", mmm11: "Dec",
-	dddd1: "Sunday", dddd2: "Monday", dddd3: "Tuesday", dddd4: "Wednesday", dddd5: "Thursday", dddd6: "Friday", dddd7: "Saturday",
-	ddd1: "Sun", ddd2: "Mon", ddd3: "Tue", ddd4: "Wed", ddd5: "Thu", ddd6: "Fri", ddd7: "Sat",
-	lblAnyo: "Year", lblAnyo_1: "Next year", lblAnyo0: "This year", lblAnyo1: "Next year",
-	lblMes: "Month", lblMes_1: "Last month", lblMes0: "This month", lblMes1: "Next month", 
-	lblSemana: "Week", lblSemana_1: "Last week", lblSemana0: "This week", lblSemana1: "Next week", 
-	lblDia: "Day", lblAyer2: "Before yesterday", lblAyer: "Yesterday", lblHoy: "Today", lblDia1: "Tomorrow", lblDia2: "Next tomorrow",
-
 	lblFecha: "Date", lblF_validacion: "Valid.", lblF_creacion: "F. Creación", lblF_pago: "F. Pago", lblF_inicio: "F. Inicio", lblF_fin: "F. Fin",
-	errDate: "Formato de fecha incorrecto", phDate: "dd/mm/aa", titDate: "Formato de fecha dd/mm/aaaa",
+	errDate: "Formato de fecha incorrecto", phDate: "yyyy-mm-dd", titDate: "Formato de fecha yyyy-mm-dd",
+	errDateLe: "La fecha debe ser menor o igual a la actual", errDateGe: "La fecha debe ser mayor o igual a la actual",
+	lblYear: "Year", lblLastYear: "Last year", lblPrevYear: "Prev year", lblThisYear: "This year", lblNextYear: "Next year",
+	lblMonth: "Month", lblLastMonth: "Last month", lblPrevMonth: "Prev month", lblThisMonth: "This month", lblNextMonth: "Next month", 
+	lblWeek: "Week", lblLastWeek: "Last week", lblPrevWeek: "Prev week", lblThisWeek: "This week", lblNextWeek: "Next week", 
+	lblDay: "Day", lblYesterday2: "Before yesterday", lblYesterday: "Yesterday", lblToday: "Today", lblDay1: "Tomorrow", lblDay2: "Next tomorrow",
 
 	errNumber: "Valor no numérico", ejNumber: "1.222,33", phNumber: "Valor numérico", titNumber: "Formato numérico = 1.222,33",
 	errDigits: "Por favor introduzca solo valores numéricos",

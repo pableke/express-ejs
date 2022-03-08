@@ -1,6 +1,5 @@
 
 const dao = require("app/dao/factory.js");
-const mailer = require("app/lib/mailer.js");
 
 exports.view = function(req, res) {
 	res.build("web/forms/public/signup");

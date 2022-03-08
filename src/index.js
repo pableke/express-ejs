@@ -7,7 +7,6 @@ const path = require("path"); //file and directory paths
 const express = require("express"); //infraestructura web
 const session = require("express-session") //session handler
 const uuid = require("uuid"); //generate random ids
-const ejs = require("ejs"); //tpl engine
 const app = express(); //instance app
 
 const env = require("dotenv").config(); //load env const
@@ -23,8 +22,7 @@ const util = require("app/lib/util-box.js"); //languages
 const VIEWS = path.join(__dirname, "views");
 app.set("view engine", "ejs");
 app.set("views", VIEWS);
-//app.locals.partials = VIEWS + "/partials/";
-//app.locals.components = VIEWS + "/components/"
+
 app.locals._tplBody = "web/index"; // Default body
 app.locals.msgs = util.i18n.getMsgs(); // Set messages
 app.locals.body = {}; // Set data on response
@@ -52,12 +50,7 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response function helpers
-	res.msgs = function() { res.json(util.i18n.toMsgs()); } //send object messages
-	res.setBody = function(tpl) { res.locals._tplBody = tpl; return res; } //set body template
-	res.build = function(tpl) { res.setBody(tpl).render("index"); } //set tpl body path and render index
-	res.setHtml = function(contents) { util.i18n.setMsg("html", ejs.render(contents, res.locals)); return res; }
-	res.setFile = function(tpl) { return res.setHtml(fs.readFileSync(path.join(VIEWS, tpl), "utf-8")); }
-	res.on("finish", () => { util.i18n.reset(); }); // Close response event
+	res.on("finish", () => util.i18n.reset()); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
@@ -74,22 +67,18 @@ app.use((err, req, res, next) => { //global handler error
 		util.i18n.setMsgError(err); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		(util.i18n.getNumMsgs() > 1) ? res.status(500).msgs() : res.status(500).send(util.i18n.getError());
-	else {
-		// Is non ajax request => reload data formated and render body
-		res.locals.body = Object.assign(req.body, util.i18n.toData());
-		res.status(500).render("index"); // Render tpl body
-	}
+		util.error(res, 500);
+	else // Is non ajax request => render template body
+		util.render(res, res.locals._tplBody, 500);
 
 	// Show log error for console
 	console.error("> Log:", util.i18n.getError());
 });
 app.use("*", (req, res) => { //error 404 page not found
-	util.i18n.setMsgError("err404"); //set message error on view
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		res.status(404).send(util.i18n.getError()); //ajax response
+		util.text(res, util.i18n.get("err404"), 404); //ajax response
 	else
-		res.status(404).build("errors/404"); //show 404 page
+		util.render(res, "errors/404", 404); //show 404 page
 });
 
 // Start servers (db's and http)

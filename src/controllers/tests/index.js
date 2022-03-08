@@ -2,46 +2,36 @@
 const fs = require("fs"); //file system
 const path = require("path"); //file and directory paths
 const cp = require("child_process"); //system calls
-const i18n = require("app/i18n/i18n.js"); //languages
-const mailer = require("app/lib/mailer.js"); //google mailer
-const valid = require("app/lib/validator-box.js"); //validator
-
-exports.lang = function(req, res, next) {
-	res.locals.i18n = i18n.tests[res.locals.lang]; //current language
-	next(); //go next middleware
-}
+const i18n = require("app/lib/i18n-box.js");
+const util = require("app/lib/util-box.js");
 
 exports.index = (req, res) => {
-	res.build("tests/index");
-};
+	util.render(res, "tests/index");
+}
 
-exports.email = (req, res) => {
-	res.build("tests/forms/email");
-};
-exports.send = (req, res, next) => {
-	mailer.send({
+exports.email = (req, res, next) => {
+	util.sendMail({
 		to: "pableke@gmail.com",
 		subject: req.body.asunto,
-		tpl: "tests/emails/test.ejs",
+		body: "tests/emails/test.ejs",
 		data: res.locals //data
 	}).then(info => res.send(res.locals.i18n.msgCorreo))
 		.catch(err => next(res.locals.i18n.errSendMail));
 }
 
-exports.files = (req, res) => {
-	res.build("tests/forms/files");
-}
-exports.upload = (req, res) => {
-	console.log("upload", req.body);
-	res.send("file uploaded!");
+exports.xls = function(req, res) {
+	util.xls({
+		author: "Pablo Rosique Vidal",
+		headers: { name: "Nombre", imp: "Importe", fCreacion: "Fecha" },
+		styles: { imp: { numberFormat: "#.##0,00" }, fCreacion: { dateFormat: "dd/mm/yyyy" } },
+		data: [{name: "askjld", imp: 23.87, fCreacion: new Date()}, {name: "fila2"}]
+	});
 }
 
 exports.zip = function(req, res) {
-	// Options -r recursive -j ignore directory info - redirect to stdout
-	let zip = cp.spawn("zip", ["-rj", "-", "src/public/files/afe98b43839ed5f35684bbc308714e15.jpg", "src/public/files/32b80803a9369f0438bc1bb604b07cf5.jpg"]);
-	res.writeHead(200, {
-		"Content-Type": "application/zip",
-		"Content-disposition": "attachment; filename=test.zip"
-	});
-	zip.stdout.pipe(res); //sobrescribe file
+	util.zip(res, "test.zip", []);
+}
+
+exports.pdf = (req, res) => {
+	res.send("file pdf!");
 }

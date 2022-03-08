@@ -39,10 +39,7 @@ function ValidatorBox() {
 	const RE_DINER_CLUB = /^(?:3(?:0[0-5]|[68][0-9])[0-9]{11})$/;
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
-	function fnSize(str) { return str ? str.length : 0; }; //string o array
-	function fnTrim(str) { return str ? str.trim() : str; } //string only
-	function minify(str) { return str ? str.trim().replace(/\W+/g, EMPTY).toUpperCase() : str; }; //remove spaces and upper
-	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
+	const minify = sb.toUpperWord;
 	function fnRegex(re, value) {
 		try {
 			return (value && re.test(value)) ? value : null;
@@ -52,7 +49,7 @@ function ValidatorBox() {
 
 	// Validators
 	this.range = function(num, min, max) { // NaN comparator always false
-		return (isset(num) && nb.between(num, min, max)) ? num : null;
+		return (sb.isset(num) && nb.between(num, min, max)) ? num : null;
 	}
 	this.gt0 = num => self.range(num, .001, 1e9);
 	this.intval = num => self.range(nb.intval(num), 1, 9);
@@ -61,8 +58,8 @@ function ValidatorBox() {
 	this.fk = num => self.range(nb.intval(num), 1, Infinity);
 
 	this.size = function(str, min, max) {
-		str = fnTrim(str); // min/max string length
-		return nb.between(fnSize(str), min, max) ? str : null;
+		str = sb.trim(str); // min/max string length
+		return nb.between(sb.size(str), min, max) ? str : null;
 	}
 	this.required = value => self.size(value, 1, 1000);
 	this.size10 = str => self.size(str, 0, 10);
@@ -75,7 +72,7 @@ function ValidatorBox() {
 
 	function fnText(str, min, max) {
 		str = self.escape(str);
-		return nb.between(fnSize(str), min, max) ? str : null;
+		return nb.between(sb.size(str), min, max) ? str : null;
 	}
 	this.text10 = str => fnText(str, 0, 10);
 	this.text50 = str => fnText(str, 0, 50);
@@ -83,7 +80,7 @@ function ValidatorBox() {
 	this.text300 = str => fnText(str, 0, 300);
 	this.text = str => fnText(str, 0, 1000);
 
-	this.regex = (re, value) => fnRegex(re, fnTrim(value));
+	this.regex = (re, value) => fnRegex(re, sb.trim(value));
 	this.date = value => self.regex(RE_DATE, value);
 	this.login = value => self.regex(RE_LOGIN, value);
 	this.digits = value => self.regex(RE_DIGITS, value);
@@ -176,7 +173,7 @@ function ValidatorBox() {
 
 		IBAN = minify(IBAN);
 		let code = IBAN && IBAN.match(/^([A-Z]{2})(\d{2})([A-Z\d]+)$/);
-		if (!code || (fnSize(IBAN) !== CODE_LENGTHS[code[1]]))
+		if (!code || (sb.size(IBAN) !== CODE_LENGTHS[code[1]]))
 			return null;
 
 		let digits = (code[3] + code[1] + code[2]).replace(/[A-Z]/g, letter => (letter.charCodeAt(0) - 55));
@@ -212,7 +209,7 @@ function ValidatorBox() {
 
 	this.creditCardNumber = function(cardNo) { //Luhn check algorithm
 		cardNo = minify(cardNo);
-		if (fnSize(cardNo) != 16)
+		if (sb.size(cardNo) != 16)
 			return null;
 
 		let s = 0;
@@ -231,9 +228,7 @@ function ValidatorBox() {
 
 	this.generatePassword = function(size, charSet) {
 		charSet = charSet || "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#@&°!§%;:=^/()?*+~.,-$";
-		return Array.apply(null, Array(size || 10)).map(function() { 
-			return charSet.charAt(Math.random() * charSet.length);
-		}).join(EMPTY); 
+		return Array.apply(null, Array(size || 10)).map(() => charSet.charAt(Math.random() * charSet.length)).join(EMPTY); 
 	}
 	this.testPassword = function(pass) {
 		let strength = 0;
@@ -243,7 +238,7 @@ function ValidatorBox() {
 		strength += /[0-9]+/.test(pass) ? 1 : 0;
 		strength += /[\W]+/.test(pass) ? 1 : 0;
 		//Validation for length of password
-		strength += ((strength > 2) && (fnSize(pass) > 8));
+		strength += ((strength > 2) && (sb.size(pass) > 8));
 		return strength; //0 = bad, 1 = week, 2-3 = good, 4 = strong, 5 = very strong
 	}
 }
