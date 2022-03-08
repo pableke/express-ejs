@@ -50,9 +50,13 @@ exports.error = function(res, status) {
 }
 
 exports.render = function(res, tpl, status) {
-	this.setBody(res, tpl); // update template body
+	this.setBody(res, tpl);
 	res.status(status || 200).render("index");
 	return this;
+}
+exports.build = function(res, msg) {
+	i18n.setOk(msg);
+	return this.render(res, res.locals._tplBody);
 }
 
 exports.html = function(res, contents) {
@@ -127,8 +131,8 @@ exports.multipart = function(req, res, next) { //validate all form post
 
 
 /******************* send file to client *******************/
-exports.getPath = function(filename) { //path="src/public/files/"
-	return path.join(UPLOADS.uploadDir, filename);
+exports.getPath = function(filename) { //basedir="src/public/files/"
+	return path.join(FILES_DIR, filename);
 }
 exports.sendFile = function(filename, type) {
 	let filepath = this.getPath(filename);
@@ -212,7 +216,7 @@ exports.sendMail = function(mail) {
 
 	// Return promise to send email
 	return new Promise(function(resolve, reject) {
-		// Email template path base = /views
+		let _body = mail.data._tplBody; // previous body
 		let tpl = path.join(__dirname, "../views/email.ejs");
 		mail.data._tplBody = path.join(__dirname, "../views", mail.body);
 
@@ -220,9 +224,8 @@ exports.sendMail = function(mail) {
 			if (err)
 				return reject(err);
 			mail.html = result;
-			transporter.sendMail(mail, function(err, info) {
-				return err ? reject(err) : resolve(info);
-			});
+			transporter.sendMail(mail, (err, info) => err ? reject(err) : resolve(info));
+			mail.data._tplBody = _body;
 		});
 	});
 }

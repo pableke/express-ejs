@@ -10,13 +10,13 @@ exports.index = (req, res) => {
 }
 
 exports.email = (req, res, next) => {
-	util.sendMail({
+	util.setBody(res, "tests/index").sendMail({
 		to: "pableke@gmail.com",
 		subject: req.body.asunto,
 		body: "tests/emails/test.ejs",
 		data: res.locals //data
-	}).then(info => res.send(res.locals.i18n.msgCorreo))
-		.catch(err => next(res.locals.i18n.errSendMail));
+	}).then(info => util.build(res, "msgCorreo"))
+		.catch(err => next("errSendMail"));
 }
 
 exports.xls = function(req, res) {
@@ -37,7 +37,7 @@ exports.xls = function(req, res) {
 }
 
 exports.zip = function(req, res) {
-	util.zip(res, "test.zip", []);
+	util.zip(res, "tests.zip", ["tests.xlsx", "Gestión_Documental.pdf", "Guías_Docentes.pdf"].map(util.getPath));
 }
 
 exports.pdf = (req, res) => {
