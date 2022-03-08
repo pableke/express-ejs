@@ -6,6 +6,7 @@ const qs = require("querystring"); //parse post data
 const xls = require("excel4node"); //JSON to Excel
 const nodemailer = require("nodemailer"); //send emails
 const formidable = require("formidable"); //file uploads
+const jsreport = require("jsreport"); //PDF reports
 const sharp = require("sharp"); //image resizer
 const ejs = require("ejs"); //tpl engine
 
@@ -89,6 +90,7 @@ exports.sendHtml = function(res, tpl) {
 
 /******************* multipart files *******************/
 const FILES_DIR = path.join(__dirname, "../public/files/");
+const VIEWS_DIR = path.join(__dirname, "../views/");
 const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: path.join(FILES_DIR, "uploads"),
@@ -131,11 +133,10 @@ exports.multipart = function(req, res, next) { //validate all form post
 
 
 /******************* send file to client *******************/
-exports.getPath = function(filename) { //basedir="src/public/files/"
-	return path.join(FILES_DIR, filename);
-}
+exports.getFile = function(filename) { return path.join(FILES_DIR, filename); }
+exports.getView = function(filename) { return path.join(VIEWS_DIR, filename); }
 exports.sendFile = function(filename, type) {
-	let filepath = this.getPath(filename);
+	let filepath = this.getFile(filename);
 	let stat = fs.statSync(filepath);
 	res.writeHead(200, {
 		"Content-Length": stat.size,
@@ -155,7 +156,7 @@ exports.sendXls = function(file) { return this.sendFile(file, "application/vnd.m
 // Options: "-r" recursive, "-j": ignore directory info, "-": redirect to stdout
 //const zip = cp.spawn("zip", ["-rj", "-", "src/public/files/afe98b43839ed5f35684bbc308714e15.jpg", "src/public/files/32b80803a9369f0438bc1bb604b07cf5.jpg"]);
 exports.compress = function(output, files) {
-	const filepath = this.getPath(output);
+	const filepath = this.getFile(output);
 	const zip = cp.spawn("zip", ["-rj", "-"].concat(files)); //nuevo zip
 	zip.stdout.pipe(fs.createWriteStream(filepath)); //sobrescribe el fichero
 	return filepath;
@@ -284,3 +285,17 @@ exports.xls = function(res, file) {
 	return this;
 }
 /******************* send xlsx from json *******************/
+
+
+/******************* send report template *******************/
+exports.pdf = function(res, file) {
+	return jsreport.render({
+		template: {
+			content: fs.createReadStream(file),
+			engine: "ejs",
+			recipe: "chrome-pdf"
+		},
+		data: res.locals
+	}).then(out  => out.stream.pipe(res));
+}
+/******************* send report template *******************/
