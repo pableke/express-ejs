@@ -1,8 +1,7 @@
 
 const fetch = require("node-fetch"); //ajax calls
 const dao = require("app/dao/factory.js");
-const mailer = require("app/lib/mailer.js");
-const valid = require("app/lib/validator-box.js")
+const util = require("app/lib/util-box.js");
 
 exports.view = function(req, res) {
 	res.build("web/forms/public/reactive");
@@ -22,7 +21,7 @@ exports.send = function(req, res) {
 				res.locals.pass = valid.generatePassword(); //generate new random password
 				dao.web.myjson.users.updatePassByMail(req.body.correo, res.locals.pass, i18n);
 
-				mailer.send({
+				util.sendMail({
 					to: req.body.correo,
 					subject: i18n.lblReactivar,
 					tpl: "web/emails/reactive.ejs",

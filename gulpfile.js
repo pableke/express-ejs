@@ -107,8 +107,8 @@ gulp.task("copy-files", () => {
 		return gulp; //initialize statics once
 	gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
-	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
-	gulp.src("src/public/thumb/**/*").pipe(gulp.dest("dist/public/thumb"));
+	gulp.src("src/public/files/uploads/**/*").pipe(gulp.dest("dist/public/files/uploads"));
+	gulp.src("src/public/files/thumbs/**/*").pipe(gulp.dest("dist/public/files/thumbs"));
 	return gulp.src("src/public/img/**/*").pipe(gulp.dest("dist/public/img"));
 });
 

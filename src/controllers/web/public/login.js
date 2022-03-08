@@ -7,7 +7,7 @@ const TPL_LOGIN = "web/forms/public/login";
 const TPL_ADMIN = "web/list/index";
 
 exports.view = function(req, res) {
-	res.build(TPL_LOGIN);
+	res.render(TPL_LOGIN);
 }
 
 function fnLogout(req) {
@@ -19,11 +19,12 @@ function fnLogout(req) {
 }
 
 exports.check = function(req, res, next) {
-	res.setBody(TPL_LOGIN); //if error => go login
-	let lang = res.locals.lang; // current language
 	let { usuario, clave } = req.body; // post data
-	util.i18n.start(lang).login("clave", clave, "errUserNotFound", "errClave"); //password
-	util.i18n.user("usuario", usuario, "errUserNotFound", "errUsuario"); //email or login
+
+	util.setBody(res, TPL_LOGIN); //if error => go login
+	util.i18n.start(res.locals.lang) // current language
+			.login("clave", clave, "errUserNotFound", "errClave") //password
+			.user("usuario", usuario, "errUserNotFound", "errUsuario"); //email or login
 	if (util.i18n.isError())
 		return next(util.i18n);
 
@@ -39,7 +40,7 @@ exports.check = function(req, res, next) {
 		if (req.session.redirTo) //session helper
 			res.redirect(req.session.redirTo);
 		else
-			res.build(TPL_ADMIN);
+			res.render(TPL_ADMIN);
 		delete req.session.redirTo;
 	} catch (ex) {
 		next(ex);
@@ -86,13 +87,13 @@ exports.OAuth2 = function(req, res, next) {
 
 exports.home = function(req, res) {
 	// Reset list configuration
-	res.build(TPL_ADMIN);
+	res.render(TPL_ADMIN);
 }
 
 exports.logout = function(req, res) {
 	fnLogout(req); //click logout user
 	util.i18n.setOk("msgLogout");
-	res.build(TPL_LOGIN);
+	res.render(TPL_LOGIN);
 }
 
 exports.destroy = function(req, res) {
