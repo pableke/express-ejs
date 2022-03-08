@@ -231,40 +231,44 @@ exports.sendMail = function(mail) {
 
 /******************* send xlsx from json *******************/
 exports.xls = function(res, file) {
-	const fontStyle = { size: 10, name: "Calibri", color: "#000" };
-	const rowStyle = { font: fontStyle /*dateFormat: 'dd/mm/yyyy hh:mm:ss', numberFormat: "#.##0,00" //"$#,##0.00; ($#,##0.00); -"*/ };
+	const fontStyle = { size: 10, name: "Calibri", family: "roman", color: "#000000" };
+	const stringStyle = { font: fontStyle };
+	const headerStyle = {
+		font: { size: 12, bold: true },
+		alignment: { wrapText: true, horizontal: "center" }
+	};
 
 	const wb = new xls.Workbook({ // new xlsx instance
 		jszip: { compression: "DEFLATE" },
 		defaultFont: fontStyle,
-		dateFormat: "yyyy-mm-dd hh:mm:ss",
+		dateFormat: "m/d/yy hh:mm:ss",
 		author: file.author || "Microsoft Office User"
 	});
 
 	function fnSheet(sheet, i) {
-		sheet.styles = sheet.styles || []; // Array of cell styles
+		sheet.styles = sheet.styles || {}; // Array of cell styles
 		sheet.name = sheet.name || ("sheet" + (i + 1)); //Worksheet Name
 
-		let ws = wb.addWorksheet(sheet.name);
-		let headStyle = wb.createStyle(sheet.headStyle || { font: { size: 12, bold: true }});
+		let ws = wb.addWorksheet(sheet.name); // WorkBook
+		let headStyle = wb.createStyle(sheet.headStyle || headerStyle);
 
+		let columnIndex = 1; // current column
 		for (let key in sheet.headers) { // headers = Object
-			let columnIndex = 1; // current column
+			let style = sheet.styles[key] || stringStyle; // column style
+			style.numberFormat = style.numberFormat || style.dateFormat;
+			let columnStyle = wb.createStyle(style);
+
+			function fnDate(value, i) { ws.cell(i + 2, columnIndex).date(value).style(columnStyle); } // accepts either a date or a date string
+			function fnNumber(value, i) { ws.cell(i + 2, columnIndex).number(value).style(columnStyle); } // isset numberFormat = number type
+			function fnString(value, i) { ws.cell(i + 2, columnIndex).string(value).style(columnStyle); } // default type = string
+			const fnCell = style.dateFormat ? fnDate : (style.numberFormat ? fnNumber : fnString) //date, number or string
+
+			sheet.data.forEach((row, i) => {
+				let value = row[key]; // cell value
+				sb.isset(value) && fnCell(value, i);
+			});
 			ws.cell(1, columnIndex++).string(sheet.headers[key]).style(headStyle);
 		}
-		sheet.data.forEach((row, i) => {
-			let columnIndex = 0; // current column
-			for (let key in sheet.headers) {
-				let style = sheet.styles[key];
-				let cellStyle = wb.createStyle(style || rowStyle);
-				if (cellStyle.numberFormat)
-					ws.cell(i + 2, columnIndex++).number(row[key]).style(cellStyle);
-				else if (cellStyle.dateFormat) // accepts either a date or a date string
-					ws.cell(i + 2, columnIndex++).date(row[key]).style(cellStyle);
-				else // default type = string
-					ws.cell(i + 2, columnIndex++).string(row[key]).style(cellStyle);
-			}
-		});
 	}
 
 	if (file.sheets) // Multi-sheet
@@ -272,7 +276,6 @@ exports.xls = function(res, file) {
 	else // Single sheet
 		fnSheet(file, 0);
 
-	res.setHeader("Content-disposition", "attachment; filename=" + file.filename);
 	//wb.write("ExcelFile.xlsx"); // Writes the file ExcelFile.xlsx to the process.cwd();
 	wb.write(file.filename, res); // pipe excel xlsx to response
 	return this;
