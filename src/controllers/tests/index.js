@@ -37,9 +37,9 @@ exports.xls = function(req, res) {
 }
 
 exports.zip = function(req, res) {
-	util.zip(res, "tests.zip", ["tests.xlsx", "Gestión_Documental.pdf", "Guías_Docentes.pdf"].map(util.getPath));
+	util.zip(res, "tests.zip", ["tests.xlsx", "Gestión_Documental.pdf", "Guías_Docentes.pdf"].map(util.getFile));
 }
 
 exports.pdf = (req, res) => {
-	res.send("file pdf!");
+	util.pdf(res, util.getView("tests/reports/test.ejs"));
 }

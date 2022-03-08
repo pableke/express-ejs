@@ -107,8 +107,7 @@ gulp.task("copy-files", () => {
 		return gulp; //initialize statics once
 	gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
 	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
-	gulp.src("src/public/files/uploads/**/*").pipe(gulp.dest("dist/public/files/uploads"));
-	gulp.src("src/public/files/thumbs/**/*").pipe(gulp.dest("dist/public/files/thumbs"));
+	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
 	return gulp.src("src/public/img/**/*").pipe(gulp.dest("dist/public/img"));
 });
 
@@ -122,8 +121,9 @@ gulp.task("watch", () => {
 	// Other watchers ...
 });
 
-gulp.task("default", gulp.parallel("minify-html", 
+/*gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
 									"minify-js", "minify-js-uae", "minify-js-web",
 									"copy-modules", "symlinks", "copy-files", 
 									"watch"));
+*/
