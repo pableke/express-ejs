@@ -18,8 +18,8 @@ function ArrayBox() {
 	this.shuffle = arr => arr.sort(() => (0.5 - Math.random()));
 	this.unique = (a1, a2) => a2 ? a1.concat(a2.filter(item => (a1.indexOf(item) < 0))) : a1;
 	this.distinct = (arr, name) => name ? arr.filter((o1, i) => (arr.findIndex(o2 => (o1[name] === o2[name])) == i)) : arr;
-	this.swap = (arr, a, b) => { let aux = arr[a]; arr[a] = arr[b]; arr[b] = aux; return self; }
 	this.eq = (a1, a2) => a1 && a2 && a1.every((item, i) => (a2[i] == item));
+	this.swap = (arr, a, b) => { arr && arr.swap(a, b); return self; }
 
 	this.push = (arr, obj) => { arr && arr.push(obj); return self; }
 	this.pushAt = (arr, obj, i) => { arr && arr.splice(i, 0, obj); return self; }
@@ -40,9 +40,9 @@ function ArrayBox() {
 	}
 
 	// Iterators
-	this.each = function(arr, fn) {
-		let size = fnSize(arr); //max
-		for (let i = 0; (i < size); i++)
+	this.each = function(arr, fn, i, size) {
+		size = size || fnSize(arr); //max
+		for (i = i || 0; (i < size); i++)
 			fn(arr[i], i, arr); //callback
 		return self;
 	}
@@ -89,9 +89,25 @@ function ArrayBox() {
 	}
 
 	// Extends Array prototype
-	Array.prototype.each = function(cb) {
-		this.forEach(cb); // each = forEach
+	Array.prototype.each = function(fn, i, size) {
+		size = size || this.length;
+		for (i = i || 0; (i < size); i++)
+			fn(this[i], i, this); //callback
 		return this; // Array instance
+	}
+	Array.prototype.swap = function(a, b) {
+		let aux = this[a];
+		this[a] = this[b];
+		this[b] = aux;
+		return this;
+	}
+	Array.prototype.join = function(separator, i, size) {
+		i = i || 0;
+		size = size || this.length;
+		let output = (i < size) ? this[i++] : "";
+		while (i < size)
+			output += this[i++];
+		return output;
 	}
 
 	// Client helpers
