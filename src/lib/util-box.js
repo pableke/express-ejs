@@ -6,7 +6,6 @@ const qs = require("querystring"); //parse post data
 const xls = require("excel4node"); //JSON to Excel
 const nodemailer = require("nodemailer"); //send emails
 const formidable = require("formidable"); //file uploads
-const jsreport = require("jsreport"); //PDF reports
 const sharp = require("sharp"); //image resizer
 const ejs = require("ejs"); //tpl engine
 
@@ -288,14 +287,20 @@ exports.xls = function(res, file) {
 
 
 /******************* send report template *******************/
+const jsreport = require("jsreport-core")();
+jsreport.use(require("jsreport-chrome-pdf")());
+jsreport.use(require("jsreport-ejs")());
+jsreport.init(); // init. once
+
 exports.pdf = function(res, file) {
+	file = this.getView(file);
 	return jsreport.render({
 		template: {
-			content: fs.createReadStream(file),
 			engine: "ejs",
-			recipe: "chrome-pdf"
+			recipe: "chrome-pdf",
+			content: fs.readFileSync(file, "utf-8")
 		},
 		data: res.locals
-	}).then(out  => out.stream.pipe(res));
+	}).then(out => out.stream.pipe(res));
 }
 /******************* send report template *******************/

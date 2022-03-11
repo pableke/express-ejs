@@ -11,6 +11,8 @@ function ArrayBox() {
 	this.empty = arr => (fnSize(arr) < 1);
 	this.find = (arr, fn) => arr ? arr.find(fn) : null;
 	this.findIndex = (arr, fn) => arr ? arr.findIndex(fn) : -1;
+	//this.findLast = (arr, fn) => arr ? arr.findLast(fn) : null;
+	//this.findLastIndex = (arr, fn) => arr ? arr.findLastIndex(fn) : -1;
 	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
 	this.intersect = (a1, a2) => a2 ? a1.filter(e => (a2.indexOf(e) > -1)) : [];
 	this.shuffle = arr => arr.sort(() => (0.5 - Math.random()));
@@ -84,6 +86,12 @@ function ArrayBox() {
 				return value ?? opts.empty; //string formated
 			});
 		}).join(opts.separator);
+	}
+
+	// Extends Array prototype
+	Array.prototype.each = function(cb) {
+		this.forEach(cb); // each = forEach
+		return this; // Array instance
 	}
 
 	// Client helpers

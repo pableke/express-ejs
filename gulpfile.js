@@ -15,7 +15,7 @@ const strip = require("gulp-strip-comments");
 //const rename = require("gulp-rename");
 
 // Settings
-const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs"];
+const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs" ];
 const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
 const CSS_FILES = [
 	"src/public/css/style.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/form.css", "src/public/css/table.css", "src/public/css/print.css"
@@ -121,9 +121,8 @@ gulp.task("watch", () => {
 	// Other watchers ...
 });
 
-/*gulp.task("default", gulp.parallel("minify-html", 
+gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
 									"minify-js", "minify-js-uae", "minify-js-web",
 									"copy-modules", "symlinks", "copy-files", 
 									"watch"));
-*/
