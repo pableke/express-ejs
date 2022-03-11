@@ -19,6 +19,12 @@ exports.email = (req, res, next) => {
 		.catch(err => next("errSendMail"));
 }
 
+const users = [ // JSON DB for tests
+	{ name: "askjld", imp: 23.87, fCreacion: new Date() },
+	{ name: "fila 2", imp:2.9  },
+	{ name: "fila 3", imp:24566.95675, fCreacion: "2022-01-01T10:22:53" }
+];
+
 exports.xls = function(req, res) {
 	util.xls(res, {
 		filename: "tests.xlsx",
@@ -28,11 +34,7 @@ exports.xls = function(req, res) {
 			imp: { numberFormat: "#,##0.00" },
 			fCreacion: { dateFormat: "dd/mm/yyyy" }
 		},
-		data: [
-			{ name: "askjld", imp: 23.87, fCreacion: new Date() },
-			{ name: "fila 2", imp:2.9 },
-			{ name: "fila 3", imp:24566.95675, fCreacion: "2022-01-01T10:22:53" }
-		]
+		data: users
 	});
 }
 
@@ -40,6 +42,9 @@ exports.zip = function(req, res) {
 	util.zip(res, "tests.zip", ["tests.xlsx", "Gestión_Documental.pdf", "Guías_Docentes.pdf"].map(util.getFile));
 }
 
-exports.pdf = (req, res) => {
-	util.pdf(res, util.getView("tests/reports/test.ejs"));
+exports.pdf = (req, res, next) => {
+	res.locals.users = users;
+	util.setBody(res, "tests/index")
+		.pdf(res, "tests/reports/test.ejs")
+		.catch(next);
 }

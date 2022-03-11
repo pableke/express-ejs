@@ -72,7 +72,7 @@ app.use((err, req, res, next) => { //global handler error
 		util.render(res, res.locals._tplBody, 500);
 
 	// Show log error for console
-	console.error("> Log:", util.i18n.getError());
+	console.error("> Log:", util.i18n.getError() || err);
 });
 app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")

@@ -59,7 +59,6 @@ function I18nBox() {
 			toTime: dt.toTime,
 			minTime: dt.minTime,
 			isoTime: dt.isoTime,
-			fmtTime: dt.fmtTime,
 			acTime: dt.acTime,
 
 			//numbers helpers
@@ -119,7 +118,6 @@ function I18nBox() {
 			toTime: dt.toTime,
 			minTime: dt.minTime,
 			isoTime: dt.isoTime,
-			fmtTime: dt.fmtTime,
 			acTime: dt.acTime,
 
 			//numbers helpers
@@ -193,7 +191,8 @@ function I18nBox() {
 	this.toTime = str => _lang.toTime(str);
 	this.minTime = date => _lang.minTime(date);
 	this.isoTime = date => _lang.isoTime(date);
-	this.fmtTime = str => _lang.fmtTime(str);
+	this.fmtMinTime = str => dt.fmtMinTime(str);
+	this.fmtTime = str => dt.fmtTime(str);
 	this.acTime = str => _lang.acTime(str);
 
 	this.fmtBool = val => _lang.fmtBool(val);
