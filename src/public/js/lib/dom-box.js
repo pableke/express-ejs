@@ -64,12 +64,12 @@ function DomBox() {
 	// Iterators and Filters
 	function fnFind(selector, list) { return list.find(el => el.matches(selector)); }
 	function fnFilter(selector, list) { return list.filter(el => el.matches(selector)); }
-	this.each = function(list, cb) {
+	this.each = function(list, fn) {
 		if (list) {
 			if (list.nodeType === 1)
-				cb(list); // Is DOMElement
+				fn(list); // Is DOMElement
 			else // Is Selector or NodeList
-				ab.each(fnQueryAll(list), cb);
+				ab.each(fnQueryAll(list), fn);
 		}
 		return self;
 	}
@@ -274,6 +274,8 @@ function DomBox() {
 		self.copyVal = (i1, i2) => self.setValue(i1, self.getValue(i2));
 		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
 		self.setAttrInputs = (selector, name, value) => self.apply(selector, inputs, input => input.setAttribute(name, value));
+		self.setReadonly = (selector, value) => self.apply(selector, inputs, input => { input.readOnly = value; });
+		self.setDisabled = (selector, value) => self.apply(selector, inputs, input => { input.disabled = value; });
 		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
 		self.delAttrInputs = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
 		self.getOptText = select => { select = self.getInput(select); return select && self.getText(select.options[select.selectedIndex]); }
@@ -391,7 +393,6 @@ function DomBox() {
 			styles = styles || {}; // Default styles
 			styles.getValue = styles.getValue || i18n.val;
 			resume.size = data.length; // Numrows
-			resume.total = resume.total ?? (+table.dataset.total || data.length); // Parse to int
 
 			self.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 			fnRendetTfoot(table, resume, styles); // Render footer
@@ -404,12 +405,8 @@ function DomBox() {
 				table.dispatchEvent(new CustomEvent("select", { detail: i }));
 			});
 			self.click(self.getAll("a[href='#remove']", table), (el, ev, i) => {
-				const msg = styles.remove || "remove"; // specific message
-				if (i18n.confirm(msg)) { // confirm before trigger event
-					resume.total--; // decrement total rows number
-					const obj = data.splice(i, 1)[0]; // Remove from data array
-					table.dispatchEvent(new CustomEvent("remove", { detail: obj })); // Trigger event
-				}
+				i18n.confirm(styles.remove || "remove") // confirm delete before remove data and trigger event
+					&& table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] }));
 			});
 
 			table.dispatchEvent(new Event("render")); // Trigger event

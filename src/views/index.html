@@ -115,6 +115,7 @@
 			<table id="pruebas" data-sort-by="c2" data-sort-dir="desc" data-page-size="1" data-total="50">
 				<thead>
 					<tr>
+						<th>Nº</th>
 						<th>C1<a href="#" class="sort sort-none sort-name"></a></th>
 						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
 						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
@@ -122,6 +123,7 @@
 					</tr>
 				</thead>
 				<tbody id="pruebas-row">
+					<td>@count;</td>
 					<tr class="tb-data">
 						<td><a id="1" href="#find">@name;</a></td>
 						<td>F@count; - C2</td>
@@ -153,6 +155,7 @@
 			<!-- pruebas templates -->
 			<template id="pruebas-row">
 				<tr class="tb-data">
+					<td>@count;</td>
 					<td><a id="1" href="#find">@name;</a></td>
 					<td>F@count; - C2</td>
 					<td>F@count; - C3</td>
@@ -226,6 +229,7 @@
 					return dom.setValue("#name", row.name).setValue("#memo", row.memo);
 				}
 				dom.onChangeInput("#name", el => { row.name = el.value; })
+					.onChangeInput("#memo", el => { row.memo = el.value; })
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
 
