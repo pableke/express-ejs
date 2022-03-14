@@ -10,7 +10,6 @@ function DateBox() {
 	function hasParts(parts) { return parts && parts[0]; }
 	function lpad(val) { return (val < 10) ? ("0" + val) : val; } //always 2 digits
 	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
-	function swap(arr) { var aux = arr[2]; arr[2] = arr[0]; arr[0] = aux; return arr; }
 	function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
 	function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
 	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
@@ -30,6 +29,12 @@ function DateBox() {
 		return hasParts(parts) ? fnBuild(parts) : null;
 	}
 
+	// Extends Date prototype
+	Date.prototype.toJSON = function() { // Override toJSON to ignore TZ-offset
+		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
+	}
+
+	// Module functions
 	this.build = fnBuild;
 	this.isValid = isDate;
 	this.sysdate = () => sysdate;
@@ -161,16 +166,11 @@ function DateBox() {
 	this.acEnDate = str => str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY);
 
 	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
-	this.esDate = str => str ? toDateTime(swap(splitDate(str))) : null; //parse to Date object
+	this.esDate = str => str ? toDateTime(splitDate(str).swap(0, 2)) : null; //parse to Date object
 	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
 	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
-	this.fmtEsDate = str => str && swap(splitDate(str)).slice(0, 3).each(lpad).join("/"); //Iso string to dd/mm/yyyy
+	this.fmtEsDate = str => str && splitDate(str).swap(0, 2).join("/", 0, 3); //Iso string to dd/mm/yyyy
 	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
-
-	// Override toJSON to ignore TZ-offset
-	Date.prototype.toJSON = function() {
-		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
-	}
 }
 
 module.exports = new DateBox();

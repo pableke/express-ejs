@@ -12,16 +12,28 @@ function StringBox() {
 	function fnWord(str) { return str.replace(/\W+/g, ""); } //remove no alfanum
 	function fnSize(str) { return str ? str.length : 0; } //string o array
 	function tr(str) {
-		var output = "";
-		var size = fnSize(str);
-		for (var i = 0; i < size; i++) {
-			var chr = str.charAt(i);
-			var j = TR1.indexOf(chr);
+		let output = "";
+		const size = fnSize(str);
+		for (let i = 0; i < size; i++) {
+			let chr = str.charAt(i);
+			let j = TR1.indexOf(chr);
 			output += (j < 0) ? chr : TR2.charAt(j);
 		}
 		return output.toLowerCase();
 	}
 
+	// Extends String prototype
+	String.prototype.insert = function(str, i) {
+		return this.substring(0, i) + str + this.substring(i);
+	}
+	String.prototype.remove = function(i, n) {
+		return this.substring(0, i) + this.substring(i + n);
+	}
+	String.prototype.format = function(fn) {
+		return this.replace(/@(\w+);/g, fn);
+	}
+
+	// Module functions
 	this.isset = isset;
 	this.isstr = isstr;
 	this.size = fnSize;
@@ -49,17 +61,17 @@ function StringBox() {
 		return isset(a) ? -1 : 1; //nulls last
 	}
 
-	this.escape = function(str) { return str && str.replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]); }
-	this.unescape = function(str) { return str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)); }
+	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
+	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
 
-	this.removeAt = (str, i, n) => (i < 0) ? str : (str.substr(0, i) + str.substr(i + n));
-	this.insertAt = (str1, str2, i) => str1 ? (str1.substr(0, i) + str2 + str1.substr(i)) : str2;
-	this.replaceAt = (str1, str2, i, n) => (i < 0) ? str1 : (str1.substr(0, i) + str2 + str1.substr(i + n));
-	this.replaceLast = (str1, find, str2) => str1 ? self.replaceAt(str1, str2, str1.lastIndexOf(find), find.length) : str2;
-	this.wrapAt = (str, i, n, open, close) => (i < 0) ? str : self.insertAt(self.insertAt(str, open, i), close, i + open.length + n);
-	this.iwrap = (str1, str2, open, close) => str2 && self.wrapAt(str1, self.iiOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>");
+	this.remove = (str, i, n) => str && str.remove(i, n);
+	this.insert = (str1, str2, i) => str1 && str1.insert(str2, i);
+	//this.replaceAt = (str1, str2, i, n) => (i < 0) ? str1 : (str1.substr(0, i) + str2 + str1.substr(i + n));
+	//this.replaceLast = (str1, find, str2) => str1 ? self.replaceAt(str1, str2, str1.lastIndexOf(find), find.length) : str2;
+	this.wrapAt = (str, i, n, open, close) => (i < 0) ? str : self.insert(self.insert(str, open, i), close, i + open.length + n);
+	this.iwrap = (str1, str2, open, close) => self.wrapAt(str1, self.iiOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>");
 	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
-	this.lopd = str => str ? ("***" + str.substr(3, 4) + "**") : str; //hide protect chars
+	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
 
 	this.toDate = str => str ? new Date(str) : null;
 	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
@@ -111,13 +123,13 @@ function StringBox() {
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
 	this.format = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
-		opts.empty = opts.empty || "";
+		const empty = opts.empty || "";
 		const fnVal = opts.getValue || self.val;
 
-		return tpl.replace(/@(\w+);/g, (m, k) => {
+		return tpl.format((m, k) => {
 			const fn = opts[k]; //field format function
 			const value = fn ? fn(data[k], data) : fnVal(data, k);
-			return value ?? opts.empty; //string formated
+			return value ?? empty; //string formated
 		});
 	}
 	this.entries = function(data, tpl, opts) {
