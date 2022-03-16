@@ -11,13 +11,13 @@ function StringBox() {
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
 	function fnWord(str) { return str.replace(/\W+/g, ""); } //remove no alfanum
 	function fnSize(str) { return str ? str.length : 0; } //string o array
+	function iiOf(str1, str2) { return tr(str1).indexOf(tr(str2)); }
 	function tr(str) {
-		let output = "";
+		let output = str || "";
 		const size = fnSize(str);
 		for (let i = 0; i < size; i++) {
-			let chr = str.charAt(i);
-			let j = TR1.indexOf(chr);
-			output += (j < 0) ? chr : TR2.charAt(j);
+			let j = TR1.indexOf(str.charAt(i)); // is char remplazable
+			output = (j < 0) ? output : output.replaceAt(TR2.charAt(j), i);
 		}
 		return output.toLowerCase();
 	}
@@ -25,6 +25,15 @@ function StringBox() {
 	// Extends String prototype
 	String.prototype.insert = function(str, i) {
 		return this.substring(0, i) + str + this.substring(i);
+	}
+	String.prototype.replaceAt = function(str, i) {
+		return this.substring(0, i) + str + this.substring(i + str.length);
+	}
+	String.prototype.wrap = function(str, open, close) {
+		open = open || "<u><b>";
+		close = close || "</b></u>";
+		const i = iiOf(this, str);
+		return this.insert(open, i).insert(close, i + open.length + str.length);
 	}
 	String.prototype.remove = function(i, n) {
 		return this.substring(0, i) + this.substring(i + n);
@@ -39,7 +48,6 @@ function StringBox() {
 	this.size = fnSize;
 	this.trim = str => isstr(str) ? str.trim() : str;
 	this.eq = (str1, str2) => (tr(str1) == tr(str2));
-	this.iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	this.upper = str => str ? str.toUpperCase(str) : str;
 	this.lower = str => str ? str.toLowerCase(str) : str;
 	this.substr = (str, i, n) => str ? str.substr(i, n) : str;
@@ -55,6 +63,15 @@ function StringBox() {
 		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
 		return self.trunc(str, (i < 0) ? size : i);
 	}
+
+	this.ilike = (str1, str2) => iiOf(str1, str2) > -1; //object value type = string
+	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
+	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
+	this.between = function(value, min, max) { // value into a range
+		min = min ?? value;
+		max = max ?? value;
+		return (min <= value) && (value <= max);
+	}
 	this.cmp = function(a, b) {
 		if (isset(a) && isset(b))
 			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
@@ -64,12 +81,7 @@ function StringBox() {
 	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
 	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
 
-	this.remove = (str, i, n) => str && str.remove(i, n);
-	this.insert = (str1, str2, i) => str1 && str1.insert(str2, i);
-	//this.replaceAt = (str1, str2, i, n) => (i < 0) ? str1 : (str1.substr(0, i) + str2 + str1.substr(i + n));
-	//this.replaceLast = (str1, find, str2) => str1 ? self.replaceAt(str1, str2, str1.lastIndexOf(find), find.length) : str2;
-	this.wrapAt = (str, i, n, open, close) => (i < 0) ? str : self.insert(self.insert(str, open, i), close, i + open.length + n);
-	this.iwrap = (str1, str2, open, close) => self.wrapAt(str1, self.iiOf(str1, str2), str2.length, open || "<u><b>", close || "</b></u>");
+	this.iwrap = (str1, str2, open, close) => str1 && str1.wrap(str2, open, close);
 	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
 	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
 
@@ -80,15 +92,6 @@ function StringBox() {
 	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
-
-	this.ilike = (str1, str2) => self.iiOf(str1, str2) > -1; //object value type = string
-	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
-	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
-	this.between = function(value, min, max) { // value into a range
-		min = min ?? value;
-		max = max ?? value;
-		return (min <= value) && (value <= max);
-	}
 
 	//chunk string in multiple parts
 	this.ltr = function(str, size) {
