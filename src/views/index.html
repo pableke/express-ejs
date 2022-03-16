@@ -251,23 +251,6 @@
 				dom.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
 				dom.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
 				dom.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
-
-				dom.onclick("a[href='show-first']", el => {
-					resume.total++;
-					data.push({id:4});
-					dom.renderTable(table, data, resume);
-
-					const alert = dom.get("div.alert");
-					dom.show(alert).animate("fadeIn", alert);
-				});
-				dom.onclick("a[href='close-first']", el => {
-					const alert = dom.get("div.alert");
-					dom.animate("fadeOut", alert).then(el => dom.hide(el));
-				});
-
-				dom.onclick("a[href='loading']", el => {
-					setTimeout(dom.loading().working, 500);
-				});
 			});
 		</script>
 	</main>
