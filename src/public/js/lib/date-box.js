@@ -1,4 +1,10 @@
 
+/**
+ * DateBox module require
+ * ArrayBox (ab)
+ * 
+ * @module DateBox
+ */
 function DateBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
