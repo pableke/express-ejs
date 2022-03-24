@@ -13,7 +13,7 @@ function NumberBox() {
 	function fnSign(str) { return (str.charAt(0) == "-") ? "-" : EMPTY; } // Get sign number + or -
 	function chunk(str, separator) {
 		let i = str.length; // index
-		let output = (i > 2) ? str.substring(i - 3, i) : EMPTY;
+		let output = (i > 2) ? str.substring(i - 3, i) : str;
 		for (i -= 3; i > 3; i -= 3)
 			output = str.substring(i - 3, i) + separator + output;
 		return (i > 0) ? (str.substring(0, i) + separator + output) : output;
