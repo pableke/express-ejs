@@ -36,12 +36,6 @@ function ValidatorBox() {
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
 	const minify = sb.toUpperWord;
-	function fnRegex(re, value) {
-		try {
-			return (value && re.test(value)) ? value : null;
-		} catch(e) {}
-		return null;
-	}
 
 	// Validators
 	this.range = function(num, min, max) { // NaN comparator always false
@@ -76,7 +70,7 @@ function ValidatorBox() {
 	this.text300 = str => fnText(str, 0, 300);
 	this.text = str => fnText(str, 0, 1000);
 
-	this.regex = (re, value) => fnRegex(re, sb.trim(value));
+	this.regex = (re, value) => sb.test(sb.trim(value), re);
 	this.date = value => self.regex(RE_DATE, value);
 	this.login = value => self.regex(RE_LOGIN, value);
 	this.digits = value => self.regex(RE_DIGITS, value);
@@ -110,11 +104,11 @@ function ValidatorBox() {
 		return (letra == value.charAt(8)) ? value : null;
 	}
 	this.dni = function(value) {
-		value = fnRegex(RE_DNI, minify(value));
+		value = sb.test(minify(value), RE_DNI);
 		return value && fnLetraDni(value);
 	}
 	this.cif = function(value) {
-		value = fnRegex(RE_CIF, minify(value));
+		value = sb.test(minify(value), RE_CIF);
 		if (!value) return null;
 
 		var match = value.match(RE_CIF);
@@ -143,7 +137,7 @@ function ValidatorBox() {
 		return ok ? value : null;
 	}
 	this.nie = function(value) {
-		value = fnRegex(RE_NIE, minify(value));
+		value = sb.test(minify(value), RE_NIE);
 		if (!value) return null;
 
 		let prefix = value.charAt(0); //Change the initial letter for the corresponding number and validate as DNI

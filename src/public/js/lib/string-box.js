@@ -7,7 +7,7 @@ function StringBox() {
 	const TR1 = "àáâãäåāăąÀÁÂÃÄÅĀĂĄÆßèéêëēĕėęěÈÉĒĔĖĘĚìíîïìĩīĭÌÍÎÏÌĨĪĬòóôõöōŏőøÒÓÔÕÖŌŎŐØùúûüũūŭůÙÚÛÜŨŪŬŮçÇñÑþÐŔŕÿÝ";
 	const TR2 = "aaaaaaaaaAAAAAAAAAABeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIoooooooooOOOOOOOOOuuuuuuuuUUUUUUUUcCnNdDRryY";
 
-	//helpers
+	// Helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
 	function fnWord(str) { return str.replace(/\W+/g, EMPTY); } //remove no alfanum
@@ -59,10 +59,38 @@ function StringBox() {
 	this.prefix = (str1, str2) => self.starts(str1, str2) ? str1 : (str2 + str1);
 	this.suffix = (str1, str2) => self.ends(str1, str2) ? str1 : (str1 + str2);
 	this.trunc = (str, size) => (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str;
-	this.itrunc = function(str, size) {
-		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
-		return self.trunc(str, (i < 0) ? size : i);
+
+	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
+	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
+
+	this.iwrap = (str1, str2, open, close) => str1 && str1.wrap(str2, open, close);
+	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
+	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
+
+	//chunk string in multiple parts
+	this.test = (str, re) => (str && re.test(str)) ? str : null;
+	this.match = (str, re) => str ? str.trim().match(re) : [];
+	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
+	this.chunk = (str, size) => self.match(str, new RegExp(".{1," + size + "}", "g"));
+	this.slices = function(str, sizes) {
+		const result = []; //parts container
+		const k = fnSize(str); //maxlength
+		var j = 0; //string position
+		for (let i = 0; (j < k) && (i < sizes.length); i++) {
+			let n = sizes[i];
+			result.push(str.substr(j, n));
+			j += n;
+		}
+		(j < k) && result.push(str.substr(j));
+		return result;
 	}
+
+	this.toDate = str => str ? new Date(str) : null;
+	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
+	this.toWord = str => str ? fnWord(str) : str;
+	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
+	this.lines = str => self.split(str, /[\n\r]+/);
+	this.words = str => self.split(str, /\s+/);
 
 	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); //object value type = string
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
@@ -76,42 +104,6 @@ function StringBox() {
 		if (isset(a) && isset(b))
 			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
 		return isset(a) ? -1 : 1; //nulls last
-	}
-
-	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
-	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
-
-	this.iwrap = (str1, str2, open, close) => str1 && str1.wrap(str2, open, close);
-	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
-	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
-
-	this.toDate = str => str ? new Date(str) : null;
-	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
-	this.minify = str => str ? str.trim().replace(/\s{2}/g, EMPTY) : str;
-	this.toWord = str => str ? fnWord(str) : str;
-	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
-	this.lines = str => self.split(str, /[\n\r]+/);
-	this.words = str => self.split(str, /\s+/);
-
-	//chunk string in multiple parts
-	this.chunk = function(str, size) {
-		const result = []; //parts container
-		for (var i = fnSize(str); i > size; i -= size)
-			result.unshift(str.substring(i - size, i));
-		(i > 0) && result.unshift(str.substring(0, i));
-		return result;
-	}
-	this.slices = function(str, sizes) {
-		const result = []; //parts container
-		const k = fnSize(str); //maxlength
-		var j = 0; //string position
-		for (let i = 0; (j < k) && (i < sizes.length); i++) {
-			let n = sizes[i];
-			result.push(str.substr(j, n));
-			j += n;
-		}
-		(j < k) && result.push(str.substr(j));
-		return result;
 	}
 
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
