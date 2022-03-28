@@ -69,8 +69,8 @@ function StringBox() {
 
 	//chunk string in multiple parts
 	this.test = (str, re) => (str && re.test(str)) ? str : null;
+	this.split = (str, sep) => str ? str.trim().split(sep) : [];
 	this.match = (str, re) => str ? str.trim().match(re) : [];
-	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
 	this.chunk = (str, size) => self.match(str, new RegExp(".{1," + size + "}", "g"));
 	this.slices = function(str, sizes) {
 		const result = []; //parts container
