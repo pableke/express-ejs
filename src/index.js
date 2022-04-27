@@ -105,7 +105,7 @@ function fnExit(signal) { //exit handler
 	process.exit(0);
 };
 server.on("close", fnExit); //close server event
-process.on("exit", function() { fnExit("exit"); }); //common exit signal = SIGINT
+//process.on("exit", function() { fnExit("exit"); }); //common exit signal = SIGINT
 process.on("SIGHUP", function() { fnExit("SIGHUP"); }); //generated on Windows when the console window is closed
 process.on("SIGINT", function() { fnExit("SIGINT"); }); //Press Ctrl-C / Ctrl-D keys to exit
 process.on("SIGTERM", function() { fnExit("SIGTERM"); }); //kill the server using command kill [PID_number] or killall node

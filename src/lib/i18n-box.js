@@ -216,8 +216,7 @@ function I18nBox() {
 	this.setInfo = msg => self.setMsg("msgInfo", self.tr(msg));
 	this.setWarn = msg => self.setMsg("msgWarn", self.tr(msg));
 	this.getError = name => MSGS.get(name || KEY_ERROR);
-	this.setMsgError = msg => self.setMsg(KEY_ERROR, self.tr(msg));
-	this.setError = (name, msg, msgtip) => self.setMsgError(msg).setMsg(name, self.tr(msgtip));
+	this.setError = (msg, name, msgtip) => self.setMsg(KEY_ERROR, self.tr(msg)).setMsg(name, self.tr(msgtip));
 	this.getNumMsgs = () => MSGS.size;
 
 	this.getData = name => name ? DATA.get(name) : DATA;

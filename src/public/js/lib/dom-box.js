@@ -62,8 +62,6 @@ function DomBox() {
 	}
 
 	// Iterators and Filters
-	function fnFind(selector, list) { return list.find(el => el.matches(selector)); }
-	function fnFilter(selector, list) { return list.filter(el => el.matches(selector)); }
 	this.each = function(list, fn) {
 		if (list) {
 			if (list.nodeType === 1)
@@ -74,9 +72,10 @@ function DomBox() {
 		return self;
 	}
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
-	this.findIndex = (selector, list)  => [...list].findIndex(el => el.matches(selector));
-	this.find = (selector, list)  => fnFind(selector, [...list]);
-	this.filter = (selector, list) => fnFilter(selector, [...list]);
+	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
+	this.findIndex = (selector, list)  => ab.findIndex(list, el => el.matches(selector));
+	this.find = (selector, list)  => ab.find(list, el => el.matches(selector));
+	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
 	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
 	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
 	this.values = list => self.map(list, el => el.value);
@@ -261,12 +260,12 @@ function DomBox() {
 		const forms = self.filter("form", elements); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
 
-		self.getTable = elem =>  sb.isstr(elem) ? fnFind(elem, tables) : elem;
-		self.getTables = elem => sb.isstr(elem) ? fnFilter(elem, tables) : tables;
-		self.getForm = elem =>  sb.isstr(elem) ? fnFind(elem, forms) : elem;
-		self.getForms = elem => sb.isstr(elem) ? fnFilter(elem, forms) : forms;
-		self.getInput = elem => sb.isstr(elem) ? fnFind(elem, inputs) : elem;
-		self.getInputs = elem => sb.isstr(elem) ? fnFilter(elem, inputs) : inputs;
+		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;
+		self.getTables = elem => elem ? self.filter(elem, tables) : tables;
+		self.getForm = elem =>  sb.isstr(elem) ? self.find(elem, forms) : elem;
+		self.getForms = elem => elem ? self.filter(elem, forms) : forms;
+		self.getInput = elem => sb.isstr(elem) ? self.find(elem, inputs) : elem;
+		self.getInputs = elem => elem ? self.filter(elem, inputs) : inputs;
 
 		self.getValue = el => { el = self.getInput(el); return el && el.value; }
 		self.setValue = (el, value) => { el = self.getInput(el); return el ? fnSetVal(el, value) : self; }
@@ -290,7 +289,7 @@ function DomBox() {
 
 		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
 		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
-		self.setFocus = el => self.focus(sb.isstr(el) ? fnFind(el, inputs) : [...self.inputs(el)].find(fnFocus));
+		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
 		self.focus(inputs.find(fnFocus)); // Set focus on first visible input
 
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
@@ -317,8 +316,8 @@ function DomBox() {
 		self.onFindRow = (selector, fn) => fnAddEvent(self.getTable(selector), "find", fn);
 		self.onSelectRow = (selector, fn) => fnAddEvent(self.getTable(selector), "select", fn);
 		self.onRemoveRow = (selector, fn) => fnAddEvent(self.getTable(selector), "remove", fn);
-		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), ON_CHANGE, fn);
-		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, ON_CHANGE, fn);
+		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), "recalc", fn);
+		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "recalc", fn);
 		self.onRenderTable = (selector, fn) => fnAddEvent(self.getTable(selector), "render", fn);
 		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
 		self.onPaginationTable = (selector, fn) => fnAddEvent(self.getTable(selector), "pagination", fn);
@@ -397,7 +396,14 @@ function DomBox() {
 			self.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 			fnRendetTfoot(table, resume, styles); // Render footer
 
-			// Find, select and remove events
+			// Change, find, select and remove events
+			table.addEventListener(ON_CHANGE, ev => {
+				ev.preventDefault(); // Stop change event
+				const row = ev.target.closest("tr"); // Parent row
+				const i = self.indexOf(row); // Row position in tbody
+				const result = { index: i, data: data[i], element: ev.target, row };
+				table.dispatchEvent(new CustomEvent("recalc", { detail: result }));
+			});
 			self.click(self.getAll("a[href='#find']", table), (el, ev, i) => {
 				table.dispatchEvent(new CustomEvent("find", { detail: data[i] }));
 			});
