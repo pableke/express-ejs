@@ -119,6 +119,7 @@
 						<th>C1<a href="#" class="sort sort-none sort-name"></a></th>
 						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
 						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
+						<th>C4</th>
 						<th>Acciones</th>
 					</tr>
 				</thead>
@@ -128,6 +129,7 @@
 						<td><a id="1" href="#find">@name;</a></td>
 						<td>F@count; - C2</td>
 						<td>F@count; - C3</td>
+						<td><input type="text" name="test"/></td>
 						<td class="text-center">
 							<a id="1" href="#select"><i class="fas fa-search icon"></i></a>
 							<a id="1" href="#remove"><i class="fa fa-times icon text-err"></i></a>
@@ -137,6 +139,7 @@
 						<td><a id="2" href="#find">@name;</a></td>
 						<td>F@count; - C2</td>
 						<td>F@count; - C3</td>
+						<td><input type="text" name="test"/></td>
 						<td class="text-center">
 							<a id="2" href="#select"><i class="fas fa-search icon"></i></a>
 							<a id="2" href="#remove"><i class="fa fa-times icon text-err"></i></a>
@@ -144,10 +147,10 @@
 					</tr>
 				</tbody>
 				<tbody class="no-data">
-					<tr><td colspan="4"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
+					<tr><td colspan="5"><p>No hay coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
 				<tfoot data-tpl="pruebas-footer">
-					<tr><td colspan="4">Filas: 2 / 3</td></tr>
+					<tr><td colspan="5">Filas: 2 / 3</td></tr>
 				</tfoot>
 			</table>
 			<div class="pagination"></div>
@@ -155,10 +158,11 @@
 			<!-- pruebas templates -->
 			<template id="pruebas-row">
 				<tr class="tb-data">
-					<td>@count;</td>
+					<td class="text-center">@count;</td>
 					<td><a id="1" href="#find">@name;</a></td>
 					<td>F@count; - C2</td>
 					<td>F@count; - C3</td>
+					<td class="text-center"><input type="text" name="test"/></td>
 					<td class="text-center">
 						<a href="#select"><i class="fas fa-search icon"></i></a>
 						<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
@@ -240,7 +244,7 @@
 					.onFindRow("#pruebas", (table, ev) => console.log("find", ev.detail))
 					.onSelectRow("#pruebas", (table, ev) => !fnLoad(ev.detail).viewTab(3))
 					.onRemoveRow("#pruebas", (table, ev) => dom.renderRows(table, data, resume))
-					.onChangeTable("#pruebas", (table, ev) => console.log("change"))
+					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
 					.click(dom.get(".sort-name", table), el => { // Sort by name
 						resume.sort = (a, b) => sb.cmp(a.name, b.name);

@@ -80,7 +80,7 @@ dom.ready(function() {
 	dom.addError = function(selector, msg, msgtip) {
 		const el = dom.getInput(selector);
 		if (el) { // Element exists?
-			i18n.setError(el.name, msg, msgtip);
+			i18n.setError(msg, el.name, msgtip);
 			dom.setError(el);
 		}
 		else // Only show error

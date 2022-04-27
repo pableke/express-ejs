@@ -50,6 +50,7 @@ function DateBox() {
 	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
+	this.endDay = function(date) { let aux = self.clone(date); aux.setHours(23, 59, 59, 999); return aux; }
 	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 
