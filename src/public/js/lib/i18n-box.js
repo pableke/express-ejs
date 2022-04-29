@@ -226,7 +226,7 @@ function I18nBox() {
 			DATA.set(name, value);
 			return true;
 		}
-		self.setError(name, msg, msgtip);
+		self.setError(msg, name, msgtip);
 		return false;
 	}
 	this.isOk = () => !MSGS.has(KEY_ERROR);

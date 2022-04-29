@@ -72,19 +72,16 @@ dom.ready(function() {
 		.click(dom.getAll(".alert-close", alerts), el => dom.fadeOut(el.parentNode));
 
 	// Individual input error messages
-	dom.setError = function(el) {
-		const tip = dom.sibling(".ui-errtip", el);
-		return dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
-					.setHtml(tip, i18n.getMsg(el.name)).show(tip);
-	}
-	dom.addError = function(selector, msg, msgtip) {
+	dom.setError = function(selector, msg, msgtip, fn) {
 		const el = dom.getInput(selector);
 		if (el) { // Element exists?
-			i18n.setError(msg, el.name, msgtip);
-			dom.setError(el);
+			if (!fn || !fn(el.name, el.value, msg, msgtip)) {
+				i18n.setError(msg, el.name, msgtip); // Show error
+				const tip = dom.sibling(".ui-errtip", el); // Show tip error
+				dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
+					.setHtml(tip, i18n.getMsg(el.name)).show(tip);
+			}
 		}
-		else // Only show error
-			dom.showError(i18n.setMsgError(msg).getError());
 		return dom;
 	}
 	dom.setErrors = function(data) {
@@ -92,7 +89,7 @@ dom.ready(function() {
 		if (sb.isstr(data)) //Is string
 			return dom.showError(data);
 		for (const k in data) //errors list
-			dom.addError("[name='" + k + "']", null, data[k]);
+			dom.setError("[name='" + k + "']", null, data[k]);
 		return dom.showAlerts(data); //show global menssages
 	}
 
@@ -110,42 +107,16 @@ dom.ready(function() {
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
-	dom.required = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.required(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.login = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.login(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.email = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.email(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.user = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.user(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.intval = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.intval(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.gt0 = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.gt0(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.fk = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.fk(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.past = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.past(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
-	dom.geToday = (el, msg, msgtip) => {
-		el = dom.getInput(el); // search element
-		return (!el || i18n.geToday(el.name, el.value, msg, msgtip)) ? dom : dom.setError(el);
-	}
+	dom.addError = dom.setError; // Synonym
+	dom.required = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.required);
+	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
+	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
+	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
+	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.intval);
+	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
+	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
+	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
+	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {

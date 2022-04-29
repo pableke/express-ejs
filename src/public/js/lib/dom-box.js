@@ -314,7 +314,6 @@ function DomBox() {
 		self.getCheckRows = selector => self.checks(self.getTable(selector));
 		self.getCheckedRows = selector => self.checked(self.getTable(selector));
 		self.onFindRow = (selector, fn) => fnAddEvent(self.getTable(selector), "find", fn);
-		self.onSelectRow = (selector, fn) => fnAddEvent(self.getTable(selector), "select", fn);
 		self.onRemoveRow = (selector, fn) => fnAddEvent(self.getTable(selector), "remove", fn);
 		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), "recalc", fn);
 		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "recalc", fn);
@@ -396,7 +395,7 @@ function DomBox() {
 			self.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
 			fnRendetTfoot(table, resume, styles); // Render footer
 
-			// Change, find, select and remove events
+			// Change, find and remove events
 			table.addEventListener(ON_CHANGE, ev => {
 				ev.preventDefault(); // Stop change event
 				const row = ev.target.closest("tr"); // Parent row
@@ -404,15 +403,17 @@ function DomBox() {
 				const result = { index: i, data: data[i], element: ev.target, row };
 				table.dispatchEvent(new CustomEvent("recalc", { detail: result }));
 			});
-			self.click(self.getAll("a[href='#find']", table), (el, ev, i) => {
-				table.dispatchEvent(new CustomEvent("find", { detail: data[i] }));
-			});
-			self.click(self.getAll("a[href='#select']", table), (el, ev, i) => {
-				table.dispatchEvent(new CustomEvent("select", { detail: i }));
-			});
-			self.click(self.getAll("a[href='#remove']", table), (el, ev, i) => {
-				i18n.confirm(styles.remove || "remove") // confirm delete before remove data and trigger event
-					&& table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] }));
+			self.click(self.getAll("a[href]", table), el => {
+				const row = el.closest("tr"); // TR parent row
+				const i = self.indexOf(row); // Row position in tbody
+				if (sb.ends(el.href, "#find")) {
+					const result = { index: i, data: data[i], element: el, row };
+					table.dispatchEvent(new CustomEvent("find", { detail: result }));
+				}
+				else if (sb.ends(el.href, "#remove") && i18n.confirm(styles.remove || "remove")) {
+					resume.size--; row.remove(); // Confirm delete before remove row, data and update view and resume
+					table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] })); // Trigger event
+				}
 			});
 
 			table.dispatchEvent(new Event("render")); // Trigger event
