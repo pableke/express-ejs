@@ -433,13 +433,9 @@ function DomBox() {
 			return self.apply(selector, tables, table => fnRenderTable(table, data, resume, styles));
 		}
 
-		self.sortTable = function(table, data, resume, styles) {
-			table = self.getTable(table);
-			if (table && resume.sort) { // Sort function and table exists
-				ab.sort(data, table.dataset.sortDir, resume.sort);
-				fnRenderRows(table, data, resume, styles);
-			}
-			return self;
+		self.sortTable = function(table, data, resume, styles, fnSort) {
+			ab.sort(data, table.dataset.sortDir, fnSort);
+			return fnRenderRows(table, data, resume, styles);
 		}
 
 		// Initialize all tables
