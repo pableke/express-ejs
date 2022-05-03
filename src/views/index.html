@@ -116,9 +116,9 @@
 				<thead>
 					<tr>
 						<th>Nº</th>
-						<th>C1<a href="#" class="sort sort-none sort-name"></a></th>
-						<th>C2<a href="#" class="sort sort-none sort-c2"></a></th>
-						<th>C3<a href="#" class="sort sort-none sort-c3"></a></th>
+						<th>C1<a href="#name" class="sort sort-none"></a></th>
+						<th>C2<a href="#c2" class="sort sort-none"></a></th>
+						<th>C3<a href="#c3" class="sort sort-none"></a></th>
 						<th>C4</th>
 						<th>Acciones</th>
 					</tr>
@@ -170,7 +170,7 @@
 				</tr>
 			</template>
 			<template id="pruebas-footer">
-				<tr><td colspan="4">Filas: @size; / @total;</td></tr>
+				<tr><td colspan="4">Filas: @size;</td></tr>
 			</template>
 		</div>
 
@@ -222,18 +222,17 @@
 
 		<script type="text/javascript">
 			dom.ready(function() {
+				const resume = {};
 				const table = dom.getTable("#pruebas");
 				const data = [{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "01298374 124893 aksdfj"}];
-				const resume = { total: 50 };
-				let row, index;
 
 				function fnLoad(i) {
-					index = i; // save current item-index
-					row = data[index]; // current item
-					return dom.setValue("#name", row.name).setValue("#memo", row.memo);
+					resume.index = i; // save current item-index
+					resume.data = data[i]; // current item
+					return dom.setValue("#name", resume.data.name).setValue("#memo", resume.data.memo);
 				}
-				dom.onChangeInput("#name", el => { row.name = el.value; })
-					.onChangeInput("#memo", el => { row.memo = el.value; })
+				dom.onChangeInput("#name", el => { resume.data.name = el.value; })
+					.onChangeInput("#memo", el => { resume.data.memo = el.value; })
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
 
@@ -245,15 +244,15 @@
 					.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
-					.click(dom.get(".sort-name", table), el => { // Sort by name
+					.onTable(table, "sort-name", table => { // Sort by name
 						resume.sort = (a, b) => sb.cmp(a.name, b.name);
 						dom.sortTable("#pruebas", data, resume);
 					});
 
-				dom.addClick("a[href='#first-item']", el => !fnLoad(0));
-				dom.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(index)));
-				dom.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(index, data.length - 1)));
-				dom.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
+				dom.addClick("a[href='#first-item']", el => !fnLoad(0))
+					.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(resume.index)))
+					.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(resume.index, data.length - 1)))
+					.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
 			});
 		</script>
 	</main>
