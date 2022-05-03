@@ -74,13 +74,11 @@ dom.ready(function() {
 	// Individual input error messages
 	dom.setError = function(selector, msg, msgtip, fn) {
 		const el = dom.getInput(selector);
-		if (el) { // Element exists?
-			if (!fn || !fn(el.name, el.value, msg, msgtip)) {
-				i18n.setError(msg, el.name, msgtip); // Show error
-				const tip = dom.sibling(".ui-errtip", el); // Show tip error
-				dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
-					.setHtml(tip, i18n.getMsg(el.name)).show(tip);
-			}
+		if (el && !(fn && fn(el.name, el.value, msg, msgtip))) {
+			i18n.setError(msg, el.name, msgtip); // Show error
+			const tip = dom.sibling(".ui-errtip", el); // Show tip error
+			dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
+				.setHtml(tip, i18n.getMsg(el.name)).show(tip);
 		}
 		return dom;
 	}

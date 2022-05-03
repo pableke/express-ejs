@@ -313,22 +313,18 @@ function DomBox() {
 		/**************** Tables/rows helper ****************/
 		self.getCheckRows = selector => self.checks(self.getTable(selector));
 		self.getCheckedRows = selector => self.checked(self.getTable(selector));
-		self.onFindRow = (selector, fn) => fnAddEvent(self.getTable(selector), "find", fn);
-		self.onRemoveRow = (selector, fn) => fnAddEvent(self.getTable(selector), "remove", fn);
-		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), "recalc", fn);
+		self.onTable = (selector, name, fn) => fnAddEvent(self.getTable(selector), name, fn);
+		self.onFindRow = (selector, fn) => self.onTable(selector, "find", fn);
+		self.onRemoveRow = (selector, fn) => self.onTable(selector, "remove", fn);
+		self.onChangeTable = (selector, fn) => self.onTable(selector, "recalc", fn);
 		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "recalc", fn);
-		self.onRenderTable = (selector, fn) => fnAddEvent(self.getTable(selector), "render", fn);
+		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
 		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
-		self.onPaginationTable = (selector, fn) => fnAddEvent(self.getTable(selector), "pagination", fn);
+		self.onPaginationTable = (selector, fn) => self.onTable(selector, "pagination", fn);
 
 		function fnToggleTbody(table) {
 			let tr = self.get("tr.tb-data", table); //has data rows?
 			return self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
-		}
-		function fnToggleOrder(links, link, dir) { // Update all sort indicators
-			self.removeClass(links, "sort-asc sort-desc") // Remove prev order
-				.addClass(links, "sort-none") // Reset all orderable columns
-				.toggle(link, "sort-none sort-" + dir); // Column to order table
 		}
 		function fnPagination(table) { // Paginate table
 			const pageSize = nb.intval(table.dataset.pageSize);
@@ -392,18 +388,15 @@ function DomBox() {
 			styles.getValue = styles.getValue || i18n.val;
 			resume.size = data.length; // Numrows
 
-			self.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
+			const tbody = table.tBodies[0]; // Data rows
+			self.render(tbody, tpl => ab.format(data, tpl, styles)); // Render rows
 			fnRendetTfoot(table, resume, styles); // Render footer
 
 			// Change, find and remove events
-			table.addEventListener(ON_CHANGE, ev => {
-				ev.preventDefault(); // Stop change event
-				const row = ev.target.closest("tr"); // Parent row
-				const i = self.indexOf(row); // Row position in tbody
+			self.change(tbody.children, (row, ev, i) => {
 				const result = { index: i, data: data[i], element: ev.target, row };
 				table.dispatchEvent(new CustomEvent("recalc", { detail: result }));
-			});
-			self.click(self.getAll("a[href]", table), el => {
+			}).click(self.getAll("a[href]", tbody), el => {
 				const row = el.closest("tr"); // TR parent row
 				const i = self.indexOf(row); // Row position in tbody
 				if (sb.ends(el.href, "#find")) {
@@ -440,33 +433,32 @@ function DomBox() {
 			return self.apply(selector, tables, table => fnRenderTable(table, data, resume, styles));
 		}
 
-		function fnSortTable(table, data, resume, styles) {
-			const fnSort = resume.sort || sb.cmp; // function to sort by
-			ab.sort(data, table.dataset.sortDir, fnSort); // sort data
-			return fnRenderRows(table, data, resume, styles);
-		}
 		self.sortTable = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnSortTable(table, data, resume, styles) : self;
-		}
-		self.sortTables = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnSortTable(table, data, resume, styles));
+			table = self.getTable(table);
+			if (table && resume.sort) { // Sort function and table exists
+				ab.sort(data, table.dataset.sortDir, resume.sort);
+				fnRenderRows(table, data, resume, styles);
+			}
+			return self;
 		}
 
 		// Initialize all tables
 		ab.each(tables, table => {
 			const links = self.getAll(".sort", table.tHead); // All orderable columns
-			if (table.dataset.sortDir) {
-				fnToggleOrder(links, // Update sort icons
-							self.find(".sort-" + table.dataset.sortBy, links), // Ordered column
-							table.dataset.sortDir); // Sort direction
+			function fnToggleOrder(link) { // Update all sort icons
+				self.removeClass(links, "sort-asc sort-desc") // Remove prev order
+					.addClass(links, "sort-none") // Reset all orderable columns
+					.toggle(link, "sort-none sort-" + table.dataset.sortDir); // Column to order table
 			}
+
+			if (table.dataset.sortDir) // Ordered column and sort direction
+				fnToggleOrder(self.find("a[href='#" + table.dataset.sortBy + "']", links));
 
 			// Add click event for order table
 			self.click(links, el => { // Sort event click
-				const dir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				fnToggleOrder(links, el, dir); // Update all sort indicators
-				table.dataset.sortDir = dir;
+				table.dataset.sortDir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+				table.dispatchEvent(new Event("sort-" + el.getAttribute("href").substring(1))); // Fire sort event
+				fnToggleOrder(el); // Update all sort icons
 			});
 
 			fnToggleTbody(table); // Toggle body if no data
