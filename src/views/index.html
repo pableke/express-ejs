@@ -244,10 +244,7 @@
 					.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => console.log("pagination", ev.detail))
-					.onTable(table, "sort-name", table => { // Sort by name
-						resume.sort = (a, b) => sb.cmp(a.name, b.name);
-						dom.sortTable("#pruebas", data, resume);
-					});
+					.onTable(table, "sort-name", table => dom.sortTable(table, data, resume, null, (a, b) => sb.cmp(a.name, b.name)));
 
 				dom.addClick("a[href='#first-item']", el => !fnLoad(0))
 					.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(resume.index)))
