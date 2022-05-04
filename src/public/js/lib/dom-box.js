@@ -19,8 +19,6 @@ function DomBox() {
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
-	this.sibling = (selector, el) => el && el.parentNode.querySelector(selector);
-	this.siblings = (selector, el) => el && el.parentNode.querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
 
 	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
@@ -83,6 +81,27 @@ function DomBox() {
 		ab.each(list, el => el.matches(selector) && cb(el));
 		return self;
 	}
+
+	this.prev = (el, selector) => {
+		el = el && el.previousElementSibling;
+		while (el) {
+			if (el.matches(selector))
+				return el;
+			el = el.previousElementSibling;
+		}
+		return null;
+	}
+	this.next = (el, selector) => {
+		el = el && el.nextElementSibling;
+		while (el) {
+			if (el.matches(selector))
+				return el;
+			el = el.nextElementSibling;
+		}
+		return null;
+	}
+	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
+	this.siblings = (el, selector) => el && el.parentNode.querySelectorAll(selector);
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
@@ -254,6 +273,7 @@ function DomBox() {
 	this.onsubmit = this.onSubmit = self.submit;
 
 	this.ready(function() {
+		i18n.setI18n(self.getLang()); // Set language
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables
@@ -326,54 +346,6 @@ function DomBox() {
 			let tr = self.get("tr.tb-data", table); //has data rows?
 			return self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
 		}
-		function fnPagination(table) { // Paginate table
-			const pageSize = nb.intval(table.dataset.pageSize);
-			const pagination = self.get(".pagination", table.parentNode);
-			if (pagination && (pageSize > 0)) {
-				table.dataset.page = nb.intval(table.dataset.page);
-				let pages = Math.ceil(table.dataset.total / pageSize);
-
-				function renderPagination(page) {
-					let output = ""; // Output buffer
-					function addControl(i, text) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#" data-page="' + i + '">' + text + '</a>';
-					}
-					function addPage(i) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#" data-page="' + i + '"';
-						output += (i == page) ? ' class="active">' : '>';
-						output += (i + 1) + '</a>';
-					}
-
-					let i = 0; // Index
-					addControl(page - 1, "&laquo;");
-					(pages > 1) && addPage(0);
-					i = Math.max(page - 3, 1);
-					(i > 2) && addControl(i - 1, "...");
-					let max = Math.min(page + 3, pages - 1);
-					while (i <= max)
-						addPage(i++);
-					(i < (pages - 1)) && addControl(i, "...");
-					(i < pages) && addPage(pages - 1);
-					addControl(page + 1, "&raquo;");
-					pagination.innerHTML = output;
-
-					// Reload pagination click event
-					self.click(self.getAll("a", pagination), el => {
-						const i = +el.dataset.page; // Current page
-						const params = { index: i * pageSize, length: pageSize }; // Event data
-
-						renderPagination(i); // Render all pages
-						table.dataset.page = i; // Update current
-						table.dispatchEvent(new CustomEvent("pagination", { detail: params })); // Trigger event
-					});
-				}
-				renderPagination(table.dataset.page);
-			}
-			return self;
-		}
-
 		function fnRendetTfoot(table, resume, styles) {
 			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
 		}
@@ -404,7 +376,8 @@ function DomBox() {
 					table.dispatchEvent(new CustomEvent("find", { detail: result }));
 				}
 				else if (sb.ends(el.href, "#remove") && i18n.confirm(styles.remove || "remove")) {
-					resume.size--; row.remove(); // Confirm delete before remove row, data and update view and resume
+					row.remove(); // Remove row 
+					resume.size--; // Update size
 					table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] })); // Trigger event
 				}
 			});
@@ -416,27 +389,57 @@ function DomBox() {
 			table = self.getTable(table); // find table on tables array
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
-		self.renderRows = self.table; // Synonyms
 		self.list = function(selector, data, resume, styles) {
 			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		}
-
-		function fnRenderTable(table, data, resume, styles) {
-			fnRenderRows(table, data, resume, styles);
-			return fnPagination(table); // Update pagination
-		}
-		self.renderTable = function(table, data, resume, styles) {
+		self.paginate = function(table, resume) {
 			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderTable(table, data, resume, styles) : self;
-		}
-		self.renderTables = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnRenderTable(table, data, resume, styles));
+			const pagination = self.next(table, ".pagination");
+			if ((resume.pageSize > 0) && pagination) {
+				let pages = Math.ceil(resume.total / resume.pageSize);
+
+				function renderPagination(page) {
+					let output = ""; // Output buffer
+					function addControl(i, text) {
+						i = nb.range(i, 0, pages - 1); // Close range limit
+						output += '<a href="#' + i + '">' + text + '</a>';
+					}
+					function addPage(i) {
+						i = nb.range(i, 0, pages - 1); // Close range limit
+						output += '<a href="#' + i + '"';
+						output += (i == page) ? ' class="active">' : '>';
+						output += (i + 1) + '</a>';
+					}
+
+					let i = 0; // Index
+					addControl(page - 1, "&laquo;");
+					(pages > 1) && addPage(0);
+					i = Math.max(page - 3, 1);
+					(i >= 2) && addControl(i - 1, "...");
+					let max = Math.min(page + 3, pages - 1);
+					while (i <= max)
+						addPage(i++);
+					(i < (pages - 1)) && addControl(i, "...");
+					(i < pages) && addPage(pages - 1);
+					addControl(page + 1, "&raquo;");
+					pagination.innerHTML = output;
+
+					// Reload pagination click event
+					self.click(self.getAll("a", pagination), el => {
+						resume.page = +el.getAttribute("href").substring(1); // Current page
+						table.dispatchEvent(new CustomEvent("pagination", { detail: resume })); // Trigger event
+						renderPagination(resume.page); // Render all pages
+					});
+				}
+				renderPagination(resume.page);
+			}
+			return self;
 		}
 
-		self.sortTable = function(table, data, resume, styles, fnSort) {
-			ab.sort(data, table.dataset.sortDir, fnSort);
-			return fnRenderRows(table, data, resume, styles);
-		}
+		// Synonyms
+		self.renderTables = self.tables = self.list;
+		self.renderRows = self.renderTable = self.table;
+		self.renderPagination = self.pagination = self.paginate;
 
 		// Initialize all tables
 		ab.each(tables, table => {
@@ -452,13 +455,13 @@ function DomBox() {
 
 			// Add click event for order table
 			self.click(links, el => { // Sort event click
+				table.dataset.sortBy = el.getAttribute("href").substring(1); // Column name
 				table.dataset.sortDir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				table.dispatchEvent(new Event("sort-" + el.getAttribute("href").substring(1))); // Fire sort event
+				table.dispatchEvent(new Event("sort-" + table.dataset.sortBy)); // Fire sort event
 				fnToggleOrder(el); // Update all sort icons
 			});
 
 			fnToggleTbody(table); // Toggle body if no data
-			fnPagination(table); // Update pagination
 		});
 		/**************** Tables/rows helper ****************/
 

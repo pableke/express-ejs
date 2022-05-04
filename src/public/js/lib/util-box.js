@@ -13,7 +13,6 @@ const dom = new DomBox(); //HTML-DOM box
 
 //DOM is fully loaded
 dom.ready(function() {
-	i18n.setI18n(dom.getLang()); // Set language
 	const inputs = dom.getInputs(); // All inputs list
 
 	// Extends with animationCSS lib
@@ -76,7 +75,7 @@ dom.ready(function() {
 		const el = dom.getInput(selector);
 		if (el && !(fn && fn(el.name, el.value, msg, msgtip))) {
 			i18n.setError(msg, el.name, msgtip); // Show error
-			const tip = dom.sibling(".ui-errtip", el); // Show tip error
+			const tip = dom.sibling(el, ".ui-errtip"); // Show tip error
 			dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
 				.setHtml(tip, i18n.getMsg(el.name)).show(tip);
 		}
@@ -100,7 +99,7 @@ dom.ready(function() {
 	const ta = dom.getInputs("textarea[maxlength]");
 	function fnCounter(el) {
 		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
-		dom.setText(dom.sibling(".counter", el), value);
+		dom.setText(dom.get(".counter", el.parentNode), value);
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
