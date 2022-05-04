@@ -26,13 +26,6 @@ function DomBox() {
 	this.redir = (url, target) => { url && window.open(url, target || "_blank"); return self; };
 	this.unescape = html => { TEXT.innerHTML = html; return TEXT.value; }
 	this.escape = text => { DIV.innerHTML = text; return DIV.innerHTML; }
-	/*this.buildPath = function(parts, url) {
-		url = url || window.location.pathname;
-		let aux = new URLSearchParams(parts);
-		let params = new URLSearchParams(window.location.search);
-		aux.forEach((v, k) => params.set(k, v));
-		return url + "?" + params.toString();
-	}*/
 	this.scroll = function(el, win) {
 		win = win || window; //window to apply scroll
 		el = el || win.document.body; //destination elem
@@ -100,8 +93,8 @@ function DomBox() {
 		}
 		return null;
 	}
+	this.children = (el, selector) => el.parentNode.querySelectorAll(selector);
 	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
-	this.siblings = (el, selector) => el && el.parentNode.querySelectorAll(selector);
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
@@ -426,7 +419,7 @@ function DomBox() {
 
 					// Reload pagination click event
 					self.click(self.getAll("a", pagination), el => {
-						resume.page = +el.getAttribute("href").substring(1); // Current page
+						resume.page = sb.lastId(el.href); // Current page
 						table.dispatchEvent(new CustomEvent("pagination", { detail: resume })); // Trigger event
 						renderPagination(resume.page); // Render all pages
 					});
@@ -470,7 +463,7 @@ function DomBox() {
 
 		self.getTabs = () => tabs; //all tabs
 		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; //find by id selector
-		self.getElemId = (str, max) => nb.range(+str.substr(str.lastIndexOf("-") + 1) || 0, 0, max);
+		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99);
 
 		self.onSaveTab = (id, fn) => self.event(self.getTab(id), "save-" + id, fn);
 		self.onPrevTab = (id, fn) => self.event(self.getTab(id), "prev-" + id, fn);
@@ -484,7 +477,7 @@ function DomBox() {
 			let tab = tabs[index]; // current tab
 
 			if ((i > 0) || (index > 0)) { // Nav in tabs
-				const id = self.closeAlerts().getElemId(tab.id, 50);
+				const id = self.closeAlerts().lastId(tab.id);
 				if (i > index) // Trigger next event
 					tab.dispatchEvent(new Event("next-" + id));
 				else if (i < index) // Trigger prev event
@@ -520,11 +513,10 @@ function DomBox() {
 		self.onclick("a[href='#prev-tab']", () => !self.prevTab());
 		self.onclick("a[href='#next-tab']", () => !self.nextTab());
 		self.onclick("a[href='#last-tab']", () => !self.lastTab());
-		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.getElemId(el.href, 50)));
+		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 		self.addClick("a[href='#save-tab']", el => { // Trigger save event
-			const tab = tabs[index]; // Current tab
-			const id = self.getElemId(tab.id, 50);
-			tab.dispatchEvent(new Event("save-" + id));
+			const tab = tabs[index]; // Current tab element
+			tab.dispatchEvent(new Event("save-" + self.lastId(tab.id)));
 		});
 
 		// Clipboard function

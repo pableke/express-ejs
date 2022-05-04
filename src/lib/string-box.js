@@ -1,20 +1,21 @@
 
 function StringBox() {
 	const self = this; //self instance
+	const EMPTY = ""; //empty string
 	const ESCAPE_HTML = /"|'|&|<|>|\\/g;
 	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
 	const TR1 = "àáâãäåāăąÀÁÂÃÄÅĀĂĄÆßèéêëēĕėęěÈÉĒĔĖĘĚìíîïìĩīĭÌÍÎÏÌĨĪĬòóôõöōŏőøÒÓÔÕÖŌŎŐØùúûüũūŭůÙÚÛÜŨŪŬŮçÇñÑþÐŔŕÿÝ";
 	const TR2 = "aaaaaaaaaAAAAAAAAAABeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIoooooooooOOOOOOOOOuuuuuuuuUUUUUUUUcCnNdDRryY";
 
-	//helpers
+	// Helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
-	function fnWord(str) { return str.replace(/\W+/g, ""); } //remove no alfanum
+	function fnWord(str) { return str.replace(/\W+/g, EMPTY); } //remove no alfanum
 	function fnSize(str) { return str ? str.length : 0; } //string o array
 	function iiOf(str1, str2) { return tr(str1).indexOf(tr(str2)); }
 	function tr(str) {
-		let output = str || "";
 		const size = fnSize(str);
+		let output = str || EMPTY;
 		for (let i = 0; i < size; i++) {
 			let j = TR1.indexOf(str.charAt(i)); // is char remplazable
 			output = (j < 0) ? output : output.replaceAt(TR2.charAt(j), i);
@@ -30,10 +31,9 @@ function StringBox() {
 		return this.substring(0, i) + str + this.substring(i + str.length);
 	}
 	String.prototype.wrap = function(str, open, close) {
-		open = open || "<u><b>";
-		close = close || "</b></u>";
 		const i = iiOf(this, str);
-		return this.insert(open, i).insert(close, i + open.length + str.length);
+		const j = i + str.length;
+		return this.substring(0, i) + (open || "<u><b>") + this.substring(i, j) + (close || "</b></u>") + this.substring(j);
 	}
 	String.prototype.remove = function(i, n) {
 		return this.substring(0, i) + this.substring(i + n);
@@ -59,12 +59,41 @@ function StringBox() {
 	this.prefix = (str1, str2) => self.starts(str1, str2) ? str1 : (str2 + str1);
 	this.suffix = (str1, str2) => self.ends(str1, str2) ? str1 : (str1 + str2);
 	this.trunc = (str, size) => (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str;
-	this.itrunc = function(str, size) {
-		var i = (fnSize(str) > size) ? self.prevIndexOf(str, " ", size) : -1;
-		return self.trunc(str, (i < 0) ? size : i);
+
+	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
+	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
+
+	this.iwrap = (str1, str2, open, close) => str1 && str1.wrap(str2, open, close);
+	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
+	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
+
+	//chunk string in multiple parts
+	this.test = (str, re) => (str && re.test(str)) ? str : null;
+	this.split = (str, sep) => str ? str.trim().split(sep) : [];
+	this.match = (str, re) => str ? str.trim().match(re) : [];
+	this.lastId = str => +self.match(str, /\d+$/).pop();
+	this.chunk = (str, size) => self.match(str, new RegExp(".{1," + size + "}", "g"));
+	this.slices = function(str, sizes) {
+		const result = []; //parts container
+		const k = fnSize(str); //maxlength
+		var j = 0; //string position
+		for (let i = 0; (j < k) && (i < sizes.length); i++) {
+			let n = sizes[i];
+			result.push(str.substr(j, n));
+			j += n;
+		}
+		(j < k) && result.push(str.substr(j));
+		return result;
 	}
 
-	this.ilike = (str1, str2) => iiOf(str1, str2) > -1; //object value type = string
+	this.toDate = str => str ? new Date(str) : null;
+	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
+	this.toWord = str => str ? fnWord(str) : str;
+	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
+	this.lines = str => self.split(str, /[\n\r]+/);
+	this.words = str => self.split(str, /\s+/);
+
+	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); //object value type = string
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
 	this.between = function(value, min, max) { // value into a range
@@ -78,55 +107,11 @@ function StringBox() {
 		return isset(a) ? -1 : 1; //nulls last
 	}
 
-	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
-	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
-
-	this.iwrap = (str1, str2, open, close) => str1 && str1.wrap(str2, open, close);
-	this.rand = size => Math.random().toString(36).substr(2, size || 8); //random char
-	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
-
-	this.toDate = str => str ? new Date(str) : null;
-	this.split = (str, sep) => str ? str.trim().split(sep || ",") : [];
-	this.minify = str => str ? str.trim().replace(/\s{2}/g, "") : str;
-	this.toWord = str => str ? fnWord(str) : str;
-	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
-	this.lines = str => self.split(str, /[\n\r]+/);
-	this.words = str => self.split(str, /\s+/);
-
-	//chunk string in multiple parts
-	this.ltr = function(str, size) {
-		const result = []; //parts container
-		for (var i = fnSize(str); i > size; i -= size)
-			result.unshift(str.substr(i - size, size));
-		(i > 0) && result.unshift(str.substr(0, i));
-		return result;
-	}
-	this.rtl = function(str, size) {
-		const result = []; //parts container
-		var n = fnSize(str); //maxlength
-		for (var i = 0; i < n; i += size)
-			result.push(str.substr(i, size));
-		return result;
-	}
-	this.slices = function(str, sizes) {
-		const result = []; //parts container
-		var j = 0; //string position
-		var k = fnSize(str); //maxlength
-		for (let i = 0; (j < k) && (i < sizes.length); i++) {
-			let n = sizes[i];
-			result.push(str.substr(j, n));
-			j += n;
-		}
-		if (j < k) //last slice?
-			result.push(str.substr(j));
-		return result;
-	}
-
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
 	this.format = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
-		const empty = opts.empty || "";
+		const empty = opts.empty || EMPTY;
 		const fnVal = opts.getValue || self.val;
 
 		return tpl.format((m, k) => {
@@ -139,7 +124,7 @@ function StringBox() {
 		opts = opts || {}; //default settings
 		const fnVal = opts.getValue || self.val;
 
-		let output = ""; //result buffer
+		let output = EMPTY; //result buffer
 		for (const k in data) {
 			const fn = opts[k]; //field format function
 			const value = fn ? fn(data[k], data) : fnVal(data, k);
