@@ -246,8 +246,11 @@ function DomBox() {
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
-	this.trigger = (el, name) => { el && el.dispatchEvent(new Event(name)); return self; }
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", 0, fn);
+	this.trigger = function(el, name, detail) {
+		el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
+		return self;
+	}
 
 	this.click = (list, fn) => self.each(list, (el, i) => fnEvent(el, "click", i, fn));
 	this.addClick = (el, fn) => fnAddEvent(fnQuery(el), "click", fn);
@@ -337,7 +340,7 @@ function DomBox() {
 
 		function fnToggleTbody(table) {
 			let tr = self.get("tr.tb-data", table); //has data rows?
-			return self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
+			self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
 		}
 		function fnRendetTfoot(table, resume, styles) {
 			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
@@ -359,24 +362,21 @@ function DomBox() {
 
 			// Change, find and remove events
 			self.change(tbody.children, (row, ev, i) => {
-				const result = { index: i, data: data[i], element: ev.target, row };
-				table.dispatchEvent(new CustomEvent("recalc", { detail: result }));
+				self.trigger(table, "recalc", { index: i, data: data[i], element: ev.target, row });
 			}).click(self.getAll("a[href]", tbody), el => {
 				const row = el.closest("tr"); // TR parent row
 				const i = self.indexOf(row); // Row position in tbody
-				if (sb.ends(el.href, "#find")) {
-					const result = { index: i, data: data[i], element: el, row };
-					table.dispatchEvent(new CustomEvent("find", { detail: result }));
-				}
+				if (sb.ends(el.href, "#find"))
+					self.trigger(table, "find", { index: i, data: data[i], element: el, row });
 				else if (sb.ends(el.href, "#remove") && i18n.confirm(styles.remove || "remove")) {
 					row.remove(); // Remove row 
 					resume.size--; // Update size
-					table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] })); // Trigger event
+					self.trigger(table, "remove", data.splice(i, 1)[0]); // Trigger event
 				}
 			});
 
-			table.dispatchEvent(new Event("render")); // Trigger event
-			return fnToggleTbody(table); // Toggle body if no data
+			fnToggleTbody(table); // Toggle body if no data
+			return self.trigger(table, "render"); // Trigger event
 		}
 		self.table = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
@@ -420,7 +420,7 @@ function DomBox() {
 					// Reload pagination click event
 					self.click(self.getAll("a", pagination), el => {
 						resume.page = sb.lastId(el.href); // Current page
-						table.dispatchEvent(new CustomEvent("pagination", { detail: resume })); // Trigger event
+						self.trigger(table, "pagination", resume); // Trigger event
 						renderPagination(resume.page); // Render all pages
 					});
 				}
@@ -448,9 +448,9 @@ function DomBox() {
 
 			// Add click event for order table
 			self.click(links, el => { // Sort event click
-				table.dataset.sortBy = el.getAttribute("href").substring(1); // Column name
 				table.dataset.sortDir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				table.dispatchEvent(new Event("sort-" + table.dataset.sortBy)); // Fire sort event
+				table.dataset.sortBy = el.getAttribute("href").substring(1); // Column name
+				self.trigger(table, "sort-" + table.dataset.sortBy); // Fire sort event
 				fnToggleOrder(el); // Update all sort icons
 			});
 
@@ -462,8 +462,8 @@ function DomBox() {
 		let index = self.findIndex(".active", tabs); //current index tab
 
 		self.getTabs = () => tabs; //all tabs
-		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; //find by id selector
-		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99);
+		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; // Find by id selector
+		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99); // Extract id
 
 		self.onSaveTab = (id, fn) => self.event(self.getTab(id), "save-" + id, fn);
 		self.onPrevTab = (id, fn) => self.event(self.getTab(id), "prev-" + id, fn);
@@ -479,11 +479,11 @@ function DomBox() {
 			if ((i > 0) || (index > 0)) { // Nav in tabs
 				const id = self.closeAlerts().lastId(tab.id);
 				if (i > index) // Trigger next event
-					tab.dispatchEvent(new Event("next-" + id));
+					self.trigger(tab, "next-" + id);
 				else if (i < index) // Trigger prev event
-					tab.dispatchEvent(new Event("prev-" + id));
+					self.trigger(tab, "prev-" + id);
 				// Always trigger change event
-				tab.dispatchEvent(new Event(tab.id));
+				self.trigger(tab, tab.id);
 
 				if (self.isOk()) { // Only change tab if ok
 					tab = tabs[i]; // next tab
@@ -501,8 +501,8 @@ function DomBox() {
 				}
 			}
 			else // Is first tab and click on prev button
-				tab.dispatchEvent(new Event("exit")); // Trigger exit event
-			return dom;
+				self.trigger(tab, "exit"); // Trigger exit event
+			return self;
 		}
 
 		self.prevTab = () => fnShowTab(index - 1);
@@ -516,7 +516,7 @@ function DomBox() {
 		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 		self.addClick("a[href='#save-tab']", el => { // Trigger save event
 			const tab = tabs[index]; // Current tab element
-			tab.dispatchEvent(new Event("save-" + self.lastId(tab.id)));
+			self.trigger(tab, "save-" + self.lastId(tab.id));
 		});
 
 		// Clipboard function
