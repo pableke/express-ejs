@@ -112,6 +112,26 @@
 		</div>
 
 		<div id="tab-2" class="tab-content">
+			<form id="filter" action="filter">
+				<div class="navbar">
+					<div class="input-group input-group-block">
+						<label for="filter-name" class="required">Nombre:</label>
+						<input type="text" id="filter-name" name="name" value="" tabindex="1" />
+					</div>
+					<div class="input-group input-group-block">
+						<label for="filter-memo" class="required">Memoria:</label>
+						<input type="text" id="filter-memo" name="memo" value="" tabindex="3"/>
+					</div>
+				</div>
+
+				<div class="navbar">
+					<hr/>
+					<a href="#prev-tab" tabindex="100" class="btn btn-primary">&#8810; Volver</a>
+					<button type="submit" class="btn btn-success" tabindex="101">Buscar <i class="fas fa-search"></i></button>
+					<button type="reset" class="btn btn-light clear-all" tabindex="102">&olarr; Limpiar</button>
+				</div>
+			</form>
+
 			<table id="pruebas" data-sort-by="memo" data-sort-dir="desc">
 				<thead>
 					<tr>
@@ -124,33 +144,27 @@
 					</tr>
 				</thead>
 				<tbody id="pruebas-row">
+					<tr class="tb-data">
+						<td class="text-center">@count;</td>
+						<td><a id="1" href="#find">@name;</a></td>
+						<td>@memo;</td>
+						<td>F@count; - C3</td>
+						<td class="text-center"><input type="text" name="test"/></td>
+						<td class="text-center">
+							<a href="#find"><i class="fas fa-search icon"></i></a>
+							<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
+						</td>
+					</tr>
 				</tbody>
 				<tbody class="no-data">
 					<tr><td colspan="6"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
 				<tfoot data-tpl="pruebas-footer">
-					<tr><td colspan="6">Filas: 2 / 3</td></tr>
+					<tr><td colspan="6">Filas: @size; / @total;</td></tr>
 				</tfoot>
 			</table>
+			<div class="fr input-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
 			<div class="pagination"></div>
-
-			<!-- pruebas templates -->
-			<template id="pruebas-row">
-				<tr class="tb-data">
-					<td class="text-center">@count;</td>
-					<td><a id="1" href="#find">@name;</a></td>
-					<td>@memo;</td>
-					<td>F@count; - C3</td>
-					<td class="text-center"><input type="text" name="test"/></td>
-					<td class="text-center">
-						<a href="#find"><i class="fas fa-search icon"></i></a>
-						<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
-					</td>
-				</tr>
-			</template>
-			<template id="pruebas-footer">
-				<tr><td colspan="4">Filas: @size;</td></tr>
-			</template>
 		</div>
 
 		<div id="tab-3" class="tab-content">
@@ -202,14 +216,31 @@
 		<script type="text/javascript">
 			dom.ready(function() {
 				const DB = [
-					[{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj"}],
-					[{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"}]
+					{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj"},
+					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
+					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
 				];
+				const resume = {
+					index: 0, start: 0, end: 3, page: 0, pageSize: 3, total: DB.length
+				};
 
-				const table = dom.getTable("#pruebas");
-				const resume = { page: 0, pageSize: 3, total: 50 };
-				let data = DB[0];
+				function fnList(table, start, size) {
+					table = dom.getTable(table);
+					resume.sortDir = table.dataset.sortDir;
+					resume.sortBy = table.dataset.sortBy;
 
+					let data = DB.filter(row => sb.ilike(row.name, resume.name) && sb.ilike(row.memo, resume.memo));
+					resume.sortBy && ab.sort(data, resume.sortDir, (a, b) => sb.cmp(a[resume.sortBy], b[resume.sortBy]));
+
+					resume.start = start;
+					resume.end = start + size;
+					resume.total = data.length;
+					resume.pageSize = size;
+					resume.page = +(start / size);
+
+					data = data.slice(start, resume.end);
+					return dom.table(table, data, resume).paginate(table, resume);
+				}
 				function fnLoad(i) {
 					resume.index = i; // save current item-index
 					resume.data = data[i]; // current item
@@ -221,33 +252,27 @@
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
 
-				dom.loadTemplates()
-					.table(table, data, resume)
-					.paginate("#pruebas", resume)
+				fnList("#pruebas", resume.start, resume.pageSize)
+					.onChangeInput("#page-size", el => fnList("#pruebas", 0, +el.value))
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => !fnLoad(ev.detail.index).viewTab(3))
 					.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-					.onPaginationTable("#pruebas", (table, ev) => {
-						data = DB[ev.detail.page] || [];
-						dom.renderTable(table, data, resume);
-					})
-					.onTable(table, "sort-name", table => {
-						const fnSort = (a, b) => sb.cmp(a.name, b.name);
-						ab.sort(data, table.dataset.sortDir, fnSort);
-						dom.renderTable(table, data, resume);
-					})
-					.onTable(table, "sort-memo", table => {
-						const fnSort = (a, b) => sb.cmp(a.memo, b.memo);
-						ab.sort(data, table.dataset.sortDir, fnSort);
-						dom.renderTable(table, data, resume);
-					});
+					.onPaginationTable("#pruebas", (table, ev) => fnList(table, resume.start, resume.pageSize))
+					.onTable("#pruebas", "sort-name", table => fnList(table, resume.start, resume.pageSize))
+					.onTable("#pruebas", "sort-memo", table => fnList(table, resume.start, resume.pageSize));
 
 				dom.addClick("a[href='#first-item']", el => !fnLoad(0))
 					.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(resume.index)))
 					.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(resume.index, data.length - 1)))
 					.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
+
+				dom.onSubmitForm("#filter", form => {
+					dom.closeAlerts().loading().load(form.elements, resume).isOk() 
+						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
+						&& setTimeout(() => fnList("#pruebas", 0, resume.pageSize).setFocus("#filter-name").working(), 600);
+				});
 			});
 		</script>
 	</main>
