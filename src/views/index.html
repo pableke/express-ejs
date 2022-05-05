@@ -220,7 +220,7 @@
 					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
 					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
 				];
-				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, total: DB.length };
+				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3 };
 				let fnSort = (a, b) => sb.cmp(a.memo, b.memo);
 				let data = DB;
 
@@ -278,7 +278,7 @@
 						&& setTimeout(() => {
 							data = DB.filter(row => sb.ilike(row.name, resume.name) && sb.ilike(row.memo, resume.memo));
 							fnList("#pruebas", 0, resume.pageSize).setFocus("#filter-name").working();
-						}, 600);
+						}, 400);
 				});
 			});
 		</script>
