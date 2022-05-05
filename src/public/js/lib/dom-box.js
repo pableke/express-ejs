@@ -64,8 +64,8 @@ function DomBox() {
 	}
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
 	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
-	this.findIndex = (selector, list)  => ab.findIndex(list, el => el.matches(selector));
-	this.find = (selector, list)  => ab.find(list, el => el.matches(selector));
+	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
+	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
 	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
 	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
 	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
@@ -99,11 +99,18 @@ function DomBox() {
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
+	this.load = (list, data) => self.apply(INPUTS, list, el => { data[el.name] = el.value; });
 	this.inputs = el => self.getAll(INPUTS, el);
+	this.focus = el => { el && el.focus(); return self; }
 	this.checked = el => self.getAll("input:checked", el);
 	this.checks = el => self.getAll("input[type=checkbox]", el);
 	this.check = (list, value) => self.each(list, el => { el.checked = value; });
-	this.focus = el => { el && el.focus(); return self; }
+	this.binary = (list, mask) => self.each(list, (el, i) => { el.checked = (mask>>i)&1; });
+	this.intval = list => {
+		let aux = ""; // Binary string, for example: "01001011"
+		self.each(list, el => { aux += el.checked ? "1" : "0"; });
+		return parseInt(aux, 2); // Bin2Int
+	};
 
 	// Contents
 	function fnSetVal(el, value) {
@@ -404,25 +411,31 @@ function DomBox() {
 						output += (i + 1) + '</a>';
 					}
 
-					let i = 0; // Index
-					addControl(page - 1, "&laquo;");
-					(pages > 1) && addPage(0);
-					i = Math.max(page - 3, 1);
-					(i >= 2) && addControl(i - 1, "...");
-					let max = Math.min(page + 3, pages - 1);
-					while (i <= max)
-						addPage(i++);
-					(i < (pages - 1)) && addControl(i, "...");
-					(i < pages) && addPage(pages - 1);
-					addControl(page + 1, "&raquo;");
-					pagination.innerHTML = output;
+					if (pages > 1) {
+						let i = 0; // Index
+						addControl(page - 1, "&laquo;");
+						(pages > 1) && addPage(0);
+						i = Math.max(page - 3, 1);
+						(i >= 2) && addControl(i - 1, "...");
+						let max = Math.min(page + 3, pages - 1);
+						while (i <= max)
+							addPage(i++);
+						(i < (pages - 1)) && addControl(i, "...");
+						(i < pages) && addPage(pages - 1);
+						addControl(page + 1, "&raquo;");
+						pagination.innerHTML = output;
 
-					// Reload pagination click event
-					self.click(self.getAll("a", pagination), el => {
-						resume.page = sb.lastId(el.href); // Current page
-						self.trigger(table, "pagination", resume); // Trigger event
-						renderPagination(resume.page); // Render all pages
-					});
+						// Reload pagination click event
+						self.click(self.getAll("a", pagination), el => {
+							resume.page = sb.lastId(el.href); // Current page
+							resume.start = resume.page * resume.pageSize; // Start page index
+							resume.end = resume.start + resume.pageSize; // End page index
+							self.trigger(table, "pagination", resume); // Trigger event
+							renderPagination(resume.page); // Render all pages
+						});
+					}
+					else
+						pagination.innerHTML = output;
 				}
 				renderPagination(resume.page);
 			}
