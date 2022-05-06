@@ -51,8 +51,6 @@ dom.ready(function() {
 		return txt ? dom.fadeIn(el.parentNode).setHtml(el, txt).scroll() : dom;
 	}
 
-	dom.isOk = i18n.isOk;
-	dom.isError = i18n.isError;
 	dom.showOk = msg => setAlert(texts[0], msg); //green
 	dom.showInfo = msg => setAlert(texts[1], msg); //blue
 	dom.showWarn = msg => setAlert(texts[2], msg); //yellow

@@ -283,6 +283,10 @@ function DomBox() {
 		const forms = self.filter("form", elements); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
 
+		self.isOk = i18n.isOk;
+		self.isError = i18n.isError;
+		self.closeAlerts = () => self;
+
 		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;
 		self.getTables = elem => elem ? self.filter(elem, tables) : tables;
 		self.getForm = elem =>  sb.isstr(elem) ? self.find(elem, forms) : elem;
@@ -358,46 +362,10 @@ function DomBox() {
 		}
 		self.renderTfoot = self.tfoot;
 
-		function fnRenderRows(table, data, resume, styles) {
-			styles = styles || {}; // Default styles
-			styles.getValue = styles.getValue || i18n.val;
-			resume.size = data.length; // Numrows
-
-			const tbody = table.tBodies[0]; // Data rows
-			self.render(tbody, tpl => ab.format(data, tpl, styles)); // Render rows
-			fnRendetTfoot(table, resume, styles); // Render footer
-
-			// Change, find and remove events
-			self.change(tbody.children, (row, ev, i) => {
-				self.trigger(table, "recalc", { index: i, data: data[i], element: ev.target, row });
-			}).click(self.getAll("a[href]", tbody), el => {
-				const row = el.closest("tr"); // TR parent row
-				const i = self.indexOf(row); // Row position in tbody
-				if (sb.ends(el.href, "#find"))
-					self.trigger(table, "find", { index: i, data: data[i], element: el, row });
-				else if (sb.ends(el.href, "#remove") && i18n.confirm(styles.remove || "remove")) {
-					row.remove(); // Remove row 
-					resume.size--; // Update size
-					self.trigger(table, "remove", data.splice(i, 1)[0]); // Trigger event
-				}
-			});
-
-			fnToggleTbody(table); // Toggle body if no data
-			return self.trigger(table, "render"); // Trigger event
-		}
-		self.table = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderRows(table, data, resume, styles) : self;
-		}
-		self.list = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
-		}
-		self.paginate = function(table, resume) {
-			table = self.getTable(table); // find table on tables array
-			const pagination = self.next(table, ".pagination");
-			if ((resume.pageSize > 0) && pagination) {
+		function fnPagination(table, resume) {
+			const pagination = self.next(table, ".pagination"); // Pag section
+			if ((resume.pageSize > 0) && pagination) { // Guard clausule
 				let pages = Math.ceil(resume.total / resume.pageSize);
-
 				function renderPagination(page) {
 					let output = ""; // Output buffer
 					function addControl(i, text) {
@@ -439,13 +407,73 @@ function DomBox() {
 				}
 				renderPagination(resume.page);
 			}
-			return self;
+		}
+		function fnRenderRows(table, data, resume, styles) {
+			// Recalc table page indexes
+			resume.total = data.length;
+			resume.start = resume.start || 0;
+			resume.pageSize = resume.pageSize || data.length;
+			resume.sortDir = table.dataset.sortDir;
+			resume.sortBy = table.dataset.sortBy;
+			resume.end = resume.start + resume.pageSize;
+			resume.page = +(resume.start / resume.pageSize);
+			if (resume.sortBy && resume.sort) // Sort full array
+				ab.sort(data, resume.sortDir, resume.sort);
+			const aux = data.slice(resume.start, resume.end);
+			resume.size = aux.length; // Num page rows
+
+			styles = styles || {}; // Default styles
+			styles.getValue = styles.getValue || i18n.val;
+
+			const tbody = table.tBodies[0]; // Data rows
+			self.render(tbody, tpl => ab.format(aux, tpl, styles)); // Render rows
+			fnRendetTfoot(table, resume, styles); // Render footer
+
+			// Change, find and remove events
+			self.change(tbody.children, (row, ev, i) => {
+				i += resume.start; // Real index
+				self.trigger(table, "recalc", { index: i, data: data[i], element: ev.target, row });
+			}).click(self.getAll("a[href]", tbody), el => {
+				const name = el.getAttribute("href"); // Name event
+				const row = el.closest("tr"); // TR parent row
+				const i = resume.start + self.indexOf(row); // Real index
+				// If click on remove row link and confirmation is ok, then fire trigger and if all is ok then update view
+				if ((name == "#remove") && i18n.confirm(styles.remove || "remove") && self.trigger(table, "remove", data[i]).isOk()) {
+					row.remove(); // Remove row 
+					resume.size--; // Update size
+					resume.total--; // Update total numrows
+					data.splice(i, 1); // Remove data row
+					if (resume.total == 0) { // Is empty table?
+						fnToggleTbody(table); // Toggle body if no data
+						fnPagination(table, resume); // Render asociated pages
+						fnRendetTfoot(table, resume, styles); // Render footer
+					}
+					else if (resume.size == 0) { // Is empty Page?
+						resume.start = 0; // Go first page
+						fnRenderRows(table, data, resume, styles); // Build table rows
+					}
+					else
+						fnRendetTfoot(table, resume, styles); // Render footer
+				}
+				else if (sb.starts(name, "#find")) // Is find event?
+					self.trigger(table, name.substring(1), { index: i, data: data[i], element: el, row });
+			});
+
+			fnToggleTbody(table); // Toggle body if no data
+			fnPagination(table, resume); // Render asociated pages
+			return self.trigger(table, "render"); // Trigger event
+		}
+		self.table = function(table, data, resume, styles) {
+			table = self.getTable(table); // find table on tables array
+			return table ? fnRenderRows(table, data, resume, styles) : self;
+		}
+		self.list = function(selector, data, resume, styles) {
+			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		}
 
 		// Synonyms
 		self.renderTables = self.tables = self.list;
 		self.renderRows = self.renderTable = self.table;
-		self.renderPagination = self.pagination = self.paginate;
 
 		// Initialize all tables
 		ab.each(tables, table => {
@@ -463,7 +491,8 @@ function DomBox() {
 			self.click(links, el => { // Sort event click
 				table.dataset.sortDir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
 				table.dataset.sortBy = el.getAttribute("href").substring(1); // Column name
-				self.trigger(table, "sort-" + table.dataset.sortBy); // Fire sort event
+				// First fire specific column sort event and after common sort event
+				self.trigger(table, "sort-" + table.dataset.sortBy).trigger(table, "sort");
 				fnToggleOrder(el); // Update all sort icons
 			});
 
