@@ -220,25 +220,10 @@
 					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
 					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
 				];
-				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3 };
-				let fnSort = (a, b) => sb.cmp(a.memo, b.memo);
+				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
+				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
 				let data = DB;
 
-				function fnList(table, start, size) {
-					table = dom.getTable(table);
-					resume.start = start;
-					resume.end = start + size;
-					resume.total = data.length;
-					resume.pageSize = size;
-					resume.page = +(start / size);
-					resume.sortDir = table.dataset.sortDir;
-					resume.sortBy = table.dataset.sortBy;
-
-					if (resume.sortBy)
-						ab.sort(data, resume.sortDir, fnSort);
-					let aux = data.slice(start, resume.end);
-					return dom.table(table, aux, resume).paginate(table, resume);
-				}
 				function fnLoad(i) {
 					resume.index = i; // save current item-index
 					resume.data = data[i]; // current item
@@ -250,21 +235,20 @@
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
 
-				fnList("#pruebas", resume.start, resume.pageSize)
-					.onChangeInput("#page-size", el => fnList("#pruebas", 0, +el.value))
+				dom.table("#pruebas", DB, resume)
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => !fnLoad(ev.detail.index).viewTab(3))
-					.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
+					//.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-					.onPaginationTable("#pruebas", (table, ev) => fnList(table, resume.start, resume.pageSize))
-					.onTable("#pruebas", "sort-name", table => {
-						fnSort = (a, b) => sb.cmp(a.name, b.name);
-						fnList(table, resume.start, resume.pageSize);
-					})
-					.onTable("#pruebas", "sort-memo", table => {
-						fnSort = (a, b) => sb.cmp(a.memo, b.memo);
-						fnList(table, resume.start, resume.pageSize)
+					.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
+					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
+					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
+					.onTable("#pruebas", "sort", table => dom.table(table, data, resume))
+					.onChangeInput("#page-size", el => {
+						resume.start = 0;
+						resume.pageSize = +el.value;
+						dom.table("#pruebas", data, resume);
 					});
 
 				dom.addClick("a[href='#first-item']", el => !fnLoad(0))
@@ -273,11 +257,13 @@
 					.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
 
 				dom.onSubmitForm("#filter", form => {
+					const fnFilter = row => sb.ilike(row.name, resume.name) && sb.ilike(row.memo, resume.memo);
 					dom.closeAlerts().loading().load(form.elements, resume).isOk() 
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 						&& setTimeout(() => {
-							data = DB.filter(row => sb.ilike(row.name, resume.name) && sb.ilike(row.memo, resume.memo));
-							fnList("#pruebas", 0, resume.pageSize).setFocus("#filter-name").working();
+							resume.start = 0;
+							data = DB.filter(fnFilter);
+							dom.table("#pruebas", data, resume).setFocus("#filter-name").working();
 						}, 400);
 				});
 			});
