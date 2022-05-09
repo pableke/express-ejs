@@ -104,6 +104,11 @@ function ArrayBox() {
 		keys.forEach((k, i) => { result[k] = values[i]; });
 		return result;
 	}
+	this.clear = function(obj) {
+		for (let k in obj)
+			delete obj[k];
+		return obj;
+	}
 
 	// Serialization
 	this.format = function(data, tpl, opts) {

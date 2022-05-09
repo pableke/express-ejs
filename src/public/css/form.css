@@ -61,6 +61,9 @@ label.required:after {
 	text-align: center;
 	transition: all 0.2s;
 	cursor: pointer;
+	border-width: 0;
+	font-size: 1rem;
+	line-height: 1.5;
 }
 
 .btn-primary { color: #fff; background-color: #007bff; border-color: #007bff; }
