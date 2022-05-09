@@ -92,6 +92,11 @@
 				<a id="test" href="#" class="toggle-angle">Más Info <i class="fas fa-angle-double-down"></i></a>
 				<span class="info-test hide"><hr/>Lorem ipsum dolor, sit amet consectetur adipisicing, elit. Corrupti rem aut, minus asperiores, sunt eligendi hic ipsum maiores itaque numquam sequi eius voluptates consequuntur debitis impedit quae dolore ad, enim?</span>
 			</div>
+
+			<div class="navbar">
+				<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
+				<a href="#tab-2" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
+			</div>
 		</div>
 
 		<div id="tab-1" class="tab-content">
@@ -108,6 +113,13 @@
 					<h2>Card 3</h2>
 					<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
 				</div>
+			</div>
+
+			<div class="navbar">
+				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+				<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
+				<a href="#tab-2" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
 			</div>
 		</div>
 
@@ -126,9 +138,9 @@
 
 				<div class="navbar">
 					<hr/>
-					<a href="#prev-tab" tabindex="100" class="btn btn-primary">&#8810; Volver</a>
-					<button type="submit" class="btn btn-success" tabindex="101">Buscar <i class="fas fa-search"></i></button>
-					<button type="reset" class="btn btn-light clear-all" tabindex="102">&olarr; Limpiar</button>
+					<button type="submit" class="btn btn-primary" tabindex="101">Buscar <i class="fas fa-search"></i></button>
+					<button type="reset" class="btn btn-light" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
+					<a href="#tab-3" tabindex="103" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
 				</div>
 			</form>
 
@@ -165,17 +177,24 @@
 			</table>
 			<div class="fr input-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
 			<div class="pagination"></div>
+
+			<div class="navbar">
+				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+			</div>
 		</div>
 
 		<div id="tab-3" class="tab-content">
-			<div>
-				<a href="#first-item">first</a>
+			<div class="navbar">
+				<a href="#first-item"><i class="fas fa-angle-double-left"></i></a>
 				<a href="#prev-item">prev</a>
 				<a href="#next-item">next</a>
-				<a href="#last-item">last</a>
+				<a href="#last-item"><i class="fas fa-angle-double-right"></i></a>
 			</div>
 
-			<form id="test">
+			<form id="test" action="test" method="post">
+			<input type="hidden" id="id" name="id" value="" />
+
 			<div class="navbar">
 				<div class="input-items input-control-block">
 					<label for="name" class="required">Nombre:</label>
@@ -190,20 +209,17 @@
 				</div>
 				<div class="input-items input-control-block">
 					<label for="memo" class="required">Memoria:</label>
-					<textarea id="memo" tabindex="3"></textarea>
+					<textarea id="memo" name="memo" tabindex="3"></textarea>
 				</div>
 			</div>
-			</form>
-		</div>
 
-		<div class="navbar">
-			<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
-			<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-			<a href="#save-tab" class="btn btn-success"><i class="fas fa-save icon"></i>Save</a>
-			<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
-			<a href="#last-tab" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
-			<br/>
-			<a href="loading" class="btn btn-primary">Loading <i class="fas fa-spinner fa-spin icon"></i></a>
+			<div class="navbar">
+				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+				<button type="submit" class="btn btn-success"><i class="fas fa-save icon"></i>Save</button>
+				<a href="#remove-item" class="btn btn-danger"><i class="fas fa-solid fa-trash"></i> Borrar</a>
+			</div>
+			</form>
 		</div>
 
 		<div>
@@ -220,51 +236,71 @@
 					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
 					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
 				];
-				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
-				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
-				let data = DB;
 
+				let data = DB;
+				let filter = {};
+				let test;
+
+				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
+				const rowFilter = row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo);
+				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
+
+				function fnView(i, data) {
+					test = data; // current item
+					dom.setValue("#id", data.id).setValue("#name", data.name).setValue("#memo", data.memo)
+						.toggleHide("a[href='#remove-item']", !data.id).viewTab(3);
+				}
 				function fnLoad(i) {
-					resume.index = i; // save current item-index
-					resume.data = data[i]; // current item
-					return dom.setValue("#name", resume.data.name).setValue("#memo", resume.data.memo);
+					fnView(i, data[i]);
+				}
+				function fnFilter() {
+					data = DB.filter(rowFilter);
+					dom.repaginate("#pruebas", data, resume).setFocus("#filter-name");
 				}
 
-				dom.onChangeInput("#name", el => { resume.data.name = el.value; })
-					.onChangeInput("#memo", el => { resume.data.memo = el.value; })
-					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-					.onSaveTab(3, () => dom.renderTable(table, data, resume).viewTab(2));
+				dom.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
+					.onclick("button[type=reset]", () => !fnFilter(ab.clear(filter)))
+					.onclick("a.create-data", () => fnView(-1, {}));
 
 				dom.table("#pruebas", DB, resume)
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
-					.onFindRow("#pruebas", (table, ev) => !fnLoad(ev.detail.index).viewTab(3))
-					//.onRemoveRow("#pruebas", (table, ev) => dom.tfoot(table, resume))
+					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
+					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("Data removed successfully!"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
 					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
 					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
 					.onTable("#pruebas", "sort", table => dom.table(table, data, resume))
 					.onChangeInput("#page-size", el => {
-						resume.start = 0;
 						resume.pageSize = +el.value;
-						dom.table("#pruebas", data, resume);
+						dom.repaginate("#pruebas", data, resume);
 					});
 
-				dom.addClick("a[href='#first-item']", el => !fnLoad(0))
-					.addClick("a[href='#prev-item']", el => !fnLoad(nb.dec(resume.index)))
-					.addClick("a[href='#next-item']", el => !fnLoad(nb.inc(resume.index, data.length - 1)))
-					.addClick("a[href='#last-item']", el => !fnLoad(data.length - 1));
+				dom.addClick("a[href='#first-item']", el => fnLoad(0))
+					.addClick("a[href='#prev-item']", el => fnLoad(nb.dec(resume.index)))
+					.addClick("a[href='#next-item']", el => fnLoad(nb.inc(resume.index, data.length - 1)))
+					.addClick("a[href='#last-item']", el => fnLoad(data.length - 1))
+					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume));
 
+				dom.onChangeForm("#filter", (form, ev) => dom.load(ev.target, filter));
 				dom.onSubmitForm("#filter", form => {
-					const fnFilter = row => sb.ilike(row.name, resume.name) && sb.ilike(row.memo, resume.memo);
-					dom.closeAlerts().loading().load(form.elements, resume).isOk() 
+					dom.closeAlerts().isOk()
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
-						&& setTimeout(() => {
-							resume.start = 0;
-							data = DB.filter(fnFilter);
-							dom.table("#pruebas", data, resume).setFocus("#filter-name").working();
-						}, 400);
+						&& setTimeout(() => fnFilter(), 400);
+				});
+				dom.onChangeForm("#test", (form, ev) => dom.load(ev.target, test));
+				dom.onSubmitForm("#test", form => {
+					dom.closeAlerts()
+						.required("#memo", "form err", "errRequired")
+						.required("#name", "form err", "errRequired");
+						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
+					if (dom.isOk()) {
+						if (!test.id && rowFilter(test))
+							data.push(test);
+						delete resume.sort; // same state list
+						dom.table("#pruebas", data, resume).viewTab(2).showOk("Data saved successfully!");
+					}
 				});
 			});
 		</script>

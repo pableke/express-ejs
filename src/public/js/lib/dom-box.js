@@ -76,22 +76,22 @@ function DomBox() {
 	}
 
 	this.prev = (el, selector) => {
-		el = el && el.previousElementSibling;
-		while (el) {
+		el = el.previousElementSibling;
+		while (selector && el) {
 			if (el.matches(selector))
 				return el;
 			el = el.previousElementSibling;
 		}
-		return null;
+		return el;
 	}
 	this.next = (el, selector) => {
-		el = el && el.nextElementSibling;
-		while (el) {
+		el = el.nextElementSibling;
+		while (selector && el) {
 			if (el.matches(selector))
 				return el;
 			el = el.nextElementSibling;
 		}
-		return null;
+		return el;
 	}
 	this.children = (el, selector) => el.parentNode.querySelectorAll(selector);
 	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
@@ -99,12 +99,12 @@ function DomBox() {
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
 	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
-	this.load = (list, data) => self.apply(INPUTS, list, el => { data[el.name] = el.value; });
 	this.inputs = el => self.getAll(INPUTS, el);
 	this.focus = el => { el && el.focus(); return self; }
 	this.checked = el => self.getAll("input:checked", el);
 	this.checks = el => self.getAll("input[type=checkbox]", el);
 	this.check = (list, value) => self.each(list, el => { el.checked = value; });
+	this.load = (list, data) => self.each(list, el => { data[el.name] = el.value; });
 	this.binary = (list, mask) => self.each(list, (el, i) => { el.checked = (mask>>i)&1; });
 	this.intval = list => {
 		let aux = ""; // Binary string, for example: "01001011"
@@ -350,8 +350,11 @@ function DomBox() {
 		self.onPaginationTable = (selector, fn) => self.onTable(selector, "pagination", fn);
 
 		function fnToggleTbody(table) {
-			let tr = self.get("tr.tb-data", table); //has data rows?
-			self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
+			const list = table.tBodies; // Bodies list
+			if (list[0].children.length) //has data rows?
+				self.show(list[0]).hide(list[1]);
+			else
+				self.hide(list[0]).show(list[1]);
 		}
 		function fnRendetTfoot(table, resume, styles) {
 			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
@@ -364,48 +367,71 @@ function DomBox() {
 
 		function fnPagination(table, resume) {
 			const pagination = self.next(table, ".pagination"); // Pag section
-			if ((resume.pageSize > 0) && pagination) { // Guard clausule
-				let pages = Math.ceil(resume.total / resume.pageSize);
-				function renderPagination(page) {
-					let output = ""; // Output buffer
-					function addControl(i, text) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#' + i + '">' + text + '</a>';
-					}
-					function addPage(i) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#' + i + '"';
-						output += (i == page) ? ' class="active">' : '>';
-						output += (i + 1) + '</a>';
-					}
+			if ((resume.pageSize < 1) || !pagination)
+				return; // Guard clausule
 
-					if (pages > 1) {
-						let i = 0; // Index
-						addControl(page - 1, "&laquo;");
-						(pages > 1) && addPage(0);
-						i = Math.max(page - 3, 1);
-						(i >= 2) && addControl(i - 1, "...");
-						let max = Math.min(page + 3, pages - 1);
-						while (i <= max)
-							addPage(i++);
-						(i < (pages - 1)) && addControl(i, "...");
-						(i < pages) && addPage(pages - 1);
-						addControl(page + 1, "&raquo;");
-						pagination.innerHTML = output;
-
-						// Reload pagination click event
-						self.click(self.getAll("a", pagination), el => {
-							resume.page = sb.lastId(el.href); // Current page
-							resume.start = resume.page * resume.pageSize; // Start page index
-							resume.end = resume.start + resume.pageSize; // End page index
-							self.trigger(table, "pagination", resume); // Trigger event
-							renderPagination(resume.page); // Render all pages
-						});
-					}
-					else
-						pagination.innerHTML = output;
+			let pages = Math.ceil(resume.total / resume.pageSize);
+			function renderPagination(page) {
+				let output = ""; // Output buffer
+				function addControl(i, text) {
+					i = nb.range(i, 0, pages - 1); // Close range limit
+					output += '<a href="#' + i + '">' + text + '</a>';
 				}
-				renderPagination(resume.page);
+				function addPage(i) {
+					i = nb.range(i, 0, pages - 1); // Close range limit
+					output += '<a href="#' + i + '"';
+					output += (i == page) ? ' class="active">' : '>';
+					output += (i + 1) + '</a>';
+				}
+
+				if (pages > 1) {
+					let i = 0; // Index
+					addControl(page - 1, "&laquo;");
+					(pages > 1) && addPage(0);
+					i = Math.max(page - 3, 1);
+					(i >= 2) && addControl(i - 1, "...");
+					let max = Math.min(page + 3, pages - 1);
+					while (i <= max)
+						addPage(i++);
+					(i < (pages - 1)) && addControl(i, "...");
+					(i < pages) && addPage(pages - 1);
+					addControl(page + 1, "&raquo;");
+					pagination.innerHTML = output;
+
+					// Reload pagination click event
+					self.click(self.getAll("a", pagination), el => {
+						resume.page = sb.lastId(el.href); // Current page
+						resume.start = resume.page * resume.pageSize; // Start page index
+						resume.end = resume.start + resume.pageSize; // End page index
+						self.trigger(table, "pagination", resume); // Trigger event
+						renderPagination(resume.page); // Render all pages
+					});
+				}
+				else
+					pagination.innerHTML = output;
+			}
+			renderPagination(resume.page);
+		}
+		function fnRemoveRow(table, data, resume, styles) {
+			const msg = styles?.remove || "remove"; // Confirmation message
+			if (i18n.confirm(msg) && self.trigger(table, "remove", resume.data).isOk()) {
+				resume.size--; // Update size
+				resume.total--; // Update total numrows
+				resume.row.remove(); // Remove row 
+				data.splice(resume.index, 1); // Remove data row
+				if (resume.total == 0) { // Is empty table?
+					fnToggleTbody(table); // Toggle body if no data
+					fnPagination(table, resume); // Render asociated pages
+					fnRendetTfoot(table, resume, styles); // Render footer
+				}
+				else if (resume.size == 0) { // Is empty Page?
+					resume.start = 0; // Go first page
+					fnRenderRows(table, data, resume, styles); // Build table rows
+				}
+				else {
+					fnPagination(table, resume); // Render asociated pages
+					fnRendetTfoot(table, resume, styles); // Render footer
+				}
 			}
 		}
 		function fnRenderRows(table, data, resume, styles) {
@@ -418,8 +444,8 @@ function DomBox() {
 			resume.end = resume.start + resume.pageSize;
 			resume.page = +(resume.start / resume.pageSize);
 			if (resume.sortBy && resume.sort) // Sort full array
-				ab.sort(data, resume.sortDir, resume.sort);
-			const aux = data.slice(resume.start, resume.end);
+				ab.sort(data, resume.sortDir, resume.sort); // Sort before paginate
+			const aux = (resume.pageSize < resume.total) ? data.slice(resume.start, resume.end) : data;
 			resume.size = aux.length; // Num page rows
 
 			styles = styles || {}; // Default styles
@@ -431,32 +457,21 @@ function DomBox() {
 
 			// Change, find and remove events
 			self.change(tbody.children, (row, ev, i) => {
-				i += resume.start; // Real index
-				self.trigger(table, "recalc", { index: i, data: data[i], element: ev.target, row });
+				resume.row = row; // TR parent row
+				resume.index = resume.start + i; // Real index
+				resume.data = data[resume.index]; // Current data row
+				resume.element = ev.target; // Element to trigger event
+				self.trigger(table, "recalc", resume);
 			}).click(self.getAll("a[href]", tbody), el => {
+				resume.row = el.closest("tr"); // TR parent row
+				resume.index = resume.start + self.indexOf(resume.row); // Real index
+				resume.data = data[resume.index]; // Current data row
+				resume.element = el; // Element to trigger event
 				const name = el.getAttribute("href"); // Name event
-				const row = el.closest("tr"); // TR parent row
-				const i = resume.start + self.indexOf(row); // Real index
-				// If click on remove row link and confirmation is ok, then fire trigger and if all is ok then update view
-				if ((name == "#remove") && i18n.confirm(styles.remove || "remove") && self.trigger(table, "remove", data[i]).isOk()) {
-					row.remove(); // Remove row 
-					resume.size--; // Update size
-					resume.total--; // Update total numrows
-					data.splice(i, 1); // Remove data row
-					if (resume.total == 0) { // Is empty table?
-						fnToggleTbody(table); // Toggle body if no data
-						fnPagination(table, resume); // Render asociated pages
-						fnRendetTfoot(table, resume, styles); // Render footer
-					}
-					else if (resume.size == 0) { // Is empty Page?
-						resume.start = 0; // Go first page
-						fnRenderRows(table, data, resume, styles); // Build table rows
-					}
-					else
-						fnRendetTfoot(table, resume, styles); // Render footer
-				}
+				if (name == "#remove") // Remove row link
+					fnRemoveRow(table, data, resume, styles);
 				else if (sb.starts(name, "#find")) // Is find event?
-					self.trigger(table, name.substring(1), { index: i, data: data[i], element: el, row });
+					self.trigger(table, name.substring(1), resume);
 			});
 
 			fnToggleTbody(table); // Toggle body if no data
@@ -470,10 +485,21 @@ function DomBox() {
 		self.list = function(selector, data, resume, styles) {
 			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		}
+		self.repaginate = function(table, data, resume, styles) {
+			resume.start = 0; // Go first page
+			table = self.getTable(table); // find table on tables array
+			return table ? fnRenderRows(table, data, resume, styles) : self;
+		}
+		self.removeRow = function(table, data, resume, styles) {
+			table = self.getTable(table); // find table on tables array
+			table && fnRemoveRow(table, data, resume, styles);
+			return self;
+		}
 
 		// Synonyms
 		self.renderTables = self.tables = self.list;
 		self.renderRows = self.renderTable = self.table;
+		self.startPagination = self.repaginate;
 
 		// Initialize all tables
 		ab.each(tables, table => {
@@ -507,7 +533,6 @@ function DomBox() {
 		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; // Find by id selector
 		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99); // Extract id
 
-		self.onSaveTab = (id, fn) => self.event(self.getTab(id), "save-" + id, fn);
 		self.onPrevTab = (id, fn) => self.event(self.getTab(id), "prev-" + id, fn);
 		self.onChangeTab = (id, fn) => self.event(self.getTab(id), "tab-" + id, fn);
 		self.onNextTab = (id, fn) => self.event(self.getTab(id), "next-" + id, fn);
@@ -556,10 +581,6 @@ function DomBox() {
 		self.onclick("a[href='#next-tab']", () => !self.nextTab());
 		self.onclick("a[href='#last-tab']", () => !self.lastTab());
 		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
-		self.addClick("a[href='#save-tab']", el => { // Trigger save event
-			const tab = tabs[index]; // Current tab element
-			self.trigger(tab, "save-" + self.lastId(tab.id));
-		});
 
 		// Clipboard function
 		TEXT.style.position = "absolute";
