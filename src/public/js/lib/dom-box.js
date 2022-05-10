@@ -351,7 +351,7 @@ function DomBox() {
 
 		function fnToggleTbody(table) {
 			const list = table.tBodies; // Bodies list
-			if (list[0].children.length) //has data rows?
+			if (list[0].children.length) // Has data rows?
 				self.show(list[0]).hide(list[1]);
 			else
 				self.hide(list[0]).show(list[1]);
@@ -361,7 +361,7 @@ function DomBox() {
 		}
 		self.tfoot = function(table, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
+			return fnRendetTfoot(table, resume, styles); // Render footer
 		}
 		self.renderTfoot = self.tfoot;
 
@@ -489,7 +489,7 @@ function DomBox() {
 		self.repaginate = function(table, data, resume, styles) {
 			resume.start = 0; // Go first page
 			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderRows(table, data, resume, styles) : self;
+			return fnRenderRows(table, data, resume, styles);
 		}
 		self.updateTable = function(table, data, resume, styles) {
 			delete resume.sort; // Same state list
