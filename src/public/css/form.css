@@ -17,15 +17,15 @@ label.required:after {
 	line-height: 1.5 !important;
 	border-radius: .25rem;
 }
-.input-group { margin: 5px; }
-.input-group-block { display: inline-block; width: fit-content; vertical-align: top; text-align: left; }
-.input-group-row { display: inline-block; width: 98%; vertical-align: top; text-align: left; }
-.input-group-flex { display: inline-flex; width: fit-content; align-items: center; }
+.input-group, .ui-group { margin: 5px; }
+.input-group-block, .ui-block { display: inline-block; width: fit-content; vertical-align: top; text-align: left; }
+.input-group-row, .ui-row { display: inline-block; width: 98%; vertical-align: top; text-align: left; }
+.input-group-flex, .ui-flex { display: inline-flex; width: fit-content; align-items: center; }
 .input-group-flex > * { margin: 5px; }
-.input-group-inline { display: grid; grid-gap: 5px; grid-template-columns: 24% minmax(70%, 90%); }
-.input-group-content { display: grid; grid-gap: 5px; grid-template-columns: fit-content(24%) minmax(70%, 90%); }
-.input-control, .ui-control { background-color: #fff; }
-.input-control:focus, .ui-control:focus { border: 2px solid #80bdff; outline: 0; }
+.input-group-inline, .ui-inline { display: grid; grid-gap: 5px; grid-template-columns: 24% minmax(70%, 90%); }
+.input-group-content, .ui-content { display: grid; grid-gap: 5px; grid-template-columns: fit-content(24%) minmax(70%, 90%); }
+.input-control, .ui-control { border: 1px solid #000; background-color: #fff; }
+.input-control:focus, .ui-control:focus { border: 1px solid #80bdff; outline: 0; }
 .input-control-text, .ui-text { min-width: 350px; width: 90%; max-width: 500px; }
 .input-control-float, .ui-float { width: 110px; text-align: right; }
 .input-control-integer, .ui-integer { width: 110px; text-align: right; }
@@ -33,16 +33,16 @@ label.required:after {
 ::-webkit-calendar-picker-indicator{ margin: 0px; }
 .input-control-time, .ui-time { padding: 1px; }
 .input-control-datetime, .ui-dt { padding: 1px; }
-.input-control-select, .ui-select { max-width: 100%; }
+.input-control-select, .ui-select { max-width: 100%; padding: 7px; }
 .input-control-ta, .ui-ta { width: 98%; height: 90px; } /*height: 90px = 5 rows aprox.*/
 .input-control-ta-2r, .ui-ta-2r { width: 98%; height: 45px; } /*height: 45px = 2 rows aprox.*/
 .input-control-code, .ui-code { width: 120px; }
 .input-control-short, .ui-short { width: 90px; }
 .input-control-bool, .ui-bool { width: 40px; }
 .input-control-min, .ui-min { width: 50px; }
-.input-icon { padding: 4px .5rem; color: #fff; border: 1px solid #fff; }
-.input-error, .ui-error { border: 2px solid #dc3545; }
-.input-error:focus, .ui-error:focus { border: 2px solid #dc3545; outline: 0; }
+.input-icon, .ui-icon { padding: 4px .5rem; color: #fff; border: 1px solid #fff; }
+.input-error, .ui-error { border: 1px solid #dc3545; }
+.input-error:focus, .ui-error:focus { border: 1px solid #dc3545; outline: 0; }
 .msg-error, .ui-errtip { text-align: left; color: #dc3545; }
 /* Inputs */
 

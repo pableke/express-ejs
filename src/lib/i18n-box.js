@@ -10,542 +10,273 @@ const valid = require("./validator-box.js");
  * 
  * @module I18nBox
  */
-function DomBox() {
+function I18nBox() {
 	const self = this; //self instance
-	const EMPTY = ""; //empty string
-	const HIDE = "hide"; //css display: none
-	const DIV = document.createElement("div");
-	const TEXT = document.createElement("textarea");
+	const DATA = new Map(); // Data container
+	const MSGS = new Map(); // Messages container
+	const KEY_ERROR = "msgError"; // Error name message
 
-	function fnLog(data) { console.log("Log:", data); }
-	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
-	function fnQuery(elem, parent) { return sb.isstr(elem) ? self.get(elem, parent) : elem; }
-	function fnQueryAll(list) { return sb.isstr(list) ? document.querySelectorAll(list) : list; }
+	const modules = {}; // Languages for modules
+	const langs = { // Main language container
+		en: {
+			lang: "en", // English
+			//inputs errors messages
+			errForm: "Form validation failed",
+			errRequired: "Required field!",
+			errMinlength8: "The minimum required length is 8 characters",
+			errMaxlength: "Max length exceded",
+			errNif: "Wrong ID format",
+			errCorreo: "Wrong Mail format",
+			errDate: "Wrong date format",
+			errDateLe: "Date must be less or equals than current",
+			errDateGe: "Date must be greater or equals than current",
+			errNumber: "Wrong number format",
+			errGt0: "Price must be great than 0.00 &euro;", 
+			errRegex: "Wrong format",
+			errReclave: "Passwords typed do not match",
+			errRange: "Value out of allowed range",
+			errRefCircular: "Circular reference",
 
-	this.get = (selector, el) => (el || document).querySelector(selector);
-	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
-	this.sibling = (selector, el) => el && el.parentNode.querySelector(selector);
-	this.siblings = (selector, el) => el && el.parentNode.querySelectorAll(selector);
-	this.closest = (selector, el) => el && el.closest(selector);
+			//confirm cuestions
+			saveOk: "Element saved successfully!",
+			remove: "Are you sure to delete this element?",
+			removeOk: "Element removed successfully!",
+			cancel: "Are you sure to cancel element?",
+			cancelOk: "Element canceled successfully!",
+			unlink: "Are you sure to unlink those elements?",
+			unlinkOk: "Elements unlinked successfully!",
+			linkOk: "Elements linked successfully!",
 
-	this.getNavLang = () => navigator.language || navigator.userLanguage; //default browser language
-	this.getLang = () => document.documentElement.getAttribute("lang") || self.getNavLang(); //get lang by tag
-	this.redir = (url, target) => { url && window.open(url, target || "_blank"); return self; };
-	this.unescape = html => { TEXT.innerHTML = html; return TEXT.value; }
-	this.escape = text => { DIV.innerHTML = text; return DIV.innerHTML; }
-	/*this.buildPath = function(parts, url) {
-		url = url || window.location.pathname;
-		let aux = new URLSearchParams(parts);
-		let params = new URLSearchParams(window.location.search);
-		aux.forEach((v, k) => params.set(k, v));
-		return url + "?" + params.toString();
-	}*/
-	this.scroll = function(el, win) {
-		win = win || window; //window to apply scroll
-		el = el || win.document.body; //destination elem
-		el.scrollIntoView({ behavior: "smooth" }); //Scroll to destination with a slow effect
-		return self;
-	}
-	this.fetch = function(opts) {
-		opts = opts || {}; //default config
-		opts.headers = opts.headers || {}; //init. headers
-		opts.reject = opts.reject || fnLog;
-		opts.resolve = opts.resolve || fnLog;
-		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
-		opts.headers["Authorization"] = "Bearer " + window.localStorage.getItem("jwt");
-		return window.fetch(opts.action, opts).then(res => {
-			let contentType = res.headers.get("content-type") || EMPTY; //response type
-			let promise = (contentType.indexOf("application/json") > -1) ? res.json() : res.text(); //response
-			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
-		});
-	}
-	this.copyToClipboard = function(str) {
-		TEXT.value = str;
-		TEXT.select(); //select text
-		document.execCommand("copy");
-		return self;
-	}
+			//datepicker language
+			closeText: "close", prevText: "prev", nextText: "next", currentText: "current",
+			monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+			dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+			dayNamesMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+			dateFormat: "yy-mm-dd", firstDay: 0,
 
-	// Iterators and Filters
-	this.each = function(list, fn) {
-		if (list) {
-			if (list.nodeType === 1)
-				fn(list); // Is DOMElement
-			else // Is Selector or NodeList
-				ab.each(fnQueryAll(list), fn);
+			//datetime helpers
+			toDate: dt.enDate,
+			isoDate: dt.isoEnDate,
+			isoDateTime: dt.isoEnDateTime,
+			fmtDate: dt.fmtEnDate,
+			acDate: dt.acEnDate,
+			toTime: dt.toTime,
+			minTime: dt.minTime,
+			isoTime: dt.isoTime,
+			acTime: dt.acTime,
+
+			//numbers helpers
+			toInt: nb.toInt,
+			isoInt: nb.enIsoInt,
+			fmtInt: nb.enFmtInt,
+			toFloat: nb.enFloat,
+			isoFloat: nb.enIsoFloat,
+			fmtFloat: nb.enFmtFloat,
+			fmtBool: nb.enBool,
+			val: sb.enVal //object lang access
+		},
+
+		es: {
+			lang: "es", // Spanish
+			//inputs errors messages
+			errForm: "Error al validar los campos del formulario",
+			errRequired: "¡Campo obligatorio!",
+			errMinlength8: "La longitud mínima requerida es de 8 caracteres",
+			errMaxlength: "Longitud máxima excedida",
+			errNif: "Formato de NIF / CIF incorrecto",
+			errCorreo: "Formato de E-Mail incorrecto",
+			errDate: "Formato de fecha incorrecto",
+			errDateLe: "La fecha debe ser menor o igual a la actual",
+			errDateGe: "La fecha debe ser mayor o igual a la actual",
+			errNumber: "Valor no numérico",
+			errGt0: "El importe debe ser mayor de 0,00 &euro;", 
+			errRegex: "Formato incorrecto",
+			errReclave: "Las claves introducidas no coinciden",
+			errRange: "Valor fuera del rango permitido",
+			errRefCircular: "Referencia circular",
+
+			//confirm cuestions
+			saveOk: "Registro guardado correctamente",
+			remove: "¿Confirma que desea eliminar este registro?",
+			removeOk: "Registro eliminado correctamente.",
+			cancel: "¿Confirma que desea cancelar este registro?",
+			cancelOk: "Elemento cancelado correctamente.",
+			unlink: "¿Confirma que desea desasociar estos registros?",
+			unlinkOk: "Registros desasociados correctamente",
+			linkOk: "Registros asociados correctamente.",
+
+			//datepicker language
+			closeText: "cerrar", prevText: "prev.", nextText: "sig.", currentText: "hoy",
+			monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+			monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+			dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+			dayNamesShort: ["Dom", "Lun", "Mar", "Mié", "Juv", "Vie", "Sáb"],
+			dayNamesMin: ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+			dateFormat: "dd/mm/yy", firstDay: 1,
+
+			//datetime helpers
+			toDate: dt.esDate,
+			isoDate: dt.isoEsDate,
+			isoDateTime: dt.isoEsDateTime,
+			fmtDate: dt.fmtEsDate,
+			acDate: dt.acEsDate,
+			toTime: dt.toTime,
+			minTime: dt.minTime,
+			isoTime: dt.isoTime,
+			acTime: dt.acTime,
+
+			//numbers helpers
+			toInt: nb.toInt,
+			isoInt: nb.esIsoInt,
+			fmtInt: nb.esFmtInt,
+			toFloat: nb.esFloat,
+			isoFloat: nb.esIsoFloat,
+			fmtFloat: nb.esFmtFloat,
+			fmtBool: nb.esBool,
+			val: sb.val //object lang access
 		}
-		return self;
+	};
+
+	let _lang = langs.es; // Default language
+
+	this.getLangs = function(mod) {
+		return modules[mod] || langs;
 	}
-	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
-	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
-	this.findIndex = (selector, list)  => ab.findIndex(list, el => el.matches(selector));
-	this.find = (selector, list)  => ab.find(list, el => el.matches(selector));
-	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
-	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
-	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
-	this.values = list => self.map(list, el => el.value);
-	this.apply = (selector, list, cb) => {
-		ab.each(list, el => el.matches(selector) && cb(el));
+	this.getLang = function(lang, mod) {
+		let aux = self.getLangs(mod);
+		return aux[lang] || _lang;
+	}
+	this.getI18n = function(lang, mod) {
+		let aux = self.getLangs(mod); // find module language
+		return lang ? (aux[lang] || aux[lang.substr(0, 2)] || _lang) : _lang;
+	}
+	this.setI18n = function(lang, mod) {
+		_lang = self.getI18n(lang, mod);
 		return self;
 	}
 
-	// Inputs selectors and focusableds
-	const INPUTS = "input,textarea,select";
-	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
-	this.inputs = el => self.getAll(INPUTS, el);
-	this.checked = el => self.getAll("input:checked", el);
-	this.checks = el => self.getAll("input[type=checkbox]", el);
-	this.check = (list, value) => self.each(list, el => { el.checked = value; });
-	this.focus = el => { el && el.focus(); return self; }
+	this.get = name => _lang[name];
+	this.tr = name => _lang[name] || name;
+	this.set = (name, value) => { _lang[name] = value; return self; }
+	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
-	// Contents
-	function fnSetVal(el, value) {
-		value = value ?? EMPTY; // define value as string
-		if (el.tagName === "SELECT") // select option
-			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
-		else if ((el.tagName === "CHECKBOX") || (el.tagName === "RADIO"))
-			el.checked = (el.value == value);
+	this.addLang = function(lang, data, mod) {
+		if (mod) { // Add default messages to specific module
+			let aux = modules[mod] = modules[mod] || {}; // Create if not exists
+			aux[lang] = Object.assign(aux[lang] || {}, langs[lang], data);
+		}
 		else
-			el.value = value;
+			langs[lang] = Object.assign(langs[lang] || {}, data);
 		return self;
 	}
-	this.val = (list, value) => self.each(list, el => fnSetVal(el, value));
-	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
-	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
-	this.getAttr = function(el, name, parent) {
-		el = fnQuery(el, parent); //find element
-		return el && el.getAttribute(name);
-	}
-	this.setAttr = function(el, name, value, parent) {
-		el = fnQuery(el, parent); //find element
-		el && el.setAttribute(name, value);
-		return self;
-	}
-	this.delAttr = function(el, name, parent) {
-		el = fnQuery(el, parent); //find element
-		el && el.removeAttribute(name);
+	this.addLangs = function(langs, mod) {
+		for (const k in langs)
+			self.addLang(k, langs[k], mod);
 		return self;
 	}
 
-	function fnSetText(el, value) {
-		el.innerText = value;
-		return self;
-	}
-	this.getText = function(el, parent) {
-		el = fnQuery(el, parent); //find element
-		return el && el.innerText; //text
-	}
-	this.setText = function(el, value, parent) {
-		el = fnQuery(el, parent); //find element
-		return el ? fnSetText(el, value ?? EMPTY) : self;
-	}
-	this.text = function(list, value) {
-		value = value ?? EMPTY; // define value as string
-		return self.each(list, el => fnSetText(el, value));
+	// Shortcuts
+	this.toInt = str => _lang.toInt(str);
+	this.isoInt = num => _lang.isoInt(num);
+	this.fmtInt = str => _lang.fmtInt(str);
+
+	this.toFloat = str => _lang.toFloat(str);
+	this.isoFloat1 = num => _lang.isoFloat(num, 1);
+	this.isoFloat = num => _lang.isoFloat(num);
+	this.isoFloat3 = num => _lang.isoFloat(num, 3);
+	this.fmtFloat1 = str => _lang.fmtFloat(str, 1);
+	this.fmtFloat = str => _lang.fmtFloat(str);
+	this.fmtFloat3 = str => _lang.fmtFloat(str, 3);
+
+	this.toDate = str => _lang.toDate(str);
+	this.isoDate = date => _lang.isoDate(date);
+	this.fmtDate = str => _lang.fmtDate(str);
+	this.acDate = str => _lang.acDate(str);
+
+	this.toTime = str => _lang.toTime(str);
+	this.minTime = date => _lang.minTime(date);
+	this.isoTime = date => _lang.isoTime(date);
+	this.fmtMinTime = str => dt.fmtMinTime(str);
+	this.fmtTime = str => dt.fmtTime(str);
+	this.acTime = str => _lang.acTime(str);
+
+	this.fmtBool = val => _lang.fmtBool(val);
+	this.confirm = msg => confirm(self.tr(msg));
+	this.val = (obj, name) => _lang.val(obj, name);
+	this.arrval = function(name, i) {
+		let arr = _lang[name];
+		return (arr && arr[i]) || "-";
 	}
 
-	function fnSetHtml(el, value) {
-		el.innerHTML = value;
-		return self;
-	}
-	this.getHtml = function(el, parent) {
-		el = fnQuery(el, parent); //find element
-		return el && el.innerHTML; //html
-	}
-	this.setHtml = function(el, value, parent) {
-		el = fnQuery(el, parent); //find element
-		return el ? fnSetHtml(el, value ?? EMPTY) : self;
-	}
-	this.html = function(list, value) {
-		value = value ?? EMPTY; // define value as string
-		return self.each(list, el => fnSetHtml(el, value));
-	}
+	// Validators: data and messages
+	this.getMsgs = () => MSGS;
+	this.getMsg = name => MSGS.get(name);
+	this.setMsg = (name, msg) => { MSGS.set(name, msg); return self; }
+	this.setOk = msg => self.setMsg("msgOk", self.tr(msg));
+	this.setInfo = msg => self.setMsg("msgInfo", self.tr(msg));
+	this.setWarn = msg => self.setMsg("msgWarn", self.tr(msg));
+	this.getError = name => MSGS.get(name || KEY_ERROR);
+	this.setError = (msg, name, msgtip) => self.setMsg(KEY_ERROR, self.tr(msg)).setMsg(name, self.tr(msgtip));
+	this.getNumMsgs = () => MSGS.size;
 
-	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, (mask>>i)&1)); //toggle class by mask
-	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
-	this.select = function(list, mask) {
-		return self.each(list, el => { //iterate over all selects
-			const option = el.options[el.selectedIndex]; // get current option
-			if (self.view(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
-				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
-		});
-	}
+	this.getData = name => name ? DATA.get(name) : DATA;
+	this.toData = () => Object.fromEntries(DATA); // Build plain object
+	this.toMsgs = () => Object.fromEntries(MSGS); // Build plain object
 
-	this.empty = el => !el || !el.innerHTML || (el.innerHTML.trim() === EMPTY);
-	this.add = (node, list) => self.each(list, el => node.appendChild(el));
-	this.append = function(text, list) {
-		list = list || document.body;
-		return self.each(list, el => {
-			DIV.innerHTML = text; // As clone
-			self.add(el, DIV.childNodes);
-		});
-	}
-
-	// Format and parse contents
-	const TEMPLATES = {}; //container
-	this.setTpl = (name, tpl) => { TEMPLATES[name] = tpl; return self; }
-	this.loadTemplates = () => self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
-	this.render = function(el, formatter) {
-		el.id = el.id || ("_" + sb.rand()); // force unique id for element
-		let key = el.dataset.tpl || el.id; // tpl asociated
-		TEMPLATES[key] = TEMPLATES[key] || el.innerHTML;
-		el.innerHTML = formatter(TEMPLATES[key]);
-		el.classList.toggle(HIDE, !el.innerHTML);
-		return self;
-	}
-	this.format = (list, formatter) => self.each(list, el => self.render(el, formatter));
-	this.replace = (selector, value) => self.each(selector, el => { el.outerHTML = value; });
-	this.parse = (selector, formatter)  => self.each(selector, el => { el.outerHTML = formatter(el.outerHTML); });
-
-	// Styles
-	this.isVisible = el => el && fnVisible(el);
-	this.visible = (el, parent) => self.isVisible(fnQuery(el, parent));
-	this.show = list => self.each(list, el => el.classList.remove(HIDE));
-	this.hide = list => self.each(list, el => el.classList.add(HIDE));
-	this.hasClass = (el, name) => el && fnSplit(name).some(name => el.classList.contains(name));
-	this.addClass = function(list, name) {
-		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(list, el => { names.forEach(name => el.classList.add(name)); });
-	}
-	this.removeClass = function(list, name) {
-		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(list, el => { names.forEach(name => el.classList.remove(name)); });
-	}
-	this.toggle = function(list, name, force) {
-		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(list, el => names.forEach(name => el.classList.toggle(name, force)));
-	}
-	this.toggleHide = function(list, force) {
-		return self.toggle(list, HIDE, force);
-	}
-
-	this.css = function(list, prop, value) {
-		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", EMPTY).toUpperCase());
-		return self.each(list, el => { el.style[camelProp] = value; });
-	}
-
-	// Events
-	const ON_CHANGE = "change";
-	function fnEvent(el, name, i, fn) {
-		el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault());
-		return self;
-	}
-	function fnAddEvent(el, name, fn) {
-		return el ? fnEvent(el, name, 0, fn) : self;
-	}
-	function fnAddEvents(selector, list, name, fn) {
-		return self.apply(selector, list, (el, i) => fnEvent(el, name, i, fn));
-	}
-
-	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
-	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
-	this.trigger = (el, name) => { el && el.dispatchEvent(new Event(name)); return self; }
-	this.ready = fn => fnEvent(document, "DOMContentLoaded", 0, fn);
-
-	this.click = (list, fn) => self.each(list, (el, i) => fnEvent(el, "click", i, fn));
-	this.addClick = (el, fn) => fnAddEvent(fnQuery(el), "click", fn);
-	this.onclick = this.onClick = self.click;
-
-	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, ON_CHANGE, i, fn));
-	this.onchange = this.onChange = self.change;
-
-	this.keyup = (list, fn) => self.each(list, (el, i) => fnEvent(el, "keyup", i, fn));
-	this.onkeyup = this.onKeyup = self.keyup;
-
-	this.keydown = (list, fn) => self.each(list, (el, i) => fnEvent(el, "keydown", i, fn));
-	this.onkeydown = this.onKeydown = self.keydown;
-
-	this.submit = (list, fn) => self.each(list, (el, i) => fnEvent(el, "submit", i, fn));
-	this.onsubmit = this.onSubmit = self.submit;
-
-	this.ready(function() {
-		const elements = self.getAll(".tab-content,table,form," + INPUTS);
-		const tabs = self.filter(".tab-content", elements); //all tabs
-		const tables = self.filter("table", elements); //all html tables
-		const forms = self.filter("form", elements); //all html forms
-		const inputs = self.filter(INPUTS, elements); //all html inputs
-
-		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;
-		self.getTables = elem => elem ? self.filter(elem, tables) : tables;
-		self.getForm = elem =>  sb.isstr(elem) ? self.find(elem, forms) : elem;
-		self.getForms = elem => elem ? self.filter(elem, forms) : forms;
-		self.getInput = elem => sb.isstr(elem) ? self.find(elem, inputs) : elem;
-		self.getInputs = elem => elem ? self.filter(elem, inputs) : inputs;
-
-		self.getValue = el => { el = self.getInput(el); return el && el.value; }
-		self.setValue = (el, value) => { el = self.getInput(el); return el ? fnSetVal(el, value) : self; }
-		self.setValues = (selector, value) => self.apply(selector, inputs, input => fnSetVal(input, value));
-		self.copyVal = (i1, i2) => self.setValue(i1, self.getValue(i2));
-		self.setAttrInput = (selector, name, value) => self.setAttr(self.getInput(selector), name, value);
-		self.setAttrInputs = (selector, name, value) => self.apply(selector, inputs, input => input.setAttribute(name, value));
-		self.setReadonly = (selector, value) => self.apply(selector, inputs, input => { input.readOnly = value; });
-		self.setDisabled = (selector, value) => self.apply(selector, inputs, input => { input.disabled = value; });
-		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
-		self.delAttrInputs = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
-		self.getOptText = select => { select = self.getInput(select); return select && self.getText(select.options[select.selectedIndex]); }
-		self.setInput = (selector, value, fnChange) => {
-			const el = self.getInput(selector);
-			if (el) {
-				fnEvent(el, ON_CHANGE, 0, fnChange);
-				fnSetVal(el, value);
-			}
-			return self;
+	// Save value if it is defined else error
+	this.reset = () => { DATA.clear(); MSGS.clear(); return self; }
+	this.start = (lang, mod) => self.reset().setI18n(lang, mod);
+	this.valid = function(name, value, msg, msgtip) {
+		if (sb.isset(value)) {
+			DATA.set(name, value);
+			return true;
 		}
+		self.setError(msg, name, msgtip);
+		return false;
+	}
+	this.isOk = () => !MSGS.has(KEY_ERROR);
+	this.isError = name => MSGS.has(name || KEY_ERROR);
 
-		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
-		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
-		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
-		self.focus(inputs.find(fnFocus)); // Set focus on first visible input
+	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
+	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip);
+	this.size50 = (name, value, msg, msgtip) => self.valid(name, valid.size50(value), msg, msgtip);
+	this.size200 = (name, value, msg, msgtip) => self.valid(name, valid.size200(value), msg, msgtip);
+	this.size300 = (name, value, msg, msgtip) => self.valid(name, valid.size300(value), msg, msgtip);
 
-		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
-		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
-		self.onChangeForms = (selector, fn) => fnAddEvents(selector, forms, ON_CHANGE, fn);
-		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
-		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
-		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
-		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
+	this.text10 = (name, value, msg, msgtip) => self.valid(name, valid.text10(value), msg, msgtip);
+	this.text50 = (name, value, msg, msgtip) => self.valid(name, valid.text50(value), msg, msgtip);
+	this.text200 = (name, value, msg, msgtip) => self.valid(name, valid.text200(value), msg, msgtip);
+	this.text300 = (name, value, msg, msgtip) => self.valid(name, valid.text300(value), msg, msgtip);
+	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip);
 
-		// Extends internacionalization
-		self.tr = function(selector, opts) {
-			const elements = self.getAll(selector);
-			i18n.set("size", elements.length); //size list
-			return self.each(elements, (el, i) => {
-				i18n.set("index", i).set("count", i + 1);
-				self.render(el, tpl => i18n.format(tpl, opts));
-			});
-		}
+	this.fk = (name, value, msg, msgtip) => self.valid(name, valid.fk(value), msg, msgtip);
+	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip);
+	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip);
+	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip);
+	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip);
 
-		/**************** Tables/rows helper ****************/
-		self.getCheckRows = selector => self.checks(self.getTable(selector));
-		self.getCheckedRows = selector => self.checked(self.getTable(selector));
-		self.onFindRow = (selector, fn) => fnAddEvent(self.getTable(selector), "find", fn);
-		self.onRemoveRow = (selector, fn) => fnAddEvent(self.getTable(selector), "remove", fn);
-		self.onChangeTable = (selector, fn) => fnAddEvent(self.getTable(selector), "recalc", fn);
-		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "recalc", fn);
-		self.onRenderTable = (selector, fn) => fnAddEvent(self.getTable(selector), "render", fn);
-		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
-		self.onPaginationTable = (selector, fn) => fnAddEvent(self.getTable(selector), "pagination", fn);
+	this.regex = (name, value, msg, msgtip) => self.valid(name, valid.regex(value), msg, msgtip);
+	this.login = (name, value, msg, msgtip) => self.valid(name, valid.login(value), msg, msgtip);
+	this.digits = (name, value, msg, msgtip) => self.valid(name, valid.digits(value), msg, msgtip);
+	this.idlist = (name, value, msg, msgtip) => self.valid(name, valid.idlist(value), msg, msgtip);
+	this.email = (name, value, msg, msgtip) => self.valid(name, valid.email(value), msg, msgtip);
 
-		function fnToggleTbody(table) {
-			let tr = self.get("tr.tb-data", table); //has data rows?
-			return self.toggle(table.tBodies[0], "hide", !tr).toggle(table.tBodies[1], "hide", tr);
-		}
-		function fnToggleOrder(links, link, dir) { // Update all sort indicators
-			self.removeClass(links, "sort-asc sort-desc") // Remove prev order
-				.addClass(links, "sort-none") // Reset all orderable columns
-				.toggle(link, "sort-none sort-" + dir); // Column to order table
-		}
-		function fnPagination(table) { // Paginate table
-			const pageSize = nb.intval(table.dataset.pageSize);
-			const pagination = self.get(".pagination", table.parentNode);
-			if (pagination && (pageSize > 0)) {
-				table.dataset.page = nb.intval(table.dataset.page);
-				let pages = Math.ceil(table.dataset.total / pageSize);
+	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.isDate(value), msg, msgtip);
+	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(value), msg, msgtip);
+	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(value), msg, msgtip);
+	this.geToday = (name, value, msg, msgtip) => self.valid(name, valid.geToday(value), msg, msgtip);
 
-				function renderPagination(page) {
-					let output = ""; // Output buffer
-					function addControl(i, text) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#" data-page="' + i + '">' + text + '</a>';
-					}
-					function addPage(i) {
-						i = nb.range(i, 0, pages - 1); // Close range limit
-						output += '<a href="#" data-page="' + i + '"';
-						output += (i == page) ? ' class="active">' : '>';
-						output += (i + 1) + '</a>';
-					}
+	this.dni = (name, value, msg, msgtip) => self.valid(name, valid.dni(value), msg, msgtip);
+	this.cif = (name, value, msg, msgtip) => self.valid(name, valid.cif(value), msg, msgtip);
+	this.nie = (name, value, msg, msgtip) => self.valid(name, valid.nie(value), msg, msgtip);
+	this.idES = (name, value, msg, msgtip) => self.valid(name, valid.idES(value), msg, msgtip);
+	this.user = (name, value, msg, msgtip) => self.valid(name, valid.email(value) || valid.idES(value), msg, msgtip);
 
-					let i = 0; // Index
-					addControl(page - 1, "&laquo;");
-					(pages > 1) && addPage(0);
-					i = Math.max(page - 3, 1);
-					(i > 2) && addControl(i - 1, "...");
-					let max = Math.min(page + 3, pages - 1);
-					while (i <= max)
-						addPage(i++);
-					(i < (pages - 1)) && addControl(i, "...");
-					(i < pages) && addPage(pages - 1);
-					addControl(page + 1, "&raquo;");
-					pagination.innerHTML = output;
-
-					// Reload pagination click event
-					self.click(self.getAll("a", pagination), el => {
-						const i = +el.dataset.page; // Current page
-						const params = { index: i * pageSize, length: pageSize }; // Event data
-
-						renderPagination(i); // Render all pages
-						table.dataset.page = i; // Update current
-						table.dispatchEvent(new CustomEvent("pagination", { detail: params })); // Trigger event
-					});
-				}
-				renderPagination(table.dataset.page);
-			}
-			return self;
-		}
-
-		function fnRendetTfoot(table, resume, styles) {
-			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
-		}
-		self.tfoot = function(table, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
-		}
-		self.renderTfoot = self.tfoot;
-
-		function fnRenderRows(table, data, resume, styles) {
-			styles = styles || {}; // Default styles
-			styles.getValue = styles.getValue || i18n.val;
-			resume.size = data.length; // Numrows
-
-			self.render(table.tBodies[0], tpl => ab.format(data, tpl, styles)); // Render rows
-			fnRendetTfoot(table, resume, styles); // Render footer
-
-			// Change, find and remove events
-			table.addEventListener(ON_CHANGE, ev => {
-				ev.preventDefault(); // Stop change event
-				const row = ev.target.closest("tr"); // Parent row
-				const i = self.indexOf(row); // Row position in tbody
-				const result = { index: i, data: data[i], element: ev.target, row };
-				table.dispatchEvent(new CustomEvent("recalc", { detail: result }));
-			});
-			self.click(self.getAll("a[href]", table), el => {
-				const row = el.closest("tr"); // TR parent row
-				const i = self.indexOf(row); // Row position in tbody
-				if (sb.ends(el.href, "#find")) {
-					const result = { index: i, data: data[i], element: el, row };
-					table.dispatchEvent(new CustomEvent("find", { detail: result }));
-				}
-				else if (sb.ends(el.href, "#remove") && i18n.confirm(styles.remove || "remove")) {
-					resume.size--; row.remove(); // Confirm delete before remove row, data and update view and resume
-					table.dispatchEvent(new CustomEvent("remove", { detail: data.splice(i, 1)[0] })); // Trigger event
-				}
-			});
-
-			table.dispatchEvent(new Event("render")); // Trigger event
-			return fnToggleTbody(table); // Toggle body if no data
-		}
-		self.table = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderRows(table, data, resume, styles) : self;
-		}
-		self.renderRows = self.table; // Synonyms
-		self.list = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
-		}
-
-		function fnRenderTable(table, data, resume, styles) {
-			fnRenderRows(table, data, resume, styles);
-			return fnPagination(table); // Update pagination
-		}
-		self.renderTable = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderTable(table, data, resume, styles) : self;
-		}
-		self.renderTables = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnRenderTable(table, data, resume, styles));
-		}
-
-		function fnSortTable(table, data, resume, styles) {
-			const fnSort = resume.sort || sb.cmp; // function to sort by
-			ab.sort(data, table.dataset.sortDir, fnSort); // sort data
-			return fnRenderRows(table, data, resume, styles);
-		}
-		self.sortTable = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnSortTable(table, data, resume, styles) : self;
-		}
-		self.sortTables = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnSortTable(table, data, resume, styles));
-		}
-
-		// Initialize all tables
-		ab.each(tables, table => {
-			const links = self.getAll(".sort", table.tHead); // All orderable columns
-			if (table.dataset.sortDir) {
-				fnToggleOrder(links, // Update sort icons
-							self.find(".sort-" + table.dataset.sortBy, links), // Ordered column
-							table.dataset.sortDir); // Sort direction
-			}
-
-			// Add click event for order table
-			self.click(links, el => { // Sort event click
-				const dir = self.hasClass(el, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				fnToggleOrder(links, el, dir); // Update all sort indicators
-				table.dataset.sortDir = dir;
-			});
-
-			fnToggleTbody(table); // Toggle body if no data
-			fnPagination(table); // Update pagination
-		});
-		/**************** Tables/rows helper ****************/
-
-		/**************** Tabs helper ****************/
-		let index = self.findIndex(".active", tabs); //current index tab
-
-		self.getTabs = () => tabs; //all tabs
-		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; //find by id selector
-		self.getElemId = (str, max) => nb.range(+str.substr(str.lastIndexOf("-") + 1) || 0, 0, max);
-
-		self.onSaveTab = (id, fn) => self.event(self.getTab(id), "save-" + id, fn);
-		self.onPrevTab = (id, fn) => self.event(self.getTab(id), "prev-" + id, fn);
-		self.onChangeTab = (id, fn) => self.event(self.getTab(id), "tab-" + id, fn);
-		self.onNextTab = (id, fn) => self.event(self.getTab(id), "next-" + id, fn);
-		self.onExitTab = fn => self.event(tabs[0], "exit", fn);
-
-		function fnShowTab(i) { //show tab by index
-			const size = tabs.length - 1; // tabs length
-			i = nb.range(i, 0, size); // Force range
-			let tab = tabs[index]; // current tab
-
-			if ((i > 0) || (index > 0)) { // Nav in tabs
-				const id = self.closeAlerts().getElemId(tab.id, 50);
-				if (i > index) // Trigger next event
-					tab.dispatchEvent(new Event("next-" + id));
-				else if (i < index) // Trigger prev event
-					tab.dispatchEvent(new Event("prev-" + id));
-				// Always trigger change event
-				tab.dispatchEvent(new Event(tab.id));
-
-				if (self.isOk()) { // Only change tab if ok
-					tab = tabs[i]; // next tab
-					const progressbar = self.get("#progressbar");
-					if (progressbar) { // progressbar is optional
-						const step = "step-" + i; //go to a specific step on progressbar
-						self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
-					}
-					index = i; // set current index
-					self.toggleHide("[href='#tab-0']", index < 2)
-						.toggleHide("[href='#next-tab']", index >= size)
-						.toggleHide("[href='#last-tab']", index >= (size - 1))
-						.removeClass(tabs, "active").addClass(tab, "active")
-						.setFocus(tab).scroll();
-				}
-			}
-			else // Is first tab and click on prev button
-				tab.dispatchEvent(new Event("exit")); // Trigger exit event
-			return dom;
-		}
-
-		self.prevTab = () => fnShowTab(index - 1);
-		self.nextTab = () => fnShowTab(index + 1);
-		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
-		self.lastTab = () => fnShowTab(99);
-
-		self.onclick("a[href='#prev-tab']", () => !self.prevTab());
-		self.onclick("a[href='#next-tab']", () => !self.nextTab());
-		self.onclick("a[href='#last-tab']", () => !self.lastTab());
-		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.getElemId(el.href, 50)));
-		self.addClick("a[href='#save-tab']", el => { // Trigger save event
-			const tab = tabs[index]; // Current tab
-			const id = self.getElemId(tab.id, 50);
-			tab.dispatchEvent(new Event("save-" + id));
-		});
-
-		// Clipboard function
-		TEXT.style.position = "absolute";
-		TEXT.style.left = "-9999px";
-		document.body.prepend(TEXT);
-	});
+	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
+	this.swift = (name, value, msg, msgtip) => self.valid(name, valid.swift(value), msg, msgtip);
+	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
 
 module.exports = new I18nBox();
