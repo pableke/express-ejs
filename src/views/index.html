@@ -268,7 +268,7 @@
 					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-					.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
+					//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
 					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
 					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
 					.onTable("#pruebas", "sort", table => dom.table(table, data, resume))
@@ -298,8 +298,7 @@
 					if (dom.isOk()) {
 						if (!test.id)
 							data.push(test);
-						delete resume.sort; // same state list
-						dom.table("#pruebas", data, resume).viewTab(2).showOk("saveOk");
+						dom.updateTable("#pruebas", data, resume).viewTab(2).showOk("saveOk");
 					}
 				});
 			});
