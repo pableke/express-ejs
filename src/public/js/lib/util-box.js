@@ -48,7 +48,7 @@ dom.ready(function() {
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
 	function setAlert(el, txt) {
-		return txt ? dom.fadeIn(el.parentNode).setHtml(el, txt).scroll() : dom;
+		return txt ? dom.fadeIn(el.parentNode).setHtml(el, i18n.tr(txt)).scroll() : dom;
 	}
 
 	dom.showOk = msg => setAlert(texts[0], msg); //green

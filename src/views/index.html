@@ -126,13 +126,13 @@
 		<div id="tab-2" class="tab-content">
 			<form id="filter" action="filter">
 				<div class="navbar">
-					<div class="input-group input-group-block">
+					<div class="ui-group ui-block">
 						<label for="filter-name" class="required">Nombre:</label>
-						<input type="text" id="filter-name" name="name" value="" tabindex="1" />
+						<input type="text" id="filter-name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
 					</div>
-					<div class="input-group input-group-block">
+					<div class="ui-group ui-block">
 						<label for="filter-memo" class="required">Memoria:</label>
-						<input type="text" id="filter-memo" name="memo" value="" tabindex="3"/>
+						<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="3"/>
 					</div>
 				</div>
 
@@ -175,7 +175,7 @@
 					<tr><td colspan="6">Filas: @size; / @total;</td></tr>
 				</tfoot>
 			</table>
-			<div class="fr input-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
+			<div class="fr ui-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
 			<div class="pagination"></div>
 
 			<div class="navbar">
@@ -185,39 +185,39 @@
 		</div>
 
 		<div id="tab-3" class="tab-content">
-			<div class="navbar">
-				<a href="#first-item"><i class="fas fa-angle-double-left"></i></a>
-				<a href="#prev-item">prev</a>
-				<a href="#next-item">next</a>
-				<a href="#last-item"><i class="fas fa-angle-double-right"></i></a>
-			</div>
 
 			<form id="test" action="test" method="post">
 			<input type="hidden" id="id" name="id" value="" />
 
 			<div class="navbar">
-				<div class="input-items input-control-block">
+				<div class="ui-group ui-block">
 					<label for="name" class="required">Nombre:</label>
-					<input type="text" id="name" name="name" value="" tabindex="1" />
+					<input type="text" id="name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
 				</div>
-				<div class="input-items input-control-block">
+				<div class="ui-group ui-block">
 					<label for="entidad" class="required">Entidades:</label>
-					<select id="entidad">
-						<option value="" tabindex="2">Seleccione una entidad ...</option>
+					<select id="entidad" class="ui-item ui-control ui-select" tabindex="2">
+						<option value="">Seleccione una entidad ...</option>
 						<option id="entidades" value="@key;">@value;</option>
 					</select>
 				</div>
-				<div class="input-items input-control-block">
+				<div class="ui-group ui-row">
 					<label for="memo" class="required">Memoria:</label>
-					<textarea id="memo" name="memo" tabindex="3"></textarea>
+					<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="3"></textarea>
 				</div>
 			</div>
 
 			<div class="navbar">
-				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
-				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-				<button type="submit" class="btn btn-success"><i class="fas fa-save icon"></i>Save</button>
-				<a href="#remove-item" class="btn btn-danger"><i class="fas fa-solid fa-trash"></i> Borrar</a>
+				<a href="#first-item" class="btn btn-primary" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
+				<a href="#prev-item" class="btn btn-primary" tabindex="61"><i class="fas fa-angle-left"></i></a>
+				<a href="#next-item" class="btn btn-primary" tabindex="62"><i class="fas fa-angle-right"></i></a>
+				<a href="#last-item" class="btn btn-primary" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
+
+				<br/><hr/>
+				<a href="#tab-0" class="btn btn-primary" tabindex="100"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+				<button type="submit" class="btn btn-success" tabindex="102"><i class="fas fa-save icon"></i>Save</button>
+				<a href="#remove-item" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 			</form>
 		</div>
@@ -242,19 +242,19 @@
 				let test;
 
 				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
-				const rowFilter = row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo);
 				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
 
 				function fnView(i, data) {
 					test = data; // current item
+					resume.index = i; // update index
 					dom.setValue("#id", data.id).setValue("#name", data.name).setValue("#memo", data.memo)
 						.toggleHide("a[href='#remove-item']", !data.id).viewTab(3);
 				}
 				function fnLoad(i) {
 					fnView(i, data[i]);
 				}
-				function fnFilter() {
-					data = DB.filter(rowFilter);
+				function fnFilter() { // Simulate server call!!
+					data = DB.filter(row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo));
 					dom.repaginate("#pruebas", data, resume).setFocus("#filter-name");
 				}
 
@@ -266,7 +266,7 @@
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
-					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("Data removed successfully!"))
+					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
 					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
@@ -296,10 +296,10 @@
 						.required("#name", "form err", "errRequired");
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 					if (dom.isOk()) {
-						if (!test.id && rowFilter(test))
+						if (!test.id)
 							data.push(test);
 						delete resume.sort; // same state list
-						dom.table("#pruebas", data, resume).viewTab(2).showOk("Data saved successfully!");
+						dom.table("#pruebas", data, resume).viewTab(2).showOk("saveOk");
 					}
 				});
 			});

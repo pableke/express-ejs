@@ -33,6 +33,7 @@ function I18nBox() {
 			errRefCircular: "Circular reference",
 
 			//confirm cuestions
+			saveOk: "Element saved successfully!",
 			remove: "Are you sure to delete this element?",
 			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
@@ -92,6 +93,7 @@ function I18nBox() {
 			errRefCircular: "Referencia circular",
 
 			//confirm cuestions
+			saveOk: "Registro guardado correctamente",
 			remove: "¿Confirma que desea eliminar este registro?",
 			removeOk: "Registro eliminado correctamente.",
 			cancel: "¿Confirma que desea cancelar este registro?",

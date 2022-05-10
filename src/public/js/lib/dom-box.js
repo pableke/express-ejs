@@ -412,9 +412,8 @@ function DomBox() {
 			}
 			renderPagination(resume.page);
 		}
-		function fnRemoveRow(table, data, resume, styles) {
-			const msg = styles?.remove || "remove"; // Confirmation message
-			if (i18n.confirm(msg) && self.trigger(table, "remove", resume.data).isOk()) {
+		function fnRemoveRow(table, data, resume, styles) { // Confirm, close prev alerts and trigger event
+			if (i18n.confirm(styles.remove || "remove") && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
 				resume.size--; // Update size
 				resume.total--; // Update total numrows
 				resume.row.remove(); // Remove row 
@@ -437,8 +436,8 @@ function DomBox() {
 		function fnRenderRows(table, data, resume, styles) {
 			// Recalc table page indexes
 			resume.total = data.length;
-			resume.start = resume.start || 0;
-			resume.pageSize = resume.pageSize || data.length;
+			resume.start = resume.start || 0; //default=0
+			resume.pageSize = resume.pageSize || 99; //max=99
 			resume.sortDir = table.dataset.sortDir;
 			resume.sortBy = table.dataset.sortBy;
 			resume.end = resume.start + resume.pageSize;
@@ -461,7 +460,8 @@ function DomBox() {
 				resume.index = resume.start + i; // Real index
 				resume.data = data[resume.index]; // Current data row
 				resume.element = ev.target; // Element to trigger event
-				self.trigger(table, "recalc", resume);
+				self.trigger(table, "recalc-" + ev.target.name, resume) // Specific change event
+					.trigger(table, "recalc", resume); // Common change event for all inputs
 			}).click(self.getAll("a[href]", tbody), el => {
 				resume.row = el.closest("tr"); // TR parent row
 				resume.index = resume.start + self.indexOf(resume.row); // Real index
@@ -492,7 +492,7 @@ function DomBox() {
 		}
 		self.removeRow = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			table && fnRemoveRow(table, data, resume, styles);
+			table && fnRemoveRow(table, data, resume, styles || {});
 			return self;
 		}
 
@@ -560,10 +560,7 @@ function DomBox() {
 						self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
 					}
 					index = i; // set current index
-					self.toggleHide("[href='#tab-0']", index < 2)
-						.toggleHide("[href='#next-tab']", index >= size)
-						.toggleHide("[href='#last-tab']", index >= (size - 1))
-						.removeClass(tabs, "active").addClass(tab, "active")
+					self.removeClass(tabs, "active").addClass(tab, "active")
 						.setFocus(tab).scroll();
 				}
 			}
