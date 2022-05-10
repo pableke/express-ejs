@@ -365,7 +365,7 @@ function DomBox() {
 		}
 		self.renderTfoot = self.tfoot;
 
-		function fnPagination(table, resume) {
+		function fnPagination(table, data, resume, styles) {
 			const pagination = self.next(table, ".pagination"); // Pag section
 			if ((resume.pageSize < 1) || !pagination)
 				return; // Guard clausule
@@ -403,8 +403,8 @@ function DomBox() {
 						resume.page = sb.lastId(el.href); // Current page
 						resume.start = resume.page * resume.pageSize; // Start page index
 						resume.end = resume.start + resume.pageSize; // End page index
+						fnRenderRows(table, data, resume, styles) // Render full table
 						self.trigger(table, "pagination", resume); // Trigger event
-						renderPagination(resume.page); // Render all pages
 					});
 				}
 				else
@@ -420,7 +420,7 @@ function DomBox() {
 				data.splice(resume.index, 1); // Remove data row
 				if (resume.total == 0) { // Is empty table?
 					fnToggleTbody(table); // Toggle body if no data
-					fnPagination(table, resume); // Render asociated pages
+					fnPagination(table, data, resume, styles); // Render asociated pages
 					fnRendetTfoot(table, resume, styles); // Render footer
 				}
 				else if (resume.size == 0) { // Is empty Page?
@@ -428,10 +428,11 @@ function DomBox() {
 					fnRenderRows(table, data, resume, styles); // Build table rows
 				}
 				else {
-					fnPagination(table, resume); // Render asociated pages
+					fnPagination(table, data, resume, styles); // Render asociated pages
 					fnRendetTfoot(table, resume, styles); // Render footer
 				}
 			}
+			return self;
 		}
 		function fnRenderRows(table, data, resume, styles) {
 			// Recalc table page indexes
@@ -475,12 +476,12 @@ function DomBox() {
 			});
 
 			fnToggleTbody(table); // Toggle body if no data
-			fnPagination(table, resume); // Render asociated pages
+			fnPagination(table, data, resume, styles); // Render asociated pages
 			return self.trigger(table, "render"); // Trigger event
 		}
 		self.table = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			return table ? fnRenderRows(table, data, resume, styles) : self;
+			return fnRenderRows(table, data, resume, styles);
 		}
 		self.list = function(selector, data, resume, styles) {
 			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
@@ -490,10 +491,16 @@ function DomBox() {
 			table = self.getTable(table); // find table on tables array
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
+		self.updateTable = function(table, data, resume, styles) {
+			delete resume.sort; // Same state list
+			table = self.getTable(table); // find table on tables array
+			const links = self.getAll(".sort", table.tHead); // Reset orderable links
+			self.removeClass(links, "sort-asc sort-desc").addClass(links, "sort-none");
+			return fnRenderRows(table, data, resume, styles);
+		}
 		self.removeRow = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			table && fnRemoveRow(table, data, resume, styles || {});
-			return self;
+			return fnRemoveRow(table, data, resume, styles || {});
 		}
 
 		// Synonyms
