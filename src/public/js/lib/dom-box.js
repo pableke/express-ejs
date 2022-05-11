@@ -104,12 +104,18 @@ function DomBox() {
 	this.checked = el => self.getAll("input:checked", el);
 	this.checks = el => self.getAll("input[type=checkbox]", el);
 	this.check = (list, value) => self.each(list, el => { el.checked = value; });
-	this.load = (list, data) => self.each(list, el => { data[el.name] = el.value; });
 	this.binary = (list, mask) => self.each(list, (el, i) => { el.checked = (mask>>i)&1; });
 	this.intval = list => {
 		let aux = ""; // Binary string, for example: "01001011"
 		self.each(list, el => { aux += el.checked ? "1" : "0"; });
 		return parseInt(aux, 2); // Bin2Int
+	};
+	this.load = (list, data, parsers) => {
+		parsers = parsers || {};
+		return self.each(list, el => {
+			const fn = parsers[el.name]; // parse type
+			data[el.name] = fn ? fn(el.value) : el.value;
+		});
 	};
 
 	// Contents
@@ -361,7 +367,7 @@ function DomBox() {
 		}
 		self.tfoot = function(table, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			return fnRendetTfoot(table, resume, styles); // Render footer
+			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
 		}
 		self.renderTfoot = self.tfoot;
 
@@ -413,11 +419,14 @@ function DomBox() {
 			renderPagination(resume.page);
 		}
 		function fnRemoveRow(table, data, resume, styles) { // Confirm, close prev alerts and trigger event
-			if (i18n.confirm(styles.remove || "remove") && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
+			let ok = table && data && styles && i18n.confirm(styles.remove || "remove");
+			if (ok && self.closeAlerts().trigger(table, "before-remove", resume.data).isOk()) {
 				resume.size--; // Update size
 				resume.total--; // Update total numrows
 				resume.row.remove(); // Remove row 
 				data.splice(resume.index, 1); // Remove data row
+				// Trigger event before redraw table and after remove row
+				self.trigger(table, "remove", resume.data);
 				if (resume.total == 0) { // Is empty table?
 					fnToggleTbody(table); // Toggle body if no data
 					fnPagination(table, data, resume, styles); // Render asociated pages
@@ -435,8 +444,12 @@ function DomBox() {
 			return self;
 		}
 		function fnRenderRows(table, data, resume, styles) {
+			if (!table || !data || !resume)
+				return self; // No aplica
+
 			// Recalc table page indexes
 			resume.total = data.length;
+			resume.index = resume.index || 0; //default=0
 			resume.start = resume.start || 0; //default=0
 			resume.pageSize = resume.pageSize || 99; //max=99
 			resume.sortDir = table.dataset.sortDir;
@@ -500,7 +513,7 @@ function DomBox() {
 		}
 		self.removeRow = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
-			return fnRemoveRow(table, data, resume, styles || {});
+			return fnRemoveRow(table, data, resume, styles);
 		}
 
 		// Synonyms

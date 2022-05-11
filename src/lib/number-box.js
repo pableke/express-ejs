@@ -6,31 +6,39 @@ function NumberBox() {
 	const DOT = "."; //floats separator
 	const COMMA = ","; //floats separator
 
-	//helpers
+	// Helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); } // Is defined var
 	function fnWhole(str) { return str.replace(/\D+/g, EMPTY); } // Extract whole part
 	function fnTrim0(str) { return fnWhole(str).replace(/^0+(\d+)/, "$1"); } // Extract whole part withot left zeros
 	function fnSign(str) { return (str.charAt(0) == "-") ? "-" : EMPTY; } // Get sign number + or -
-	function rtl(str, size) { // Slice string
-		var result = []; //parts container
-		for (var i = str.length; i > size; i -= size)
-			result.unshift(str.substr(i - size, size));
-		(i > 0) && result.unshift(str.substr(0, i));
-		return result;
+	function chunk(str, separator) {
+		let i = str.length; // index
+		let output = (i > 2) ? str.substring(i - 3, i) : str;
+		for (i -= 3; i > 3; i -= 3)
+			output = str.substring(i - 3, i) + separator + output;
+		return (i > 0) ? (str.substring(0, i) + separator + output) : output;
 	}
 
 	this.lt0 = num => isset(num) && (num < 0);
 	this.le0 = num => isset(num) && (num <= 0);
 	this.gt0 = num => isset(num) && (num > 0);
-	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
-	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
-	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
-	this.between = (num, min, max) => (min <= num) && (num <= max);
 	this.cmp = function(n1, n2) {
 		if (isset(n1) && isset(n2))
 			return n1 - n2;
 		return isset(n1) ? -1 : 1; //nulls last
 	}
+
+	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
+	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
+	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+	this.between = (num, min, max) => {
+		if (isNaN(num))
+			return false;
+		min = min ?? num
+		max = max ?? num
+		return (min <= num) && (num <= max);
+	};
+
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
 		return +(Math.round(num + "e" + d) + "e-" + d);
@@ -53,7 +61,7 @@ function NumberBox() {
 	function fnInt(str, s) {
 		let sign = fnSign(str);
 		let whole = fnTrim0(str);
-		return whole ? (sign + rtl(whole, 3).join(s)) : null;
+		return whole ? (sign + chunk(whole, s)) : null;
 	}
 	this.isoInt = (val, s) => isset(val) ? fnInt(EMPTY + val, s) : null;
 	this.enIsoInt = val => self.isoInt(val, COMMA); // Integer to EN String format
@@ -87,7 +95,7 @@ function NumberBox() {
 		whole = (separator == 0) ? ZERO : fnTrim0(whole);
 		if (whole) { //exists whole part?
 			let decimal = (separator < 0) ? ZERO : str.substr(separator + 1, n); //extract decimal part
-			return sign + rtl(whole, 3).join(s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
+			return sign + chunk(whole, s) + d + ((separator < 0) ? ZERO.repeat(n) : decimal.padEnd(n, ZERO));
 		}
 		return null;
 	}

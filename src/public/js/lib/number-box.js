@@ -22,15 +22,23 @@ function NumberBox() {
 	this.lt0 = num => isset(num) && (num < 0);
 	this.le0 = num => isset(num) && (num <= 0);
 	this.gt0 = num => isset(num) && (num > 0);
-	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
-	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
-	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
-	this.between = (num, min, max) => (min <= num) && (num <= max);
 	this.cmp = function(n1, n2) {
 		if (isset(n1) && isset(n2))
 			return n1 - n2;
 		return isset(n1) ? -1 : 1; //nulls last
 	}
+
+	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
+	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
+	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+	this.between = (num, min, max) => {
+		if (isNaN(num))
+			return false;
+		min = min ?? num
+		max = max ?? num
+		return (min <= num) && (num <= max);
+	};
+
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
 		return +(Math.round(num + "e" + d) + "e-" + d);

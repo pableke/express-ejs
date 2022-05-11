@@ -94,6 +94,13 @@
 			</div>
 
 			<div class="navbar">
+				<ul class="tags">
+					<li>asdfasd asdf</li>
+					<li>asdfa sdf</li>
+				</ul>
+			</div><br/>
+
+			<div class="navbar">
 				<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
 				<a href="#tab-2" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
 			</div>
@@ -207,25 +214,18 @@
 			</div>
 
 			<div class="navbar">
-				<a href="#first-item" class="btn btn-primary update-link" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
-				<a href="#prev-item" class="btn btn-primary update-link" tabindex="61"><i class="fas fa-angle-left"></i></a>
-				<a href="#next-item" class="btn btn-primary update-link" tabindex="62"><i class="fas fa-angle-right"></i></a>
-				<a href="#last-item" class="btn btn-primary update-link" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
+				<a href="#first-item" class="btn btn-primary update-only" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
+				<a href="#prev-item" class="btn btn-primary update-only" tabindex="61"><i class="fas fa-angle-left"></i></a>
+				<a href="#next-item" class="btn btn-primary update-only" tabindex="62"><i class="fas fa-angle-right"></i></a>
+				<a href="#last-item" class="btn btn-primary update-only" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
 
 				<br/><hr/>
 				<a href="#tab-0" class="btn btn-primary" tabindex="100"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 				<button type="submit" class="btn btn-success" tabindex="102"><i class="fas fa-save icon"></i>Save</button>
-				<a href="#remove-item" class="btn btn-danger update-link" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
+				<a href="#remove-item" class="btn btn-danger update-only" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 			</form>
-		</div>
-
-		<div>
-			<ul class="tags">
-				<li>asdfasd asdf</li>
-				<li>asdfa sdf</li>
-			</ul>
 		</div>
 
 		<script type="text/javascript">
@@ -235,6 +235,8 @@
 					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
 					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
 				];
+				const STYLES = { imp: i18n.fmtFloat }
+				const PARSERS = { imp: i18n.toFloat }
 
 				let data = DB;
 				let filter = {};
@@ -247,49 +249,52 @@
 					test = data; // current item
 					resume.index = i; // update index
 					dom.setValue("#id", data.id).setValue("#name", data.name).setValue("#memo", data.memo)
-						.toggleHide(".update-link", !data.id).viewTab(3);
+						.toggleHide(".update-only", !data.id).viewTab(3);
 				}
 				function fnLoad(i) {
 					fnView(i, data[i]);
 				}
 				function fnFilter() { // Simulate server call!!
 					data = DB.filter(row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo));
-					dom.repaginate("#pruebas", data, resume).setFocus("#filter-name");
+					dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name");
 				}
 
 				dom.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onclick("button[type=reset]", () => !fnFilter(ab.clear(filter)))
 					.onclick("a.create-data", () => fnView(-1, {}));
 
-				dom.table("#pruebas", DB, resume)
+				dom.table("#pruebas", DB, resume, STYLES)
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-					//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume))
+					//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume, STYLES))
 					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
 					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
-					.onTable("#pruebas", "sort", table => dom.table(table, data, resume))
+					.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
 					.onChangeInput("#page-size", el => {
 						resume.pageSize = +el.value;
-						dom.repaginate("#pruebas", data, resume);
+						dom.repaginate("#pruebas", data, resume, STYLES);
 					});
 
 				dom.addClick("a[href='#first-item']", el => fnLoad(0))
 					.addClick("a[href='#prev-item']", el => fnLoad(nb.dec(resume.index)))
 					.addClick("a[href='#next-item']", el => fnLoad(nb.inc(resume.index, data.length - 1)))
 					.addClick("a[href='#last-item']", el => fnLoad(data.length - 1))
-					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume));
+					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES));
 
-				dom.onChangeForm("#filter", (form, ev) => dom.load(ev.target, filter));
-				dom.onSubmitForm("#filter", form => {
+				dom.onChangeForm("#filter", (form, ev) => {
+					dom.load(ev.target, filter, PARSERS);
+				}).onSubmitForm("#filter", form => {
 					dom.closeAlerts().isOk()
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 						&& setTimeout(() => fnFilter(), 400);
 				});
-				dom.onChangeForm("#test", (form, ev) => dom.load(ev.target, test));
-				dom.onSubmitForm("#test", form => {
+
+				dom.onChangeForm("#test", (form, ev) => {
+					dom.load(ev.target, test, PARSERS);
+				}).onSubmitForm("#test", form => {
 					dom.closeAlerts()
 						.required("#memo", "form err", "errRequired")
 						.required("#name", "form err", "errRequired");
@@ -297,7 +302,7 @@
 					if (dom.isOk()) {
 						if (!test.id)
 							data.push(test);
-						dom.updateTable("#pruebas", data, resume).viewTab(2).showOk("saveOk");
+						dom.updateTable("#pruebas", data, resume, STYLES).viewTab(2).showOk("saveOk");
 					}
 				});
 			});
