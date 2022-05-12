@@ -323,7 +323,8 @@ function DomBox() {
 		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
 		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
-		self.focus(inputs.find(fnFocus)); // Set focus on first visible input
+		self.autofocus = () => self.focus(inputs.find(fnFocus)); // Set focus on first visible input
+		self.autofocus();
 
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
@@ -363,14 +364,14 @@ function DomBox() {
 				self.hide(list[0]).show(list[1]);
 		}
 		function fnRendetTfoot(table, resume, styles) {
-			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles));
+			self.trigger(table, "render"); // Trigger event after change data and before render it
+			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles)); // Draw footer
 		}
 		self.tfoot = function(table, resume, styles) {
 			table = self.getTable(table); // find table on tables array
 			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
 		}
-		self.renderTfoot = self.tfoot;
-
+	
 		function fnPagination(table, data, resume, styles) {
 			const pagination = self.next(table, ".pagination"); // Pag section
 			if ((resume.pageSize < 1) || !pagination)
@@ -418,27 +419,26 @@ function DomBox() {
 			}
 			renderPagination(resume.page);
 		}
-		function fnRemoveRow(table, data, resume, styles) { // Confirm, close prev alerts and trigger event
-			let ok = table && data && styles && i18n.confirm(styles.remove || "remove");
-			if (ok && self.closeAlerts().trigger(table, "before-remove", resume.data).isOk()) {
+		function fnRemoveRow(table, data, resume, styles) {
+			// Confirm, close prev. alerts and trigger remove event
+			let ok = table && data && i18n.confirm(styles?.remove || "remove");
+			if (ok && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
 				resume.size--; // Update size
 				resume.total--; // Update total numrows
 				resume.row.remove(); // Remove row 
 				data.splice(resume.index, 1); // Remove data row
-				// Trigger event before redraw table and after remove row
-				self.trigger(table, "remove", resume.data);
 				if (resume.total == 0) { // Is empty table?
+					fnRendetTfoot(table, resume, styles); // First render footer
 					fnToggleTbody(table); // Toggle body if no data
 					fnPagination(table, data, resume, styles); // Render asociated pages
-					fnRendetTfoot(table, resume, styles); // Render footer
 				}
 				else if (resume.size == 0) { // Is empty Page?
 					resume.start = 0; // Go first page
 					fnRenderRows(table, data, resume, styles); // Build table rows
 				}
 				else {
+					fnRendetTfoot(table, resume, styles); // First render footer
 					fnPagination(table, data, resume, styles); // Render asociated pages
-					fnRendetTfoot(table, resume, styles); // Render footer
 				}
 			}
 			return self;
@@ -465,11 +465,13 @@ function DomBox() {
 			styles.getValue = styles.getValue || i18n.val;
 
 			const tbody = table.tBodies[0]; // Data rows
+			fnRendetTfoot(table, resume, styles); // First render footer
 			self.render(tbody, tpl => ab.format(aux, tpl, styles)); // Render rows
-			fnRendetTfoot(table, resume, styles); // Render footer
+			fnToggleTbody(table); // Toggle body if no data
+			fnPagination(table, data, resume, styles); // Render asociated pages
 
-			// Change, find and remove events
-			self.change(tbody.children, (row, ev, i) => {
+			// Listeners for change, find and remove events
+			return self.change(tbody.children, (row, ev, i) => {
 				resume.row = row; // TR parent row
 				resume.index = resume.start + i; // Real index
 				resume.data = data[resume.index]; // Current data row
@@ -487,10 +489,6 @@ function DomBox() {
 				else if (sb.starts(name, "#find")) // Is find event?
 					self.trigger(table, name.substring(1), resume);
 			});
-
-			fnToggleTbody(table); // Toggle body if no data
-			fnPagination(table, data, resume, styles); // Render asociated pages
-			return self.trigger(table, "render"); // Trigger event
 		}
 		self.table = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
@@ -516,9 +514,10 @@ function DomBox() {
 			return fnRemoveRow(table, data, resume, styles);
 		}
 
-		// Synonyms
+		// Table acctions synonyms
 		self.renderTables = self.tables = self.list;
 		self.renderRows = self.renderTable = self.table;
+		self.renderTfoot = self.tFoot = self.tfoot;
 		self.startPagination = self.repaginate;
 
 		// Initialize all tables
