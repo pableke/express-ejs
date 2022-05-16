@@ -38,10 +38,8 @@ function ValidatorBox() {
 	const minify = sb.toUpperWord;
 
 	// Validators
-	this.range = function(num, min, max) { // NaN comparator always false
-		return (sb.isset(num) && nb.between(num, min, max)) ? num : null;
-	}
-	this.gt0 = num => self.range(num, .001, 1e9);
+	this.range = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
+	this.gt0 = num => self.range(num, .0001, 1e9); // Float range great than 0
 	this.intval = num => self.range(nb.intval(num), 1, 9);
 	this.intval3 = num => self.range(nb.intval(num), 1, 3);
 	this.intval5 = num => self.range(nb.intval(num), 1, 5);

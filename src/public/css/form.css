@@ -29,7 +29,7 @@ label.required:after {
 .input-control-text, .ui-text { min-width: 350px; width: 90%; max-width: 500px; }
 .input-control-float, .ui-float { width: 110px; text-align: right; }
 .input-control-integer, .ui-integer { width: 110px; text-align: right; }
-.input-control-date, .ui-date { width: 120px; padding: 1px; }
+.input-control-date, .ui-date { width: 120px; padding: 3px; }
 ::-webkit-calendar-picker-indicator{ margin: 0px; }
 .input-control-time, .ui-time { padding: 1px; }
 .input-control-datetime, .ui-dt { padding: 1px; }

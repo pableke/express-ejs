@@ -51,6 +51,7 @@ function StringBox() {
 	this.upper = str => str ? str.toUpperCase(str) : str;
 	this.lower = str => str ? str.toLowerCase(str) : str;
 	this.substr = (str, i, n) => str ? str.substr(i, n) : str;
+	this.substring = (str, i, j) => str ? str.substring(i, j) : str;
 	this.indexOf = (str1, str2) => str1 ? str1.indexOf(str2) : -1;
 	this.lastIndexOf = (str1, str2) => str1 ? str1.lastIndexOf(str2) : -1;
 	this.prevIndexOf = (str1, str2, i) => str1 ? str1.substr(0, i).lastIndexOf(str2) : -1;
@@ -96,9 +97,10 @@ function StringBox() {
 	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); //object value type = string
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
+	this.in = (value, min, max) => value ? self.between(value, min, max) : true; // Open range filter
 	this.between = function(value, min, max) { // value into a range
-		min = min ?? value;
-		max = max ?? value;
+		min = min || value;
+		max = max || value;
 		return (min <= value) && (value <= max);
 	}
 	this.cmp = function(a, b) {

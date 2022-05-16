@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="es">
 <head>
 	<base href="../">
 	<meta charset="UTF-8">
@@ -139,7 +139,17 @@
 					</div>
 					<div class="ui-group ui-block">
 						<label for="filter-memo" class="required">Memoria:</label>
-						<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="3"/>
+						<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="2"/>
+					</div>
+					<div class="ui-group ui-block">
+						<label for="imp1" class="required">Importe:</label>
+						<input type="text" id="imp1" name="imp1" value="" class="ui-item ui-control ui-float" tabindex="3" />...
+						<input type="text" id="imp2" name="imp2" value="" class="ui-item ui-control ui-float" tabindex="4" />
+					</div>
+					<div class="ui-group ui-block">
+						<label for="f1" class="required">Fecha:</label>
+						<input type="date" id="f1" name="f1" value="" class="ui-item ui-control ui-date" tabindex="5" />...
+						<input type="date" id="f2" name="f2" value="" class="ui-item ui-control ui-date" tabindex="6" />
 					</div>
 				</div>
 
@@ -155,9 +165,10 @@
 				<thead>
 					<tr>
 						<th>Nº</th>
-						<th>C1<a href="#name" class="sort sort-none"></a></th>
-						<th>C2<a href="#memo" class="sort sort-none"></a></th>
-						<th>C3<a href="#c3" class="sort sort-none"></a></th>
+						<th>Nombre<a href="#name" class="sort sort-none"></a></th>
+						<th>Info<a href="#memo" class="sort sort-none"></a></th>
+						<th>Importe<a href="#imp" class="sort sort-none"></a></th>
+						<th>Fecha<a href="#fecha" class="sort sort-none"></a></th>
 						<th>C4</th>
 						<th>Acciones</th>
 					</tr>
@@ -167,7 +178,8 @@
 						<td class="text-center">@count;</td>
 						<td><a id="1" href="#find">@name;</a></td>
 						<td>@memo;</td>
-						<td>F@count; - C3</td>
+						<td class="textr">@imp;</td>
+						<td class="text-center">@fecha;</td>
 						<td class="text-center"><input type="text" name="test"/></td>
 						<td class="text-center">
 							<a href="#find"><i class="fas fa-search icon"></i></a>
@@ -188,10 +200,20 @@
 			<div class="navbar">
 				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+				<a href="#clear-table" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 		</div>
 
 		<div id="tab-3" class="tab-content">
+			<div class="navbar update-only">
+				<hr/>
+				<a href="#first-item" class="btn btn-primary" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
+				<a href="#prev-item" class="btn btn-primary" tabindex="61"><i class="fas fa-angle-left"></i></a>
+				<a href="#next-item" class="btn btn-primary" tabindex="62"><i class="fas fa-angle-right"></i></a>
+				<a href="#last-item" class="btn btn-primary" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
+				<hr/>
+			</div>
+
 			<form id="test" action="test" method="post">
 			<input type="hidden" id="id" name="id" value="" />
 
@@ -207,19 +229,22 @@
 						<option id="entidades" value="@key;">@value;</option>
 					</select>
 				</div>
+				<div class="ui-group ui-block">
+					<label for="imp" class="required">Importe:</label>
+					<input type="text" id="imp" name="imp" value="" class="ui-item ui-control ui-float" tabindex="3" />
+				</div>
+				<div class="ui-group ui-block">
+					<label for="fecha" class="required">Fecha:</label>
+					<input type="date" id="fecha" name="fecha" value="" class="ui-item ui-control ui-date" tabindex="4" />
+				</div>
 				<div class="ui-group ui-row">
 					<label for="memo" class="required">Memoria:</label>
-					<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="3"></textarea>
+					<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="5"></textarea>
 				</div>
 			</div>
 
 			<div class="navbar">
-				<a href="#first-item" class="btn btn-primary update-only" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
-				<a href="#prev-item" class="btn btn-primary update-only" tabindex="61"><i class="fas fa-angle-left"></i></a>
-				<a href="#next-item" class="btn btn-primary update-only" tabindex="62"><i class="fas fa-angle-right"></i></a>
-				<a href="#last-item" class="btn btn-primary update-only" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
-
-				<br/><hr/>
+				<hr/>
 				<a href="#tab-0" class="btn btn-primary" tabindex="100"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 				<button type="submit" class="btn btn-success" tabindex="102"><i class="fas fa-save icon"></i>Save</button>
@@ -231,12 +256,16 @@
 		<script type="text/javascript">
 			dom.ready(function() {
 				const DB = [
-					{id:1,name:"Row 1", memo: "jj234 234234 kjhl"}, {id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd"}, {id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj"},
-					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj"}, {id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs"}, {id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd"},
-					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf"}
+					{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01"}, 
+					{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1}, 
+					{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81}, 
+					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35"}, 
+					{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
+					{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47},
+					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11"}
 				];
-				const STYLES = { imp: i18n.fmtFloat }
-				const PARSERS = { imp: i18n.toFloat }
+				const STYLES = { imp: i18n.isoFloat, fecha: i18n.fmtDate }
+				const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat }
 
 				let data = DB;
 				let filter = {};
@@ -248,60 +277,64 @@
 				function fnView(i, data) {
 					test = data; // current item
 					resume.index = i; // update index
-					dom.setValue("#id", data.id).setValue("#name", data.name).setValue("#memo", data.memo)
-						.toggleHide(".update-only", !data.id).viewTab(3);
+					dom.display("#test", data, STYLES).toggleHide(".update-only", !data.id).viewTab(3);
 				}
 				function fnLoad(i) {
 					fnView(i, data[i]);
 				}
 				function fnFilter() { // Simulate server call!!
-					data = DB.filter(row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo));
+					data = DB.filter(row => sb.ilike(row.name, filter.name) && sb.ilike(row.memo, filter.memo)
+											&& nb.in(row.imp, filter.imp1, filter.imp2) && sb.in(row.fecha, filter.f1, filter.f2));
 					dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name");
 				}
 
-				dom.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-					.onclick("button[type=reset]", () => !fnFilter(ab.clear(filter)))
-					.onclick("a.create-data", () => fnView(-1, {}));
-
+				// Eventos de las tablas de consulta
 				dom.table("#pruebas", DB, resume, STYLES)
 					.onExitTab(() => console.log("exit tabs"))
 					.onChangeTab(1, () => console.log("change tab-1"))
 					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
 					.onRenderTable("#pruebas", (table, ev) => console.log("render", table))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
+					.addClick("a[href='#clear-table']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, resume, STYLES))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 					//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume, STYLES))
 					.onTable("#pruebas", "sort-name", table => { resume.sort = (a, b) => sb.cmp(a.name, b.name); })
 					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
+					.onTable("#pruebas", "sort-imp", table => { resume.sort = (a, b) => nb.cmp(a.imp, b.imp); })
 					.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
 					.onChangeInput("#page-size", el => {
 						resume.pageSize = +el.value;
 						dom.repaginate("#pruebas", data, resume, STYLES);
 					});
 
-				dom.addClick("a[href='#first-item']", el => fnLoad(0))
+				// Eventos de los botones de control (links, inputs, barra de navegacion, ...)
+				dom.setRangeDate("#f1", "#f2") // Filter range date
+					.addClick("a[href='#first-item']", el => fnLoad(0))
 					.addClick("a[href='#prev-item']", el => fnLoad(nb.dec(resume.index)))
 					.addClick("a[href='#next-item']", el => fnLoad(nb.inc(resume.index, data.length - 1)))
 					.addClick("a[href='#last-item']", el => fnLoad(data.length - 1))
-					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES));
+					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
+					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
+					.onclick("button[type=reset]", () => !fnFilter(ab.clear(filter)))
+					.onclick("a.create-data", () => fnView(-1, {}));
 
-				dom.onChangeForm("#filter", (form, ev) => {
-					dom.load(ev.target, filter, PARSERS);
-				}).onSubmitForm("#filter", form => {
+				// Eventos de los formularios (filtro y edicion)
+				dom.onSubmitForm("#filter", form => {
+					dom.load(form, filter, PARSERS);
 					dom.closeAlerts().isOk()
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 						&& setTimeout(() => fnFilter(), 400);
 				});
-
-				dom.onChangeForm("#test", (form, ev) => {
-					dom.load(ev.target, test, PARSERS);
-				}).onSubmitForm("#test", form => {
+				dom.onSubmitForm("#test", form => {
 					dom.closeAlerts()
 						.required("#memo", "form err", "errRequired")
+						.required("#fecha", "form err", "errRequired")
+						.required("#imp", "form err", "errRequired")
 						.required("#name", "form err", "errRequired");
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 					if (dom.isOk()) {
-						if (!test.id)
+						dom.load(form, test, PARSERS);
+						if (!test.id) // inserting?
 							data.push(test);
 						dom.updateTable("#pruebas", data, resume, STYLES).viewTab(2).showOk("saveOk");
 					}
