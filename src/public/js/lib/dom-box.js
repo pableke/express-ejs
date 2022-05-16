@@ -12,10 +12,11 @@ function DomBox() {
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
 
-	function fnLog(data) { console.log("Log:", data); }
-	function fnSplit(str) { return str ? str.split(/\s+/) : []; } //class separator
-	function fnQuery(elem, parent) { return sb.isstr(elem) ? self.get(elem, parent) : elem; }
-	function fnQueryAll(list) { return sb.isstr(list) ? document.querySelectorAll(list) : list; }
+	const fnParam = value => value; // return param value
+	const fnLog = data => { console.log("Log:", data); }
+	const fnSplit = str => str ? str.split(/\s+/) : []; //class separator
+	const fnQuery = (elem, parent) => sb.isstr(elem) ? self.get(elem, parent) : elem;
+	const fnQueryAll = list => sb.isstr(list) ? document.querySelectorAll(list) : list;
 
 	this.get = (selector, el) => (el || document).querySelector(selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
@@ -62,6 +63,7 @@ function DomBox() {
 		}
 		return self;
 	}
+	this.apply = (selector, list, cb) => self.each(list, el => el.matches(selector) && cb(el));
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
 	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
 	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
@@ -70,10 +72,6 @@ function DomBox() {
 	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
 	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
 	this.values = list => self.map(list, el => el.value);
-	this.apply = (selector, list, cb) => {
-		ab.each(list, el => el.matches(selector) && cb(el));
-		return self;
-	}
 
 	this.prev = (el, selector) => {
 		el = el.previousElementSibling;
@@ -93,8 +91,13 @@ function DomBox() {
 		}
 		return el;
 	}
-	this.children = (el, selector) => el.parentNode.querySelectorAll(selector);
 	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
+	this.children = (el, selector) => el.parentNode.querySelectorAll(selector);
+	this.clear = el => {
+		while (el.firstChild)
+			el.removeChild(el.firstChild);
+		return self;
+	}
 
 	// Inputs selectors and focusableds
 	const INPUTS = "input,textarea,select";
@@ -109,13 +112,6 @@ function DomBox() {
 		let aux = ""; // Binary string, for example: "01001011"
 		self.each(list, el => { aux += el.checked ? "1" : "0"; });
 		return parseInt(aux, 2); // Bin2Int
-	};
-	this.load = (list, data, parsers) => {
-		parsers = parsers || {};
-		return self.each(list, el => {
-			const fn = parsers[el.name]; // parse type
-			data[el.name] = fn ? fn(el.value) : el.value;
-		});
 	};
 
 	// Contents
@@ -146,6 +142,30 @@ function DomBox() {
 		el && el.removeAttribute(name);
 		return self;
 	}
+
+	this.load = (form, data, parsers) => {
+		form = self.getForm(form); // Update fields
+		parsers = parsers || {}; // Default container
+		return self.apply(INPUTS, form.elements, el => {
+			const fn = parsers[el.name] || fnParam; // Field parser type
+			data[el.name] = fn(el.value); // Parse type
+		});
+	};
+	this.display = (form, data, styles) => {
+		const fnDate = value => sb.substring(value, 0, 10); // Value = string date time
+		const TYPES = {
+			"datetime": fnParam, //"number": fnParam, // Not to change style
+			"date": fnDate, "week": fnDate, "month": fnDate // Styled for type=date
+		};
+
+		form = self.getForm(form); // Update fields
+		styles = styles || TYPES; // Optional styles
+
+		return self.apply(INPUTS, form.elements, el => {
+			const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
+			fnSetVal(el, fn(data[el.name])); // Display styled value
+		});
+	};
 
 	function fnSetText(el, value) {
 		el.innerText = value;
@@ -333,6 +353,10 @@ function DomBox() {
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
+		self.setRangeDate = (f1, f2) => {
+			return self.onBlurInput(f1, el => dom.setAttrInput(f2, "min", el.value))
+						.onBlurInput(f2, el => dom.setAttrInput(f1, "max", el.value));
+		}
 
 		// Extends internacionalization
 		self.tr = function(selector, opts) {
@@ -445,7 +469,7 @@ function DomBox() {
 		}
 		function fnRenderRows(table, data, resume, styles) {
 			if (!table || !data || !resume)
-				return self; // No aplica
+				return self; // No table/data found
 
 			// Recalc table page indexes
 			resume.total = data.length;
@@ -458,6 +482,10 @@ function DomBox() {
 			resume.page = +(resume.start / resume.pageSize);
 			if (resume.sortBy && resume.sort) // Sort full array
 				ab.sort(data, resume.sortDir, resume.sort); // Sort before paginate
+			else {
+				const links = self.getAll(".sort", table.tHead); // Reset orderable links
+				self.removeClass(links, "sort-asc sort-desc").addClass(links, "sort-none");
+			}
 			const aux = (resume.pageSize < resume.total) ? data.slice(resume.start, resume.end) : data;
 			resume.size = aux.length; // Num page rows
 
@@ -497,6 +525,7 @@ function DomBox() {
 		self.list = function(selector, data, resume, styles) {
 			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		}
+
 		self.repaginate = function(table, data, resume, styles) {
 			resume.start = 0; // Go first page
 			table = self.getTable(table); // find table on tables array
@@ -505,13 +534,19 @@ function DomBox() {
 		self.updateTable = function(table, data, resume, styles) {
 			delete resume.sort; // Same state list
 			table = self.getTable(table); // find table on tables array
-			const links = self.getAll(".sort", table.tHead); // Reset orderable links
-			self.removeClass(links, "sort-asc sort-desc").addClass(links, "sort-none");
 			return fnRenderRows(table, data, resume, styles);
 		}
+
 		self.removeRow = function(table, data, resume, styles) {
 			table = self.getTable(table); // find table on tables array
 			return fnRemoveRow(table, data, resume, styles);
+		}
+		self.clearTable = function(table, data, resume, styles) {
+			data.splice(0); // Clear array data
+			delete resume.sort; // Same state list
+			resume.index = resume.start = 0; // Update index
+			table = self.getTable(table); // find table on tables array
+			return fnRenderRows(table, data, resume, styles);
 		}
 
 		// Table acctions synonyms

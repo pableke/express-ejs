@@ -31,9 +31,8 @@ function NumberBox() {
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
 	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
 	this.between = (num, min, max) => {
-		if (isNaN(num))
-			return false;
 		min = min ?? num
 		max = max ?? num
 		return (min <= num) && (num <= max);

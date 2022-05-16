@@ -2,7 +2,6 @@
 function ArrayBox() {
 	const self = this; //self instance
 
-	function fnVoid() {}
 	function fnValue(obj, name) { return obj[name]; }
 	function fnSize(arr) { return arr ? arr.length : 0; } //string o array
 	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }

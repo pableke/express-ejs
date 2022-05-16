@@ -35,6 +35,7 @@ function I18nBox() {
 			//confirm cuestions
 			saveOk: "Element saved successfully!",
 			remove: "Are you sure to delete this element?",
+			removeAll: "Are you sure to delete all elements?",
 			removeOk: "Element removed successfully!",
 			cancel: "Are you sure to cancel element?",
 			cancelOk: "Element canceled successfully!",
@@ -95,6 +96,7 @@ function I18nBox() {
 			//confirm cuestions
 			saveOk: "Registro guardado correctamente",
 			remove: "¿Confirma que desea eliminar este registro?",
+			removeAll: "¿Confirma que desea eliminar todos los elementos?",
 			removeOk: "Registro eliminado correctamente.",
 			cancel: "¿Confirma que desea cancelar este registro?",
 			cancelOk: "Elemento cancelado correctamente.",

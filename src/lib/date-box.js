@@ -1,4 +1,10 @@
 
+/**
+ * DateBox module require
+ * ArrayBox (ab)
+ * 
+ * @module DateBox
+ */
 function DateBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
@@ -50,7 +56,7 @@ function DateBox() {
 	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
-	this.endDay = function(date) { let aux = self.clone(date); aux.setHours(23, 59, 59, 999); return aux; }
+	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
 	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 
@@ -139,13 +145,14 @@ function DateBox() {
 	this.past = date => self.lt(date, sysdate);
 	this.future = date => self.gt(date, sysdate);
 	this.geToday = date => self.inDay(date, sysdate) || self.ge(date, sysdate);
-	this.between = function(date, min, max) { // value into a range
-		if (!isDate(date))
-			return false;
+
+	function fnBetween(date, min, max) { // value into a range
 		min = isDate(min) ? min.getTime() : date.getTime();
 		max = isDate(max) ? max.getTime() : date.getTime();
 		return (min <= date.getTime()) && (date.getTime() <= max);
 	}
+	this.in = (date, min, max) => isDate(date) ? fnBetween(date, min, max) : true; // Open range filter
+	this.between = (date, min, max) => isDate(date) && fnBetween(date, min, max); // Date into a range
 
 	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
 	function fnIsoTime(date) { return fnMinTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
@@ -159,6 +166,7 @@ function DateBox() {
 	this.fmtMinTime = str => str && str.substr(11, 5);
 	this.fmtTime = str => str && str.substr(11, 8);
 
+	// English
 	function fnEnDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
 	this.enDate = str => str ? toDateTime(splitDate(str)) : null; //parse to Date object
 	this.isoEnDate = date => isDate(date) ? fnEnDate(date) : null; //yyyy-mm-dd
@@ -166,6 +174,7 @@ function DateBox() {
 	this.fmtEnDate = str => str && str.substr(0, 10); //Iso string to yyyy-mm-dd
 	this.acEnDate = str => str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY);
 
+	// Spanis
 	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
 	this.esDate = str => str ? toDateTime(splitDate(str).swap(0, 2)) : null; //parse to Date object
 	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
