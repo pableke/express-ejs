@@ -23,7 +23,7 @@ function ArrayBox() {
 		this[b] = aux;
 		return this;
 	}
-	Array.prototype.join = function(separator, i, j) {
+	Array.prototype.stringify = function(separator, i, j) {
 		i = i || 0; // Redefine join min/max limits
 		j = (j < 0) ? (this.length + j) : (j || this.length);
 		separator = separator ?? ","; // default = ","

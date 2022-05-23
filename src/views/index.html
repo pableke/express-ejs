@@ -269,13 +269,13 @@
 
 				let data = DB;
 				let filter = {};
-				let test;
+				let values;
 
 				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
 				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
 
 				function fnView(i, data) {
-					test = data; // current item
+					values = data; // current item
 					resume.index = i; // update index
 					dom.display("#test", data, STYLES).toggleHide(".update-only", !data.id).viewTab(3);
 				}
@@ -307,7 +307,7 @@
 						dom.repaginate("#pruebas", data, resume, STYLES);
 					});
 
-				// Eventos de los botones de control (links, inputs, barra de navegacion, ...)
+				// Eventos de control para el filtro, navegación y datos del formulario
 				dom.setRangeDate("#f1", "#f2") // Filter range date
 					.addClick("a[href='#first-item']", el => fnLoad(0))
 					.addClick("a[href='#prev-item']", el => fnLoad(nb.dec(resume.index)))
@@ -333,9 +333,9 @@
 						.required("#name", "form err", "errRequired");
 						//&& dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
 					if (dom.isOk()) {
-						dom.load(form, test, PARSERS);
-						if (!test.id) // inserting?
-							data.push(test);
+						dom.load(form, values, PARSERS);
+						if (!values.id) // inserting?
+							data.push(values);
 						dom.updateTable("#pruebas", data, resume, STYLES).viewTab(2).showOk("saveOk");
 					}
 				});

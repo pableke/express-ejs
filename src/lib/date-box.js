@@ -179,7 +179,7 @@ function DateBox() {
 	this.esDate = str => str ? toDateTime(splitDate(str).swap(0, 2)) : null; //parse to Date object
 	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
 	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
-	this.fmtEsDate = str => str && splitDate(str).swap(0, 2).join("/", 0, 3); //Iso string to dd/mm/yyyy
+	this.fmtEsDate = str => str && splitDate(str).swap(0, 2).stringify("/", 0, 3); //Iso string to dd/mm/yyyy
 	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
 }
 

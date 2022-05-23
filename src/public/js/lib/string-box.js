@@ -87,7 +87,26 @@ function StringBox() {
 		return result;
 	}
 
+	// Date iso string handlers (ej: "2022-05-11T12:05:01")
+	function fnEnDate(str) { return str.substring(0, 10); } //yyyy-mm-dd
+	function fnEsDate(str) { return str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4); } //dd/mm/yyyy
+	function fnIsoTime(str) { return str.substring(11, 19); } //hh:MM:ss
+
 	this.toDate = str => str ? new Date(str) : null;
+	this.enDate = str => str && fnEnDate(str); //yyyy-mm-dd
+	this.esDate = str => str && fnEsDate(str); //dd/mm/yyyy
+	this.minTime = str => self.substring(str, 11, 17); //hh:MM
+	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
+	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
+	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
+
+	this.inYear = (str1, str2) => self.substring(str1, 0, 4) == self.substring(str2, 0, 4);
+	this.inMonth = (str1, str2) => self.substring(str1, 0, 7) == self.substring(str2, 0, 7);
+	this.inDay = (str1, str2) => self.substring(str1, 0, 10) == self.substring(str2, 0, 10);
+	this.inHour = (str1, str2) => self.substring(str1, 0, 13) == self.substring(str2, 0, 13);
+	this.getDate = str => +self.substring(str, 8, 10); // Get day as integer
+	this.getHours = str => +self.substring(str, 14, 16); // Get hours as integer
+
 	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
 	this.toWord = str => str ? fnWord(str) : str;
 	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;

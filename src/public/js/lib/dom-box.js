@@ -374,8 +374,8 @@ function DomBox() {
 		self.onTable = (selector, name, fn) => fnAddEvent(self.getTable(selector), name, fn);
 		self.onFindRow = (selector, fn) => self.onTable(selector, "find", fn);
 		self.onRemoveRow = (selector, fn) => self.onTable(selector, "remove", fn);
-		self.onChangeTable = (selector, fn) => self.onTable(selector, "recalc", fn);
-		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "recalc", fn);
+		self.onChangeTable = (selector, fn) => self.onTable(selector, "change", fn);
+		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "change", fn);
 		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
 		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
 		self.onPaginationTable = (selector, fn) => self.onTable(selector, "pagination", fn);
@@ -504,8 +504,7 @@ function DomBox() {
 				resume.index = resume.start + i; // Real index
 				resume.data = data[resume.index]; // Current data row
 				resume.element = ev.target; // Element to trigger event
-				self.trigger(table, "recalc-" + ev.target.name, resume) // Specific change event
-					.trigger(table, "recalc", resume); // Common change event for all inputs
+				self.trigger(table, "change-" + ev.target.name, resume); // Specific change event
 			}).click(self.getAll("a[href]", tbody), el => {
 				resume.row = el.closest("tr"); // TR parent row
 				resume.index = resume.start + self.indexOf(resume.row); // Real index
