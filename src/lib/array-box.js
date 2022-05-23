@@ -23,7 +23,7 @@ function ArrayBox() {
 		this[b] = aux;
 		return this;
 	}
-	Array.prototype.join = function(separator, i, j) {
+	Array.prototype.stringify = function(separator, i, j) {
 		i = i || 0; // Redefine join min/max limits
 		j = (j < 0) ? (this.length + j) : (j || this.length);
 		separator = separator ?? ","; // default = ","
@@ -42,8 +42,37 @@ function ArrayBox() {
 	// Module functions
 	this.size = fnSize;
 	this.empty = arr => (fnSize(arr) < 1);
-	this.find = (arr, fn) => arr ? arr.find(fn) : null;
-	this.findIndex = (arr, fn) => arr ? arr.findIndex(fn) : -1;
+	this.swap = (arr, a, b) => { arr && arr.swap(a, b); return self; }
+
+	// Iterators
+	this.each = function(arr, fn) {
+		const size = fnSize(arr); //max
+		for (let i = 0; i < size; i++)
+			fn(arr[i], i, arr); //callback
+		return self;
+	}
+	this.reverse = function(arr, fn) {
+		for (let i = fnSize(arr) - 1; i > -1; i--)
+			fn(arr[i], i, arr); //callback
+		return self;
+	}
+	this.find = function(arr, fn) {
+		const size = fnSize(arr); //max
+		for (let i = 0; i < size; i++) {
+			if (fn(arr[i], i, arr)) //callback
+				return arr[i];
+		}
+		return null;
+	}
+	this.findIndex = function(arr, fn) {
+		const size = fnSize(arr); //max
+		for (let i = 0; i < size; i++) {
+			if (fn(arr[i], i, arr)) //callback
+				return i;
+		}
+		return -1;
+	}
+
 	//this.findLast = (arr, fn) => arr ? arr.findLast(fn) : null;
 	//this.findLastIndex = (arr, fn) => arr ? arr.findLastIndex(fn) : -1;
 	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
@@ -52,7 +81,6 @@ function ArrayBox() {
 	this.unique = (a1, a2) => a2 ? a1.concat(a2.filter(item => (a1.indexOf(item) < 0))) : a1;
 	this.distinct = (arr, name) => name ? arr.filter((o1, i) => (arr.findIndex(o2 => (o1[name] === o2[name])) == i)) : arr;
 	this.eq = (a1, a2) => a1 && a2 && a1.every((item, i) => (a2[i] == item));
-	this.swap = (arr, a, b) => { arr && arr.swap(a, b); return self; }
 
 	this.push = (arr, obj) => { arr && arr.push(obj); return self; }
 	this.pop = arr => { arr && arr.pop(); return self; }
@@ -70,23 +98,15 @@ function ArrayBox() {
 		return self;
 	}
 
-	// Iterators
-	this.each = function(arr, fn) {
-		const size = fnSize(arr); //max
-		for (let i = 0; i < size; i++)
-			fn(arr[i], i, arr); //callback
-		return self;
-	}
-	this.reverse = function(arr, fn) {
-		for (let i = fnSize(arr) - 1; i > -1; i--)
-			fn(arr[i], i, arr); //callback
-		return self;
-	}
-
 	this.toObject = function(keys, values) {
 		const result = {}; // Output
 		keys.forEach((k, i) => { result[k] = values[i]; });
 		return result;
+	}
+	this.clear = function(obj) {
+		for (let k in obj)
+			delete obj[k];
+		return obj;
 	}
 
 	// Serialization

@@ -28,15 +28,12 @@ function NumberBox() {
 		return isset(n1) ? -1 : 1; //nulls last
 	}
 
+	const fnBetween = (num, min, max) => (min <= num) && (num <= max);
+	this.between = (num, min, max) => fnBetween(num, min ?? num, max = max ?? num);
+	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
 	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
-	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
-	this.between = (num, min, max) => {
-		min = min ?? num
-		max = max ?? num
-		return (min <= num) && (num <= max);
-	};
 
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
@@ -44,6 +41,7 @@ function NumberBox() {
 	}
 	this.eq2 = (num1, num2) => isset(num1) && (self.round(num1) == self.round(num2));
 	this.eq3 = (num1, num2) => isset(num1) && (self.round(num1, 3) == self.round(num2, 3));
+	this.eq01 = (num1, num2) => fnBetween(num1 - num2, -.01, .01); //reange +-0.01f
 
 	this.rand = (min, max) => Math.random() * (max - min) + min;
 	this.randInt = (min, max) => Math.floor(self.rand(min, max));
