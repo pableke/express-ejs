@@ -19,9 +19,18 @@ function NumberBox() {
 		return (i > 0) ? (str.substring(0, i) + separator + output) : output;
 	}
 
+	this.round = function(num, d) {
+		d = isset(d) ? d : 2; //default 2 decimals
+		return +(Math.round(num + "e" + d) + "e-" + d);
+	}
+	this.eq2 = (num1, num2) => isset(num1) && (self.round(num1) == self.round(num2));
+	this.eq3 = (num1, num2) => isset(num1) && (self.round(num1, 3) == self.round(num2, 3));
+	this.eq01 = (num1, num2) => fnBetween(num1 - num2, -.01, .01); //reange +-0.01f
+
 	this.lt0 = num => isset(num) && (num < 0);
 	this.le0 = num => isset(num) && (num <= 0);
 	this.gt0 = num => isset(num) && (num > 0);
+	//this.gt2 = (num1, num2) => isset(num1) && (self.round(num1) > self.round(num2));
 	this.cmp = function(n1, n2) {
 		if (isset(n1) && isset(n2))
 			return n1 - n2;
@@ -34,14 +43,6 @@ function NumberBox() {
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
 	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
-
-	this.round = function(num, d) {
-		d = isset(d) ? d : 2; //default 2 decimals
-		return +(Math.round(num + "e" + d) + "e-" + d);
-	}
-	this.eq2 = (num1, num2) => isset(num1) && (self.round(num1) == self.round(num2));
-	this.eq3 = (num1, num2) => isset(num1) && (self.round(num1, 3) == self.round(num2, 3));
-	this.eq01 = (num1, num2) => fnBetween(num1 - num2, -.01, .01); //reange +-0.01f
 
 	this.rand = (min, max) => Math.random() * (max - min) + min;
 	this.randInt = (min, max) => Math.floor(self.rand(min, max));
