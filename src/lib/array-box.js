@@ -1,10 +1,9 @@
 
 function ArrayBox() {
 	const self = this; //self instance
-
-	function fnValue(obj, name) { return obj[name]; }
-	function fnSize(arr) { return arr ? arr.length : 0; } //string o array
-	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
+	const fnValue = (obj, name) => obj[name];
+	const fnSize = arr => arr ? arr.length : 0; //string o array
+	const isstr = val => (typeof(val) === "string") || (val instanceof String);
 
 	// Extends Array prototype
 	Array.prototype.update = function(fn) {

@@ -6,6 +6,7 @@ function StringBox() {
 	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
 	const TR1 = "àáâãäåāăąÀÁÂÃÄÅĀĂĄÆßèéêëēĕėęěÈÉĒĔĖĘĚìíîïìĩīĭÌÍÎÏÌĨĪĬòóôõöōŏőøÒÓÔÕÖŌŎŐØùúûüũūŭůÙÚÛÜŨŪŬŮçÇñÑþÐŔŕÿÝ";
 	const TR2 = "aaaaaaaaaAAAAAAAAAABeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIoooooooooOOOOOOOOOuuuuuuuuUUUUUUUUcCnNdDRryY";
+	const sysdate = (new Date()).toISOString(); //global sysdate
 
 	// Helpers
 	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
@@ -92,10 +93,12 @@ function StringBox() {
 	function fnEsDate(str) { return str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4); } //dd/mm/yyyy
 	function fnIsoTime(str) { return str.substring(11, 19); } //hh:MM:ss
 
+	this.sysdate = () => sysdate;
 	this.toDate = str => str ? new Date(str) : null;
+	this.isDate = str => /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[\.\d{1,3}]?$/.test(str);
 	this.enDate = str => str && fnEnDate(str); //yyyy-mm-dd
 	this.esDate = str => str && fnEsDate(str); //dd/mm/yyyy
-	this.minTime = str => self.substring(str, 11, 17); //hh:MM
+	this.minTime = str => self.substring(str, 11, 16); //hh:MM
 	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
 	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
 	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
@@ -104,8 +107,13 @@ function StringBox() {
 	this.inMonth = (str1, str2) => self.substring(str1, 0, 7) == self.substring(str2, 0, 7);
 	this.inDay = (str1, str2) => self.substring(str1, 0, 10) == self.substring(str2, 0, 10);
 	this.inHour = (str1, str2) => self.substring(str1, 0, 13) == self.substring(str2, 0, 13);
+	this.startDay = str => str ? (fnEnDate(str) + "T00:00:00.000") : str;
+	this.endDay = str => str ? (fnEnDate(str) + "T23:59:59.999") : str;
 	this.getDate = str => +self.substring(str, 8, 10); // Get day as integer
 	this.getHours = str => +self.substring(str, 14, 16); // Get hours as integer
+	this.geToday = str => self.inDay(str, sysdate) || (str > sysdate);
+	this.future = str => (str > sysdate);
+	this.past = str => (str < sysdate);
 
 	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
 	this.toWord = str => str ? fnWord(str) : str;
