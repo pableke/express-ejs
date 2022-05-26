@@ -102,6 +102,13 @@ function StringBox() {
 	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
 	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
 	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
+	this.toIsoDate = (date, time) => (date + "T" + self.toIsoTime(time) + ".000");
+	this.toIsoTime = str => {
+		const size = fnSize(str);
+		if (size == 0) // no time
+			return "00:00:00";
+		return (size < 6) ? (str + ":00") : str;
+	}
 
 	this.inYear = (str1, str2) => self.substring(str1, 0, 4) == self.substring(str2, 0, 4);
 	this.inMonth = (str1, str2) => self.substring(str1, 0, 7) == self.substring(str2, 0, 7);
