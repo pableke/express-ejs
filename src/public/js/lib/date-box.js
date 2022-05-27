@@ -12,15 +12,16 @@ function DateBox() {
 	const ONE_DAY = 86400000; //1d = 24 * 60 * 60 * 1000 = hours*minutes*seconds*milliseconds
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
-	function splitDate(str) { return str.split(/\D+/); }
-	function hasParts(parts) { return parts && parts[0]; }
-	function lpad(val) { return (val < 10) ? ("0" + val) : val; } //always 2 digits
-	function century() { return parseInt(sysdate.getFullYear() / 100); } //ej: 20
-	function range(val, min, max) { return Math.min(Math.max(val || 0, min), max); } //force range
-	function range59(val) { return range(val, 0, 59); } //range for minutes and seconds
-	function isLeapYear(year) { return ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); } //año bisiesto?
-	function daysInMonth(y, m) { return daysInMonths[m] + ((m == 1) && isLeapYear(y)); }
-	function isDate(date) { return date && date.getTime && !isNaN(date.getTime()); }
+	const splitDate = str => str.split(/\D+/);
+	const hasParts = parts => parts && parts[0];
+	const lpad = val => (val < 10) ? ("0" + val) : val; //always 2 digits
+	const century = () => parseInt(sysdate.getFullYear() / 100); //ej: 20
+	const range = (val, min, max) => Math.min(Math.max(val || 0, min), max); //force range
+	const range59 = val => range(val, 0, 59); //range for minutes and seconds
+	const isLeapYear = year => ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); //año bisiesto?
+	const daysInMonth = (y, m) => daysInMonths[m] + ((m == 1) && isLeapYear(y));
+	const isDate = date => date && date.getTime && !isNaN(date.getTime()); // full date validator
+	const toDateTime = parts => hasParts(parts) ? fnBuild(parts) : null; //at least year required
 
 	function setTime(date, hh, mm, ss, ms) {
 		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
@@ -30,14 +31,6 @@ function DateBox() {
 		let date = new Date(); //returned instance
 		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
 		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
-	}
-	function toDateTime(parts) { //at least year required
-		return hasParts(parts) ? fnBuild(parts) : null;
-	}
-
-	// Extends Date prototype
-	Date.prototype.toJSON = function() { // Override toJSON to ignore TZ-offset
-		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
 	}
 
 	// Module functions
@@ -153,8 +146,8 @@ function DateBox() {
 	this.in = (date, min, max) => isDate(date) ? fnBetween(date, min, max) : true; // Open range filter
 	this.between = (date, min, max) => isDate(date) && fnBetween(date, min, max); // Date into a range
 
-	function fnMinTime(date) { return lpad(date.getHours()) + ":" + lpad(date.getMinutes()); } //hh:MM
-	function fnIsoTime(date) { return fnMinTime(date) + ":" + lpad(date.getSeconds()); } //hh:MM:ss
+	const fnMinTime = date => lpad(date.getHours()) + ":" + lpad(date.getMinutes()); //hh:MM
+	const fnIsoTime = date => fnMinTime(date) + ":" + lpad(date.getSeconds()); //hh:MM:ss
 	this.minTime = date => date ? fnMinTime(date) : null; //hh:MM
 	this.isoTime = date => date ? fnIsoTime(date) : null; //hh:MM:ss
 	this.acTime = str => str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY);
@@ -166,7 +159,7 @@ function DateBox() {
 	this.fmtTime = str => str && str.substr(11, 8);
 
 	// English
-	function fnEnDate(date) { return date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); } //yyyy-mm-dd
+	const fnEnDate = date => date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); //yyyy-mm-dd
 	this.enDate = str => str ? toDateTime(splitDate(str)) : null; //parse to Date object
 	this.isoEnDate = date => isDate(date) ? fnEnDate(date) : null; //yyyy-mm-dd
 	this.isoEnDateTime = date => isDate(date) ? (fnEnDate(date) + " " + fnIsoTime(date)) : null; //yyyy-mm-dd hh:MM:ss
@@ -174,10 +167,15 @@ function DateBox() {
 	this.acEnDate = str => str && str.replace(/^(\d{4})(\d+)$/g, "$1-$2").replace(/^(\d{4}\-\d\d)(\d+)$/g, "$1-$2").replace(/[^\d\-]/g, EMPTY);
 
 	// Spanis
-	function fnEsDate(date) { return lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); } //dd/mm/yyyy
+	const fnEsDate = date => lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); //dd/mm/yyyy
 	this.esDate = str => str ? toDateTime(splitDate(str).swap(0, 2)) : null; //parse to Date object
 	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
 	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
 	this.fmtEsDate = str => str && splitDate(str).swap(0, 2).stringify("/", 0, 3); //Iso string to dd/mm/yyyy
 	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
+
+	// Extends Date prototype
+	Date.prototype.toJSON = function() { // Override toJSON to ignore TZ-offset
+		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
+	}
 }

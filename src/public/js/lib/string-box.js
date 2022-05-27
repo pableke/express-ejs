@@ -9,11 +9,11 @@ function StringBox() {
 	const sysdate = (new Date()).toISOString(); //global sysdate
 
 	// Helpers
-	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); }
-	function isstr(val) { return (typeof(val) === "string") || (val instanceof String); }
-	function fnWord(str) { return str.replace(/\W+/g, EMPTY); } //remove no alfanum
-	function fnSize(str) { return str ? str.length : 0; } //string o array
-	function iiOf(str1, str2) { return tr(str1).indexOf(tr(str2)); }
+	const isset = val => (typeof(val) !== "undefined") && (val !== null);
+	const isstr = val => (typeof(val) === "string") || (val instanceof String);
+	const fnWord = str =>  str.replace(/\W+/g, EMPTY); //remove no alfanum
+	const fnSize = str => str ? str.length : 0; //string o array
+	const iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	function tr(str) {
 		const size = fnSize(str);
 		let output = str || EMPTY;
@@ -89,9 +89,9 @@ function StringBox() {
 	}
 
 	// Date iso string handlers (ej: "2022-05-11T12:05:01")
-	function fnEnDate(str) { return str.substring(0, 10); } //yyyy-mm-dd
-	function fnEsDate(str) { return str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4); } //dd/mm/yyyy
-	function fnIsoTime(str) { return str.substring(11, 19); } //hh:MM:ss
+	const fnEnDate = str=> str.substring(0, 10); //yyyy-mm-dd
+	const fnEsDate = str => str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4); //dd/mm/yyyy
+	const fnIsoTime = str => str.substring(11, 19); //hh:MM:ss
 
 	this.sysdate = () => sysdate;
 	this.toDate = str => str ? new Date(str) : null;
@@ -121,6 +121,7 @@ function StringBox() {
 	this.geToday = str => self.inDay(str, sysdate) || (str > sysdate);
 	this.future = str => (str > sysdate);
 	this.past = str => (str < sysdate);
+	/****************** End Date helpers ******************/
 
 	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
 	this.toWord = str => str ? fnWord(str) : str;
