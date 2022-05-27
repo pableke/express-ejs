@@ -19,6 +19,13 @@ function NumberBox() {
 		return (i > 0) ? (str.substring(0, i) + separator + output) : output;
 	}
 
+	const fnBetween = (num, min, max) => (min <= num) && (num <= max);
+	this.between = (num, min, max) => fnBetween(num, min ?? num, max = max ?? num);
+	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
+	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
+	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
+	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
 		return +(Math.round(num + "e" + d) + "e-" + d);
@@ -36,13 +43,6 @@ function NumberBox() {
 			return n1 - n2;
 		return isset(n1) ? -1 : 1; //nulls last
 	}
-
-	const fnBetween = (num, min, max) => (min <= num) && (num <= max);
-	this.between = (num, min, max) => fnBetween(num, min ?? num, max = max ?? num);
-	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
-	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
-	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
-	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
 
 	this.rand = (min, max) => Math.random() * (max - min) + min;
 	this.randInt = (min, max) => Math.floor(self.rand(min, max));
@@ -65,7 +65,7 @@ function NumberBox() {
 	this.enIsoInt = val => self.isoInt(val, COMMA); // Integer to EN String format
 	this.esIsoInt = val => self.isoInt(val, DOT); // Integer to ES String format
 
-	this.fmtInt = function(str, s) { return str && fnInt(str, s); } // String (representing int) to String formated
+	this.fmtInt = (str, s) => str && fnInt(str, s); // String (representing int) to String formated
 	this.enFmtInt = str => self.fmtInt(str, COMMA); // reformat EN String
 	this.esFmtInt = str => self.fmtInt(str, DOT); // reformat ES String
 	this.intval = str => parseInt(str) || 0; //integer
@@ -101,7 +101,7 @@ function NumberBox() {
 	this.enIsoFloat = (val, n) => self.isoFloat(val, COMMA, DOT, n); // EN String format to Float
 	this.esIsoFloat = (val, n) => self.isoFloat(val, DOT, COMMA, n); // ES String format to Float
 
-	this.fmtFloat = function(str, s, d, n) { return str && fnFloat(str, s, d, n, d); } // String to String formated
+	this.fmtFloat = (str, s, d, n) => str && fnFloat(str, s, d, n, d); // String to String formated
 	this.enFmtFloat = (str, n) => self.fmtFloat(str, COMMA, DOT, n); // reformat EN String
 	this.esFmtFloat = (str, n) => self.fmtFloat(str, DOT, COMMA, n); // reformat ES String
 	this.floatval = str => parseFloat(str) || 0; //float
