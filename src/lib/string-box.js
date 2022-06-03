@@ -11,7 +11,7 @@ function StringBox() {
 	// Helpers
 	const isset = val => (typeof(val) !== "undefined") && (val !== null);
 	const isstr = val => (typeof(val) === "string") || (val instanceof String);
-	const fnWord = str =>  str.replace(/\W+/g, EMPTY); //remove no alfanum
+	const fnWord = str => str.replace(/\W+/g, EMPTY); //remove no alfanum
 	const fnSize = str => str ? str.length : 0; //string o array
 	const iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	function tr(str) {

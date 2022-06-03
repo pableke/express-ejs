@@ -11,7 +11,7 @@ function StringBox() {
 	// Helpers
 	const isset = val => (typeof(val) !== "undefined") && (val !== null);
 	const isstr = val => (typeof(val) === "string") || (val instanceof String);
-	const fnWord = str =>  str.replace(/\W+/g, EMPTY); //remove no alfanum
+	const fnWord = str => str.replace(/\W+/g, EMPTY); //remove no alfanum
 	const fnSize = str => str ? str.length : 0; //string o array
 	const iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	function tr(str) {
@@ -106,7 +106,7 @@ function StringBox() {
 	this.toIsoTime = str => {
 		const size = fnSize(str);
 		if (size == 0) // no time
-			return "00:00:00";
+			return "00:00:00"; //hh:MM:ss
 		return (size < 6) ? (str + ":00") : str;
 	}
 

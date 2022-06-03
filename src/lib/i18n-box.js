@@ -162,6 +162,7 @@ function I18nBox() {
 	this.get = name => _lang[name];
 	this.tr = name => _lang[name] || name;
 	this.set = (name, value) => { _lang[name] = value; return self; }
+	this.msg = (name, data, opts) => sb.format(data, sb.tr(name), opts);
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
 
 	this.addLang = function(lang, data, mod) {
