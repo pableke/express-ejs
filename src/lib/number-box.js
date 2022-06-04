@@ -25,6 +25,7 @@ function NumberBox() {
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
 	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
 	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+	this.mask = (val, i) => ((val >> i) & 1); // check bit at i position
 
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
