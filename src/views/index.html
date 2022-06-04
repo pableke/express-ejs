@@ -291,7 +291,7 @@
 				// Eventos de las tablas de consulta
 				dom.table("#pruebas", DB, resume, STYLES)
 					.onExitTab(() => console.log("exit tabs"))
-					.onChangeTab(1, () => console.log("change tab-1"))
+					.onShowTab(1, tab => console.log("show tab-1"))
 					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
 					.onRenderTable("#pruebas", (table, ev) => console.log("render", table))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
