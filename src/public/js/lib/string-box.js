@@ -42,6 +42,9 @@ function StringBox() {
 	String.prototype.format = function(fn) {
 		return this.replace(/@(\w+);/g, fn);
 	}
+	String.prototype.render = function(data) {
+		return this.format((m, k) => data[k] ?? EMPTY);
+	}
 
 	// Module functions
 	this.isset = isset;

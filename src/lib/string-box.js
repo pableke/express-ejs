@@ -42,6 +42,9 @@ function StringBox() {
 	String.prototype.format = function(fn) {
 		return this.replace(/@(\w+);/g, fn);
 	}
+	String.prototype.render = function(data) {
+		return this.format((m, k) => data[k] ?? EMPTY);
+	}
 
 	// Module functions
 	this.isset = isset;
@@ -106,7 +109,7 @@ function StringBox() {
 	this.toIsoTime = str => {
 		const size = fnSize(str);
 		if (size == 0) // no time
-			return "00:00:00";
+			return "00:00:00"; //hh:MM:ss
 		return (size < 6) ? (str + ":00") : str;
 	}
 

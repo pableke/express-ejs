@@ -150,7 +150,7 @@ function DomBox() {
 			const fn = parsers[el.name] || fnParam; // Field parser type
 			data[el.name] = fn(el.value); // Parse type
 		});
-	};
+	}
 	this.display = (form, data, styles) => {
 		const fnDate = value => sb.substring(value, 0, 10); // Value = string date time
 		const TYPES = {
@@ -165,7 +165,7 @@ function DomBox() {
 			const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
 			fnSetVal(el, fn(data[el.name])); // Display styled value
 		});
-	};
+	}
 
 	function fnSetText(el, value) {
 		el.innerText = value;
@@ -587,7 +587,7 @@ function DomBox() {
 		self.getTabs = () => tabs; //all tabs
 		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
-		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || _tabSize); // Extract id
+		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99); // Extract id
 
 		//self.onTab = (id, name, fn) => fnAddEvent(self.getTab(id), name, fn);
 		self.onShowTab = (id, fn) => fnAddEvent(self.getTab(id), "tab-" + id, fn);
@@ -615,9 +615,9 @@ function DomBox() {
 						self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
 					}
 					_tabIndex = i; // set current index
-					self.trigger(tab, tab.id) // Trigger show tab event (onShowTab)
-						.removeClass(tabs, "active").addClass(tab, "active") // update tab visibility
-						.setFocus(tab).scroll(); // Auto set focus and scroll
+					self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
+						.setFocus(tab).scroll() // Auto set focus and scroll
+						.trigger(tab, tab.id); // Trigger show tab event (onShowTab)
 				}
 			}
 			else // Is first tab and click on prev button
@@ -636,10 +636,10 @@ function DomBox() {
 			return fnShowTab(i); // Show calculated next tab
 		}
 
-		self.onclick("a[href='#prev-tab']", () => !self.prevTab());
-		self.onclick("a[href='#next-tab']", () => !self.nextTab());
-		self.onclick("a[href='#last-tab']", () => !self.lastTab());
-		self.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
+		self.onclick("a[href='#prev-tab']", () => !self.prevTab())
+			.onclick("a[href='#next-tab']", () => !self.nextTab())
+			.onclick("a[href='#last-tab']", () => !self.lastTab())
+			.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 
 		// Clipboard function
 		TEXT.style.position = "absolute";
