@@ -42,10 +42,10 @@ function DateBox() {
 	this.getDays = (d1, d2) => Math.round(Math.abs((d1 - d2) / ONE_DAY));
 	this.daysInMonth = date => date ? daysInMonth(date.getFullYear(), date.getMonth()) : 0;
 	this.toArray = date => date ? [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()] : [];
+	this.reset = date => { date ? date.setFullYear(sysdate.getFullYear(), sysdate.getMonth(), sysdate.getDate()) : sysdate.setTime(Date.now()); return self; }
 	this.addDate = function(date, val) { date && date.setDate(date.getDate() + val); return self; }
 	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
-	this.reset = function(date) { date && date.setFullYear(sysdate.getFullYear(), sysdate.getMonth(), sysdate.getDate()); return self; }
 	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
