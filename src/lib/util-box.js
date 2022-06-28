@@ -15,7 +15,7 @@ import nb from "./number-box.js";
 import sb from "./string-box.js";
 import valid from "./validator-box.js";
 import i18n from "./i18n-box.js";
-import * as langs from "../i18n/i18n.js";
+import langs from "../i18n/i18n.js";
 import { DIR_FILES, DIR_VIEWS, GMAIL_USER, GMAIL_PASS } from "../config.js";
 
 function UtilBox() {

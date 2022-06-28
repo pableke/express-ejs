@@ -8,6 +8,8 @@ import test_es from "./test/es.js";
 import web_en from "./web/en.js";
 import web_es from "./web/es.js";
 
-export const main = { en, es }; // Default
-export const test = { en: test_en, es: test_es }; // Test module
-export const web = { en: web_en, es: web_es }; // Web module
+export default {
+	main: { en, es }, // Default
+	test: { en: test_en, es: test_es }, // Test module
+	web: { en: web_en, es: web_es } // Web module
+};
