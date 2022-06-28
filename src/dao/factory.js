@@ -1,20 +1,21 @@
 
-const tests = require("./tests/factory.js");
-const web = require("./web/factory.js");
+import tests from "./tests/factory.js";
+import web from "./web/factory.js";
 
-exports.tests = tests;
-exports.web = web;
+export default {
+	tests, web, // Modules
 
-exports.open = function() {
-	tests.open();
-	web.open();
-	console.log("> DAO Factory open.");
-	return this;
-};
+	open: function() {
+		tests.open();
+		web.open();
+		console.log("> DAO Factory open.");
+		return this;
+	},
 
-exports.close = function() {
-	tests.close();
-	web.close();
-	console.log("> DAO Factory closed.");
-	return this;
+	close: function() {
+		tests.close();
+		web.close();
+		console.log("> DAO Factory closed.");
+		return this;
+	}
 };

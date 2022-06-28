@@ -32,9 +32,12 @@ function StringBox() {
 		return this.substring(0, i) + str + this.substring(i + str.length);
 	}
 	String.prototype.wrap = function(str, open, close) {
-		const i = iiOf(this, str);
-		const j = i + str.length;
-		return this.substring(0, i) + (open || "<u><b>") + this.substring(i, j) + (close || "</b></u>") + this.substring(j);
+		if (str) {
+			const i = iiOf(this, str);
+			const j = i + str.length;
+			return (i < 0) ? this : (this.substring(0, i) + (open || "<u><b>") + this.substring(i, j) + (close || "</b></u>") + this.substring(j));
+		}
+		return this;
 	}
 	String.prototype.remove = function(i, n) {
 		return this.substring(0, i) + this.substring(i + n);
@@ -174,4 +177,4 @@ function StringBox() {
 	}
 }
 
-module.exports = new StringBox();
+export default new StringBox();

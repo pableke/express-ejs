@@ -113,4 +113,4 @@ function NumberBox() {
 	this.esBool = val => self.boolval(val) ? "Sí" : "No";
 }
 
-module.exports = new NumberBox();
+export default new NumberBox();

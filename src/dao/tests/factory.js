@@ -1,10 +1,14 @@
 
-exports.open = function() {
-	console.log("> DAO Tests Factory open.");
-	return this;
-};
+export default {
+	//myjson, mysql, // BD's
 
-exports.close = function() {
-	console.log("> DAO Tests Factory closed.");
-	return this;
+	open: function() {
+		console.log("> DAO Tests Factory open.");
+		return this;
+	},
+
+	close: function() {
+		console.log("> DAO Tests Factory closed.");
+		return this;
+	}
 };

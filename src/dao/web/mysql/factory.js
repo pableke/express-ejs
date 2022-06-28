@@ -1,14 +1,14 @@
 
-const env = require("dotenv").config(); //load env const
-const mysql = require("mysql"); //MySql connector
+import mysql from "mysql"; // MySql connector
+import { MYSQL_HOST, MYSQL_NAME, MYSQL_PORT, MYSQL_USER, MYSQL_PASS } from "../../../config.js"
 
 const pool = mysql.createPool({
-	host: "localhost",
-	database: "empresa",
+	host: MYSQL_HOST,
+	database: MYSQL_NAME,
 	connectionLimit: 10,
-	port: process.env.MYSQL_PORT,
-	user: process.env.MYSQL_USER,
-	password: process.env.MYSQL_PASS
+	port: MYSQL_PORT,
+	user: MYSQL_USER,
+	password: MYSQL_PASS
 });
 
 pool.exec = function(sql) {
@@ -19,21 +19,23 @@ pool.exec = function(sql) {
 	});
 };
 
-exports.open = function() {
-	pool.getConnection((err, connection) => {
-		if (err)
-			console.error(err);
-		else
-			connection.release();
-	});
-	return this;
-};
+export default {
+	open: function() {
+		pool.getConnection((err, connection) => {
+			if (err)
+				console.error(err);
+			else
+				connection.release();
+		});
+		return this;
+	},
 
-exports.close = function() {
-	pool.end(function(err) {
-		if (err)
-			return console.error(err);
-		// close all connections
-	});
-	return this;
+	close: function() {
+		pool.end(function(err) {
+			if (err)
+				return console.error(err);
+			// close all connections
+		});
+		return this;
+	}
 };

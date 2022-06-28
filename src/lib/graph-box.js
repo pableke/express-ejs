@@ -61,4 +61,4 @@ function GraphBox() {
 	}
 }
 
-module.exports = new GraphBox();
+export default new GraphBox();

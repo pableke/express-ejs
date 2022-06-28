@@ -1,18 +1,18 @@
 
 //npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
 //npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
-const fs = require("fs"); //file system module
-const path = require("path"); //file and directory paths
-const gulp = require("gulp");
-const htmlmin = require("gulp-htmlmin");
-const minifyejs = require("gulp-minify-ejs");
-const uglify = require('gulp-uglify');
-const concat = require("gulp-concat");
-const cssmin = require("gulp-clean-css");
-const cssInline = require('gulp-minify-inline');
-const strip = require("gulp-strip-comments");
-//const replace = require("gulp-replace");
-//const rename = require("gulp-rename");
+import fs from "fs"; //file system module
+import path from "path"; //file and directory paths
+import gulp from "gulp";
+import htmlmin from "gulp-htmlmin";
+import minifyejs from "gulp-minify-ejs";
+import uglify from 'gulp-uglify';
+import concat from "gulp-concat";
+import cssmin from "gulp-clean-css";
+import cssInline from 'gulp-minify-inline';
+import strip from "gulp-strip-comments";
+//const replace from "gulp-replace");
+//const rename from "gulp-rename");
 
 // Settings
 const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs" ];
@@ -93,7 +93,8 @@ gulp.task("symlinks", () => {
 	//ln -s ../../src/controllers/web/public node_modules/app
 	//mv node_modules/app/controllers node_modules/app/ctrl
 	//cp -r node_modules/app/controllers node_modules/app/ctrl
-	//gulp.src("src/components").pipe(gulp.symlink("node_modules/app"));
+	//gulp.src("src/config.js", { followSymlinks: false, nodir: true })
+		//.pipe(gulp.symlink("node_modules/app", { overwrite: true, relativeSymlinks: true }));
 	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
 	gulp.src("src/i18n").pipe(gulp.symlink("node_modules/app"));

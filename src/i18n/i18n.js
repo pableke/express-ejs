@@ -1,15 +1,13 @@
 
-exports.main = { // Default
-	en: require("./en.js"),
-	es: require("./es.js")
-};
+import en from "./en.js";
+import es from "./es.js";
 
-exports.test = { // Test module
-	en: require("./test/en.js"),
-	es: require("./test/es.js")
-};
+import test_en from "./test/en.js";
+import test_es from "./test/es.js";
 
-exports.web = { // Web module
-	en: require("./web/en.js"), 
-	es: require("./web/es.js")
-};
+import web_en from "./web/en.js";
+import web_es from "./web/es.js";
+
+export const main = { en, es }; // Default
+export const test = { en: test_en, es: test_es }; // Test module
+export const web = { en: web_en, es: web_es }; // Web module

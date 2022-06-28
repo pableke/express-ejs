@@ -1,82 +1,80 @@
 
-const valid = require("../src/lib/validator-box.js");
+import test from "node:test";
+import assert from "node:assert";
+import valid from "../src/lib/validator-box.js";
 
-describe("Size validators", () => {
-	test("String / text length", () => {
-		expect(valid.required()).toBeFalsy();
-		expect(valid.required("")).toBeFalsy();
-		expect(valid.required("asdfalks dfklasdj flaksdj ddfasdf")).toBe("asdfalks dfklasdj flaksdj ddfasdf");
-		expect(valid.size10("dsfadfgd afsddsfaf")).toBeFalsy();
-		expect(valid.size50("dsfadfgd")).toBeTruthy();
-		expect(valid.size200()).toBe(undefined);
+// Size validators
+test("String / text length", () => {
+	assert.equal(valid.required(), null);
+	assert.equal(valid.required(""), null);
+	assert.equal(valid.required("asdfalks dfklasdj flaksdj ddfasdf"), "asdfalks dfklasdj flaksdj ddfasdf");
+	assert.equal(valid.size10("dsfadfgd afsddsfaf"), null);
+	assert.equal(valid.size50("dsfadfgd"), "dsfadfgd");
+	assert.equal(valid.size200(), null);
 
-		expect(valid.text()).toBe(null);
-		expect(valid.text("akdsfj \\ adskfl")).toBe("akdsfj &#92; adskfl");
-	});
+	assert.equal(valid.text(), null);
+	assert.equal(valid.text("akdsfj \\ adskfl"), "akdsfj &#92; adskfl");
 });
 
-describe("Range validators", () => {
-	test("Integer / Floats ranges", () => {
-		expect(valid.intval()).toBeFalsy();
-		expect(valid.intval("")).toBeFalsy();
-		expect(valid.intval(0)).toBeFalsy();
-		expect(valid.intval(9)).toBe(9);
-		expect(valid.intval(10)).toBe(null);
+// Range validators
+test("Integer / Floats ranges", () => {
+	assert.equal(valid.intval(), null);
+	assert.equal(valid.intval(""), null);
+	assert.equal(valid.intval(0), null);
+	assert.equal(valid.intval(9), 9);
+	assert.equal(valid.intval(10), null);
 
-		expect(valid.gt0()).toBeFalsy();
-		expect(valid.gt0("")).toBeFalsy();
-		expect(valid.gt0(0)).toBeFalsy();
-		expect(valid.gt0(.01)).toBe(.01);
-		expect(valid.gt0(-.01)).toBe(null);
-	});
+	assert.equal(valid.gt0(), null);
+	assert.equal(valid.gt0(""), null);
+	assert.equal(valid.gt0(0), null);
+	assert.equal(valid.gt0(.01), .01);
+	assert.equal(valid.gt0(-.01), null);
+
+	assert.equal(valid.digits(), null);
+	assert.equal(valid.digits("230948 2"), null);
 });
 
-describe("RegExp validators", () => {
-	test("E-Mails / Digits", () => {
-		expect(valid.email()).toBeFalsy();
-		expect(valid.email("asdf@asdf.com")).toBe("asdf@asdf.com");
-
-		expect(valid.digits()).toBeFalsy();
-		expect(valid.digits("230948 2")).toBe(null);
-	});
+// RegExp validators
+test("E-Mails / Digits", () => {
+	assert.equal(valid.email(), null);
+	assert.equal(valid.email("asdf@asdf.com"), "asdf@asdf.com");
 });
 
-describe("Type validators", () => {
-	test("Loggin RegExp", () => {
-		expect(valid.login()).toBeFalsy();
-		expect(valid.login(null)).toBeFalsy();
-		expect(valid.login("0,13")).toBe(null);
-	});
+// Type validators
+test("Loggin RegExp", () => {
+	assert.equal(valid.login(), null);
+	assert.equal(valid.login(null), null);
+	assert.equal(valid.login("0,13"), null);
+});
 
-	test("Spanish ID's: NIF/CIF/NIE", () => {
-		expect(valid.idES()).toBeFalsy();
-		expect(valid.idES(null)).toBeFalsy();
-		expect(valid.idES("")).toBeFalsy();
-		expect(valid.idES("   ")).toBeFalsy();
-		expect(valid.idES("asdklñfj asdf")).toBeFalsy();
-		expect(valid.idES("0,13")).toBe(null);
-		expect(valid.idES("11111111j")).toBe(null);
-		expect(valid.idES("11111111h ")).toBe("11111111H");
-		expect(valid.idES(" 11111111-H")).toBe("11111111H");
-		expect(valid.idES(" 23024374 v ")).toBe("23024374V");
-	});
+test("Spanish ID's: NIF/CIF/NIE", () => {
+	assert.equal(valid.idES(), null);
+	assert.equal(valid.idES(null), null);
+	assert.equal(valid.idES(""), null);
+	assert.equal(valid.idES("   "), null);
+	assert.equal(valid.idES("asdklñfj asdf"), null);
+	assert.equal(valid.idES("0,13"), null);
+	assert.equal(valid.idES("11111111j"), null);
+	assert.equal(valid.idES("11111111h "), "11111111H");
+	assert.equal(valid.idES(" 11111111-H"), "11111111H");
+	assert.equal(valid.idES(" 23024374 v "), "23024374V");
+});
 
-	test("IBAN", () => {
-		expect(valid.iban()).toBeFalsy();
-		expect(valid.iban("  ")).toBeFalsy();
-		expect(valid.iban(null)).toBeFalsy();
-		expect(valid.iban("0,13")).toBe(null);
-		expect(valid.iban(" es34 4000056655665556 ")).toBe(null);
-		expect(valid.iban(" es21 4242 4242 4242 4242 ")).toBe(null);
-	});
+test("IBAN", () => {
+	assert.equal(valid.iban(), null);
+	assert.equal(valid.iban("  "), null);
+	assert.equal(valid.iban(null), null);
+	assert.equal(valid.iban("0,13"), null);
+	assert.equal(valid.iban(" es34 4000056655665556 "), null);
+	assert.equal(valid.iban(" es21 4242 4242 4242 4242 "), null);
+});
 
-	test("Credit Card Number", () => {
-		expect(valid.creditCardNumber()).toBeFalsy();
-		expect(valid.creditCardNumber(null)).toBeFalsy();
-		expect(valid.creditCardNumber("0,13")).toBe(null);
-		expect(valid.creditCardNumber("4001056655665556")).toBe(null);
-		expect(valid.creditCardNumber("4000056655665556")).toBe("4000056655665556");
-		expect(valid.creditCardNumber(" 4000 056655665 556 ")).toBe("4000056655665556");
-		expect(valid.creditCardNumber(" 4242 4242 4242 4242 ")).toBe("4242424242424242");
-	});
+test("Credit Card Number", () => {
+	assert.equal(valid.creditCardNumber(), null);
+	assert.equal(valid.creditCardNumber(null), null);
+	assert.equal(valid.creditCardNumber("0,13"), null);
+	assert.equal(valid.creditCardNumber("4001056655665556"), null);
+	assert.equal(valid.creditCardNumber("4000056655665556"), "4000056655665556");
+	assert.equal(valid.creditCardNumber(" 4000 056655665 556 "), "4000056655665556");
+	assert.equal(valid.creditCardNumber(" 4242 4242 4242 4242 "), "4242424242424242");
 });

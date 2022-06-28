@@ -127,4 +127,4 @@ function ArrayBox() {
 	}
 }
 
-module.exports = new ArrayBox();
+export default new ArrayBox();
