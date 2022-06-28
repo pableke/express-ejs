@@ -1,7 +1,7 @@
 
-const dt = require("./date-box.js");
-const nb = require("./number-box.js");
-const sb = require("./string-box.js");
+import dt from "./date-box.js";
+import nb from "./number-box.js";
+import sb from "./string-box.js";
 
 /**
  * ValidatorBox module require
@@ -235,4 +235,4 @@ function ValidatorBox() {
 	}
 }
 
-module.exports = new ValidatorBox();
+export default new ValidatorBox();

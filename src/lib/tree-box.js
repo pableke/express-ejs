@@ -79,4 +79,4 @@ function TreeBox() {
 	}
 }
 
-module.exports = new TreeBox();
+export default new TreeBox();

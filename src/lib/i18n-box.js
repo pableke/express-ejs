@@ -1,8 +1,8 @@
 
-const dt = require("./date-box.js");
-const nb = require("./number-box.js");
-const sb = require("./string-box.js");
-const valid = require("./validator-box.js");
+import dt from "./date-box.js";
+import nb from "./number-box.js";
+import sb from "./string-box.js";
+import valid from "./validator-box.js";
 
 /**
  * Internacionalization module require: 
@@ -282,4 +282,4 @@ function I18nBox() {
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
 }
 
-module.exports = new I18nBox();
+export default new I18nBox();

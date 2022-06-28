@@ -1,34 +1,33 @@
 
-const fs = require("fs"); //file system module
-const path = require("path"); //file and directory paths
+//const fs = require("fs"); //file system module
+//import path from "path"; //file and directory paths
 //const http = require("http"); //http server
 //const https = require("https"); //secure server
 
-const express = require("express"); //infraestructura web
-const session = require("express-session") //session handler
-const uuid = require("uuid"); //generate random ids
-const app = express(); //instance app
+import express from "express"; //infraestructura web
+import session from "express-session"; //session handler
+import * as uuid from "uuid"; //generate random ids
+import { PORT, DIR_PUBLIC, DIR_VIEWS, SESSION_SECRET, SESSION_NAME } from "./config.js";
 
-const env = require("dotenv").config(); //load env const
-const dao = require("app/dao/factory.js"); //DAO factory
-const util = require("app/lib/util-box.js"); //languages
+import dao from "app/dao/factory.js"; // DAO factory
+import util from "app/lib/util-box.js"; // Util helpers
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
 	cert: fs.readFileSync(path.join(__dirname, "../certs/cert.pem")).toString()
 };*/
 
+const app = express(); // Instance
 // Template engines for views
-const VIEWS = path.join(__dirname, "views");
 app.set("view engine", "ejs");
-app.set("views", VIEWS);
+app.set("views", DIR_VIEWS);
 
 app.locals._tplBody = "web/index"; // Default body
 app.locals.msgs = util.i18n.getMsgs(); // Set messages
 app.locals.body = {}; // Set data on response
 
 // Express configurations
-app.use("/public", express.static(path.join(__dirname, "public"))); // static files
+app.use("/public", express.static(DIR_PUBLIC)); // static files
 app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
 app.use(express.json({ limit: "90mb" }));
 
@@ -38,8 +37,8 @@ app.use(session({ //session config
 	rolling: true, // Reset expiration to maxAge
 	saveUninitialized: false,
 	genid: req => uuid.v1(), //use UUIDs for session IDs
-	secret: process.env.SESSION_SECRET,
-	name: process.env.SESSION_NAME,
+	secret: SESSION_SECRET,
+	name: SESSION_NAME,
 	cookie: {
 		secure: false, //require https
 		sameSite: true, //blocks CORS requests on cookies. This will affect the workflow on API calls and mobile applications
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
 	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic(lang);
 	next(); //go next middleware
 });
-app.use(require("./routes/routes.js")); //add all routes
+//app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	if (util.sb.isstr(err)) // Exception or message to string
 		util.i18n.setMsgError(err); // i18n key or string
@@ -82,12 +81,11 @@ app.use("*", (req, res) => { //error 404 page not found
 });
 
 // Start servers (db's and http)
-const port = process.env.PORT || 3000;
-const server = app.listen(port, err => {
+const server = app.listen(PORT, err => {
 	if (err) // If error => stop
 		return console.log(err);
 	dao.open(); //open db's factories
-	console.log("> Server listening on http://localhost:" + port);
+	console.log("> Server listening on http://localhost:" + PORT);
 });
 
 //capture Node.js Signals and Events

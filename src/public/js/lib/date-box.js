@@ -12,29 +12,25 @@ function DateBox() {
 	const ONE_DAY = 86400000; //1d = 24 * 60 * 60 * 1000 = hours*minutes*seconds*milliseconds
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
-	const splitDate = str => str.split(/\D+/);
-	const hasParts = parts => parts && parts[0];
 	const lpad = val => (val < 10) ? ("0" + val) : val; //always 2 digits
-	const century = () => parseInt(sysdate.getFullYear() / 100); //ej: 20
+	//const century = () => parseInt(sysdate.getFullYear() / 100); //ej: 20
 	const range = (val, min, max) => Math.min(Math.max(val || 0, min), max); //force range
 	const range59 = val => range(val, 0, 59); //range for minutes and seconds
 	const isLeapYear = year => ((year & 3) == 0) && (((year % 25) != 0) || ((year & 15) == 0)); //año bisiesto?
 	const daysInMonth = (y, m) => daysInMonths[m] + ((m == 1) && isLeapYear(y));
 	const isDate = date => date && date.getTime && !isNaN(date.getTime()); // full date validator
-	const toDateTime = parts => hasParts(parts) ? fnBuild(parts) : null; //at least year required
 
 	function setTime(date, hh, mm, ss, ms) {
 		date.setHours(range(hh, 0, 23), range59(mm), range59(ss), ms || 0);
 		return isNaN(date.getTime()) ? null : date;
 	}
-	function fnBuild(parts) {
+	function toDate(yyyy, mm, dd, hh, min, ss, ms) {
 		let date = new Date(); //returned instance
-		date.setFullYear(parts[0], parts[1] - 1, parts[2]);
-		return setTime(date, parts[3], parts[4], parts[5], parts[6]);
+		date.setFullYear(yyyy, mm - 1, dd);
+		return setTime(date, hh, min, ss, ms);
 	}
 
 	// Module functions
-	this.build = fnBuild;
 	this.isValid = isDate;
 	this.sysdate = () => sysdate;
 	this.toDate = str => str ? new Date(str) : null;
@@ -152,15 +148,15 @@ function DateBox() {
 	this.isoTime = date => date ? fnIsoTime(date) : null; //hh:MM:ss
 	this.acTime = str => str && str.replace(/(\d\d)(\d+)$/g, "$1:$2").replace(/[^\d\:]/g, EMPTY);
 	this.toTime = function(str) {
-		let parts = str && splitDate(str); //at least hours required
-		return hasParts(parts) ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
+		let parts = str && str.split(/\D+/); //at least hours required
+		return parts ? setTime(new Date(), parts[0], parts[1], parts[2], parts[3]) : null;
 	}
 	this.fmtMinTime = str => str && str.substr(11, 5);
 	this.fmtTime = str => str && str.substr(11, 8);
 
 	// English
 	const fnEnDate = date => date.getFullYear() + "-" + lpad(date.getMonth() + 1) + "-" + lpad(date.getDate()); //yyyy-mm-dd
-	this.enDate = str => str ? toDateTime(splitDate(str)) : null; //parse to Date object
+	this.enDate = str => str ? toDate(str.substring(0, 4), str.substring(5, 7), str.substring(8, 10)) : null; //parse to Date object
 	this.isoEnDate = date => isDate(date) ? fnEnDate(date) : null; //yyyy-mm-dd
 	this.isoEnDateTime = date => isDate(date) ? (fnEnDate(date) + " " + fnIsoTime(date)) : null; //yyyy-mm-dd hh:MM:ss
 	this.fmtEnDate = str => str && str.substr(0, 10); //Iso string to yyyy-mm-dd
@@ -168,10 +164,10 @@ function DateBox() {
 
 	// Spanis
 	const fnEsDate = date => lpad(date.getDate()) + "/" + lpad(date.getMonth() + 1) + "/" + date.getFullYear(); //dd/mm/yyyy
-	this.esDate = str => str ? toDateTime(splitDate(str).swap(0, 2)) : null; //parse to Date object
+	this.esDate = str => str ? toDate(str.substring(6, 10), str.substring(3, 5), str.substring(0, 2)) : null; //parse to Date object
 	this.isoEsDate = date => isDate(date) ? fnEsDate(date) : null; //dd/mm/yyyy
 	this.isoEsDateTime = date => isDate(date) ? (fnEsDate(date) + " " + fnIsoTime(date)) : null; //dd/mm/yyyy hh:MM:ss
-	this.fmtEsDate = str => str && splitDate(str).swap(0, 2).stringify("/", 0, 3); //Iso string to dd/mm/yyyy
+	this.fmtEsDate = str => str && (str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4)); //Iso string to dd/mm/yyyy
 	this.acEsDate = str => str && str.replace(/^(\d\d)(\d+)$/g, "$1/$2").replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2").replace(/[^\d\/]/g, EMPTY);
 
 	// Extends Date prototype

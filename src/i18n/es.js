@@ -1,5 +1,5 @@
 
-module.exports = {
+export default {
 	lang: "es",
 	lblEmpresaNombre: "UPCT / UAE", msgMetaKeywords: "Universidad, cartagena, upct, politécnica", msgMetaDesc: "Universidad politécnica de cartagena",
 

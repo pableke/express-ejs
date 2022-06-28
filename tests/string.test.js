@@ -1,30 +1,31 @@
 
-const sb = require("../src/lib/string-box.js");
+import test from "node:test";
+import assert from "node:assert";
+import sb from "../src/lib/string-box.js";
 
-describe("String Box", () => {
-	test("Wrap tests", () => {
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal")).toBe(undefined);
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal", "kk", "(", ")")).toEqual("23024374V - Pablo Rosique Vidal");
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal", "v - p", "(", ")")).toEqual("23024374(V - P)ablo Rosique Vidal");
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pA", "(", ")")).toEqual("2302437(4V - Pa)blo Rosique Vidal");
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pÁ", "(", ")")).toEqual("2302437(4V - Pa)blo Rosique Vidal");
-		expect(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pá", "(", ")")).toEqual("2302437(4V - Pa)blo Rosique Vidal");
-	});
+test("Wrap", () => {
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal"), "23024374V - Pablo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", ""), "23024374V - Pablo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", "kk", "(", ")"), "23024374V - Pablo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", "v - p", "(", ")"), "23024374(V - P)ablo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pA", "(", ")"), "2302437(4V - Pa)blo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pÁ", "(", ")"), "2302437(4V - Pa)blo Rosique Vidal");
+	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal", "4v - pá", "(", ")"), "2302437(4V - Pa)blo Rosique Vidal");
+});
 
-	test("Ilike", () => {
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal")).toBe(true);
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal", null)).toBe(true);
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal", "kk")).toBe(false);
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pA")).toBe(true);
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pÁ")).toBe(true);
-		expect(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pá")).toBe(true);
-	});
+test("Ilike", () => {
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal"), true);
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal", null), true);
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal", "kk"), false);
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pA"), true);
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pÁ"), true);
+	assert.equal(sb.ilike("23024374V - Pablo Rosique Vidal", "4v - pá"), true);
+});
 
-	test("Sort", () => {
-		expect([null, undefined, "bb", "", "aa"].sort(sb.cmp)).toEqual(["", "aa", "bb", null, undefined]);
-		expect([undefined, null, "bb", "kk", "aa"].sort(sb.cmp)).toEqual(["aa", "bb", "kk", null, undefined]);
-		expect([undefined, "null", "bb", "kk", "aa"].sort(sb.cmp)).toEqual(["aa", "bb", "kk", "null", undefined]);
-		expect(["undefined", "null", "bb", "kk", "aa"].sort(sb.cmp)).toEqual(["aa", "bb", "kk", "null", "undefined"]);
-		expect(["2", "10", "bb", "kk", "aa"].sort(sb.cmp)).toEqual(["10", "2", "aa", "bb", "kk"]);
-	});
+test("Sort", () => {
+	assert.deepEqual([null, undefined, "bb", "", "aa"].sort(sb.cmp), ["", "aa", "bb", null, undefined]);
+	assert.deepEqual([undefined, null, "bb", "kk", "aa"].sort(sb.cmp), ["aa", "bb", "kk", null, undefined]);
+	assert.deepEqual([undefined, "null", "bb", "kk", "aa"].sort(sb.cmp), ["aa", "bb", "kk", "null", undefined]);
+	assert.deepEqual(["undefined", "null", "bb", "kk", "aa"].sort(sb.cmp), ["aa", "bb", "kk", "null", "undefined"]);
+	assert.deepEqual(["2", "10", "bb", "kk", "aa"].sort(sb.cmp), ["10", "2", "aa", "bb", "kk"]);
 });
