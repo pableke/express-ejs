@@ -63,7 +63,7 @@ app.use((req, res, next) => {
 //app.use(require("./routes/routes.js")); //add all routes
 app.use((err, req, res, next) => { //global handler error
 	if (util.sb.isstr(err)) // Exception or message to string
-		util.i18n.setMsgError(err); // i18n key or string
+		util.i18n.setError(err); // i18n key or string
 
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		util.error(res, 500);
