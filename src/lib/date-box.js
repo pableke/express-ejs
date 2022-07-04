@@ -29,6 +29,9 @@ function DateBox() {
 		date.setFullYear(yyyy, mm - 1, dd);
 		return setTime(date, hh, min, ss, ms);
 	}
+	function fnBuild(parts) { //yyyy, mm, dd, hh, mi, ss, ms
+		return toDate(+parts[0], +parts[1], +parts[2], +parts[3] || 0, +parts[4] || 0, +parts[5] || 0, +parts[6] || 0);
+	}
 
 	// Module functions
 	this.isValid = isDate;
@@ -48,6 +51,7 @@ function DateBox() {
 	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
 	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
+	this.build = str => str && fnBuild(str.split(/\D+/));
 
 	this.getWeek = function(date) {
 		date = date || sysdate; //default
