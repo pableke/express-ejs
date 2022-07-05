@@ -108,6 +108,7 @@ function StringBox() {
 	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
 	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
 	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
+	this.diffDate = (str1, str2) => Math.abs(Date.parse(str1) - Date.parse(str2));
 	this.toIsoDate = (date, time) => (date + "T" + self.toIsoTime(time) + ".000");
 	this.toIsoTime = str => {
 		const size = fnSize(str);
