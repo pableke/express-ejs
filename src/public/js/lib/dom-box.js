@@ -205,7 +205,7 @@ function DomBox() {
 	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
 	this.select = function(list, mask) {
 		return self.each(list, el => { //iterate over all selects
-			const option = el.options[el.selectedIndex]; // get current option
+			const option = el.options[el.selectedIndex]; //get current option
 			if (self.view(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		});
@@ -303,6 +303,7 @@ function DomBox() {
 
 	this.ready(function() {
 		i18n.setI18n(self.getLang()); // Set language
+		const reader = new FileReader(); // File Reader object
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables
@@ -353,9 +354,27 @@ function DomBox() {
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
+		self.onFileInput = (selector, fn) => {
+			return self.onChangeInput(selector, el => {
+				const size = ab.size(el.files);
+				function readFile(index) {
+					if (index < size) {
+						const file = el.files[index];
+						reader.onload = ev => {
+							fn(el, ev, file, ev.target.result, index);
+							readFile(index + 1);
+						}
+						//reader.readAsText(file, "UTF-8");
+						reader.readAsBinaryString(file);
+					}
+				}
+				readFile(0);
+			});
+		}
+
 		self.setRangeDate = (f1, f2) => {
-			return self.onBlurInput(f1, el => dom.setAttrInput(f2, "min", el.value))
-						.onBlurInput(f2, el => dom.setAttrInput(f1, "max", el.value));
+			return self.onBlurInput(f1, el => self.setAttrInput(f2, "min", el.value))
+						.onBlurInput(f2, el => self.setAttrInput(f1, "max", el.value));
 		}
 
 		// Extends internacionalization

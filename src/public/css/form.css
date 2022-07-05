@@ -18,10 +18,11 @@ label.required:after {
 	border-radius: .25rem;
 }
 .input-group, .ui-group { margin: 5px; }
-.input-group-block, .ui-block { display: inline-block; width: fit-content; vertical-align: top; text-align: left; }
-.input-group-row, .ui-row { display: inline-block; width: 98%; vertical-align: top; text-align: left; }
+.input-group-block, .ui-block { display: inline-block; width: fit-content; vertical-align: top; }
+.input-group-row, .ui-row { display: inline-block; width: 98%; vertical-align: top; }
 .input-group-flex, .ui-flex { display: inline-flex; width: fit-content; align-items: center; }
 .input-group-flex > * { margin: 5px; }
+.input-group-buttons, .ui-buttons { display: inline-flex; height: 70px; align-items: end; }
 .input-group-inline, .ui-inline { display: grid; grid-gap: 5px; grid-template-columns: 24% minmax(70%, 90%); }
 .input-group-content, .ui-content { display: grid; grid-gap: 5px; grid-template-columns: fit-content(24%) minmax(70%, 90%); }
 .input-control, .ui-control { border: 1px solid #000; background-color: #fff; }
