@@ -86,6 +86,9 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
 .loading { position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background-color: rgba(255, 255, 255, .7); }
 .loading-content { position: absolute; top: 50%; left: 50%; text-align: center; z-index: 100; }
+/* all loading => deprecated (use only in CV tests) */
+.ibox { display: none; background-color: rgba(255, 255, 255, 0.6); position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+.ibox-wrapper { transform: translate(-60%, -60%); position: absolute; top: 45%; left: 50%; color: #2d65c4; z-index: 9999; }
 
 .back-to-top { position: fixed; bottom: 25px; right: 25px; padding: .5rem 1rem; font-size: 1.25rem; border-radius: .3rem; background-color: #f8f9fa; }
 .back-to-top:hover { background-color: #e2e6ea; border-color: #dae0e5; }
