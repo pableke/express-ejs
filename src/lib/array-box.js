@@ -31,10 +31,22 @@ function ArrayBox() {
 			output += separator + this[i++];
 		return output;
 	}
-	Array.prototype.format = function(fn) {
+	Array.prototype.format = function(tpl, opts) {
+		opts = opts || {}; //default settings
+		const empty = opts.empty || "";
+		const fnVal = opts.getValue || fnValue;
+		const status = { size: this.length };
+
 		let output = ""; // Initialize result
-		for (let i = 0; i < this.length; i++)
-			output += fn(this[i], i);
+		this.forEach((obj, i) => {
+			status.index = i;
+			status.count = i + 1;
+			output += tpl.format((m, k) => {
+				const fn = opts[k]; //field format function
+				const value = fn ? fn(obj[k], obj, i) : (fnVal(obj, k) ?? status[k]);
+				return value ?? empty; //string formated
+			});
+		})
 		return output;
 	}
 
@@ -109,22 +121,8 @@ function ArrayBox() {
 	}
 
 	// Serialization
-	this.format = function(data, tpl, opts) {
-		opts = opts || {}; //default settings
-		const empty = opts.empty || "";
-		const fnVal = opts.getValue || fnValue;
-		const status = { size: fnSize(data) };
-
-		return data.format((obj, i) => {
-			status.index = i;
-			status.count = i + 1;
-			return tpl.format((m, k) => {
-				const fn = opts[k]; //field format function
-				const value = fn ? fn(obj[k], obj, i) : (fnVal(obj, k) ?? status[k]);
-				return value ?? empty; //string formated
-			});
-		});
-	}
+	this.stringify = (data, separator, i, j) => data.stringify(separator, i, j);
+	this.format = (data, tpl, opts) => data.format(tpl, opts);
 }
 
 export default new ArrayBox();

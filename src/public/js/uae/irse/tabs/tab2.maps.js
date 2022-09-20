@@ -76,8 +76,7 @@ function initMap() {
 			loc1.pais = last.pais2;
 		}
 
-		dom.closeAlerts().required("#principal", "errMainRuta", "errRequired")
-			.intval("#desp", "errTransporte", "errRequired")
+		dom.closeAlerts().intval("#desp", "errTransporte", "errRequired")
 			.required("#f2", "errDate", "errRequired").required("#h2", "errDate")
 			.required("#f1", "errDate", "errRequired").required("#h1", "errDate")
 			.required("#destino", "errDestino", "errRequired")
@@ -106,10 +105,9 @@ function initMap() {
 
 		let isP1Ct = findPolygon(geomCt, polygon => google.maps.geometry.poly.containsLocation(loc1, polygon));
 		let isP2Ct = findPolygon(geomCt, polygon => google.maps.geometry.poly.containsLocation(p2.geometry.location, polygon));
-		ruta.mask = +ruta.principal | ((isP1Ct && isP2Ct) ? 4 : 0);
-		delete ruta.principal;
+		ruta.mask = (isP1Ct && isP2Ct) ? 4 : 0;
 
-		if (dom.getValue("#desp") == "1") //calculate distance
+		if (ruta.desp == "1") //calculate distance
 			distance.getDistanceMatrix({
 				origins: [loc1],
 				destinations: [p2.geometry.location],

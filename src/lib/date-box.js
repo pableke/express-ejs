@@ -124,7 +124,7 @@ function DateBox() {
 	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
 	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
 	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
-	this.diffDate = (d1, d2) => Math.abs(d1.getTime() - d2.getTime());
+	this.diffDate = (d1, d2) => (d1.getTime() - d2.getTime());
 	this.cmp = function(d1, d2) {
 		if (d1 && d2)
 			return d1.getTime() - d2.getTime();
@@ -177,7 +177,7 @@ function DateBox() {
 
 	// Extends Date prototype
 	Date.prototype.toJSON = function() { // Override toJSON to ignore TZ-offset
-		return fnEnDate(this) + "T" + fnIsoTime(this); //yyyy-mm-ddThh:MM:ss
+		return fnEnDate(this) + "T" + fnIsoTime(this) + "." + this.getMilliseconds(); //yyyy-mm-ddThh:MM:ss.ms
 	}
 }
 

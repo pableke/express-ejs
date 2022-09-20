@@ -60,10 +60,7 @@ function IrsePerfil() {
 	};
 
 	const resume = {};
-	const STYLES = {
-		remove: "msgDelOrg",
-		resp: sb.lopd
-	};
+	const STYLES = { remove: "msgDelOrg", imp: i18n.isoFloat, resp: sb.lopd, fecha: i18n.isoDate };
 
 	let eRol, eCol, eFin, eAct, eTramit;
 	let organicas, current;
@@ -128,6 +125,11 @@ function IrsePerfil() {
 		fnUpdatePerfil(); //set new perfil
 		dom.setValue("#presupuesto", JSON.stringify(organicas));
 	}
+	function fnAyer() {
+		let fecha = new Date();
+		dt.addDate(fecha, -1); //fecha de ayer
+		return fecha;
+	}
 
 	//auto-start => update perfil
 	this.update = fnUpdatePerfil;
@@ -141,7 +143,6 @@ function IrsePerfil() {
 	this.getOrganica = (id) => organicas.find(org => org.id == id); //get organica by id
 	this.isInve3005 = (org) => org && sb.starts(org.o, "3005") && ((org.mask & 64) == 64); //es de investigacion de la 3005XX
 	this.is643 = (org) => org && ((org.mask & 16) == 16); //contiene alguna aplicacion 643?
-	this.setOrganica = function(org) { current = org; return self; }
 	this.addOrganica = function() {
 		if (current && !organicas.find(org => org.id==current.id))
 			organicas.push(current);
@@ -208,23 +209,27 @@ function IrsePerfil() {
 			focus: fnFalse, //no change focus on select
 			search: fnAcSearch, //lunch source
 			source: function(req, res) {
-				fnAutocomplete(this.element, ["o", "dOrg"], res,
-					item => { return item.o + " - " + item.dOrg; }
-				);
+				fnAutocomplete(this.element, ["o", "dOrg"], res, item => (item.o + " - " + item.dOrg));
 			},
 			select: function(ev, ui) {
-				self.setOrganica(ui.item);
-				if (current && !IRSE.uxxiec) {
-					ab.reset(organicas).push(organicas, current);
+				let key, imp, temp;
+				temp = current = ui.item;
+				if (IRSE.uxxiec)
+					key = "msgCd";
+				else {
+					key = "msgCdPdi"; //msg a mostrar
+					imp = temp.imp; //credito disponible
+					ab.reset(organicas).push(organicas, temp);
 					fnSave();
 				}
-				let text = ui.item.o + " - " + ui.item.dOrg;
-				return fnAcLoad(this, ui.item.id, text);
+				dom.format(".msg-cd", { imp, fecha: fnAyer() }, STYLES);
+				return fnAcLoad(this, temp.id, temp.o + " - " + temp.dOrg);
 			}
 		}).change(fnAcReset);
 		/********** tramitador / organicas autocompletes **********/
 
 		organicas = ab.parse(dom.getText("#org-data")) || [];
+		let imp = organicas[0]?.imp;
 
 		// Register events after render table => avoid first render
 		dom.table("#organicas", organicas, resume, STYLES);
@@ -238,6 +243,7 @@ function IrsePerfil() {
 		fnUpdatePerfil(); // show first perfil for update
 		dom.getValue("#interesado") && dom.show(eCol.parentNode); //muestro el colectivo
 		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil)
+			.format(".msg-cd", { imp, fecha: fnAyer() }, STYLES)
 			.onChangeInput("#interesado", el => dom.toggleHide(eCol.parentNode, !el.value));
 	});
 }
