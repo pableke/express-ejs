@@ -5,15 +5,22 @@
  * 
  * @module DomBox
  */
-function DomBox() {
+function DomBox(opts) {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
-	const HIDE = "hide"; //css display: none
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
+	const CONFIG = {
+		maxFileSize: 6000000, //6MB
+		classHide: "hide" //css display: none
+	}
+
+	// Update congig
+	Object.assign(CONFIG, opts);
 
 	const fnParam = value => value; // return param value
-	const fnLog = data => { console.log("Log:", data); }
+	const fnValue = (obj, name) => obj[name];
+	const fnLog = data => console.log("Log:", data);
 	const fnSplit = str => str ? str.split(/\s+/) : []; //class separator
 	const fnQuery = (elem, parent) => sb.isstr(elem) ? self.get(elem, parent) : elem;
 	const fnQueryAll = list => sb.isstr(list) ? document.querySelectorAll(list) : list;
@@ -168,6 +175,7 @@ function DomBox() {
 	}
 
 	function fnSetText(el, value) {
+		el.classList.toggle(CONFIG.classHide, !value);
 		el.innerText = value;
 		return self;
 	}
@@ -185,6 +193,7 @@ function DomBox() {
 	}
 
 	function fnSetHtml(el, value) {
+		el.classList.toggle(CONFIG.classHide, !value);
 		el.innerHTML = value;
 		return self;
 	}
@@ -202,11 +211,11 @@ function DomBox() {
 	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, nb.mask(mask, i))); //toggle class by mask
-	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
+	this.view = (list, mask) => self.mask(list, ~mask, CONFIG.classHide); //toggle hide class by mask
 	this.select = function(list, mask) {
 		return self.each(list, el => { //iterate over all selects
 			const option = el.options[el.selectedIndex]; //get current option
-			if (self.view(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
+			if (self.view(el.options, mask).hasClass(option, CONFIG.classHide)) //option hidden => force change
 				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
 		});
 	}
@@ -229,19 +238,27 @@ function DomBox() {
 		el.id = el.id || ("_" + sb.rand()); // force unique id for element
 		let key = el.dataset.tpl || el.id; // tpl asociated
 		TEMPLATES[key] = TEMPLATES[key] || el.innerHTML;
-		el.innerHTML = formatter(TEMPLATES[key]);
-		el.classList.toggle(HIDE, !el.innerHTML);
+		return fnSetHtml(el, formatter(TEMPLATES[key]));
+	}
+	this.format = (selector, data, opts) => {
+		const elements = fnQueryAll(selector);
+		data.size = elements.length; //reuse object
+		ab.each(elements, (el, i) => {
+			data.index = i;
+			data.count = i + 1;
+			self.render(el, tpl => sb.format(data, tpl, opts));
+		});
 		return self;
 	}
-	this.format = (list, formatter) => self.each(list, el => self.render(el, formatter));
+	this.tr = (selector, opts) => self.format(selector, i18n.getLang(), opts); // Extends internacionalization
 	this.replace = (selector, value) => self.each(selector, el => { el.outerHTML = value; });
 	this.parse = (selector, formatter)  => self.each(selector, el => { el.outerHTML = formatter(el.outerHTML); });
 
 	// Styles
 	this.isVisible = el => el && fnVisible(el);
 	this.visible = (el, parent) => self.isVisible(fnQuery(el, parent));
-	this.show = list => self.each(list, el => el.classList.remove(HIDE));
-	this.hide = list => self.each(list, el => el.classList.add(HIDE));
+	this.show = list => self.each(list, el => el.classList.remove(CONFIG.classHide));
+	this.hide = list => self.each(list, el => el.classList.add(CONFIG.classHide));
 	this.hasClass = (el, name) => el && fnSplit(name).some(name => el.classList.contains(name));
 	this.addClass = function(list, name) {
 		const names = fnSplit(name); // Split value by " " (class separator)
@@ -256,7 +273,7 @@ function DomBox() {
 		return self.each(list, el => names.forEach(name => el.classList.toggle(name, force)));
 	}
 	this.toggleHide = function(list, force) {
-		return self.toggle(list, HIDE, force);
+		return self.toggle(list, CONFIG.classHide, force);
 	}
 
 	this.css = function(list, prop, value) {
@@ -375,16 +392,6 @@ function DomBox() {
 		self.setRangeDate = (f1, f2) => {
 			return self.onBlurInput(f1, el => self.setAttrInput(f2, "min", el.value))
 						.onBlurInput(f2, el => self.setAttrInput(f1, "max", el.value));
-		}
-
-		// Extends internacionalization
-		self.tr = function(selector, opts) {
-			const elements = self.getAll(selector);
-			i18n.set("size", elements.length); //size list
-			return self.each(elements, (el, i) => {
-				i18n.set("index", i).set("count", i + 1);
-				self.render(el, tpl => i18n.format(tpl, opts));
-			});
 		}
 
 		/**************** Tables/rows helper ****************/

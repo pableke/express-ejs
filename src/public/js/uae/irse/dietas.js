@@ -142,6 +142,12 @@ function IrseDietas() {
 	this.getImpReducido = () => resume.reducido;
 	this.getImpPercibir = () => resume.percibir;
 
+	/*this.build = () => {
+		const manutenciones = [];
+		// mejora futura ......
+		return self;
+	}*/
+
 	// Build table step 7
 	dom.ready(function() {
 		//valor leido del select en paso 2

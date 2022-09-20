@@ -61,13 +61,24 @@ function IrseRutas() {
 	this.empty = () => ab.empty(rutas);
 	this.first = () => rutas[0];
 	this.last = () => ab.last(rutas);
-	this.start = function() { let first = rutas[0]; return first && sb.toDate(first.dt1); }
-	this.end = function() { let last = ab.last(rutas); return last && sb.toDate(last.dt2); }
+	this.start = () => sb.toDate(rutas[0]?.dt1);
+	this.end = () => sb.toDate(ab.last(rutas)?.dt2);
 	this.isSalidaTemprana = () => (self.size() && (sb.getHours(rutas[0].dt1) < 14));
 	this.isSalidaTardia = () => (self.size() && (sb.getHours(rutas[0].dt1) > 21));
 	this.isLlegadaTemprana = () => (self.size() && (sb.getHours(self.last().dt2) < 14));
 	this.isLlegadaTardia = () => (self.size() && (sb.getHours(self.last().dt2) < 5));
 	this.isLlegadaCena = () => (self.size() && (sb.getHours(self.last().dt2) > 21));
+	this.getRuta = f1 => { // Ruta asociada a f1
+		let aux = dt.clone(f1); // f1 = readonly
+		dt.addHours(aux, 29); // 5h del dia siguiente
+		let fMax = aux.toJSON(); // Stringify date
+		let ruta = self.first(); // Ruta de salida
+		rutas.forEach(aux => { // rutas ordenadas por fecha
+			// Ultima fecha de llegada mas proxima a fMax
+			ruta = (aux.dt2 < fMax) ? aux : ruta;
+		});
+		return ruta;
+	}
 
 	this.resume = function() {
 		resume.totKm = resume.totKmCalc = 0;
@@ -130,11 +141,24 @@ function IrseRutas() {
 	this.add = function(ruta, dist) {
 		ruta.temp = true;
 		rutas.push(ruta);
-		(ruta.mask & 1) && fnSetMain(ruta);
+
 		//reordeno rutas por fecha de salida
 		rutas.sort((a, b) => sb.cmp(a.dt1, b.dt1));
+
+		//calculo de la ruta principal
+		let diff = 0;
+		let principal = rutas[0];
+		for (let i = 1; i < rutas.length; i++) {
+			let aux = sb.diffDate(rutas[i].dt1, rutas[i - 1].dt2);
+			if (diff < aux) {
+				diff = aux;
+				principal = rutas[i - 1];
+			}
+		}
+
 		if (self.validAll()) {
 			delete ruta.temp;
+			fnSetMain(principal);
 			ruta.km1 = ruta.km2 = dist;
 			IRSE.matricula = dom.getValue("#matricula"); //update from input
 			dom.table("#rutas", rutas, resume, STYLES);

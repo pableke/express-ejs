@@ -45,8 +45,20 @@ function StringBox() {
 	String.prototype.format = function(fn) {
 		return this.replace(/@(\w+);/g, fn);
 	}
-	String.prototype.render = function(data) {
-		return this.format((m, k) => data[k] ?? EMPTY);
+	String.prototype.render = function(data, opts) {
+		opts = opts || {}; //default settings
+		const empty = opts.empty || EMPTY;
+		const fnVal = opts.getValue || self.val;
+
+		let matches = 0; //counter
+		let output = this.format((m, k) => {
+			const fn = opts[k]; //field format function
+			let value = fn ? fn(data[k], data) : fnVal(data, k);
+			value = value ?? empty; //string formated
+			matches += value ? 1 : 0;
+			return value;
+		});
+		return matches ? output : EMPTY;
 	}
 
 	// Module functions
@@ -108,8 +120,8 @@ function StringBox() {
 	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
 	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
 	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
-	this.diffDate = (str1, str2) => Math.abs(Date.parse(str1) - Date.parse(str2));
-	this.toIsoDate = (date, time) => (date + "T" + self.toIsoTime(time) + ".000");
+	this.diffDate = (str1, str2) => (Date.parse(str1) - Date.parse(str2));
+	this.toIsoDate = (date, time) => (date + "T" + self.toIsoTime(time) + ".0");
 	this.toIsoTime = str => {
 		const size = fnSize(str);
 		if (size == 0) // no time
@@ -121,7 +133,7 @@ function StringBox() {
 	this.inMonth = (str1, str2) => self.substring(str1, 0, 7) == self.substring(str2, 0, 7);
 	this.inDay = (str1, str2) => self.substring(str1, 0, 10) == self.substring(str2, 0, 10);
 	this.inHour = (str1, str2) => self.substring(str1, 0, 13) == self.substring(str2, 0, 13);
-	this.startDay = str => str ? (fnEnDate(str) + "T00:00:00.000") : str;
+	this.startDay = str => str ? (fnEnDate(str) + "T00:00:00.0") : str;
 	this.endDay = str => str ? (fnEnDate(str) + "T23:59:59.999") : str;
 	this.getDate = str => +self.substring(str, 8, 10); // Get day as integer
 	this.getHours = str => +self.substring(str, 14, 16); // Get hours as integer
@@ -153,17 +165,8 @@ function StringBox() {
 
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
-	this.format = function(data, tpl, opts) {
-		opts = opts || {}; //default settings
-		const empty = opts.empty || EMPTY;
-		const fnVal = opts.getValue || self.val;
-
-		return tpl.format((m, k) => {
-			const fn = opts[k]; //field format function
-			const value = fn ? fn(data[k], data) : fnVal(data, k);
-			return value ?? empty; //string formated
-		});
-	}
+	this.format = (data, tpl, opts) => tpl.render(data, opts);
+	this.render = (data, tpl, opts) => tpl.render(data, opts);
 	this.entries = function(data, tpl, opts) {
 		opts = opts || {}; //default settings
 		const fnVal = opts.getValue || self.val;

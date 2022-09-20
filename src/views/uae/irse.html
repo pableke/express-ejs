@@ -142,7 +142,22 @@
 
 	<div id="map" class="hide"></div>
 	<script type="text/javascript" src="public/js/uae/irse/tabs/tab2.maps.js"></script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_PUBLIC_KEY&libraries=places&callback=initMap" async="true" defer="defer"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIlqxZkVg9GyjzyNzC0rrZiuY6iPLzTZI&libraries=places&callback=initMap" async="true" defer="defer"></script>
+	<script type="text/javascript">
+		dom.ready(function() { // TESTS
+			console.log(">> Test para las pernoctas");
+			let fDieta = ir.start();
+			let end = ir.end();
+			dt.trunc(fDieta).addDate(fDieta, -3).addDate(end, 3);
+			for (; dt.lt(fDieta, end); dt.addDate(fDieta, 1))
+				console.log(fDieta.toJSON(), ir.getRuta(fDieta).destino);
+			console.log(">> Fin test para las pernoctas");
+
+			console.log("---------------------------------")
+			console.log(">> Test para el calculo de dietas");
+			console.log(">> Fin test para el calculo de dietas");
+		});
+	</script>
 
 	<div class="alerts">
 		<div class="alert alert-success hide">
