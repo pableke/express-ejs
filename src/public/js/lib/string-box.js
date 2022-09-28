@@ -49,16 +49,16 @@ function StringBox() {
 		opts = opts || {}; //default settings
 		const empty = opts.empty || EMPTY;
 		const fnVal = opts.getValue || self.val;
+		const fnFinish = opts.onFinish || ((matches, output) => (matches ? output : EMPTY));
 
 		let matches = 0; //counter
 		let output = this.format((m, k) => {
 			const fn = opts[k]; //field format function
 			let value = fn ? fn(data[k], data) : fnVal(data, k);
-			value = value ?? empty; //string formated
-			matches += value ? 1 : 0;
-			return value;
+			matches += isset(value) ? 1 : 0; //replaced?
+			return value ?? empty; //string formated
 		});
-		return matches ? output : EMPTY;
+		return fnFinish(matches, output);
 	}
 
 	// Module functions

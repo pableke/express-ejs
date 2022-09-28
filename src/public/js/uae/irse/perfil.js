@@ -1,3 +1,4 @@
+
 function IrsePerfil() {
 	const self = this; //self instance
 	const ACTIVIDAD = 0b0000000000011; //default = COM/MUN 
@@ -60,10 +61,18 @@ function IrsePerfil() {
 	};
 
 	const resume = {};
-	const STYLES = { remove: "msgDelOrg", imp: i18n.isoFloat, resp: sb.lopd, fecha: i18n.isoDate };
+	const STYLES = {
+		remove: "msgDelOrg", 
+		imp: i18n.isoFloat, resp: sb.lopd, fCache: i18n.isoDate,
+		onFinish: (matches, output) => ((matches == 3) ? output : "")
+	};
 
 	let eRol, eCol, eFin, eAct, eTramit;
 	let organicas, current;
+
+	const fCache = new Date();
+	dt.addDate(fCache, -1); //fecha de ayer
+	i18n.set("fCache", fCache);
 
 	this.isLoaded = () => eRol && eCol && eFin && eAct;
 	this.getRol = () => eRol.value;
@@ -124,11 +133,6 @@ function IrsePerfil() {
 		current = null; //remove selected
 		fnUpdatePerfil(); //set new perfil
 		dom.setValue("#presupuesto", JSON.stringify(organicas));
-	}
-	function fnAyer() {
-		let fecha = new Date();
-		dt.addDate(fecha, -1); //fecha de ayer
-		return fecha;
 	}
 
 	//auto-start => update perfil
@@ -212,24 +216,20 @@ function IrsePerfil() {
 				fnAutocomplete(this.element, ["o", "dOrg"], res, item => (item.o + " - " + item.dOrg));
 			},
 			select: function(ev, ui) {
-				let key, imp, temp;
-				temp = current = ui.item;
-				if (IRSE.uxxiec)
-					key = "msgCd";
-				else {
-					key = "msgCdPdi"; //msg a mostrar
-					imp = temp.imp; //credito disponible
-					ab.reset(organicas).push(organicas, temp);
+				current = ui.item;
+				i18n.set("imp", current.imp); //credito disponible
+				fnAcLoad(this, current.id, current.o + " - " + current.dOrg);
+				if (!IRSE.uxxiec) {
+					ab.reset(organicas).push(organicas, current);
 					fnSave();
 				}
-				dom.format(".msg-cd", { imp, fecha: fnAyer() }, STYLES);
-				return fnAcLoad(this, temp.id, temp.o + " - " + temp.dOrg);
+				return !dom.tr(".msg-cd", STYLES);
 			}
 		}).change(fnAcReset);
 		/********** tramitador / organicas autocompletes **********/
 
 		organicas = ab.parse(dom.getText("#org-data")) || [];
-		let imp = organicas[0]?.imp;
+		i18n.set("imp", organicas[0]?.imp); //importe precargado
 
 		// Register events after render table => avoid first render
 		dom.table("#organicas", organicas, resume, STYLES);
@@ -242,8 +242,7 @@ function IrsePerfil() {
 
 		fnUpdatePerfil(); // show first perfil for update
 		dom.getValue("#interesado") && dom.show(eCol.parentNode); //muestro el colectivo
-		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil)
-			.format(".msg-cd", { imp, fecha: fnAyer() }, STYLES)
+		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil).tr(".msg-cd", STYLES)
 			.onChangeInput("#interesado", el => dom.toggleHide(eCol.parentNode, !el.value));
 	});
 }
