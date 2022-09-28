@@ -15,6 +15,7 @@ function I18nBox() {
 	const langs = { // Main language container
 		en: {
 			lang: "en", // English
+			none: "", // cadena vacia
 			//inputs errors messages
 			errForm: "Form validation failed",
 			errRequired: "Required field!",
@@ -76,6 +77,7 @@ function I18nBox() {
 
 		es: {
 			lang: "es", // Spanish
+			none: "", // cadena vacia
 			//inputs errors messages
 			errForm: "Error al validar los campos del formulario",
 			errRequired: "¡Campo obligatorio!",

@@ -96,7 +96,7 @@ const IRSE_I18N = {
 		tiposMultiorganica: ["-", "Dietas", "Alojamiento", "Transporte", "Asistencias"],
 
 		lblPorAqui: "¡Por Aquí!",
-		lblPaso: "Paso", lblDe: "de",
+		lblPaso: "Paso", lblDe: "de", lblA: "a",
 		firstDay: "Primer día", medDay: "Días Intermedios", lastDay: "Último día"
 	}
 };
