@@ -39,6 +39,9 @@ const JS_UAE_IRSE = [
 const JS_UAE_PRESTO = [
 	"src/public/js/uae/presto/i18n.js", "src/public/js/uae/presto/nav.js", "src/public/js/uae/presto/apli.js", "src/public/js/uae/presto/presto.js"
 ];
+const JS_UAE_XECO = [
+	"src/public/js/uae/uae/i18n.js", "src/public/js/uae/uae/xeco.js"
+];
 
 // Task to minify all views (HTML's and EJS's)
 gulp.task("minify-html", () => {
@@ -85,6 +88,13 @@ gulp.task("minify-js-uae", () => {
 				.pipe(gulp.dest("src/public/js"))
 				.pipe(gulp.dest("dist/public/js"));
 });
+gulp.task("minify-js-uae-irse", () => {
+	return gulp.src(JS_UAE_IRSE)
+				.pipe(concat("irse-min.js"))
+				.pipe(uglify())
+				.pipe(gulp.dest("src/public/js/uae"))
+				.pipe(gulp.dest("dist/public/js/uae"));
+});
 gulp.task("minify-js-uae-presto", () => {
 	return gulp.src(JS_UAE_PRESTO)
 				.pipe(concat("presto-min.js"))
@@ -92,9 +102,9 @@ gulp.task("minify-js-uae-presto", () => {
 				.pipe(gulp.dest("src/public/js/uae"))
 				.pipe(gulp.dest("dist/public/js/uae"));
 });
-gulp.task("minify-js-uae-irse", () => {
-	return gulp.src(JS_UAE_IRSE)
-				.pipe(concat("irse-min.js"))
+gulp.task("minify-js-uae-xeco", () => {
+	return gulp.src(JS_UAE_XECO)
+				.pipe(concat("xeco-min.js"))
 				.pipe(uglify())
 				.pipe(gulp.dest("src/public/js/uae"))
 				.pipe(gulp.dest("dist/public/js/uae"));
@@ -143,11 +153,13 @@ gulp.task("watch", () => {
 	gulp.watch(JS_WEB, gulp.series("minify-js-web"));
 	gulp.watch(JS_UAE, gulp.series("minify-js-uae"));
 	gulp.watch(JS_UAE_IRSE, gulp.series("minify-js-uae-irse"));
+	gulp.watch(JS_UAE_PRESTO, gulp.series("minify-js-uae-presto"));
+	gulp.watch(JS_UAE_XECO, gulp.series("minify-js-uae-xeco"));
 	// Other watchers ...
 });
 
 gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
-									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-presto", "minify-js-uae-irse",
+									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", "minify-js-uae-presto", "minify-js-uae-xeco",
 									"copy-modules", "symlinks", "copy-files", 
 									"watch"));

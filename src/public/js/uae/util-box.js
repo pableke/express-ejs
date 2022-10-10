@@ -114,9 +114,10 @@ dom.ready(function() {
 	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
-	// Show/Hide drop down info
-	dom.onclick(".toggle-angle", el => !dom.toggle(dom.get("i.fas", el), "fa-angle-double-down fa-angle-double-up").toggleHide(".info-" + el.id));
-	dom.onclick(".toggle-caret", el => !dom.toggle(dom.get("i.fas", el), "fa-caret-right fa-caret-down").toggleHide(".info-" + el.id));
+	// Show / Hide drop down info
+	dom.onclick("a[href='#toggle']", el => !dom.toggleHide(".info-" + el.id).setFocus(el.parentNode)) // simple hide class toggle
+		.onclick(".toggle-angle", el => !dom.toggle(dom.get("i.fas", el), "fa-angle-double-down fa-angle-double-up").toggleHide(".info-" + el.id))
+		.onclick(".toggle-caret", el => !dom.toggle(dom.get("i.fas", el), "fa-caret-right fa-caret-down").toggleHide(".info-" + el.id));
 	/**************** Tabs helper ****************/
 
 	$("a.rechazar", tabs).click(function() { //muestra el tab de rechazo
