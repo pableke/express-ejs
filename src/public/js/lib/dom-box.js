@@ -259,22 +259,21 @@ function DomBox(opts) {
 	this.visible = (el, parent) => self.isVisible(fnQuery(el, parent));
 	this.show = list => self.each(list, el => el.classList.remove(CONFIG.classHide));
 	this.hide = list => self.each(list, el => el.classList.add(CONFIG.classHide));
-	this.hasClass = (el, name) => el && fnSplit(name).some(name => el.classList.contains(name));
-	this.addClass = function(list, name) {
-		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(list, el => { names.forEach(name => el.classList.add(name)); });
+	this.hasClass = (el, names) => el && fnSplit(names).some(name => el.classList.contains(name));
+	this.addClass = function(list, names) {
+		names = fnSplit(names); // Split value by " " (class separator)
+		return self.each(list, el => names.forEach(name => el.classList.add(name)));
 	}
-	this.removeClass = function(list, name) {
-		const names = fnSplit(name); // Split value by " " (class separator)
-		return self.each(list, el => { names.forEach(name => el.classList.remove(name)); });
+	this.removeClass = function(list, names) {
+		names = fnSplit(names); // Split value by " " (class separator)
+		return self.each(list, el => names.forEach(name => el.classList.remove(name)));
 	}
-	this.toggle = function(list, name, force) {
-		const names = fnSplit(name); // Split value by " " (class separator)
+	this.toggle = function(list, names, force) {
+		names = fnSplit(names); // Split value by " " (class separator)
 		return self.each(list, el => names.forEach(name => el.classList.toggle(name, force)));
 	}
-	this.toggleHide = function(list, force) {
-		return self.toggle(list, CONFIG.classHide, force);
-	}
+	this.toggleHide = (list, force) => self.toggle(list, CONFIG.classHide, force);
+	this.toggleLink = (el, force) => self.toggleHide(".info-" + el.id, force).setFocus(el.parentNode);
 
 	this.css = function(list, prop, value) {
 		const camelProp = prop.replace(/(-[a-z])/, g => g.replace("-", EMPTY).toUpperCase());
