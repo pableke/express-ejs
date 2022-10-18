@@ -54,9 +54,9 @@ dom.ready(function() {
 	// Alerts handlers
 	const alerts = dom.get("div.alerts");
 	const texts = dom.getAll(".alert-text", alerts);
-	function showAlert(el) { return dom.show(el.parentNode); }
-	function closeAlert(el) { return dom.hide(el.parentNode); }
-	function setAlert(el, txt) { return txt ? showAlert(el).setHtml(el, txt).scroll() : dom; }
+	const showAlert = el => dom.show(el.parentNode);
+	const closeAlert = el => dom.hide(el.parentNode);
+	const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, txt).scroll() : dom;
 
 	dom.showOk = (msg) => setAlert(texts[0], msg); //green
 	dom.showInfo = (msg) => setAlert(texts[1], msg); //blue
@@ -88,10 +88,10 @@ dom.ready(function() {
 	}
 
 	// Inputs formated
-	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); });
-	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
-	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
-	dom.setAttrInputs(".ui-date", "type", "date").setAttrInputs(".disabled,.ui-state-disabled", "readonly", true);
+	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
+		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
+		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
+		.setAttrInputs(".ui-date", "type", "date").setAttrInputs(".disabled,.ui-state-disabled", "readonly", true);
 	// Initialize all textarea counter
 	const ta = dom.getInputs("textarea[maxlength]");
 	function fnCounter(el) {
