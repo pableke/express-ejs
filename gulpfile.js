@@ -40,7 +40,7 @@ const JS_UAE_PRESTO = [
 	"src/public/js/uae/presto/i18n.js", "src/public/js/uae/presto/nav.js", "src/public/js/uae/presto/apli.js", "src/public/js/uae/presto/presto.js"
 ];
 const JS_UAE_XECO = [
-	"src/public/js/uae/uae/i18n.js", "src/public/js/uae/uae/xeco.js"
+	"src/public/js/uae/xeco/i18n.js", "src/public/js/uae/xeco/xeco.js"
 ];
 
 // Task to minify all views (HTML's and EJS's)

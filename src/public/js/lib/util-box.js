@@ -47,9 +47,7 @@ dom.ready(function() {
 	// Alerts handlers
 	const alerts = _loading.previousElementSibling;
 	const texts = dom.getAll(".alert-text", alerts);
-	function setAlert(el, txt) {
-		return txt ? dom.fadeIn(el.parentNode).setHtml(el, i18n.tr(txt)).scroll() : dom;
-	}
+	const setAlert = (el, txt) => txt ? dom.fadeIn(el.parentNode).setHtml(el, i18n.tr(txt)).scroll() : dom;
 
 	dom.showOk = msg => setAlert(texts[0], msg); //green
 	dom.showInfo = msg => setAlert(texts[1], msg); //blue
@@ -89,9 +87,9 @@ dom.ready(function() {
 	}
 
 	// Inputs formater
-	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); });
-	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
-	dom.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
+	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
+		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
+		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 
 	// Initialize all textarea counter
 	const ta = dom.getInputs("textarea[maxlength]");
