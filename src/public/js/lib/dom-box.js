@@ -372,19 +372,17 @@ function DomBox(opts) {
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onFileInput = (selector, fn) => {
 			return self.onChangeInput(selector, el => {
-				const size = ab.size(el.files);
-				function readFile(index) {
-					if (index < size) {
-						const file = el.files[index];
-						reader.onload = ev => {
-							fn(el, ev, file, ev.target.result, index);
-							readFile(index + 1);
-						}
-						//reader.readAsText(file, "UTF-8");
-						reader.readAsBinaryString(file);
-					}
+				let index = 0; // position
+				const fnRead = file => {
+					//file && reader.readAsText(file, "UTF-8");
+					file && reader.readAsBinaryString(file);
 				}
-				readFile(0);
+
+				reader.onload = ev => {
+					fn(el, ev, el.files[index], ev.target.result, index);
+					fnRead(el.files[++index]);
+				}
+				fnRead(el.files[index]);
 			});
 		}
 
