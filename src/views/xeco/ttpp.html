@@ -20,12 +20,12 @@
 	<h1>Extractos Bancarios</h1>
 
 	<label for="banco">Extracto Bancario</label><br>
-	<input type="file" id="banco" name="banco">
+	<input type="file" id="banco" name="banco" multiple />
 
 	<script type="text/javascript">
 		dom.ready(function() {
 			dom.onFileInput("#banco", (el, ev, file, data, i) => {
-				console.log(i, el.name, rf.parse(data).get("n57"));
+				console.log(i, el.name, file, rf.parse(data).get("n57"));
 			});
 		});
 	</script>
