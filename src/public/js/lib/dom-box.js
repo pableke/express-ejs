@@ -11,7 +11,7 @@ function DomBox(opts) {
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
 	const CONFIG = {
-		maxFileSize: 6000000, //6MB
+		//maxFileSize: 6000000, //6MB
 		classHide: "hide" //css display: none
 	}
 
@@ -372,13 +372,13 @@ function DomBox(opts) {
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onFileInput = (selector, fn) => {
 			return self.onChangeInput(selector, el => {
-				let index = 0; // position
 				const fnRead = file => {
 					//file && reader.readAsText(file, "UTF-8");
 					file && reader.readAsBinaryString(file);
 				}
 
-				reader.onload = ev => {
+				let index = 0; // position
+				reader.onload = ev => { // event on load file
 					fn(el, ev, el.files[index], ev.target.result, index);
 					fnRead(el.files[++index]);
 				}
