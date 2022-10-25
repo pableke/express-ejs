@@ -36,9 +36,6 @@ function fnAcRender(jqel, fnRender) {
 
 //DOM is fully loaded
 dom.ready(function() {
-	const tabs = dom.getTabs(); // All tabs list
-	const inputs = dom.getInputs(); // All inputs list
-
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
 	const ibox = document.body.lastElementChild;
@@ -51,41 +48,6 @@ dom.ready(function() {
 	window.onscroll = function() { dom.toggleHide(top, this.pageYOffset < 80); }
 	dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
 
-	// Alerts handlers
-	const alerts = dom.get("div.alerts");
-	const texts = dom.getAll(".alert-text", alerts);
-	const showAlert = el => dom.show(el.parentNode);
-	const closeAlert = el => dom.hide(el.parentNode);
-	const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, txt).scroll() : dom;
-
-	dom.showOk = (msg) => setAlert(texts[0], msg); //green
-	dom.showInfo = (msg) => setAlert(texts[1], msg); //blue
-	dom.showWarn = (msg) => setAlert(texts[2], msg); //yellow
-	dom.showError = (msg) => setAlert(texts[3], msg); //red
-	dom.showAlerts = function(msgs) { //show posible multiple messages types
-		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
-	}
-	dom.closeAlerts = function() { //hide all alerts
-		i18n.start(); //reinit. error counter
-		const tips = dom.getAll(".ui-errtip"); //tips messages
-		return dom.each(texts, closeAlert).removeClass(inputs, "ui-error").html(tips, "").hide(tips);
-	}
-
-	// Show posible server messages and close click event
-	dom.each(texts, el => { el.firstChild && showAlert(el); })
-		.click(dom.getAll(".alert-close", alerts), closeAlert);
-
-	// Individual input error messages
-	dom.setError = function(selector, msg, msgtip, fn) {
-		const el = dom.getInput(selector);
-		if (el && !(fn && fn(el.name, el.value, msg, msgtip))) {
-			i18n.setError(msg, el.name, msgtip); // Show error
-			const tip = dom.sibling(el, ".ui-errtip"); // Show tip error
-			dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
-				.setHtml(tip, i18n.getMsg(el.name)).show(tip);
-		}
-		return dom;
-	}
 
 	// Inputs formated
 	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
@@ -103,13 +65,13 @@ dom.ready(function() {
 	dom.onChangeInput("#urgente", () => dom.toggleHide(".grp-urgente")).setAttrInput("#fMax", "min", dt.isoEnDate(dt.sysdate()));
 
 	// Common validators for fields
-	dom.addError = dom.setError; // Synonym
-	dom.required = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.required);
-	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
-	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
-	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
+	dom.addError = dom.setError = dom.setInputError; // Synonym
+	dom.required = (el, msg) => dom.setError(el, msg, "errRequired", i18n.required);
+	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.login);
+	dom.email = (el, msg) => dom.setError(el, msg, "errCorreo", i18n.email);
+	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.user);
 	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.intval);
-	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
+	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip || errGt0, i18n.gt0);
 	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
 	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
@@ -117,6 +79,7 @@ dom.ready(function() {
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
 
+	const tabs = dom.getTabs(); // All tabs list
 	$("a.rechazar", tabs).click(function() { //muestra el tab de rechazo
 		$("input#id-rechazo", tabs).val(this.id); //rechazo para el nuevo cv
 		$("a.btn-rechazar", tabs).attr("id", this.id); //rechazo para antiguo portal

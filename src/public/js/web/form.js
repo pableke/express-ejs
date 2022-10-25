@@ -13,10 +13,10 @@ dom.ready(function() {
 	dom.onChangeInput("#correo", el => { el.value = sb.lower(el.value); })
 		.onSubmitForm("#contact", form => {
 			dom.closeAlerts()
-				.required("#info", "errSendContact", "errRequired")
-				.required("#asunto", "errSendContact", "errRequired")
-				.email("#correo", "errSendContact", "errCorreo")
-				.required("#nombre", "errSendContact", "errRequired");
+				.required("#info", "errSendContact")
+				.required("#asunto", "errSendContact")
+				.email("#correo", "errSendContact")
+				.required("#nombre", "errSendContact");
 			dom.isOk() && dom.send(form, msg => {
 				dom.showOk(msg).val(form.elements, "").setFocus("#nombre");
 			});
@@ -26,8 +26,8 @@ dom.ready(function() {
 	dom.onChangeInput("#usuario", el => { el.value = sb.toUpperWord(el.value); })
 		.onSubmitForm("#login", form => {
 			return dom.closeAlerts()
-						.login("#clave", "errUserNotFound", "errRegex") //password
-						.user("#usuario", "errUserNotFound", "errRegex") //email or login
+						.login("#clave", "errUserNotFound") //password
+						.user("#usuario", "errUserNotFound") //email or login
 						.isOk();
 		});
 });

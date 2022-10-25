@@ -154,11 +154,9 @@ function IrsePerfil() {
 	}
 
 	this.valid = function() {
-		dom.closeAlerts().required("#perfil-financiacion", "errPerfil", "errRequired");
-		self.empty(organicas) && dom.required("#organica", "errOrganicas", "errRequired");
-		return dom.required("#tramitador", "errPerfil", "errRequired")
-					.required("#interesado", "errPerfil", "errRequired")
-					.isOk();
+		dom.closeAlerts().required("#perfil-financiacion", "errPerfil");
+		self.empty(organicas) && dom.required("#organica", "errOrganicas");
+		return dom.required("#tramitador", "errPerfil").required("#interesado", "errPerfil").isOk();
 	}
 
 	dom.ready(function() {

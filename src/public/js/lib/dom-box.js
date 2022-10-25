@@ -1,7 +1,7 @@
 
 /**
  * Vanilla JS DOM-Box module, require:
- * ArrayBox (ab), StringBox (sb) and i18nBox (i18n)
+ * ArrayBox (ab), NumberBox (nb), StringBox (sb) and i18nBox (i18n)
  * 
  * @module DomBox
  */
@@ -12,11 +12,14 @@ function DomBox(opts) {
 	const TEXT = document.createElement("textarea");
 	const CONFIG = {
 		//maxFileSize: 6000000, //6MB
-		classHide: "hide" //css display: none
+		classHide: "hide", // CSS class name
+		classInputError: "ui-error",
+		classTipError: "ui-errtip"
 	}
 
 	// Update congig
 	Object.assign(CONFIG, opts);
+	const TIP_ERR_SELECTOR = "." + CONFIG.classTipError;
 
 	const fnParam = value => value; // return param value
 	const fnValue = (obj, name) => obj[name];
@@ -174,6 +177,30 @@ function DomBox(opts) {
 		});
 	}
 
+	function fnSetError(el, msg, msgtip) {
+		i18n.setError(msg, el.name, msgtip); // set error on i18n
+		const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
+		return self.showError(i18n.getError()).setHtml(tip, i18n.getMsg(el.name)).show(tip)
+					.addClass(el, CONFIG.classInputError).focus(el);
+	}
+	this.setInputError = (el, msg, msgtip, fn) => {
+		el = self.getInput(el); // Input
+		if (!el) // Not input => ok
+			return self;
+		// Show error message only or validate and show error if element has an error
+		return (!fn || !fn(el.name, el.value, msg, msgtip)) ? fnSetError(el, msg, msgtip) : self;
+	}
+	this.validate = (form, validators, messages) => {
+		form = self.getForm(form); // Get form
+		validators = validators || {}; // Default container
+		messages = messages || {}; // View messages
+
+		return self.closeAlerts().apply(INPUTS, form.elements, el => { // Fields
+			const fn = validators[el.name] || (() => true); // Validator function
+			fn(el.name, el.value, msg, msgtip) || fnSetError(el, messages.msgError, messages[el.name]);
+		}).isOk();
+	}
+
 	function fnSetText(el, value) {
 		el.classList.toggle(CONFIG.classHide, !value);
 		el.innerText = value;
@@ -328,8 +355,40 @@ function DomBox(opts) {
 
 		self.isOk = i18n.isOk;
 		self.isError = i18n.isError;
-		self.closeAlerts = () => self;
 
+		// Alerts handlers
+		const alerts = self.get(".alerts");
+		const texts = self.getAll(".alert-text", alerts);
+		const showAlert = el => self.show(el.parentNode);
+		const closeAlert = el => self.hide(el.parentNode);
+		const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, txt).scroll() : self;
+
+		self.showOk = msg => setAlert(texts[0], msg); //green
+		self.showInfo = msg => setAlert(texts[1], msg); //blue
+		self.showWarn = msg => setAlert(texts[2], msg); //yellow
+		self.showError = msg => setAlert(texts[3], msg); //red
+		self.showAlerts = function(msgs) { //show posible multiple messages types
+			return msgs ? self.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : self;
+		}
+		self.closeAlerts = function() { // Hide all alerts
+			i18n.start(); // Reinit error counter
+			const tips = self.getAll(TIP_ERR_SELECTOR); //tips messages
+			return self.each(texts, closeAlert).removeClass(inputs, CONFIG.classInputError).html(tips, "").hide(tips);
+		}
+		self.setErrors = function(data) {
+			self.closeAlerts(); //close prev errros
+			if (sb.isstr(data)) //Is string
+				return self.showError(data);
+			for (const k in data) //errors list
+				self.setInputError("[name='" + k + "']", null, data[k]);
+			return self.showAlerts(data); //show global menssages
+		}
+
+		// Show posible server messages and close click event
+		self.each(texts, el => { el.firstChild && showAlert(el); })
+			.click(self.getAll(".alert-close", alerts), closeAlert);
+
+		// Tables, Forms and Inputs helpers
 		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;
 		self.getTables = elem => elem ? self.filter(elem, tables) : tables;
 		self.getForm = elem =>  sb.isstr(elem) ? self.find(elem, forms) : elem;
@@ -361,7 +420,10 @@ function DomBox(opts) {
 		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
 		self.autofocus = () => self.focus(inputs.find(fnFocus)); // Set focus on first visible input
-		self.autofocus();
+		self.autofocus().reverse(inputs, el => { // Initial focus or reallocate in first error
+			const tip = self.get(TIP_ERR_SELECTOR, el.parentNode); // Has error tip
+			self.empty(tip) || self.show(tip).addClass(el, CONFIG.classInputError).focus(el);
+		});
 
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
