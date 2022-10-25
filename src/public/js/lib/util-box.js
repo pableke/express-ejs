@@ -13,8 +13,6 @@ const dom = new DomBox(); //HTML-DOM box
 
 //DOM is fully loaded
 dom.ready(function() {
-	const inputs = dom.getInputs(); // All inputs list
-
 	// Extends with animationCSS lib
 	dom.animate = function(list, animation) {
 		// We create a Promise and return it
@@ -44,48 +42,6 @@ dom.ready(function() {
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
 
-	// Alerts handlers
-	const alerts = _loading.previousElementSibling;
-	const texts = dom.getAll(".alert-text", alerts);
-	const setAlert = (el, txt) => txt ? dom.fadeIn(el.parentNode).setHtml(el, i18n.tr(txt)).scroll() : dom;
-
-	dom.showOk = msg => setAlert(texts[0], msg); //green
-	dom.showInfo = msg => setAlert(texts[1], msg); //blue
-	dom.showWarn = msg => setAlert(texts[2], msg); //yellow
-	dom.showError = msg => setAlert(texts[3], msg); //red
-	dom.showAlerts = function(msgs) { //show posible multiple messages types
-		return msgs ? dom.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : dom;
-	}
-	dom.closeAlerts = function() { //hide all alerts
-		i18n.start(); //reinit. error counter
-		const tips = dom.getAll(".ui-errtip"); //tips messages
-		return dom.hide(alerts.children).removeClass(inputs, "ui-error").html(tips, "").hide(tips);
-	}
-
-	// Show posible server messages and close click event
-	dom.each(texts, el => { el.firstChild && dom.fadeIn(el.parentNode); })
-		.click(dom.getAll(".alert-close", alerts), el => dom.fadeOut(el.parentNode));
-
-	// Individual input error messages
-	dom.setError = function(selector, msg, msgtip, fn) {
-		const el = dom.getInput(selector);
-		if (el && !(fn && fn(el.name, el.value, msg, msgtip))) {
-			i18n.setError(msg, el.name, msgtip); // Show error
-			const tip = dom.sibling(el, ".ui-errtip"); // Show tip error
-			dom.showError(i18n.getError()).addClass(el, "ui-error").focus(el)
-				.setHtml(tip, i18n.getMsg(el.name)).show(tip);
-		}
-		return dom;
-	}
-	dom.setErrors = function(data) {
-		dom.closeAlerts(); //close prev errros
-		if (sb.isstr(data)) //Is string
-			return dom.showError(data);
-		for (const k in data) //errors list
-			dom.setError("[name='" + k + "']", null, data[k]);
-		return dom.showAlerts(data); //show global menssages
-	}
-
 	// Inputs formater
 	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
 		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
@@ -100,13 +56,13 @@ dom.ready(function() {
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
 	// Common validators for fields
-	dom.addError = dom.setError; // Synonym
-	dom.required = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.required);
-	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
-	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
-	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
+	dom.addError = dom.setError = dom.setInputError; // Synonym
+	dom.required = (el, msg) => dom.setError(el, msg, "errRequired", i18n.required);
+	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.login);
+	dom.email = (el, msg) => dom.setError(el, msg, "errCorreo", i18n.email);
+	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.user);
 	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.intval);
-	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
+	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip || errGt0, i18n.gt0);
 	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
 	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
@@ -133,11 +89,10 @@ dom.ready(function() {
 			.finally(dom.working); //allways
 	}
 	dom.autocomplete = function(selector, opts) {
+		const fnFalse = () => false;
+		const fnGetIds = el => dom.get("[type=hidden]", el.parentNode);
 		const inputs = dom.getInputs(selector); //Autocomplete inputs
 		let _search = false; //call source indicator (reduce calls)
-
-		function fnFalse() { return false; }
-		function fnGetIds(el) { return dom.get("[type=hidden]", el.parentNode); }
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -214,10 +169,4 @@ dom.ready(function() {
 
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
-
-	// Set error input styles and reallocate focus
-	dom.reverse(inputs, el => {
-		const tip = dom.get(".ui-errtip", el.parentNode);
-		dom.empty(tip) || dom.addClass(el, "ui-error").focus(el);
-	});
 });
