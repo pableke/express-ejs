@@ -184,11 +184,8 @@ function DomBox(opts) {
 					.addClass(el, CONFIG.classInputError).focus(el);
 	}
 	this.setInputError = (el, msg, msgtip, fn) => {
-		el = self.getInput(el); // Input
-		if (!el) // Not input => ok
-			return self;
-		// Show error message only or validate and show error if element has an error
-		return (!fn || !fn(el.name, el.value, msg, msgtip)) ? fnSetError(el, msg, msgtip) : self;
+		el = self.getInput(el); // Get input and show error or validate and show error (if invalid)
+		return (el && (!fn || !fn(el.name, el.value, msg, msgtip))) ? fnSetError(el, msg, msgtip) : self;
 	}
 	this.validate = (form, validators, messages) => {
 		form = self.getForm(form); // Get form
