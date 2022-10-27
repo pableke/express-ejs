@@ -13,10 +13,11 @@ exports.send = function(req, res, next) {
 	let lang = res.locals.lang; // current language
 	let { nombre, correo, asunto, info } = req.body; // post data
 
-	i18n.start(lang).text("info", info, "errSendContact", "errRequired"); //textarea
-	i18n.text200("asunto", asunto, "errSendContact", "errAsunto"); //asunto
-	i18n.email("correo", correo, "errSendContact", "errCorreo"); //email
-	i18n.text200("nombre", nombre, "errSendContact", "errRequired"); //nombre
+	i18n.start(lang) // Initialize validator
+		.required("info", info, "errSendContact").text("info", info, "errSendContact") //textarea
+		.text200("asunto", asunto, "errSendContact", "errAsunto") //asunto
+		.email("correo", correo, "errSendContact") //email
+		.required("nombre", nombre, "errSendContact").text200("nombre", nombre, "errSendContact"); //nombre
 	if (i18n.isError())
 		return next(i18n);
 
