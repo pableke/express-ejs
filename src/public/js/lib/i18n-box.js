@@ -27,6 +27,7 @@ function I18nBox() {
 			errDate: "Wrong date format",
 			errDateLe: "Date must be less or equals than current",
 			errDateGe: "Date must be greater or equals than current",
+			errDateGt: "Date must be greater than current",
 			errNumber: "Wrong number format",
 			errGt0: "Price must be great than 0.00 &euro;", 
 			errRegex: "Wrong format",
@@ -90,6 +91,7 @@ function I18nBox() {
 			errDate: "Formato de fecha incorrecto",
 			errDateLe: "La fecha debe ser menor o igual a la actual",
 			errDateGe: "La fecha debe ser mayor o igual a la actual",
+			errDateGt: "La fecha debe ser mayor a la actual",
 			errNumber: "Valor no numérico",
 			errGt0: "El importe debe ser mayor de 0,00 &euro;", 
 			errRegex: "Formato incorrecto",
@@ -241,42 +243,42 @@ function I18nBox() {
 	this.isOk = () => !MSGS.has(KEY_ERROR);
 	this.isError = name => MSGS.has(name || KEY_ERROR);
 
-	this.required = (name, value, msg, msgtip) => self.valid(name, valid.required(value), msg, msgtip);
-	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip);
-	this.size50 = (name, value, msg, msgtip) => self.valid(name, valid.size50(value), msg, msgtip);
-	this.size200 = (name, value, msg, msgtip) => self.valid(name, valid.size200(value), msg, msgtip);
-	this.size300 = (name, value, msg, msgtip) => self.valid(name, valid.size300(value), msg, msgtip);
+	this.required = (name, value, msg) => self.valid(name, valid.required(value), msg, "errRequired");
+	this.size10 = (name, value, msg, msgtip) => self.valid(name, valid.size10(value), msg, msgtip || "errMaxlength");
+	this.size50 = (name, value, msg, msgtip) => self.valid(name, valid.size50(value), msg, msgtip || "errMaxlength");
+	this.size200 = (name, value, msg, msgtip) => self.valid(name, valid.size200(value), msg, msgtip || "errMaxlength");
+	this.size300 = (name, value, msg, msgtip) => self.valid(name, valid.size300(value), msg, msgtip || "errMaxlength");
 
-	this.text10 = (name, value, msg, msgtip) => self.valid(name, valid.text10(value), msg, msgtip);
-	this.text50 = (name, value, msg, msgtip) => self.valid(name, valid.text50(value), msg, msgtip);
-	this.text200 = (name, value, msg, msgtip) => self.valid(name, valid.text200(value), msg, msgtip);
-	this.text300 = (name, value, msg, msgtip) => self.valid(name, valid.text300(value), msg, msgtip);
-	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip);
+	this.text10 = (name, value, msg, msgtip) => self.valid(name, valid.text10(value), msg, msgtip || "errMaxlength");
+	this.text50 = (name, value, msg, msgtip) => self.valid(name, valid.text50(value), msg, msgtip || "errMaxlength");
+	this.text200 = (name, value, msg, msgtip) => self.valid(name, valid.text200(value), msg, msgtip || "errMaxlength");
+	this.text300 = (name, value, msg, msgtip) => self.valid(name, valid.text300(value), msg, msgtip || "errMaxlength");
+	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip || "errMaxlength");
 
-	this.fk = (name, value, msg, msgtip) => self.valid(name, valid.fk(value), msg, msgtip);
-	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip);
-	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip);
-	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip);
-	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip);
+	this.fk = (name, value, msg, msgtip) => self.valid(name, valid.fk(value), msg, msgtip || "errNumber");
+	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip || "errRange");
+	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip || "errRange");
+	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip || "errNumber");
+	this.gt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip || "errGt0");
 
-	this.regex = (name, value, msg, msgtip) => self.valid(name, valid.regex(value), msg, msgtip);
-	this.login = (name, value, msg, msgtip) => self.valid(name, valid.login(value), msg, msgtip);
-	this.digits = (name, value, msg, msgtip) => self.valid(name, valid.digits(value), msg, msgtip);
-	this.idlist = (name, value, msg, msgtip) => self.valid(name, valid.idlist(value), msg, msgtip);
-	this.email = (name, value, msg, msgtip) => self.valid(name, valid.email(value), msg, msgtip);
+	this.regex = (name, value, msg, msgtip) => self.valid(name, valid.regex(value), msg, msgtip || "errRegex");
+	this.login = (name, value, msg, msgtip) => self.valid(name, valid.login(value), msg, msgtip || "errRegex");
+	this.digits = (name, value, msg, msgtip) => self.valid(name, valid.digits(value), msg, msgtip || "errNumber");
+	this.idlist = (name, value, msg, msgtip) => self.valid(name, valid.idlist(value), msg, msgtip || "errRegex");
+	this.email = (name, value, msg, msgtip) => self.valid(name, valid.email(value), msg, msgtip || "errCorreo");
 
-	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.isDate(value), msg, msgtip);
-	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(value), msg, msgtip);
-	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(value), msg, msgtip);
-	this.geToday = (name, value, msg, msgtip) => self.valid(name, valid.geToday(value), msg, msgtip);
+	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.isDate(value), msg, msgtip || "errDate");
+	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(value), msg, msgtip || "errDateLe");
+	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(value), msg, msgtip || "errDateGt");
+	this.geToday = (name, value, msg, msgtip) => self.valid(name, valid.geToday(value), msg, msgtip || "errDateGe");
 
-	this.dni = (name, value, msg, msgtip) => self.valid(name, valid.dni(value), msg, msgtip);
-	this.cif = (name, value, msg, msgtip) => self.valid(name, valid.cif(value), msg, msgtip);
-	this.nie = (name, value, msg, msgtip) => self.valid(name, valid.nie(value), msg, msgtip);
-	this.idES = (name, value, msg, msgtip) => self.valid(name, valid.idES(value), msg, msgtip);
-	this.user = (name, value, msg, msgtip) => self.valid(name, valid.email(value) || valid.idES(value), msg, msgtip);
+	this.dni = (name, value, msg, msgtip) => self.valid(name, valid.dni(value), msg, msgtip || "errNif");
+	this.cif = (name, value, msg, msgtip) => self.valid(name, valid.cif(value), msg, msgtip || "errNif");
+	this.nie = (name, value, msg, msgtip) => self.valid(name, valid.nie(value), msg, msgtip || "errNif");
+	this.idES = (name, value, msg, msgtip) => self.valid(name, valid.idES(value), msg, msgtip || "errNif");
+	this.user = (name, value, msg, msgtip) => self.valid(name, valid.email(value) || valid.idES(value), msg, msgtip || "errRegex");
 
-	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip);
-	this.swift = (name, value, msg, msgtip) => self.valid(name, valid.swift(value), msg, msgtip);
-	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip);
+	this.iban = (name, value, msg, msgtip) => self.valid(name, valid.iban(value), msg, msgtip || "errRegex");
+	this.swift = (name, value, msg, msgtip) => self.valid(name, valid.swift(value), msg, msgtip || "errRegex");
+	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip || "errRegex");
 }

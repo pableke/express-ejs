@@ -58,14 +58,14 @@ dom.ready(function() {
 	// Common validators for fields
 	dom.addError = dom.setError = dom.setInputError; // Synonym
 	dom.required = (el, msg) => dom.setError(el, msg, "errRequired", i18n.required);
-	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.login);
-	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errCorreo", i18n.email);
-	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRegex", i18n.user);
-	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRequired", i18n.intval);
-	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errGt0", i18n.gt0);
-	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errRequired", i18n.fk);
-	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errDateLe", i18n.past);
-	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip || "errDateGe", i18n.geToday);
+	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
+	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
+	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
+	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.intval);
+	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
+	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
+	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
+	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Extends dom-box actions (require jquery)
 	dom.ajax = function(action, resolve, reject) {
@@ -83,7 +83,7 @@ dom.ready(function() {
 			method: form.method,
 			body: (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd),
 			headers: { "Content-Type": form.enctype || "application/x-www-form-urlencoded" },
-			resolve: resolve || dom.showOk,
+			resolve: resolve || (msg => dom.showOk(msg).val(form.elements, "").autofocus(form.elements)),
 			reject: reject || dom.setErrors
 		}).catch(dom.showError) //error handler
 			.finally(dom.working); //allways

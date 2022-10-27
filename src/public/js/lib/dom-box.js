@@ -192,9 +192,13 @@ function DomBox(opts) {
 		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
 
-		return self.closeAlerts().apply(INPUTS, form.elements, el => { // Fields
+		const key = form.id || "FormError"; // Key message form
+		const msg = messages[key] || validators[key] || messages.msgError || validators.msgError; // Form message
+		const inputs = self.filter(INPUTS, form.elements); // Form inputs
+		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
 			const fn = validators[el.name] || (() => true); // Validator function
-			fn(el.name, el.value, msg, msgtip) || fnSetError(el, messages.msgError, messages[el.name]);
+			const msgtip = messages[el.name] || validators[el.name + "-err"];
+			fn(el.name, el.value, msg, msgtip) || fnSetError(el, msg, msgtip);
 		}).isOk();
 	}
 
@@ -416,7 +420,7 @@ function DomBox(opts) {
 		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
 		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
-		self.autofocus = () => self.focus(inputs.find(fnFocus)); // Set focus on first visible input
+		self.autofocus = elements => self.focus((elements || inputs).find(fnFocus)); // Set focus on first visible input
 		self.autofocus().reverse(inputs, el => { // Initial focus or reallocate in first error
 			const tip = self.get(TIP_ERR_SELECTOR, el.parentNode); // Has error tip
 			self.empty(tip) || self.show(tip).addClass(el, CONFIG.classInputError).focus(el);
@@ -429,21 +433,19 @@ function DomBox(opts) {
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
-		self.onFileInput = (selector, fn) => {
-			return self.onChangeInput(selector, el => {
-				const fnRead = file => {
-					//file && reader.readAsText(file, "UTF-8");
-					file && reader.readAsBinaryString(file);
-				}
+		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
+			const fnRead = file => {
+				//file && reader.readAsText(file, "UTF-8");
+				file && reader.readAsBinaryString(file);
+			}
 
-				let index = 0; // position
-				reader.onload = ev => { // event on load file
-					fn(el, ev, el.files[index], ev.target.result, index);
-					fnRead(el.files[++index]);
-				}
-				fnRead(el.files[index]);
-			});
-		}
+			let index = 0; // position
+			reader.onload = ev => { // event on load file
+				fn(el, ev, el.files[index], ev.target.result, index);
+				fnRead(el.files[++index]);
+			}
+			fnRead(el.files[index]);
+		});
 
 		self.setRangeDate = (f1, f2) => {
 			return self.onBlurInput(f1, el => self.setAttrInput(f2, "min", el.value))
