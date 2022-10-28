@@ -177,28 +177,33 @@ function DomBox(opts) {
 		});
 	}
 
-	function fnSetError(el, msg, msgtip) {
-		i18n.setError(msg, el.name, msgtip); // set error on i18n
+	function fnSetError(el) {
 		const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
 		return self.showError(i18n.getError()).setHtml(tip, i18n.getMsg(el.name)).show(tip)
 					.addClass(el, CONFIG.classInputError).focus(el);
 	}
 	this.setInputError = (el, msg, msgtip, fn) => {
-		el = self.getInput(el); // Get input and show error or validate and show error (if invalid)
-		return (el && (!fn || !fn(el.name, el.value, msg, msgtip))) ? fnSetError(el, msg, msgtip) : self;
+		el = self.getInput(el); // Get input
+		if (!el) // If no input => ok
+			return self;
+		if (!fn) { // Update i18n error and show message
+			i18n.setError(msg, el.name, msgtip); //i18n
+			return fnSetError(el); // Restyle element
+		}
+		return fn(el.name, el.value, msg, msgtip) ? self : fnSetError(el);
 	}
 	this.validate = (form, validators, messages) => {
 		form = self.getForm(form); // Get form
 		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
 
-		const key = form.id || "FormError"; // Key message form
+		const key = form.id + "FormError"; // Key message form
 		const msg = messages[key] || validators[key] || messages.msgError || validators.msgError; // Form message
 		const inputs = self.filter(INPUTS, form.elements); // Form inputs
 		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
 			const fn = validators[el.name] || (() => true); // Validator function
 			const msgtip = messages[el.name] || validators[el.name + "-err"];
-			fn(el.name, el.value, msg, msgtip) || fnSetError(el, msg, msgtip);
+			fn(el.name, el.value, msg, msgtip) || fnSetError(el);
 		}).isOk();
 	}
 
