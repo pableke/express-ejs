@@ -66,7 +66,7 @@ dom.ready(function() {
 
 	// Common validators for fields
 	dom.addError = dom.setError = dom.setInputError; // Synonym
-	dom.required = (el, msg) => dom.setError(el, msg, "errRequired", i18n.required);
+	dom.required = (el, msg) => dom.setError(el, msg, null, i18n.required);
 	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
 	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
 	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
