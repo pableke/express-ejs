@@ -13,6 +13,9 @@ function DomBox(opts) {
 	const CONFIG = {
 		//maxFileSize: 6000000, //6MB
 		classHide: "hide", // CSS class name
+		classAlerts: "alerts", // parent container
+		classAlertText: "alert-text",
+		classAlertClose: "alert-close",
 		classInputError: "ui-error",
 		classTipError: "ui-errtip"
 	}
@@ -21,10 +24,11 @@ function DomBox(opts) {
 	Object.assign(CONFIG, opts);
 	const TIP_ERR_SELECTOR = "." + CONFIG.classTipError;
 
+	const fnSelf = () => self;
 	const fnParam = value => value; // return param value
-	const fnValue = (obj, name) => obj[name];
-	const fnLog = data => console.log("Log:", data);
-	const fnSplit = str => str ? str.split(/\s+/) : []; //class separator
+	const fnValue = (obj, name) => obj[name]; // get prop.
+	const fnLog = data => console.log("Log:", data); // Show log
+	const fnSplit = str => str ? str.split(/\s+/) : []; // class separator
 	const fnQuery = (elem, parent) => sb.isstr(elem) ? self.get(elem, parent) : elem;
 	const fnQueryAll = list => sb.isstr(list) ? document.querySelectorAll(list) : list;
 
@@ -109,9 +113,12 @@ function DomBox(opts) {
 		return self;
 	}
 
-	// Inputs selectors and focusableds
+	// Inputs and focusables selectors
 	const INPUTS = "input,textarea,select";
-	function fnVisible(el) { return el.offsetWidth || el.offsetHeight || el.getClientRects().length; }
+	const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
+	const fnVisible = el => (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+	const fnFocus = input => (fnVisible(input) && input.matches(FOCUSABLE));
+
 	this.inputs = el => self.getAll(INPUTS, el);
 	this.focus = el => { el && el.focus(); return self; }
 	this.checked = el => self.getAll("input:checked", el);
@@ -122,9 +129,9 @@ function DomBox(opts) {
 		let aux = ""; // Binary string, for example: "01001011"
 		self.each(list, el => { aux += el.checked ? "1" : "0"; });
 		return parseInt(aux, 2); // Bin2Int
-	};
+	}
 
-	// Contents
+	// Inputs values
 	function fnSetVal(el, value) {
 		value = value ?? EMPTY; // define value as string
 		if (el.tagName === "SELECT") // select option
@@ -136,6 +143,11 @@ function DomBox(opts) {
 		return self;
 	}
 	this.val = (list, value) => self.each(list, el => fnSetVal(el, value));
+	this.clearInput = el => { el = self.getInput(el); el.focus(); return fnSetVal(el); }
+	this.clearInputs = list => self.val(list).autofocus(list);
+	this.clearForm = form => self.clearInputs(form.elements);
+
+	// Elements attributes
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
 	this.getAttr = function(el, name, parent) {
@@ -197,11 +209,11 @@ function DomBox(opts) {
 		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
 
-		const key = form.id + "FormError"; // Key message form
+		const key = form.getAttribute("id") + "FormError"; // Key message form
 		const msg = messages[key] || validators[key] || messages.msgError || validators.msgError; // Form message
 		const inputs = self.filter(INPUTS, form.elements); // Form inputs
 		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
-			const fn = validators[el.name] || (() => true); // Validator function
+			const fn = validators[el.name] || fnSelf; // Validator function
 			const msgtip = messages[el.name] || validators[el.name + "-err"];
 			fn(el.name, el.value, msg, msgtip) || fnSetError(el);
 		}).isOk();
@@ -265,6 +277,7 @@ function DomBox(opts) {
 
 	// Format and parse contents
 	const TEMPLATES = {}; //container
+	this.getTpl = name => TEMPLATES[name];
 	this.setTpl = (name, tpl) => { TEMPLATES[name] = tpl; return self; }
 	this.loadTemplates = () => self.each("template[id]", tpl => self.setTpl(tpl.id, tpl.innerHTML));
 	this.render = function(el, formatter) {
@@ -361,10 +374,11 @@ function DomBox(opts) {
 
 		self.isOk = i18n.isOk;
 		self.isError = i18n.isError;
+		self.loading = self.working = fnSelf;
 
 		// Alerts handlers
-		const alerts = self.get(".alerts");
-		const texts = self.getAll(".alert-text", alerts);
+		const alerts = self.get("." + CONFIG.classAlerts);
+		const texts = self.getAll("." + CONFIG.classAlertText, alerts);
 		const showAlert = el => self.show(el.parentNode);
 		const closeAlert = el => self.hide(el.parentNode);
 		const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, txt).scroll() : self;
@@ -381,6 +395,8 @@ function DomBox(opts) {
 			const tips = self.getAll(TIP_ERR_SELECTOR); //tips messages
 			return self.each(texts, closeAlert).removeClass(inputs, CONFIG.classInputError).html(tips, "").hide(tips);
 		}
+
+		self.setOk = (form, msg) => self.showOk(msg).clearForm(form);
 		self.setErrors = function(data) {
 			self.closeAlerts(); //close prev errros
 			if (sb.isstr(data)) //Is string
@@ -392,7 +408,7 @@ function DomBox(opts) {
 
 		// Show posible server messages and close click event
 		self.each(texts, el => { el.firstChild && showAlert(el); })
-			.click(self.getAll(".alert-close", alerts), closeAlert);
+			.click(self.getAll("." + CONFIG.classAlertClose, alerts), closeAlert);
 
 		// Tables, Forms and Inputs helpers
 		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;
@@ -422,8 +438,6 @@ function DomBox(opts) {
 			return self;
 		}
 
-		const FOCUSABLE = "[tabindex]:not([type=hidden],[readonly],[disabled])";
-		function fnFocus(input) { return fnVisible(input) && input.matches(FOCUSABLE); }
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
 		self.autofocus = elements => self.focus((elements || inputs).find(fnFocus)); // Set focus on first visible input
 		self.autofocus().reverse(inputs, el => { // Initial focus or reallocate in first error
@@ -439,11 +453,7 @@ function DomBox(opts) {
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
-			const fnRead = file => {
-				//file && reader.readAsText(file, "UTF-8");
-				file && reader.readAsBinaryString(file);
-			}
-
+			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
 			reader.onload = ev => { // event on load file
 				fn(el, ev, el.files[index], ev.target.result, index);
@@ -485,81 +495,7 @@ function DomBox(opts) {
 			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
 		}
 	
-		function fnPagination(table, data, resume, styles) {
-			const pagination = self.next(table, ".pagination"); // Pag section
-			if ((resume.pageSize < 1) || !pagination)
-				return; // Guard clausule
-
-			let pages = Math.ceil(resume.total / resume.pageSize);
-			function renderPagination(page) {
-				let output = ""; // Output buffer
-				function addControl(i, text) {
-					i = nb.range(i, 0, pages - 1); // Close range limit
-					output += '<a href="#' + i + '">' + text + '</a>';
-				}
-				function addPage(i) {
-					i = nb.range(i, 0, pages - 1); // Close range limit
-					output += '<a href="#' + i + '"';
-					output += (i == page) ? ' class="active">' : '>';
-					output += (i + 1) + '</a>';
-				}
-
-				if (pages > 1) {
-					let i = 0; // Index
-					addControl(page - 1, "&laquo;");
-					(pages > 1) && addPage(0);
-					i = Math.max(page - 3, 1);
-					(i >= 2) && addControl(i - 1, "...");
-					let max = Math.min(page + 3, pages - 1);
-					while (i <= max)
-						addPage(i++);
-					(i < (pages - 1)) && addControl(i, "...");
-					(i < pages) && addPage(pages - 1);
-					addControl(page + 1, "&raquo;");
-					pagination.innerHTML = output;
-
-					// Reload pagination click event
-					self.click(self.getAll("a", pagination), el => {
-						resume.page = sb.lastId(el.href); // Current page
-						resume.start = resume.page * resume.pageSize; // Start page index
-						resume.end = resume.start + resume.pageSize; // End page index
-						fnRenderRows(table, data, resume, styles) // Render full table
-						self.trigger(table, "pagination", resume); // Trigger event
-					});
-				}
-				else
-					pagination.innerHTML = output;
-			}
-			renderPagination(resume.page);
-		}
-		function fnRemoveRow(table, data, resume, styles) {
-			// Confirm, close prev. alerts and trigger remove event
-			let ok = table && data && i18n.confirm(styles?.remove || "remove");
-			if (ok && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
-				resume.size--; // Update size
-				resume.total--; // Update total numrows
-				resume.row.remove(); // Remove row 
-				data.splice(resume.index, 1); // Remove data row
-				if (resume.total == 0) { // Is empty table?
-					fnRendetTfoot(table, resume, styles); // First render footer
-					fnToggleTbody(table); // Toggle body if no data
-					fnPagination(table, data, resume, styles); // Render asociated pages
-				}
-				else if (resume.size == 0) { // Is empty Page?
-					resume.start = 0; // Go first page
-					fnRenderRows(table, data, resume, styles); // Build table rows
-				}
-				else {
-					fnRendetTfoot(table, resume, styles); // First render footer
-					fnPagination(table, data, resume, styles); // Render asociated pages
-				}
-			}
-			return self;
-		}
-		function fnRenderRows(table, data, resume, styles) {
-			if (!table || !data || !resume)
-				return self; // No table/data found
-
+		function fnBuildRows(table, data, resume, styles) {
 			// Recalc table page indexes
 			resume.total = data.length;
 			resume.index = resume.index || 0; //default=0
@@ -569,8 +505,10 @@ function DomBox(opts) {
 			resume.sortBy = table.dataset.sortBy;
 			resume.end = resume.start + resume.pageSize;
 			resume.page = +(resume.start / resume.pageSize);
-			if (resume.sortBy && resume.sort) // Sort full array
-				ab.sort(data, resume.sortDir, resume.sort); // Sort before paginate
+			if (resume.sortBy) { // Sort full array, default sort by string
+				const fnSort = resume.sort || ((a, b) => sb.cmp(a[resume.sortBy], b[resume.sortBy]));
+				ab.sort(data, resume.sortDir, fnSort); // Sort before paginate
+			}
 			else {
 				const links = self.getAll(".sort", table.tHead); // Reset orderable links
 				self.removeClass(links, "sort-asc sort-desc").addClass(links, "sort-none");
@@ -606,35 +544,98 @@ function DomBox(opts) {
 					self.trigger(table, name.substring(1), resume);
 			});
 		}
+		function fnPagination(table, data, resume, styles) {
+			const pagination = self.next(table, ".pagination"); // Pag section
+			const pages = Math.ceil(resume.total / resume.pageSize); // Num pages
+			if ((resume.pageSize < 1) || !pagination)
+				return; // Guard clausule
+
+			let output = ""; // Output buffer
+			function addControl(i, text) {
+				i = nb.range(i, 0, pages - 1); // Close range limit
+				output += '<a href="#' + i + '">' + text + '</a>';
+			}
+			function addPage(i) {
+				i = nb.range(i, 0, pages - 1); // Close range limit
+				output += '<a href="#' + i + '"';
+				output += (i == resume.page) ? ' class="active">' : '>';
+				output += (i + 1) + '</a>';
+			}
+
+			if (pages > 1) {
+				let i = 0; // Index
+				addControl(resume.page - 1, "&laquo;");
+				(pages > 1) && addPage(0);
+				i = Math.max(resume.page - 3, 1);
+				(i >= 2) && addControl(i - 1, "...");
+				let max = Math.min(resume.page + 3, pages - 1);
+				while (i <= max)
+					addPage(i++);
+				(i < (pages - 1)) && addControl(i, "...");
+				(i < pages) && addPage(pages - 1);
+				addControl(resume.page + 1, "&raquo;");
+				pagination.innerHTML = output;
+
+				// Reload pagination click event
+				self.click(self.getAll("a", pagination), el => {
+					resume.page = sb.lastId(el.href); // Current page
+					resume.start = resume.page * resume.pageSize; // Start page index
+					resume.end = resume.start + resume.pageSize; // End page index
+					fnBuildRows(table, data, resume, styles) // Render full table
+					self.trigger(table, "pagination", resume); // Trigger event
+				});
+			}
+			else
+				pagination.innerHTML = output;
+		}
+		function fnRemoveRow(table, data, resume, styles) {
+			// Confirm, close prev. alerts and trigger remove event
+			let ok = table && data && i18n.confirm(styles?.remove || "remove");
+			if (ok && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
+				resume.size--; // Update size
+				resume.total--; // Update total numrows
+				resume.row.remove(); // Remove row 
+				data.splice(resume.index, 1); // Remove data row
+				if (resume.total == 0) { // Is empty table?
+					fnRendetTfoot(table, resume, styles); // First render footer
+					fnToggleTbody(table); // Toggle body if no data
+					fnPagination(table, data, resume, styles); // Render asociated pages
+				}
+				else if (resume.size == 0) { // Is empty Page?
+					resume.start = 0; // Go first page
+					fnBuildRows(table, data, resume, styles); // Build table rows
+				}
+				else {
+					fnRendetTfoot(table, resume, styles); // First render footer
+					fnPagination(table, data, resume, styles); // Render asociated pages
+				}
+			}
+			return self;
+		}
+
 		self.table = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return fnRenderRows(table, data, resume, styles);
+			table = self.getTable(table); // Search table
+			return table ? fnBuildRows(table, data, resume, styles) : self;
 		}
-		self.list = function(selector, data, resume, styles) {
-			return self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
-		}
+
+		self.list = (selector, data, resume, styles) => self.apply(selector, tables, table => fnBuildRows(table, data, resume, styles));
+		self.removeRow = (table, data, resume, styles) => fnRemoveRow(self.getTable(table), data, resume, styles);
 
 		self.repaginate = function(table, data, resume, styles) {
 			resume.start = 0; // Go first page
-			table = self.getTable(table); // find table on tables array
-			return fnRenderRows(table, data, resume, styles);
+			return self.table(table, data, resume, styles);
 		}
 		self.updateTable = function(table, data, resume, styles) {
-			delete resume.sort; // Same state list
-			table = self.getTable(table); // find table on tables array
-			return fnRenderRows(table, data, resume, styles);
-		}
-
-		self.removeRow = function(table, data, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return fnRemoveRow(table, data, resume, styles);
+			table = self.getTable(table); // Search table
+			delete table.dataset.sortBy; // Same state list
+			return fnBuildRows(table, data, resume, styles);
 		}
 		self.clearTable = function(table, data, resume, styles) {
 			data.splice(0); // Clear array data
-			delete resume.sort; // Same state list
+			table = self.getTable(table); // Search table
 			resume.index = resume.start = 0; // Update index
-			table = self.getTable(table); // find table on tables array
-			return fnRenderRows(table, data, resume, styles);
+			delete table.dataset.sortBy; // Same state list
+			return fnBuildRows(table, data, resume, styles);
 		}
 
 		// Table acctions synonyms
@@ -725,10 +726,12 @@ function DomBox(opts) {
 			return fnShowTab(i); // Show calculated next tab
 		}
 
-		self.onclick("a[href='#prev-tab']", () => !self.prevTab())
-			.onclick("a[href='#next-tab']", () => !self.nextTab())
-			.onclick("a[href='#last-tab']", () => !self.lastTab())
-			.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
+		if (_tabSize > 0) { // Has view tabs?
+			self.onclick("a[href='#prev-tab']", () => !self.prevTab())
+				.onclick("a[href='#next-tab']", () => !self.nextTab())
+				.onclick("a[href='#last-tab']", () => !self.lastTab())
+				.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
+		}
 
 		// Clipboard function
 		TEXT.style.position = "absolute";

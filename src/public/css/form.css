@@ -28,8 +28,8 @@ label.required:after {
 .input-control, .ui-control { border: 1px solid #000; background-color: #fff; }
 .input-control:focus, .ui-control:focus { border: 1px solid #80bdff; outline: 0; }
 .input-control-text, .ui-text { min-width: 350px; width: 90%; max-width: 500px; }
-.input-control-float, .ui-float { width: 110px; text-align: right; }
-.input-control-integer, .ui-integer { width: 110px; text-align: right; }
+.input-control-float, .ui-float { width: 140px; text-align: right; }
+.input-control-integer, .ui-integer { width: 120px; text-align: right; }
 .input-control-date, .ui-date { width: 128px; padding: 3px; }
 ::-webkit-calendar-picker-indicator{ margin: 3px; }
 .input-control-time, .ui-time { padding: 1px; }

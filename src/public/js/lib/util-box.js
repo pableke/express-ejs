@@ -83,7 +83,7 @@ dom.ready(function() {
 			method: form.method,
 			body: (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd),
 			headers: { "Content-Type": form.enctype || "application/x-www-form-urlencoded" },
-			resolve: resolve || (msg => dom.showOk(msg).val(form.elements, "").autofocus(form.elements)),
+			resolve: resolve || (msg => dom.setOk(form, msg)),
 			reject: reject || dom.setErrors
 		}).catch(dom.showError) //error handler
 			.finally(dom.working); //allways
@@ -169,4 +169,5 @@ dom.ready(function() {
 
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
+	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.href)); // Ajax calls
 });
