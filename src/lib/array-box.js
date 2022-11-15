@@ -109,10 +109,10 @@ function ArrayBox() {
 		return self;
 	}
 
-	this.toObject = function(keys, values) {
-		const result = {}; // Output
-		keys.forEach((k, i) => { result[k] = values[i]; });
-		return result;
+	this.toObject = function(keys, values, data) {
+		data = data || {}; // Output
+		keys.forEach((k, i) => { data[k] = values[i]; });
+		return data;
 	}
 	this.clear = function(obj) {
 		for (let k in obj)

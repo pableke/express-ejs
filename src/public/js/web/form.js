@@ -17,11 +17,9 @@ dom.ready(function() {
 		});
 	}
 
-	// AJAX Forms
+	// Fields and forms (helpers and validators)
 	dom.onChangeInput("#correo", el => { el.value = sb.lower(el.value); })
-		.onSubmitForm("#contact", form => dom.validate(form, validators) && !dom.send(form));
-
-	// Non AJAX Forms
-	dom.onChangeInput("#usuario", el => { el.value = sb.toUpperWord(el.value); })
-		.onSubmitForm("#login", form => dom.validate(form, validators));
+		.onChangeInput("#usuario", el => { el.value = sb.toUpperWord(el.value); })
+		.onSubmitForm("#contact", form => dom.validate(form, validators) && !dom.send(form)) // AJAX Forms
+		.onSubmitForm("#login", form => dom.validate(form, validators)); // Non AJAX Forms
 });

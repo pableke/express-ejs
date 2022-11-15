@@ -61,11 +61,8 @@ function IrsePerfil() {
 	};
 
 	const resume = {};
-	const STYLES = {
-		remove: "msgDelOrg", 
-		imp: i18n.isoFloat, resp: sb.lopd, fCache: i18n.isoDate,
-		onFinish: (matches, output) => ((matches == 3) ? output : "")
-	};
+	const STYLES_CD = { onFinish: (matches, output) => ((matches == 3) ? output : "") };
+	const STYLES = { remove: "msgDelOrg", imp: i18n.isoFloat, resp: sb.lopd, fCache: i18n.isoDate };
 
 	let eRol, eCol, eFin, eAct, eTramit;
 	let organicas, current;
@@ -221,7 +218,7 @@ function IrsePerfil() {
 					ab.reset(organicas).push(organicas, current);
 					fnSave();
 				}
-				return !dom.tr(".msg-cd", STYLES);
+				return !dom.tr(".msg-cd", STYLES_CD);
 			}
 		}).change(fnAcReset);
 		/********** tramitador / organicas autocompletes **********/
@@ -233,9 +230,7 @@ function IrsePerfil() {
 		dom.table("#organicas", organicas, resume, STYLES);
 		dom.onRenderTable("#organicas", table => {
 			fnSave(); //set new perfil
-			dom.closeAlerts()
-				.toggleHide("a#add-org", organicas.length)
-				.setValue("#organica", "").setFocus("#organica");
+			dom.closeAlerts().toggleHide("a#add-org", organicas.length).clearInput("#organica");
 		});
 
 		fnUpdatePerfil(); // show first perfil for update
