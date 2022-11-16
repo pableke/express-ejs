@@ -214,7 +214,7 @@ function DomBox(opts) {
 		const inputs = self.filter(INPUTS, form.elements); // Form inputs
 		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
 			const fn = validators[el.name] || fnSelf; // Validator function
-			const msgtip = messages[el.name] || validators[el.name + "-err"];
+			const msgtip = messages[el.name] || validators[el.name + "Error"];
 			fn(el.name, el.value, msg, msgtip) || fnSetError(el);
 		}).isOk();
 	}
@@ -487,15 +487,15 @@ function DomBox(opts) {
 				self.hide(list[0]).show(list[1]);
 		}
 		function fnRendetTfoot(table, resume, styles) {
-			self.trigger(table, "render"); // Trigger event after change data and before render it
-			return self.render(table.tFoot, tpl => sb.format(resume, tpl, styles)); // Draw footer
+			// Trigger event after change data and before render it, after redraw footer
+			return self.trigger(table, "render").render(table.tFoot, tpl => sb.format(resume, tpl, styles));
 		}
 		self.tfoot = function(table, resume, styles) {
 			table = self.getTable(table); // find table on tables array
 			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
 		}
-	
-		function fnBuildRows(table, data, resume, styles) {
+
+		function fnRenderRows(table, data, resume, styles) {
 			// Recalc table page indexes
 			resume.total = data.length;
 			resume.index = resume.index || 0; //default=0
@@ -581,7 +581,7 @@ function DomBox(opts) {
 					resume.page = sb.lastId(el.href); // Current page
 					resume.start = resume.page * resume.pageSize; // Start page index
 					resume.end = resume.start + resume.pageSize; // End page index
-					fnBuildRows(table, data, resume, styles) // Render full table
+					fnRenderRows(table, data, resume, styles) // Render full table
 					self.trigger(table, "pagination", resume); // Trigger event
 				});
 			}
@@ -603,7 +603,7 @@ function DomBox(opts) {
 				}
 				else if (resume.size == 0) { // Is empty Page?
 					resume.start = 0; // Go first page
-					fnBuildRows(table, data, resume, styles); // Build table rows
+					fnRenderRows(table, data, resume, styles); // Build table rows
 				}
 				else {
 					fnRendetTfoot(table, resume, styles); // First render footer
@@ -615,10 +615,10 @@ function DomBox(opts) {
 
 		self.table = function(table, data, resume, styles) {
 			table = self.getTable(table); // Search table
-			return table ? fnBuildRows(table, data, resume, styles) : self;
+			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
 
-		self.list = (selector, data, resume, styles) => self.apply(selector, tables, table => fnBuildRows(table, data, resume, styles));
+		self.list = (selector, data, resume, styles) => self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
 		self.removeRow = (table, data, resume, styles) => fnRemoveRow(self.getTable(table), data, resume, styles);
 
 		self.repaginate = function(table, data, resume, styles) {
@@ -628,14 +628,12 @@ function DomBox(opts) {
 		self.updateTable = function(table, data, resume, styles) {
 			table = self.getTable(table); // Search table
 			delete table.dataset.sortBy; // Same state list
-			return fnBuildRows(table, data, resume, styles);
+			return fnRenderRows(table, data, resume, styles);
 		}
 		self.clearTable = function(table, data, resume, styles) {
 			data.splice(0); // Clear array data
-			table = self.getTable(table); // Search table
 			resume.index = resume.start = 0; // Update index
-			delete table.dataset.sortBy; // Same state list
-			return fnBuildRows(table, data, resume, styles);
+			return self.updateTable(table, data, resume, styles);
 		}
 
 		// Table acctions synonyms
