@@ -154,10 +154,12 @@
 				</div>
 
 				<div class="navbar">
-					<hr/>
-					<button type="submit" class="btn btn-primary" tabindex="101">Buscar <i class="fas fa-search"></i></button>
+					<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+					<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 					<button type="reset" class="btn btn-light" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
+					<button type="submit" class="btn btn-primary" tabindex="101">Buscar <i class="fas fa-search"></i></button>
 					<a href="#tab-3" tabindex="103" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
+					<hr/>
 				</div>
 			</form>
 
@@ -176,7 +178,7 @@
 				<tbody id="pruebas-row">
 					<tr class="tb-data">
 						<td class="text-center">@count;</td>
-						<td><a id="1" href="#find">@name;</a></td>
+						<td><a href="#find">@name;</a></td>
 						<td>@memo;</td>
 						<td class="textr">@imp;</td>
 						<td class="text-center">@fecha;</td>
@@ -198,8 +200,9 @@
 			<div class="pagination"></div>
 
 			<div class="navbar">
-				<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+				<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+					<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
 				<a href="#clear-pruebas" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 		</div>
@@ -248,8 +251,10 @@
 				<hr/>
 				<a href="#tab-0" class="btn btn-primary" tabindex="100"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-				<button type="submit" class="btn btn-success" tabindex="102"><i class="fas fa-save icon"></i>Save</button>
-				<a href="#remove-item" class="btn btn-danger update-only" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
+				<button id="clean" type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
+				<button id="save" type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save icon"></i>Save</button>
+				<button id="clone" type="submit" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
+				<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 			</form>
 		</div>
@@ -270,20 +275,13 @@
 				const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat }
 				const VALIDATORS = { testFormError: "form err", fecha: i18n.required, imp: i18n.required, name: i18n.required, memo: i18n.required }
 
-				let data = DB;
-				let values;
-
 				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
 				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
+				let data = DB;
 
-				function fnView(i, data) {
-					values = data; // current item
-					resume.index = i; // update index
-					dom.display("#test", data, STYLES).toggleHide(".update-only", !data.id).viewTab(3);
-				}
-				function fnLoad(i) {
-					fnView(i, data[i]);
-				}
+				function fnLoad(row) { dom.display("#test", row, STYLES).viewTab(3); }
+				function fnCreate(row) { dom.createRow("#pruebas", resume, row).hide(".update-only"); fnLoad(row); }
+				function fnView(i) { dom.selectRow("#pruebas", data, resume, i).show(".update-only"); fnLoad(resume.data); }
 				function fnFilter() { // Simulate server call!!
 					data = DB.filter(row => sb.ilike(row.name, FILTER.name) && sb.ilike(row.memo, FILTER.memo)
 											&& nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
@@ -294,7 +292,7 @@
 				dom.table("#pruebas", DB, resume, STYLES)
 					.onExitTab(() => console.log("exit tabs"))
 					.onShowTab(1, tab => console.log("show tab-1"))
-					.onFindRow("#pruebas", (table, ev) => fnLoad(ev.detail.index))
+					.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
 					.onRenderTable("#pruebas", (table, ev) => dom.toggleHide("a[href='#clear-pruebas']", !data.length))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
 					.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, resume, STYLES))
@@ -311,26 +309,31 @@
 
 				// Eventos de control para el filtro, navegación y datos del formulario
 				dom.setRangeDate("#f1", "#f2") // Filter range date
-					.addClick("a[href='#first-item']", el => fnLoad(0))
-					.addClick("a[href='#prev-item']", el => fnLoad(nb.dec(resume.index)))
-					.addClick("a[href='#next-item']", el => fnLoad(nb.inc(resume.index, data.length - 1)))
-					.addClick("a[href='#last-item']", el => fnLoad(data.length - 1))
+					.addClick("a[href='#first-item']", el => fnView(0))
+					.addClick("a[href='#prev-item']", el => fnView(resume.index - 1))
+					.addClick("a[href='#next-item']", el => fnView(resume.index + 1))
+					.addClick("a[href='#last-item']", el => fnView(data.length))
 					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
 					.onclick("button[type=reset]", () => !fnFilter(ab.clear(FILTER)))
-					.onclick("a.create-data", () => fnView(-1, {}));
+					.onclick("a.create-data", () => fnCreate({}));
 
 				// Eventos de los formularios (filtro y edicion)
 				dom.onSubmitForm("#filter", form => {
 					dom.closeAlerts().load(form, FILTER, PARSERS);
 					//dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
-					setTimeout(() => fnFilter(), 400);
+					setTimeout(fnFilter, 400);
 				});
-				dom.onSubmitForm("#test", form => {
+				dom.onSubmitForm("#test", (form, ev) => {
 					if (dom.validate(form, VALIDATORS)) {
-						dom.load(form, values, PARSERS);
-						values.id || data.push(values); // inserting?
-						dom.updateTable("#pruebas", data, resume, STYLES).viewTab(2).showOk("saveOk");
+						dom.load(form, resume.data, PARSERS);
+						resume.data.id || DB.push(resume.data); // inserting?
+						resume.data.id = resume.data.id || DB.length; // pk
+						if ("clone" == ev.submitter.id)
+							fnCreate(ab.flush(resume.data, ["id"]));
+						else
+							dom.viewTab(2);
+						dom.updateTable("#pruebas", data, resume, STYLES).showOk("saveOk");
 					}
 				});
 			});

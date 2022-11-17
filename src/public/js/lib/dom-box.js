@@ -505,6 +505,7 @@ function DomBox(opts) {
 			resume.sortBy = table.dataset.sortBy;
 			resume.end = resume.start + resume.pageSize;
 			resume.page = +(resume.start / resume.pageSize);
+
 			if (resume.sortBy) { // Sort full array, default sort by string
 				const fnSort = resume.sort || ((a, b) => sb.cmp(a[resume.sortBy], b[resume.sortBy]));
 				ab.sort(data, resume.sortDir, fnSort); // Sort before paginate
@@ -594,7 +595,8 @@ function DomBox(opts) {
 			if (ok && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
 				resume.size--; // Update size
 				resume.total--; // Update total numrows
-				resume.row.remove(); // Remove row 
+				self.selectRow(table, data, resume, resume.index);
+				resume.row?.remove(); // Remove row element
 				data.splice(resume.index, 1); // Remove data row
 				if (resume.total == 0) { // Is empty table?
 					fnRendetTfoot(table, resume, styles); // First render footer
@@ -616,6 +618,21 @@ function DomBox(opts) {
 		self.table = function(table, data, resume, styles) {
 			table = self.getTable(table); // Search table
 			return table ? fnRenderRows(table, data, resume, styles) : self;
+		}
+		self.selectRow = function(table, data, resume, index) {
+			table = self.getTable(table); // Search table
+			index = nb.range(index, 0, data.length - 1);
+			resume.index = index; // Current position
+			resume.data = data[index]; // Current data row
+			const tbody = table.tBodies[0]; // Data rows
+			resume.row = nb.between(index, resume.start, resume.end) ? tbody.children[index - resume.start] : null;
+			return self;
+		}
+		self.createRow = function(table, resume, row) {
+			resume.index = -1; // Current position
+			resume.data = row; // Current data row
+			delete resume.row;
+			return self;
 		}
 
 		self.list = (selector, data, resume, styles) => self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
