@@ -54,6 +54,7 @@ function ArrayBox() {
 	this.size = fnSize;
 	this.empty = arr => (fnSize(arr) < 1);
 	this.swap = (arr, a, b) => { arr && arr.swap(a, b); return self; }
+	this.mod = (arr, index) => arr ? arr[index % arr.length] : null;
 
 	// Iterators
 	this.each = function(arr, fn) {
@@ -109,11 +110,25 @@ function ArrayBox() {
 		return self;
 	}
 
+	// Objects helpers
 	this.toObject = function(keys, values, data) {
 		data = data || {}; // Output
 		keys.forEach((k, i) => { data[k] = values[i]; });
 		return data;
 	}
+	this.merge = this.toObject;
+	this.copy = function(data, keys) {
+		let result = {}; // Output
+		keys.forEach(k => { result[k] = data[k]; });
+		return result;
+	}
+	this.assign = this.copy;
+	this.flush = function(data, keys) {
+		let result = Object.assign({}, data);
+		keys.forEach(k => { delete result[k]; });
+		return result;
+	}
+	this.clean = this.flush;
 	this.clear = function(obj) {
 		for (let k in obj)
 			delete obj[k];

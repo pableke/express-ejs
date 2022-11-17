@@ -23,8 +23,10 @@ function NumberBox() {
 	this.between = (num, min, max) => fnBetween(num, min ?? num, max = max ?? num);
 	this.in = (num, min, max) => num ? self.between(num, min, max) : true; // Open range filter
 	this.range = (val, min, max) => Math.min(Math.max(val, min), max); //force in range
-	this.dec = (val, min) => self.range(val - 1, min || 0, val); //dec value into a range
-	this.inc = (val, max) => self.range(val + 1, 0, max); //inc value into a range
+	this.min = (val, min) => self.range(val, min || 0, val); //force val into [min to val]
+	this.max = (val, max) => self.range(val, 0, max); //force val into [0 to max]
+	this.dec = (val, min) => self.min(val - 1, min); //dec value into a range
+	this.inc = (val, max) => self.max(val + 1, max); //inc value into a range
 	this.mask = (val, i) => ((val >> i) & 1); // check bit at i position
 
 	this.round = function(num, d) {
