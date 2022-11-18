@@ -439,7 +439,7 @@ function DomBox(opts) {
 		}
 
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
-		self.autofocus = elements => self.focus((elements || inputs).find(fnFocus)); // Set focus on first visible input
+		self.autofocus = elements => self.focus(ab.find(elements || inputs, fnFocus)); // Set focus on first visible input
 		self.autofocus().reverse(inputs, el => { // Initial focus or reallocate in first error
 			const tip = self.get(TIP_ERR_SELECTOR, el.parentNode); // Has error tip
 			self.empty(tip) || self.show(tip).addClass(el, CONFIG.classInputError).focus(el);
