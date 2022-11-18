@@ -61,7 +61,7 @@ function IrsePerfil() {
 	};
 
 	const resume = {};
-	const STYLES_CD = { onFinish: (matches, output) => ((matches == 3) ? output : "") };
+	const STYLES_CD = { imp: i18n.isoFloat, fCache: i18n.isoDate, onFinish: (matches, output) => ((matches == 3) ? output : "") };
 	const STYLES = { remove: "msgDelOrg", imp: i18n.isoFloat, resp: sb.lopd, fCache: i18n.isoDate };
 
 	let eRol, eCol, eFin, eAct, eTramit;
@@ -220,7 +220,7 @@ function IrsePerfil() {
 				}
 				return !dom.tr(".msg-cd", STYLES_CD);
 			}
-		}).change(fnAcReset);
+		}).change(function() { i18n.set("imp", null); dom.toggleHide(".msg-cd", !this.value); fnAcReset(); });
 		/********** tramitador / organicas autocompletes **********/
 
 		organicas = ab.parse(dom.getText("#org-data")) || [];
@@ -235,7 +235,7 @@ function IrsePerfil() {
 
 		fnUpdatePerfil(); // show first perfil for update
 		dom.getValue("#interesado") && dom.show(eCol.parentNode); //muestro el colectivo
-		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil).tr(".msg-cd", STYLES)
+		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil).tr(".msg-cd", STYLES_CD)
 			.onChangeInput("#interesado", el => dom.toggleHide(eCol.parentNode, !el.value));
 	});
 }

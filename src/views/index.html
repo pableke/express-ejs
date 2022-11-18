@@ -154,11 +154,11 @@
 				</div>
 
 				<div class="navbar">
-					<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
-					<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-					<button type="reset" class="btn btn-light" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
-					<button type="submit" class="btn btn-primary" tabindex="101">Buscar <i class="fas fa-search"></i></button>
-					<a href="#tab-3" tabindex="103" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
+					<a href="#tab-0" tabindex="100" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+					<a href="#prev-tab" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+					<button type="reset" class="btn btn-light reset-filter" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
+					<button type="submit" class="btn btn-primary" tabindex="103">Buscar <i class="fas fa-search"></i></button>
+					<a href="#tab-3" tabindex="104" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
 					<hr/>
 				</div>
 			</form>
@@ -193,7 +193,7 @@
 					<tr><td colspan="6"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
 				<tfoot data-tpl="pruebas-footer">
-					<tr><td colspan="6">Filas: @size; / @total;</td></tr>
+					<tr><td colspan="3">Filas: @size; / @total;</td><td class="textr">@imp;</td><td colspan="3"></td></tr>
 				</tfoot>
 			</table>
 			<div class="fr ui-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
@@ -202,7 +202,7 @@
 			<div class="navbar">
 				<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-					<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
+				<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
 				<a href="#clear-pruebas" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 		</div>
@@ -251,7 +251,7 @@
 				<hr/>
 				<a href="#tab-0" class="btn btn-primary" tabindex="100"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-				<button id="clean" type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
+				<button id="clean" type="reset" class="btn btn-light reset-form" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
 				<button id="save" type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save icon"></i>Save</button>
 				<button id="clone" type="submit" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
 				<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash"></i> Borrar</a>
@@ -282,18 +282,23 @@
 				function fnLoad(row) { dom.display("#test", row, STYLES).viewTab(3); }
 				function fnCreate(row) { dom.createRow("#pruebas", resume, row).hide(".update-only"); fnLoad(row); }
 				function fnView(i) { dom.selectRow("#pruebas", data, resume, i).show(".update-only"); fnLoad(resume.data); }
+				function fnPaginate() { return dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name"); }
 				function fnFilter() { // Simulate server call!!
 					data = DB.filter(row => sb.ilike(row.name, FILTER.name) && sb.ilike(row.memo, FILTER.memo)
 											&& nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
-					dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name");
+					fnPaginate();
 				}
 
 				// Eventos de las tablas de consulta
+				dom.onRenderTable("#pruebas", (table, ev) => {
+					resume.imp = 0; // Initialize data
+					data.slice(resume.start, resume.end).forEach(row => resume.imp += (row.imp || 0));
+					dom.toggleHide("a[href='#clear-pruebas']", !data.length);
+				});
 				dom.table("#pruebas", DB, resume, STYLES)
 					.onExitTab(() => console.log("exit tabs"))
 					.onShowTab(1, tab => console.log("show tab-1"))
 					.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
-					.onRenderTable("#pruebas", (table, ev) => dom.toggleHide("a[href='#clear-pruebas']", !data.length))
 					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
 					.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, resume, STYLES))
 					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
@@ -302,10 +307,7 @@
 					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
 					.onTable("#pruebas", "sort-imp", table => { resume.sort = (a, b) => nb.cmp(a.imp, b.imp); })
 					.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
-					.onChangeInput("#page-size", el => {
-						resume.pageSize = +el.value;
-						dom.repaginate("#pruebas", data, resume, STYLES);
-					});
+					.onChangeInput("#page-size", el => { resume.pageSize = +el.value; fnPaginate() });
 
 				// Eventos de control para el filtro, navegación y datos del formulario
 				dom.setRangeDate("#f1", "#f2") // Filter range date
@@ -315,14 +317,15 @@
 					.addClick("a[href='#last-item']", el => fnView(data.length))
 					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
 					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-					.onclick("button[type=reset]", () => !fnFilter(ab.clear(FILTER)))
+					.onclick("button.reset-filter", el => { data = DB; return fnPaginate(); })
+					.onclick("button.reset-form", el => dom.clearForm(el.form))
 					.onclick("a.create-data", () => fnCreate({}));
 
 				// Eventos de los formularios (filtro y edicion)
 				dom.onSubmitForm("#filter", form => {
 					dom.closeAlerts().load(form, FILTER, PARSERS);
 					//dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
-					setTimeout(fnFilter, 400);
+					setTimeout(fnFilter, 400); // Simulate ajax call
 				});
 				dom.onSubmitForm("#test", (form, ev) => {
 					if (dom.validate(form, VALIDATORS)) {
