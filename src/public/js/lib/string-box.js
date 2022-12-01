@@ -9,11 +9,6 @@ function StringBox() {
 	const sysdate = (new Date()).toISOString(); //global sysdate
 
 	// Helpers
-	const isset = val => (typeof(val) !== "undefined") && (val !== null);
-	const isstr = val => (typeof(val) === "string") || (val instanceof String);
-	const fnWord = str => str.replace(/\W+/g, EMPTY); //remove no alfanum
-	const fnSize = str => str ? str.length : 0; //string o array
-	const iiOf = (str1, str2) => tr(str1).indexOf(tr(str2));
 	function tr(str) {
 		const size = fnSize(str);
 		let output = str || EMPTY;
@@ -21,8 +16,15 @@ function StringBox() {
 			let j = TR1.indexOf(str.charAt(i)); // is char remplazable
 			output = (j < 0) ? output : output.replaceAt(TR2.charAt(j), i);
 		}
-		return output.toLowerCase();
+		return output;
 	}
+
+	const fnLower = str => tr(str).toLowerCase(); // translate and lower
+	const isset = val => (typeof(val) !== "undefined") && (val !== null);
+	const isstr = val => (typeof(val) === "string") || (val instanceof String);
+	const iiOf = (str1, str2) => fnLower(str1).indexOf(fnLower(str2));
+	const fnWord = str => str.replace(/\W+/g, EMPTY); //remove no alfanum
+	const fnSize = str => str ? str.length : 0; //string o array
 
 	// Extends String prototype
 	String.prototype.insert = function(str, i) {
@@ -65,10 +67,10 @@ function StringBox() {
 	this.isset = isset;
 	this.isstr = isstr;
 	this.size = fnSize;
-	this.trim = str => isstr(str) ? str.trim() : str;
-	this.eq = (str1, str2) => (tr(str1) == tr(str2));
-	this.upper = str => str ? str.toUpperCase(str) : str;
+	this.trLower = fnLower;
+	this.trUpper = str => tr(str).toUpperCase();
 	this.lower = str => str ? str.toLowerCase(str) : str;
+	this.upper = str => str ? str.toUpperCase(str) : str;
 	this.substr = (str, i, n) => str ? str.substr(i, n) : str;
 	this.substring = (str, i, j) => str ? str.substring(i, j) : str;
 	this.indexOf = (str1, str2) => str1 ? str1.indexOf(str2) : -1;
@@ -79,6 +81,7 @@ function StringBox() {
 	this.prefix = (str1, str2) => self.starts(str1, str2) ? str1 : (str2 + str1);
 	this.suffix = (str1, str2) => self.ends(str1, str2) ? str1 : (str1 + str2);
 	this.trunc = (str, size) => (fnSize(str) > size) ? (str.substr(0, size).trim() + "...") : str;
+	this.trim = str => str ? str.trim() : str;
 
 	this.escape = str => str && str.replace(ESCAPE_HTML, matched => ESCAPE_MAP[matched]);
 	this.unescape = str => str && str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num));
@@ -148,7 +151,8 @@ function StringBox() {
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 
-	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); //object value type = string
+	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // i-equal
+	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
 	this.in = (value, min, max) => value ? self.between(value, min, max) : true; // Open range filter
