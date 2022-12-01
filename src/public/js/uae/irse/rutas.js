@@ -251,7 +251,7 @@ function IrseRutas() {
 			.table("#rutas-out", resume.out, resume, STYLES)
 			.onChangeInput("#f1", el => dom.setValue("#f2", el.value)).setRangeDate("#f1", "#f2")
 			.onChangeInput("#desp", el => dom.toggleHide(".grupo-matricula", el.value!="1"))
-			.onChangeInput("#matricula", el => { el.value = sb.upper(el.value); });
+			.onChangeInput("#matricula", el => { el.value = sb.toUpperWord(el.value); });
 
 		/********** promotor, mesa, tribunal: autocomplete **********/
 		$(".ac-personal-upct:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({

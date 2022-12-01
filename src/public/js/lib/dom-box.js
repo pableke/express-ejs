@@ -644,8 +644,11 @@ function DomBox(opts) {
 		}
 		self.updateTable = function(table, data, resume, styles) {
 			table = self.getTable(table); // Search table
-			delete table.dataset.sortBy; // Same state list
-			return fnRenderRows(table, data, resume, styles);
+			if (table) {
+				delete table.dataset.sortBy; // Update state list
+				fnRenderRows(table, data, resume, styles);
+			}
+			return self;
 		}
 		self.clearTable = function(table, data, resume, styles) {
 			data.splice(0); // Clear array data
