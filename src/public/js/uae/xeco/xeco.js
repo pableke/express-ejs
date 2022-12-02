@@ -58,26 +58,3 @@ dom.ready(() => {
 		}
 	}).change(fnAcReset);
 });
-
-//Autocomplete helper
-function handleJson() {}
-function fnAutocomplete(el, columns, fnResponse, fnRender) {
-	function fnSortColumns(a, b) {
-		let aux = 0;
-		for (let i = 0; (i < columns.length) && (aux == 0); i++) {
-			let name = columns[i];
-			aux = sb.cmp(a[name], b[name]);
-		}
-		return aux;
-	}
-
-	loading();
-	window.handleJson = function(xhr, status, args) {
-		let data = ab.parse(args && args.data) || [];
-		ab.sort(data, "asc", fnSortColumns);
-		fnResponse(fnAcFilter(data, columns, el.val()));
-		unloading();
-	}
-	fnAcRender(el, fnRender);
-	el.siblings("[id^='find-']").click(); //ajax call
-}

@@ -48,7 +48,7 @@ function DateBox() {
 	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
-	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
+	this.randTime = (d1, d2) => Math.floor(Math.random() * self.diffDate(d2, d1) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
 	this.clone = date => new Date((date || sysdate).getTime());
 	this.build = str => str && fnBuild(str.split(/\D+/));
@@ -120,10 +120,11 @@ function DateBox() {
 	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
 	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
 	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
+	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name])));
 	this.diffDate = (d1, d2) => (d1.getTime() - d2.getTime());
 	this.cmp = function(d1, d2) {
 		if (d1 && d2)
-			return d1.getTime() - d2.getTime();
+			return self.diffDate(d1, d2);
 		return d1 ? -1 : 1; //nulls last
 	}
 

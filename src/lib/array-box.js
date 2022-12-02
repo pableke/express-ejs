@@ -104,9 +104,19 @@ function ArrayBox() {
 
 	// Sorting
 	this.sort = function(arr, dir, fnSort) {
-		function fnAsc(a, b) { return fnSort(a, b); }
-		function fnDesc(a, b) { return fnSort(b, a); }
+		const fnAsc = (a, b) => fnSort(a, b);
+		const fnDesc = (a, b) => fnSort(b, a);
 		arr.sort((dir == "desc") ? fnDesc : fnAsc);
+		return self;
+	}
+	this.multisort = function(arr, fnSorts, dirs) {
+		dirs = dirs || []; // Directions
+		arr.sort((a, b) => { // sort function
+			let result = 0; // compare result
+			for (let i = 0; (i < fnSorts.length) && (result == 0); i++)
+				result = (dirs[i] == "desc") ? fnSorts[i](b, a) : fnSorts[i](a, b);
+			return result;
+		});
 		return self;
 	}
 
