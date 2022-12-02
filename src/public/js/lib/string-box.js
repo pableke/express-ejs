@@ -166,6 +166,7 @@ function StringBox() {
 			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
 		return isset(a) ? -1 : 1; //nulls last
 	}
+	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name])));
 
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop

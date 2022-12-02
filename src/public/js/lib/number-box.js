@@ -41,6 +41,7 @@ function NumberBox() {
 	this.le0 = num => isset(num) && (num <= 0);
 	this.gt0 = num => isset(num) && (num > 0);
 	//this.gt2 = (num1, num2) => isset(num1) && (self.round(num1) > self.round(num2));
+	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name])));
 	this.cmp = function(n1, n2) {
 		if (isset(n1) && isset(n2))
 			return n1 - n2;

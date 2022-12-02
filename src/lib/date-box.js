@@ -8,7 +8,7 @@
 function DateBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
-	const sysdate = new Date(); //global sysdate
+	const sysdate = new Date(); //global sysdate readonly
 	const ONE_DAY = 86400000; //1d = 24 * 60 * 60 * 1000 = hours*minutes*seconds*milliseconds
 	const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; //january..december
 
@@ -47,10 +47,10 @@ function DateBox() {
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
 	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
-	this.clone = function(date) { return new Date((date || sysdate).getTime()); }
 	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
-	this.randTime = (d1, d2) => Math.floor(Math.random() * (d2.getTime() - d1.getTime()) + d1.getTime());
+	this.randTime = (d1, d2) => Math.floor(Math.random() * self.diffDate(d2, d1) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
+	this.clone = date => new Date((date || sysdate).getTime());
 	this.build = str => str && fnBuild(str.split(/\D+/));
 
 	this.getWeek = function(date) {
@@ -65,12 +65,8 @@ function DateBox() {
 		firstDay.setDate(firstDay.getDate() + (week * 7) - offset); //update date
 		return firstDay; //first day of week
 	}
-	this.toWeek = function(str) { //ej: "2021-W27"
-		return str ? self.week(+str.substr(0, 4), +str.substr(6)) : null;
-	}
-	this.isoWeek = function(date) {
-		return date ? (date.getFullYear() + "-W" + lpad(self.getWeek(date))) : null;
-	}
+	this.toWeek = str => str ? self.week(+str.substr(0, 4), +str.substr(6)) : null; //ej: "2021-W27"
+	this.isoWeek = date => date ? (date.getFullYear() + "-W" + lpad(self.getWeek(date))) : null;
 
 	this.toObject = function(date, lang) {
 		date = date || sysdate; //default
@@ -124,10 +120,11 @@ function DateBox() {
 	this.eq = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() == d2.getTime());
 	this.ge = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() >= d2.getTime());
 	this.gt = (d1, d2) => isDate(d1) && isDate(d2) && (d1.getTime() > d2.getTime());
+	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name])));
 	this.diffDate = (d1, d2) => (d1.getTime() - d2.getTime());
 	this.cmp = function(d1, d2) {
 		if (d1 && d2)
-			return d1.getTime() - d2.getTime();
+			return self.diffDate(d1, d2);
 		return d1 ? -1 : 1; //nulls last
 	}
 

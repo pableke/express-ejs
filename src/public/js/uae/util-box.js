@@ -7,11 +7,11 @@ const valid = new ValidatorBox(); //validators
 const i18n = new I18nBox(); //messages
 const dom = new DomBox(); //HTML-DOM box
 
-//funciones de traduccion de datos y formatos (boolean, date, datepicker, number...)
-function npLatin(val) { return i18n.toFloat(val); }
-function nfLatin(val) { return i18n.isoFloat(val); }
-function dpLatin(val) { return i18n.toDate(val); }
-function dfLatin(val) { return i18n.isoDate(val); }
+//funciones sinonimas de traduccion de datos y formatos (boolean, date, datepicker, number...)
+const npLatin = i18n.toFloat;
+const nfLatin = i18n.isoFloat;
+const dpLatin = i18n.toDate;
+const dfLatin = i18n.isoDate;
 
 //gestion de informes y mensajes
 function handleReport(xhr, status, args) { dom.closeAlerts().showError(args && args.msgerr).redir(args && args.url); }
@@ -20,18 +20,26 @@ function fnRechazar() { //envia el rechazo al servidor si hay motivo
 	return dom.closeAlerts().required("#rechazo", "Debe indicar un motivo para el rechazo de la solicitud.").isOk() && i18n.confirm("msgRechazar");
 }
 
-//autocomplete helpers
+//Autocomplete helper
 let _search = false; //call source indicator
+function handleJson() {} //default handler
 function fnFalse() { return false; } //always false
 function fnAcSearch() { return _search; } //lunch source
 function fnAcChange(ev) { _search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223); } //backspace or alfanum
 function fnAcFilter(data, columns, term) { return data && data.filter(row => sb.olike(row, columns, term)).slice(0, 8); } //filter max 8 results
+function fnAcRender(jqel, fnRender) { jqel.autocomplete("instance")._renderItem = (ul, item) => $("<li></li>").append("<div>" + sb.iwrap(fnRender(item), jqel.val()) + "</div>").appendTo(ul); }
 function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
 function fnAcReset() { this.value || fnAcLoad(this, "", ""); }
-function fnAcRender(jqel, fnRender) {
-	jqel.autocomplete("instance")._renderItem = function(ul, item) {
-		return $("<li></li>").append("<div>" + sb.iwrap(fnRender(item), jqel.val()) + "</div>").appendTo(ul);
+function fnAutocomplete(el, columns, fnResponse, fnRender) {
+	loading();
+	window.handleJson = function(xhr, status, args) {
+		let data = ab.parse(args?.data) || []; // JSON returned by server
+		ab.multisort(data, sb.multicmp(columns)); // order by column name
+		fnResponse(fnAcFilter(data, columns, el.val()));
+		unloading();
 	}
+	fnAcRender(el, fnRender);
+	el.siblings("[id^='find-']").click(); //ajax call
 }
 
 //DOM is fully loaded

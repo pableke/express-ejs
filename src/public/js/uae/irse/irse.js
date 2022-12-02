@@ -31,30 +31,7 @@ const ir = new IrseRutas();
 const dietas = new IrseDietas();
 
 //PF needs confirmation in onclick attribute
-function fnRemove() { return i18n.confirm("msgDelSolicitud") && loading(); }
-function fnUnlink() { return i18n.confirm("msgUnlink") && loading(); }
-function fnClone() { return i18n.confirm("msgReactivar") && loading(); }
-function fnFirmar() { return i18n.confirm("msgFirmar") && loading(); }
-
-//Autocomplete helper
-function handleJson() {}
-function fnAutocomplete(el, columns, fnResponse, fnRender) {
-	function fnSortColumns(a, b) {
-		let aux = 0;
-		for (let i = 0; (i < columns.length) && (aux == 0); i++) {
-			let name = columns[i];
-			aux = sb.cmp(a[name], b[name]);
-		}
-		return aux;
-	}
-
-	loading();
-	window.handleJson = function(xhr, status, args) {
-		let data = ab.parse(args && args.data) || [];
-		ab.sort(data, "asc", fnSortColumns);
-		fnResponse(fnAcFilter(data, columns, el.val()));
-		unloading();
-	}
-	fnAcRender(el, fnRender);
-	el.siblings("[id^='find-']").click(); //ajax call
-}
+const fnRemove = () => i18n.confirm("msgDelSolicitud") && loading();
+const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
+const fnClone = () => i18n.confirm("msgReactivar") && loading();
+const fnFirmar = () => i18n.confirm("msgFirmar") && loading();

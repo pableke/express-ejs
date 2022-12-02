@@ -109,6 +109,16 @@ function ArrayBox() {
 		arr.sort((dir == "desc") ? fnDesc : fnAsc);
 		return self;
 	}
+	this.multisort = function(arr, fnSorts, dirs) {
+		dirs = dirs || []; // Directions
+		arr.sort((a, b) => { // sort function
+			let result = 0; // compare result
+			for (let i = 0; (i < fnSorts.length) && (result == 0); i++)
+				result = (dirs[i] == "desc") ? fnSorts[i](b, a) : fnSorts[i](a, b);
+			return result;
+		});
+		return self;
+	}
 
 	// Objects helpers
 	this.toObject = function(keys, values, data) {
