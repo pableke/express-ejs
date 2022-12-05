@@ -56,7 +56,6 @@ dom.ready(function() {
 	window.onscroll = function() { dom.toggleHide(top, this.pageYOffset < 80); }
 	dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
 
-
 	// Inputs formated
 	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
 		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
