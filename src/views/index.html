@@ -157,8 +157,8 @@
 					<a href="#tab-0" tabindex="100" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 					<a href="#prev-tab" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 					<button type="reset" class="btn btn-light reset-filter" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
-					<button type="submit" class="btn btn-primary" tabindex="103">Buscar <i class="fas fa-search"></i></button>
-					<a href="#tab-3" tabindex="104" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
+					<button type="submit" class="btn btn-primary" tabindex="103">Buscar <i class="fas fa-search icon"></i></button>
+					<a href="#tab-3" tabindex="104" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
 					<hr/>
 				</div>
 			</form>
@@ -202,7 +202,7 @@
 			<div class="navbar">
 				<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 				<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-				<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus"></i></a>
+				<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
 				<a href="#clear-pruebas" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 		</div>
@@ -284,8 +284,8 @@
 				function fnView(i) { dom.selectRow("#pruebas", data, resume, i).show(".update-only"); fnLoad(resume.data); }
 				function fnPaginate() { return dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name"); }
 				function fnFilter() { // Simulate server call!!
-					data = DB.filter(row => sb.ilike(row.name, FILTER.name) && sb.ilike(row.memo, FILTER.memo)
-											&& nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
+					const fields = ["name", "memo"]; // Strings ilike filter
+					data = DB.filter(row => sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
 					fnPaginate();
 				}
 
