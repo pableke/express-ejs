@@ -151,12 +151,6 @@ function StringBox() {
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 
-	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // i-equal
-	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
-	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
-	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
-	this.multilike = (obj, filter, names) => names.every(name => self.ilike(obj[name], filter[name]));
-	this.in = (value, min, max) => value ? self.between(value, min, max) : true; // Open range filter
 	this.between = function(value, min, max) { // value into a range
 		min = min || value;
 		max = max || value;
@@ -167,7 +161,14 @@ function StringBox() {
 			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
 		return isset(a) ? -1 : 1; //nulls last
 	}
-	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name])));
+
+	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // i-equal
+	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
+	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
+	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
+	this.multilike = (obj, filter, names) => names.every(name => self.ilike(obj[name], filter[name]));
+	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name]))); // map => cmp functions
+	this.in = (value, min, max) => value ? self.between(value, min, max) : true; // Open range filter
 
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
