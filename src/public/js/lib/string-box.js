@@ -155,6 +155,7 @@ function StringBox() {
 	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
+	this.multilike = (obj, filter, names) => names.every(name => self.ilike(obj[name], filter[name]));
 	this.in = (value, min, max) => value ? self.between(value, min, max) : true; // Open range filter
 	this.between = function(value, min, max) { // value into a range
 		min = min || value;
