@@ -112,9 +112,8 @@ function ArrayBox() {
 		return result;
 	}
 	this.sort = function(arr, dir, fnSort) {
-		const fnAsc = (a, b) => fnSort(a, b);
 		const fnDesc = (a, b) => fnSort(b, a);
-		arr.sort((dir == "desc") ? fnDesc : fnAsc);
+		arr.sort((dir == "desc") ? fnDesc : fnSort);
 		return self;
 	}
 	this.multisort = function(arr, fnSorts, dirs) {

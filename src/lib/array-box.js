@@ -103,22 +103,26 @@ function ArrayBox() {
 	this.clone = arr => arr ? arr.slice() : [];
 
 	// Sorting
+	function fnCmp(a, b, fnSorts, dirs) {
+		let result = 0; // compare result
+		for (let i = 0; (i < fnSorts.length) && (result == 0); i++) {
+			const fn = fnSorts[i]; // cmp function = [-1, 0, 1]
+			result = (dirs[i] == "desc") ? fn(b, a) : fn(a, b);
+		}
+		return result;
+	}
 	this.sort = function(arr, dir, fnSort) {
-		const fnAsc = (a, b) => fnSort(a, b);
 		const fnDesc = (a, b) => fnSort(b, a);
-		arr.sort((dir == "desc") ? fnDesc : fnAsc);
+		arr.sort((dir == "desc") ? fnDesc : fnSort);
 		return self;
 	}
 	this.multisort = function(arr, fnSorts, dirs) {
-		dirs = dirs || []; // Directions
-		const size = fnSize(fnSorts);
-		arr.sort((a, b) => { // sort function
-			let result = 0; // compare result
-			for (let i = 0; (i < size) && (result == 0); i++)
-				result = (dirs[i] == "desc") ? fnSorts[i](b, a) : fnSorts[i](a, b);
-			return result;
-		});
+		dirs = dirs || []; // directions
+		arr.sort((a, b) => fnCmp(a, b, fnSorts, dirs));
 		return self;
+	}
+	this.cmp = function(a, b, fnSorts, dirs) {
+		return fnCmp(a, b, fnSorts, dirs || []);
 	}
 
 	// Objects helpers
