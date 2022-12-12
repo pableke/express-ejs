@@ -194,6 +194,13 @@ function DomBox(opts) {
 		return self.showError(i18n.getError()).setHtml(tip, i18n.getMsg(el.name)).show(tip)
 					.addClass(el, CONFIG.classInputError).focus(el);
 	}
+	function fnValidate(inputs, validators, messages) {
+		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
+			const fn = validators[el.name] || fnSelf; // Validator function
+			const msgtip = messages[el.name] || validators[el.name + "Error"];
+			fn(el.name, el.value, messages.msgError, msgtip) || fnSetError(el);
+		}).isOk();
+	}
 	this.setInputError = (el, msg, msgtip, fn) => {
 		el = self.getInput(el); // Get input
 		if (!el) // If no input => ok
@@ -204,19 +211,22 @@ function DomBox(opts) {
 		}
 		return fn(el.name, el.value, msg, msgtip) ? self : fnSetError(el);
 	}
+	this.validateInputs = (inputs, validators, messages) => {
+		validators = validators || {}; // Default container
+		messages = messages || {}; // View messages
+
+		const key = inputs[0]?.id + "FormError"; // Specific key error message
+		messages.msgError = messages[key] || validators[key] || messages.msgError || validators.msgError;
+		return fnValidate(inputs, validators, messages);
+	}
 	this.validate = (form, validators, messages) => {
 		form = self.getForm(form); // Get form
 		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
 
-		const key = form.getAttribute("id") + "FormError"; // Key message form
-		const msg = messages[key] || validators[key] || messages.msgError || validators.msgError; // Form message
-		const inputs = self.filter(INPUTS, form.elements); // Form inputs
-		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
-			const fn = validators[el.name] || fnSelf; // Validator function
-			const msgtip = messages[el.name] || validators[el.name + "Error"];
-			fn(el.name, el.value, msg, msgtip) || fnSetError(el);
-		}).isOk();
+		const key = form.getAttribute("id") + "FormError"; // Specific key error message
+		messages.msgError = messages[key] || validators[key] || messages.msgError || validators.msgError;
+		return fnValidate(self.filter(INPUTS, form.elements), validators, messages);
 	}
 
 	function fnSetText(el, value) {
@@ -693,9 +703,9 @@ function DomBox(opts) {
 		let _tabMask = ~0; // all 11111....
 
 		self.getTabs = () => tabs; //all tabs
-		self.getTab = id => tabs[self.findIndex("#tab-" + id, tabs)]; // Find by id selector
+		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
-		self.lastId = (str, max) => nb.range(sb.lastId(str) || 0, 0, max || 99); // Extract id
+		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
 		//self.onTab = (id, name, fn) => fnAddEvent(self.getTab(id), name, fn);
 		self.onShowTab = (id, fn) => fnAddEvent(self.getTab(id), "tab-" + id, fn);
