@@ -10,6 +10,9 @@ label.required:after {
 	color: #e32;
 	content: " *";
 }
+label.inline {
+	display: inline-block;
+}
 .input-item, .ui-item {
 	padding: 4px;
 	font-size: 1rem;
@@ -41,6 +44,7 @@ label.required:after {
 .input-control-short, .ui-short { width: 90px; }
 .input-control-bool, .ui-bool { width: 40px; }
 .input-control-min, .ui-min { width: 50px; }
+.input-control-check, .ui-check { margin-left: 2px; margin-right: 8px; }
 .input-icon, .ui-icon { padding: 4px .5rem; color: #fff; border: 1px solid #fff; }
 .input-error, .ui-error { border: 1px solid #dc3545; }
 .input-error:focus, .ui-error:focus { border: 1px solid #dc3545; outline: 0; }
