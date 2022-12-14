@@ -131,7 +131,7 @@ function DomBox(opts) {
 		self.reverse(list, el => { aux += el.checked ? "1" : "0"; });
 		return parseInt(aux, 2); // Bin2Int
 	}
-	this.checkall = (el, group, value) => {
+	this.checkval = (el, group, value) => {
 		el.value = value || 0; // force integer
 		self.binary(group, el.value); // check/uncheck subgroup
 		el.checked = (group.length == self.filter(":checked", group).length);
@@ -188,8 +188,8 @@ function DomBox(opts) {
 		styles = styles || TYPES; // Optional styles
 
 		return self.each(inputs, el => {
-			if (el.classList.contains("check-group"))
-				self.checkall(el, self.filter(".check-group-" + el.name, inputs), data[el.name]);
+			if (el.classList.contains("check-group")) // Integer mask by checkboxes
+				self.checkval(el, self.filter(".check-group-" + el.name, inputs), data[el.name]);
 			else {
 				const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
 				fnSetVal(el, fn(data[el.name])); // Display styled value
@@ -773,9 +773,9 @@ function DomBox(opts) {
 		// Auto check-all inputs groups
 		self.each(self.getInputs(".check-group"), el => {
 			const group = self.getInputs(".check-group-" + el.name);
-			self.checkall(el, group, +el.value)
+			self.checkval(el, group, +el.value)
 				.click(el, aux => { el.value = self.check(group, el.checked).integer(group); return true; })
-				.click(group, aux => self.checkall(el, group, self.integer(group)));
+				.click(group, aux => self.checkval(el, group, self.integer(group)));
 		});
 
 		// Clipboard function
