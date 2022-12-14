@@ -124,11 +124,18 @@ function DomBox(opts) {
 	this.checked = el => self.getAll("input:checked", el);
 	this.checks = el => self.getAll("input[type=checkbox]", el);
 	this.check = (list, value) => self.each(list, el => { el.checked = value; });
+	this.getFormInputs = form => self.filter(INPUTS, self.getForm(form).elements);
 	this.binary = (list, mask) => self.each(list, (el, i) => { el.checked = nb.mask(mask, i); });
-	this.intval = list => {
+	this.integer = list => {
 		let aux = ""; // Binary string, for example: "01001011"
-		self.each(list, el => { aux += el.checked ? "1" : "0"; });
+		self.reverse(list, el => { aux += el.checked ? "1" : "0"; });
 		return parseInt(aux, 2); // Bin2Int
+	}
+	this.checkall = (el, group, value) => {
+		el.value = value || 0; // force integer
+		self.binary(group, el.value); // check/uncheck subgroup
+		el.checked = (group.length == self.filter(":checked", group).length);
+		return self;
 	}
 
 	// Inputs values
@@ -136,7 +143,7 @@ function DomBox(opts) {
 		value = value ?? EMPTY; // define value as string
 		if (el.tagName === "SELECT") // select option
 			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
-		else if ((el.tagName === "CHECKBOX") || (el.tagName === "RADIO"))
+		else if ((el.type === "checkbox") || (el.type === "radio"))
 			el.checked = (el.value == value);
 		else
 			el.value = value;
@@ -165,29 +172,32 @@ function DomBox(opts) {
 		return self;
 	}
 
-	this.load = (form, data, parsers) => {
-		form = self.getForm(form); // Update fields
+	this.loadInputs = (inputs, data, parsers) => {
 		parsers = parsers || {}; // Default container
-		return self.apply(INPUTS, form.elements, el => {
+		return self.each(inputs, el => {
 			const fn = parsers[el.name] || fnParam; // Field parser type
 			data[el.name] = fn(el.value); // Parse type
 		});
 	}
-	this.display = (form, data, styles) => {
+	this.displayInputs = (inputs, data, styles) => {
 		const fnDate = value => sb.substring(value, 0, 10); // Value = string date time
 		const TYPES = {
 			"datetime": fnParam, //"number": fnParam, // Not to change style
 			"date": fnDate, "week": fnDate, "month": fnDate // Styled for type=date
 		};
-
-		form = self.getForm(form); // Update fields
 		styles = styles || TYPES; // Optional styles
 
-		return self.apply(INPUTS, form.elements, el => {
-			const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
-			fnSetVal(el, fn(data[el.name])); // Display styled value
+		return self.each(inputs, el => {
+			if (el.classList.contains("check-group"))
+				self.checkall(el, self.filter(".check-group-" + el.name, inputs), data[el.name]);
+			else {
+				const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
+				fnSetVal(el, fn(data[el.name])); // Display styled value
+			}
 		});
 	}
+	this.load = (form, data, parsers) => self.loadInputs(self.getFormInputs(form), data, parsers);
+	this.display = (form, data, styles) => self.displayInputs(self.getFormInputs(form), data, styles);
 
 	function fnSetError(el) {
 		const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
@@ -760,6 +770,14 @@ function DomBox(opts) {
 				.onclick("a[href='#last-tab']", () => !self.lastTab())
 				.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 		}
+
+		// Auto check-all inputs groups
+		self.each(self.getInputs(".check-group"), el => {
+			const group = self.getInputs(".check-group-" + el.name);
+			self.checkall(el, group, +el.value)
+				.click(el, aux => { el.value = self.check(group, el.checked).integer(group); return true; })
+				.click(group, aux => self.checkall(el, group, self.integer(group)));
+		});
 
 		// Clipboard function
 		TEXT.style.position = "absolute";

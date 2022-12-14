@@ -241,6 +241,13 @@
 					<label for="fecha" class="required">Fecha:</label>
 					<input type="date" id="fecha" name="fecha" value="" class="ui-item ui-control ui-date" tabindex="4" />
 				</div>
+				<div class="ui-group ui-row"> <!-- check-group checked subgroup by name -->
+					<label for="check1" class="inline">check1:</label><input id="check1" type="checkbox" class="check-group-binary ui-check">
+					<label for="check2" class="inline">check2:</label><input id="check2" type="checkbox" class="check-group-binary ui-check">
+					<label for="check3" class="inline">check3:</label><input id="check3" type="checkbox" class="check-group-binary ui-check">
+					<label for="check4" class="inline">check4:</label><input id="check4" type="checkbox" class="check-group-binary ui-check">
+					<label for="all-binary" class="inline">All:</label><input id="all-binary" type="checkbox" name="binary" class="check-group ui-check">
+				</div>
 				<div class="ui-group ui-row">
 					<label for="memo" class="required">Memoria:</label>
 					<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="5"></textarea>
@@ -262,13 +269,13 @@
 		<script type="text/javascript">
 			dom.ready(function() {
 				const DB = [
-					{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01"}, 
-					{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1}, 
-					{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81}, 
-					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35"}, 
+					{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01", binary: 5}, 
+					{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1, binary: 7}, 
+					{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81, binary: 9}, 
+					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35", binary: 3}, 
 					{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
-					{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47},
-					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11"}
+					{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47, binary: 6},
+					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
 				];
 				const FILTER = {};
 				const STYLES = { imp: i18n.isoFloat, fecha: i18n.fmtDate }
@@ -332,6 +339,7 @@
 						dom.load(form, resume.data, PARSERS);
 						resume.data.id || DB.push(resume.data); // inserting?
 						resume.data.id = resume.data.id || DB.length; // pk
+						console.log("resume.data", resume.data);
 						if ("clone" == ev.submitter.id)
 							fnCreate(ab.flush(resume.data, ["id"]));
 						else
