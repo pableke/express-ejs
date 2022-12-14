@@ -225,8 +225,7 @@ function DomBox(opts) {
 		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
 
-		const key = inputs[0]?.id + "FormError"; // Specific key error message
-		messages.msgError = messages[key] || validators[key] || messages.msgError || validators.msgError;
+		messages.msgError = messages.msgError || validators.msgError;
 		return fnValidate(inputs, validators, messages);
 	}
 	this.validate = (form, validators, messages) => {
