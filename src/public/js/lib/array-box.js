@@ -84,9 +84,16 @@ function ArrayBox() {
 		}
 		return -1;
 	}
+	this.every = function(arr, fn) {
+		const size = fnSize(arr);
+		for (var i = 0; i < size; i++)
+			i = fn(arr[i], i) ? i : size;
+		return (i == size);
+	}
 
 	//this.findLast = (arr, fn) => arr ? arr.findLast(fn) : null;
 	//this.findLastIndex = (arr, fn) => arr ? arr.findLastIndex(fn) : -1;
+	this.some = (arr, fn) => (self.findIndex(arr, fn) > -1);
 	this.indexOf = (arr, elem) => arr ? arr.indexOf(elem) : -1;
 	this.intersect = (a1, a2) => a2 ? a1.filter(e => (a2.indexOf(e) > -1)) : [];
 	this.shuffle = arr => arr.sort(() => (0.5 - Math.random()));

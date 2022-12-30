@@ -13,24 +13,6 @@ const dom = new DomBox(); //HTML-DOM box
 
 //DOM is fully loaded
 dom.ready(function() {
-	// Extends with animationCSS lib
-	dom.animate = function(list, animation) {
-		// We create a Promise and return it
-		return new Promise((resolve, reject) => {
-			const animationName = "animate__animated animate__" + animation;
-
-			// When the animation ends, we clean the classes and resolve the Promise
-			dom.addClass(list, animationName)
-				.events(list, "animationend", (el, ev) => {
-					dom.removeClass(list, animationName);
-					ev.stopPropagation();
-					resolve(el);
-				});
-		});
-	}
-	dom.fadeIn = list => { dom.show(list).animate(list, "fadeIn"); return dom; }
-	dom.fadeOut = list => { dom.animate(list, "fadeOut").then(dom.hide); return dom; }
-
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
@@ -68,26 +50,6 @@ dom.ready(function() {
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Extends dom-box actions (require jquery)
-	dom.ajax = function(action, resolve, reject) {
-		return dom.loading().fetch({
-			action: action,
-			resolve: resolve || dom.showOk,
-			reject: reject || dom.setErrors
-		}).catch(dom.showError) //error handler
-			.finally(dom.working); //allways
-	}
-	dom.send = function(form, resolve, reject) {
-		let fd = new FormData(form);
-		return dom.loading().fetch({
-			action: form.action,
-			method: form.method,
-			body: (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd),
-			headers: { "Content-Type": form.enctype || "application/x-www-form-urlencoded" },
-			resolve: resolve || (msg => dom.setOk(form, msg)),
-			reject: reject || dom.setErrors
-		}).catch(dom.showError) //error handler
-			.finally(dom.working); //allways
-	}
 	dom.autocomplete = function(selector, opts) {
 		const fnFalse = () => false;
 		const fnGetIds = el => dom.get("[type=hidden]", el.parentNode);

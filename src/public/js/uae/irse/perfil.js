@@ -178,8 +178,8 @@ function IrsePerfil() {
 			},
 			select: function(ev, ui) {
 				const email = ui.item.email;
-				const mailto = dom.sibling("a", ev.target);
-				dom.toggleHide(mailto, !email).setAttr(mailto, "href", "mailto:" + email);
+				const mailto = dom.children(ev.target, "a");
+				dom.toggleHide(mailto, !email).attr(mailto, "href", "mailto:" + email);
 				self.setColectivo(ui.item.ci).update(); //actualizo colectivo + tramite
 				return fnAcLoad(this, ui.item.nif, ui.item.nif + " - " + ui.item.nombre);
 			}
@@ -230,7 +230,7 @@ function IrsePerfil() {
 		dom.table("#organicas", organicas, resume, STYLES);
 		dom.onRenderTable("#organicas", table => {
 			fnSave(); //set new perfil
-			dom.closeAlerts().toggleHide("a#add-org", organicas.length).clearInput("#organica");
+			dom.closeAlerts().toggleHide("div#add-org", organicas.length).clearInput("#organica");
 		});
 
 		fnUpdatePerfil(); // show first perfil for update
