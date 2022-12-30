@@ -33,6 +33,22 @@ body::after {
 main { display: inline-block; margin: 8px 0; width: 100%; }
 hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
+/* Animations */
+.fadeIn { animation: fadeIn 1s; }
+.fadeOut { animation: fadeOut 1s; }
+@keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+.slideIn { animation: slideIn 1s forwards; }
+.slideOut { animation: slideOut 1s forwards; }
+@keyframes slideIn { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+@keyframes slideOut { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
+
+.slideRtl { animation: slideRtl 1s forwards; }
+.slideLtr { animation: slideLtr 1s forwards; }
+@keyframes slideRtl { 0% { transform: translateX(100%); } 100% { transform: translateX(0%); } }
+@keyframes slideLtr { 0% { transform: translateX(0%); } 100% { transform: translateX(100%); } }
+
 /* Cards clases */
 .card { border-left: 6px solid #1976D2; }
 .card h1 { margin: 1em; /*color: #1976D2;*/ border-bottom: 1px solid #1976D2; }
@@ -86,9 +102,6 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
 .loading { position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999; background-color: rgba(255, 255, 255, .7); }
 .loading-content { position: absolute; top: 50%; left: 50%; text-align: center; z-index: 100; }
-/* all loading => deprecated (use only in CV tests) */
-.ibox { display: none; background-color: rgba(255, 255, 255, 0.6); position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ibox-wrapper { transform: translate(-60%, -60%); position: absolute; top: 45%; left: 50%; color: #2d65c4; z-index: 9999; }
 
 .back-to-top { position: fixed; bottom: 25px; right: 25px; padding: .5rem 1rem; font-size: 1.25rem; border-radius: .3rem; background-color: #f8f9fa; }
 .back-to-top:hover { background-color: #e2e6ea; border-color: #dae0e5; }
