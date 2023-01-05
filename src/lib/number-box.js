@@ -7,10 +7,10 @@ function NumberBox() {
 	const COMMA = ","; //floats separator
 
 	// Helpers
-	function isset(val) { return (typeof(val) !== "undefined") && (val !== null); } // Is defined var
-	function fnWhole(str) { return str.replace(/\D+/g, EMPTY); } // Extract whole part
-	function fnTrim0(str) { return fnWhole(str).replace(/^0+(\d+)/, "$1"); } // Extract whole part withot left zeros
-	function fnSign(str) { return (str.charAt(0) == "-") ? "-" : EMPTY; } // Get sign number + or -
+	const isset = val => (typeof(val) !== "undefined") && (val !== null); // Is defined var
+	const fnWhole = str => str.replace(/\D+/g, EMPTY); // Extract whole part
+	const fnTrim0 = str => fnWhole(str).replace(/^0+(\d+)/, "$1"); // Extract whole part withot left zeros
+	const fnSign = str => ((str.charAt(0) == "-") ? "-" : EMPTY); // Get sign number + or -
 	function chunk(str, separator) {
 		let i = str.length; // index
 		let output = (i > 2) ? str.substring(i - 3, i) : str;
@@ -48,8 +48,8 @@ function NumberBox() {
 		return isset(n1) ? -1 : 1; //nulls last
 	}
 
-	this.rand = (min, max) => Math.random() * (max - min) + min;
-	this.randInt = (min, max) => Math.floor(self.rand(min, max));
+	this.rand = (min, max) => Math.random() * ((max || 1e9) - min) + min;
+	this.randInt = (min, max) => Math.floor(self.rand(min || 0, max));
 
 	// Integers
 	this.toInt = function(str) { // String to Integer

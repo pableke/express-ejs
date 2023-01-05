@@ -50,6 +50,7 @@ function DateBox() {
 	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
 	this.randTime = (d1, d2) => Math.floor(Math.random() * self.diffDate(d2, d1) + d1.getTime());
 	this.randDate = (d1, d2) => new Date(self.randTime(d1, d2));
+	this.rand = () => self.randDate(new Date(sysdate.getTime() - (ONE_DAY*30)), sysdate);
 	this.clone = date => new Date((date || sysdate).getTime());
 	this.build = str => str && fnBuild(str.split(/\D+/));
 

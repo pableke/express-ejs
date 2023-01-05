@@ -18,10 +18,10 @@ function DomBox(opts) {
 		classAlertClose: "alert-close",
 		classInputError: "ui-error",
 		classTipError: "ui-errtip",
-		classSortNone: "sort-none",
-		classSortDesc: "sort-desc",
-		classSortAsc: "sort-asc",
-		classSortTable: "sort",
+		//classSortNone: "sort-none",
+		//classSortDesc: "sort-desc",
+		//classSortAsc: "sort-asc",
+		//classSortTable: "sort",
 		classCheckGroup: "check-group"
 	}
 
@@ -33,7 +33,6 @@ function DomBox(opts) {
 	const fnSelf = () => self;
 	const fnParam = value => value; // return param value
 	const fnValue = (obj, name) => obj[name]; // get prop.
-	const fnLog = data => console.log("Log:", data); // Show log
 	const fnSplit = str => str ? str.split(/\s+/) : []; // class separator
 	const fnQuery = elem => sb.isstr(elem) ? document.querySelector(elem) : elem;
 	const fnQueryAll = list => sb.isstr(list) ? document.querySelectorAll(list) : list;
@@ -63,46 +62,44 @@ function DomBox(opts) {
 	// AJAX calls
 	this.fetch = function(opts) {
 		self.loading(); //show loading...
-		opts = opts || {}; //default config
-		opts.reject = opts.reject || fnLog;
-		opts.resolve = opts.resolve || fnLog;
+		//opts = opts || {}; //default config
 		opts.headers = opts.headers || {}; //init. headers
 		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
-		opts.headers["Authorization"] = "Bearer " + window.sessionStorage.getItem("jwt");
+		var token = window.sessionStorage.getItem(opts.tokenName);
+		if (token) // token to be sended to server
+			opts.headers["Authorization"] = "Bearer " + token;
 		return window.fetch(opts.action, opts).then(res => {
-			const token = res.headers.get("jwt");
+			if (!res.ok) // status ok = 200
+				return Promise.reject("Error " + res.status + " " + res.url);
+			token = res.headers.get(opts.tokenName);
 			if (token) // token to be returned to server
-				window.sessionStorage.setItem("jwt", token);
+				window.sessionStorage.setItem(opts.tokenName, token);
 			const contentType = res.headers.get("content-type") || EMPTY; //response type
-			const promise = (contentType.indexOf("application/json") > -1) ? res.json() : res.text(); //response
-			return promise.then(res.ok ? opts.resolve : opts.reject); //ok = 200
+			return contentType.includes("application/json") ? res.json() : res.text(); //response
 		}).catch(self.showError).finally(self.working); //set error handler and close loading...
 	}
-	this.ajax = function(action, resolve, reject) {
-		const opts = { action };
-		opts.resolve = resolve || self.showOk;
-		opts.reject = reject || self.setErrors;
-		return self.fetch(opts);
-	}
-	this.json = function(action, data, resolve, reject) {
-		const opts = { action };
-		opts.method = "POST";
-		opts.body = JSON.stringify(data);
-		opts.resolve = resolve || self.showOk;
-		opts.reject = reject || self.setErrors;
-		opts.headers = { "Content-Type": "application/json; charset=utf-8" };
-		return self.fetch(opts);
-	}
-	this.send = function(form, resolve, reject) {
+	this.send = function(form, method, tokenName) {
 		const fd = new FormData(form);
 		const opts = { action: form.action };
-		opts.method = form.method;
+		opts.method = method || form.method; //method-override
+		opts.tokenName = tokenName || form.dataset.tokenName; //jwt name
 		opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		opts.resolve = resolve || (msg => self.setOk(form, msg));
-		opts.reject = reject || self.setErrors;
-		return self.fetch(opts);
+		return self.fetch(opts).then(msg => self.setOk(form, msg)).catch(self.setErrors);
 	}
+
+	function fnFetchJSON(action, method, data) { // CREATE
+		const opts = { action, method, body: JSON.stringify(data) };
+		opts.headers = { "Content-Type": "application/json; charset=utf-8" };
+		return self.fetch(opts).catch(self.setErrors);
+	}
+	this.api = { // API REST full ej: https://jsonplaceholder.typicode.com/users
+		get: action => self.fetch({ action }), // READ
+		post: (action, data) => fnFetchJSON(action, "POST", data), // CREATE
+		put: (action, data) => fnFetchJSON(action, "PUT", data), // UPDATE
+		patch: (action, data) => fnFetchJSON(action, "PATCH", data), // PATCH
+		delete: action => self.fetch({ action, method: "DELETE" }) //DELETE
+	};
 
 	// Iterators and Filters
 	this.each = function(list, fn) {
@@ -407,8 +404,8 @@ function DomBox(opts) {
 	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");
 
 	// Events
-	const fnEvent = (el, name, i, fn) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault()));
-	const fnAddEvent = (el, name, fn) => (el ? fnEvent(el, name, 0, fn) : self);
+	const fnEvent = (el, name, i, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault(), opts));
+	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, 0, fn, opts) : self);
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
@@ -743,7 +740,8 @@ function DomBox(opts) {
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
-		self.onTab = (id, name, fn) => fnAddEvent(self.getTab(id), name, fn);
+		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
+		self.onLoadTab = (id, fn) => self.onTab(id, "tab-" + id, fn, { once: true });
 		self.onShowTab = (id, fn) => self.onTab(id, "tab-" + id, fn);
 		self.onChangeTab = (id, fn) => self.onTab(id, "change", fn);
 		self.onExitTab = fn => fnAddEvent(tabs[0], "exit", fn);

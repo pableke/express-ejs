@@ -389,8 +389,8 @@ function DomBox(opts) {
 
 	// Events
 	const ON_CHANGE = "change";
-	const fnEvent = (el, name, i, fn) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault()));
-	const fnAddEvent = (el, name, fn) => (el ? fnEvent(el, name, 0, fn) : self);
+	const fnEvent = (el, name, i, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault(), opts));
+	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, 0, fn, opts) : self);
 	const fnAddEvents = (selector, list, name, fn) => self.apply(selector, list, (el, i) => fnEvent(el, name, i, fn));
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
@@ -751,26 +751,18 @@ function DomBox(opts) {
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
-		//self.onTab = (id, name, fn) => fnAddEvent(self.getTab(id), name, fn);
-		self.onShowTab = (id, fn) => fnAddEvent(self.getTab(id), "tab-" + id, fn);
-		self.onChangeTab = (id, fn) => fnAddEvent(self.getTab(id), ON_CHANGE, tab => self.trigger("change-" + id, fn));
-		self.onPrevTab = (id, fn) => fnAddEvent(self.getTab(id), "prev-" + id, fn);
-		self.onNextTab = (id, fn) => fnAddEvent(self.getTab(id), "next-" + id, fn);
+		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
+		self.onLoadTab = (id, fn) => self.onTab(id, "tab-" + id, fn, { once: true });
+		self.onShowTab = (id, fn) => self.onTab(id, "tab-" + id, fn);
+		self.onChangeTab = (id, fn) => self.onTab(id, "change", fn);
 		self.onExitTab = fn => fnAddEvent(tabs[0], "exit", fn);
 
 		function fnShowTab(i) { //show tab by index
 			i = nb.range(i, 0, _tabSize); // Force range
-			let tab = tabs[_tabIndex]; // current tab
-
 			if ((i > 0) || (_tabIndex > 0)) { // Nav in tabs
-				const id = self.closeAlerts().lastId(tab.id);
-				if (i > _tabIndex) // Trigger next event
-					self.trigger(tab, "next-" + id);
-				else if (i < _tabIndex) // Trigger prev event
-					self.trigger(tab, "prev-" + id);
-
-				if (self.isOk()) { // Only change tab if ok
-					tab = tabs[i]; // next tab
+				const tab = tabs[i]; // get next tab
+				// Trigger show tab event (onShowTab) and change tab if all ok
+				if (self.closeAlerts().trigger(tab, tab.id).isOk()) {
 					const progressbar = self.get("#progressbar");
 					if (progressbar) { // progressbar is optional
 						const step = "step-" + i; //go to a specific step on progressbar
@@ -778,8 +770,7 @@ function DomBox(opts) {
 					}
 					_tabIndex = i; // set current index
 					self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
-						.setFocus(tab).scroll() // Auto set focus and scroll
-						.trigger(tab, tab.id); // Trigger show tab event (onShowTab)
+						.setFocus(tab).scroll(); // Auto set focus and scroll
 				}
 			}
 			else // Is first tab and click on prev button
@@ -806,8 +797,8 @@ function DomBox(opts) {
 		}
 
 		// Auto check-all inputs groups
-		self.each(self.getInputs(".check-group"), el => {
-			const group = self.getInputs(".check-group-" + el.name);
+		self.each(self.getInputs(CHEK_GROUP_SELECTOR), el => {
+			const group = self.getInputs(CHEK_GROUP_SELECTOR + "-" + el.name);
 			self.checkval(el, group, +el.value)
 				.click(el, aux => { el.value = self.check(group, el.checked).integer(group); return true; })
 				.click(group, aux => self.checkval(el, group, self.integer(group)));
