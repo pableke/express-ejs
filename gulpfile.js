@@ -21,9 +21,9 @@ const CSS_FILES = [
 	"src/public/css/style.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/form.css", "src/public/css/table.css", "src/public/css/print.css"
 ];
 const JS_LIB = [
-	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box-v2.js", "src/public/js/lib/graph-box.js", 
-	"src/public/js/lib/i18n-box.js", "src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/tree-box.js", "src/public/js/lib/validator-box.js", 
-	"src/public/js/lib/util-box.js"
+	"src/public/js/lib-v2/array-box.js", "src/public/js/lib-v2/date-box.js", "src/public/js/lib-v2/dom-box.js", "src/public/js/lib-v2/graph-box.js", 
+	"src/public/js/lib-v2/i18n-box.js", "src/public/js/lib-v2/number-box.js", "src/public/js/lib-v2/string-box.js", "src/public/js/lib-v2/tree-box.js", 
+	"src/public/js/lib-v2/validator-box.js", "src/public/js/lib-v2/util-box.js"
 ];
 const JS_WEB = [
 	"src/public/js/web/form.js"
