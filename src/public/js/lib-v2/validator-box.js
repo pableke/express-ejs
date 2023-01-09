@@ -86,12 +86,13 @@ function ValidatorBox() {
 	// Date validations in string iso format (ej: "2022-05-11T12:05:01")
 	const systime = (new Date()).toISOString().substring(0, 19); // exclude ms
 	const sysdate = systime.substring(0, 10);
-	this.past = str => (str < sysdate) ? str : null;
-	this.dtPast = str => (str < systime) ? str : null;
-	this.leToday = str => (str <= sysdate) ? str : null;
-	this.future = str => (str > sysdate) ? str : null;
-	this.dtFuture = str => (str > systime) ? str : null;
-	this.geToday = str => (str >= sysdate) ? str : null;
+	const eqSize = (s1, s2) => (sb.size(s1) == sb.size(s2));
+	this.past = str => (eqSize(str, sysdate) && (str < sysdate)) ? str : null;
+	this.dtPast = str => (eqSize(str, systime) && (str < systime)) ? str : null;
+	this.leToday = str => (eqSize(str, sysdate) && (str <= sysdate)) ? str : null;
+	this.future = str => (eqSize(str, sysdate) && (str > sysdate)) ? str : null;
+	this.dtFuture = str => (eqSize(str, systime) && (str > systime)) ? str : null;
+	this.geToday = str => (eqSize(str, sysdate) && (str >= sysdate)) ? str : null;
 
 	// Persons ID's
 	function fnLetraDni(value) {

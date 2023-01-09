@@ -234,11 +234,12 @@ function DomBox(opts) {
 					.addClass(el, CONFIG.classInputError).focus(el);
 	}
 	function fnValidate(inputs, validators, messages) {
-		return self.closeAlerts().reverse(inputs, el => { // Reverse iterator
+		self.closeAlerts().reverse(inputs, el => { // Reverse iterator
 			const fn = validators[el.name] || fnSelf; // Validator function
 			const msgtip = messages[el.name] || validators[el.name + "Error"];
 			fn(el.name, el.value, messages.msgError, msgtip) || fnSetError(el);
-		}).isOk();
+		});
+		return self.isOk() ? i18n.toData() : null;
 	}
 	this.setInputError = (el, msg, msgtip, fn) => {
 		el = self.getInput(el); // Get input
@@ -573,8 +574,9 @@ function DomBox(opts) {
 			styles.getValue = styles.getValue || i18n.val;
 
 			const tbody = table.tBodies[0]; // Data rows
-			fnRendetTfoot(table, resume, styles); // First render footer
-			self.render(tbody, tpl => ab.format(aux, tpl, styles)); // Render rows
+			self.trigger(table, "render") // First: trigger render event
+				.render(tbody, tpl => ab.format(aux, tpl, styles)) // Second: render rows
+				.render(table.tFoot, tpl => sb.format(resume, tpl, styles)); // Third: render footer
 			fnToggleTbody(table); // Toggle body if no data
 			fnPagination(table, data, resume, styles); // Render asociated pages
 
@@ -726,7 +728,8 @@ function DomBox(opts) {
 				fnToggleOrder(el); // Update all sort icons
 			});
 
-			fnToggleTbody(table); // Toggle body if no data
+			// Toggle body if no data and is not a template
+			table.dataset.template || fnToggleTbody(table);
 		});
 		/**************** Tables/rows helper ****************/
 

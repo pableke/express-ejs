@@ -162,11 +162,12 @@
 				</div>
 			</form>
 
-			<table id="pruebas" data-sort-by="memo" data-sort-dir="desc">
+			<table id="pruebas" data-sort-by="memo" data-sort-dir="desc" data-template="yes">
 				<thead>
 					<tr>
 						<th>Nº</th>
 						<th>Nombre<a href="#name" class="sort sort-none"></a></th>
+						<th>E-Mail<a href="#email" class="sort sort-none"></a></th>
 						<th>Info<a href="#memo" class="sort sort-none"></a></th>
 						<th>Importe<a href="#imp" class="sort sort-none"></a></th>
 						<th>Fecha<a href="#fecha" class="sort sort-none"></a></th>
@@ -174,10 +175,11 @@
 						<th>Acciones</th>
 					</tr>
 				</thead>
-				<tbody id="pruebas-row">
+				<tbody id="pruebas-row" class="hide">
 					<tr class="tb-data">
 						<td class="text-center">@count;</td>
 						<td><a href="#find">@name;</a></td>
+						<td>@email;</td>
 						<td>@memo;</td>
 						<td class="textr">@imp;</td>
 						<td class="text-center">@fecha;</td>
@@ -189,10 +191,10 @@
 					</tr>
 				</tbody>
 				<tbody class="no-data">
-					<tr><td colspan="6"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
+					<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
 				</tbody>
 				<tfoot data-tpl="pruebas-footer">
-					<tr><td colspan="3">Filas: @size; / @total;</td><td class="textr">@imp;</td><td colspan="3"></td></tr>
+					<tr><td colspan="4">Filas: @size; / @total;</td><td class="textr">@imp;</td><td colspan="3"></td></tr>
 				</tfoot>
 			</table>
 			<div class="fr ui-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
@@ -239,6 +241,7 @@
 				<div class="ui-group ui-block">
 					<label for="fecha" class="required">Fecha:</label>
 					<input type="date" id="fecha" name="fecha" value="" class="ui-item ui-control ui-date" tabindex="4" />
+					<div class="ui-errtip"></div>
 				</div>
 				<div class="ui-group ui-row"> <!-- check-group checked subgroup by name -->
 					<label for="check1" class="inline">check1:</label><input id="check1" type="checkbox" class="check-group-binary ui-check">
@@ -259,95 +262,11 @@
 				<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 				<button id="clean" type="reset" class="btn btn-light reset-form" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
 				<button id="save" type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save icon"></i>Save</button>
-				<button id="clone" type="submit" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
+				<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
 				<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 			</div>
 			</form>
 		</div>
-
-		<script type="text/javascript">
-			dom.ready(function() {
-				const DB = [
-					{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01", binary: 5}, 
-					{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1, binary: 7}, 
-					{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81, binary: 9}, 
-					{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35", binary: 3}, 
-					{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
-					{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47, binary: 6},
-					{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
-				];
-				const FILTER = {};
-				const STYLES = { imp: i18n.isoFloat, fecha: i18n.fmtDate }
-				const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat }
-				const VALIDATORS = { testFormError: "form err", fecha: i18n.required, imp: i18n.required, name: i18n.required, memo: i18n.required }
-
-				const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
-				const resume = { index: 0, start: 0, end: 3, page: 0, pageSize: 3, sort: fnMemo };
-				let data = DB;
-
-				function fnLoad(row) { dom.display("#test", row, STYLES).viewTab(3); }
-				function fnCreate(row) { dom.createRow("#pruebas", resume, row).hide(".update-only"); fnLoad(row); }
-				function fnView(i) { dom.selectRow("#pruebas", data, resume, i).show(".update-only"); fnLoad(resume.data); }
-				function fnPaginate() { return dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name"); }
-				function fnFilter() { // Simulate server call!!
-					const fields = ["name", "memo"]; // Strings ilike filter
-					data = DB.filter(row => sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
-					fnPaginate();
-				}
-
-				// Eventos de las tablas de consulta
-				dom.onRenderTable("#pruebas", (table, ev) => {
-					resume.imp = 0; // Initialize data
-					data.slice(resume.start, resume.end).forEach(row => resume.imp += (row.imp || 0));
-					dom.toggleHide("a[href='#clear-pruebas']", !data.length);
-				});
-				dom.table("#pruebas", DB, resume, STYLES)
-					.onExitTab(() => console.log("exit tabs"))
-					.onShowTab(1, tab => console.log("show tab-1"))
-					.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
-					.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
-					.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, resume, STYLES))
-					.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-					//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume, STYLES))
-					.onTable("#pruebas", "sort-name", table => { delete resume.sort; })
-					.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; })
-					.onTable("#pruebas", "sort-imp", table => { resume.sort = (a, b) => nb.cmp(a.imp, b.imp); })
-					.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
-					.onChangeInput("#page-size", el => { resume.pageSize = +el.value; fnPaginate() });
-
-				// Eventos de control para el filtro, navegación y datos del formulario
-				dom.setRangeDate("#f1", "#f2") // Filter range date
-					.addClick("a[href='#first-item']", el => fnView(0))
-					.addClick("a[href='#prev-item']", el => fnView(resume.index - 1))
-					.addClick("a[href='#next-item']", el => fnView(resume.index + 1))
-					.addClick("a[href='#last-item']", el => fnView(data.length))
-					.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
-					.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-					.onclick("button.reset-filter", el => { data = DB; return fnPaginate(); })
-					.onclick("button.reset-form", el => dom.clearForm(el.form))
-					.onclick("a.create-data", () => fnCreate({}));
-
-				// Eventos de los formularios (filtro y edicion)
-				dom.onSubmitForm("#filter", form => {
-					dom.closeAlerts().load(form, FILTER, PARSERS);
-					//dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
-					setTimeout(fnFilter, 400); // Simulate ajax call
-				});
-				dom.onSubmitForm("#test", (form, ev) => {
-					if (dom.validate(form, VALIDATORS)) {
-						dom.load(form, resume.data, PARSERS);
-						resume.data.id || DB.push(resume.data); // inserting?
-						resume.data.id = resume.data.id || DB.length; // pk
-						console.log("resume.data", resume.data);
-						if ("clone" == ev.submitter.id)
-							fnCreate(ab.flush(resume.data, ["id"]));
-						else
-							dom.viewTab(2);
-						dom.updateTable("#pruebas", data, resume, STYLES).showOk("saveOk");
-					}
-				});
-			});
-		</script>
 	</main>
 
 	<div class="alerts">
