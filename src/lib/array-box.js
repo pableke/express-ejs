@@ -1,7 +1,6 @@
 
 function ArrayBox() {
 	const self = this; //self instance
-	const fnValue = (obj, name) => obj[name];
 	const fnSize = arr => arr ? arr.length : 0; //string o array
 	const isstr = val => (typeof(val) === "string") || (val instanceof String);
 
@@ -34,11 +33,13 @@ function ArrayBox() {
 	Array.prototype.format = function(tpl, opts) {
 		opts = opts || {}; //default settings
 		const empty = opts.empty || "";
-		const fnVal = opts.getValue || fnValue;
+		const fnVal = opts.getValue || ((obj, name) => obj[name]);
+		const onRender = opts.onRender || (() => {});
 		const status = { size: this.length };
 
 		let output = ""; // Initialize result
 		this.forEach((obj, i) => {
+			onRender(obj, i);
 			status.index = i;
 			status.count = i + 1;
 			output += tpl.format((m, k) => {

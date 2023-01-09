@@ -6,12 +6,11 @@ function StringBox() {
 	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
 	const TR1 = "àáâãäåāăąÀÁÂÃÄÅĀĂĄÆßèéêëēĕėęěÈÉĒĔĖĘĚìíîïìĩīĭÌÍÎÏÌĨĪĬòóôõöōŏőøÒÓÔÕÖŌŎŐØùúûüũūŭůÙÚÛÜŨŪŬŮçÇñÑþÐŔŕÿÝ";
 	const TR2 = "aaaaaaaaaAAAAAAAAAABeeeeeeeeeEEEEEEEiiiiiiiiIIIIIIIIoooooooooOOOOOOOOOuuuuuuuuUUUUUUUUcCnNdDRryY";
-	const sysdate = (new Date()).toISOString(); //global sysdate
 
 	// Helpers
 	function tr(str) {
 		const size = fnSize(str);
-		let output = str || EMPTY;
+		var output = str || EMPTY;
 		for (let i = 0; i < size; i++) {
 			let j = TR1.indexOf(str.charAt(i)); // is char remplazable
 			output = (j < 0) ? output : output.replaceAt(TR2.charAt(j), i);
@@ -91,7 +90,7 @@ function StringBox() {
 	this.lopd = str => str && ("***" + str.substr(3, 4) + "**"); //hide protect chars
 
 	//chunk string in multiple parts
-	this.test = (str, re) => (str && re.test(str)) ? str : null;
+	this.test = (str, re) => re.test(str) ? str : null;
 	this.split = (str, sep) => str ? str.trim().split(sep) : [];
 	this.match = (str, re) => str ? str.trim().match(re) : [];
 	this.lastId = str => +self.match(str, /\d+$/).pop();
@@ -111,38 +110,17 @@ function StringBox() {
 
 	// Date iso string handlers (ej: "2022-05-11T12:05:01")
 	const fnEnDate = str=> str.substring(0, 10); //yyyy-mm-dd
-	const fnEsDate = str => str.substring(8, 10) + "/" + str.substring(5, 7) + "/" + str.substring(0, 4); //dd/mm/yyyy
-	const fnIsoTime = str => str.substring(11, 19); //hh:MM:ss
-
-	this.sysdate = () => sysdate;
 	this.toDate = str => str ? new Date(str) : null;
-	this.isDate = str => /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[\.\d{1,3}]?$/.test(str);
-	this.enDate = str => str && fnEnDate(str); //yyyy-mm-dd
-	this.esDate = str => str && fnEsDate(str); //dd/mm/yyyy
-	this.minTime = str => self.substring(str, 11, 16); //hh:MM
-	this.isoTime = str => str && fnIsoTime(str); //hh:MM:ss
-	this.isoEnDateTime = str => str && (fnEnDate(str) + " " + fnIsoTime(str)); //yyyy-mm-dd hh:MM:ss
-	this.isoEsDateTime = str => str && (fnEsDate(str) + " " + fnIsoTime(str)); //dd/mm/yyyy hh:MM:ss
-	this.diffDate = (str1, str2) => (Date.parse(str1) - Date.parse(str2));
-	this.toIsoDate = (date, time) => (date + "T" + self.toIsoTime(time) + ".0");
-	this.toIsoTime = str => {
-		const size = fnSize(str);
-		if (size == 0) // no time
-			return "00:00:00"; //hh:MM:ss
-		return (size < 6) ? (str + ":00") : str;
-	}
-
 	this.inYear = (str1, str2) => self.substring(str1, 0, 4) == self.substring(str2, 0, 4);
 	this.inMonth = (str1, str2) => self.substring(str1, 0, 7) == self.substring(str2, 0, 7);
 	this.inDay = (str1, str2) => self.substring(str1, 0, 10) == self.substring(str2, 0, 10);
 	this.inHour = (str1, str2) => self.substring(str1, 0, 13) == self.substring(str2, 0, 13);
+	this.diffDate = (str1, str2) => (Date.parse(str1) - Date.parse(str2));
 	this.startDay = str => str ? (fnEnDate(str) + "T00:00:00.0") : str;
 	this.endDay = str => str ? (fnEnDate(str) + "T23:59:59.999") : str;
-	this.getDate = str => +self.substring(str, 8, 10); // Get day as integer
-	this.getHours = str => +self.substring(str, 14, 16); // Get hours as integer
-	this.geToday = str => self.inDay(str, sysdate) || (str > sysdate);
-	this.future = str => (str > sysdate);
-	this.past = str => (str < sysdate);
+	this.isoDate = str => str && fnEnDate(str); //yyyy-mm-dd
+	this.isoTime = str => str && str.substring(11, 19); //hh:MM:ss
+	this.isoDateTime = (date, time) => (date + "T" + time + ".0"); //yyyy-mm-ddThh:MM:ss.0
 	/****************** End Date helpers ******************/
 
 	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
