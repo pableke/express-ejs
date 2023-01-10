@@ -137,9 +137,11 @@ dom.ready(function() {
 			{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
 		];
 
-		const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat }
-		const STYLES = { imp: i18n.isoFloat, fecha: i18n.fmtDate, onRender: ((row) => { resume.imp += (row.imp || 0); }) } // onRenderRow
-		const VALIDATORS = { testFormError: "form err", fecha: i18n.past, imp: i18n.gt0, name: i18n.required, memo: i18n.required }
+		const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat };
+		const STYLES = {
+			imp: i18n.isoFloat, fecha: i18n.fmtDate,
+			onRender: row => { resume.imp += (row.imp || 0); } // onRenderRow
+		};
 
 		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
 		const resume = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
@@ -147,9 +149,11 @@ dom.ready(function() {
 		const fnLoad = row => dom.display("#test", row, STYLES).viewTab(3);
 		const fnCreate = row => { dom.createRow("#pruebas", resume, row).hide(".update-only"); fnLoad(row); }
 		const fnView = index => { dom.selectRow("#pruebas", data, resume, index).show(".update-only"); fnLoad(resume.data); }
-		const fnPaginate = () => dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name");
+		const fnPaginate = arr => { data = arr; dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name"); }
 		const fnValidate = form => {
-			var aux = dom.validate(form, VALIDATORS);
+			var aux = dom.validate(form, {
+				testFormError: "form err", fecha: i18n.past, imp: i18n.gt0, name: i18n.required, memo: i18n.required
+			});
 			return aux && Object.assign(resume.data, aux);
 		}
 
@@ -181,19 +185,23 @@ dom.ready(function() {
 			.onTable("#pruebas", "sort-imp", table => { resume.sort = (a, b) => nb.cmp(a.imp, b.imp); })
 			.onTable("#pruebas", "sort-fecha", table => { delete resume.sort; }) // default sort as string (isoDate)
 			.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
-			.onChangeInput("#page-size", el => { resume.pageSize = +el.value; fnPaginate() });
+			.onChangeInput("#page-size", el => { resume.pageSize = +el.value; fnPaginate(data) });
 
 		// Eventos de control para el filtro de la tabla
 		dom.setRangeDate("#f1", "#f2") // Filter range date
-			.onclick("button.reset-filter", el => { data = server_data; return fnPaginate(); })
-			.onclick("a.create-data", () => fnCreate({}));
-		dom.onSubmitForm("#filter", form => {
+			.addClick("a.create-data", () => fnCreate({}));
+		dom.onResetForm("#filter", form => {
+			setTimeout(function() { // Do what you need after reset the form
+				fnPaginate(server_data); // server call = dom.send(form).then(users => { server_data = users; fnPaginate(users); });
+			}, 1);
+			// Do what you need before reset the form
+			return dom.closeAlerts(); // default = reset
+		}).onSubmitForm("#filter", form => {
 			const FILTER = {}; // Container
 			const fields = ["name", "memo"]; // Strings ilike filter
+			const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
 			dom.closeAlerts().load(form, FILTER, PARSERS);
-			//dom.send(form, msg => dom.showOk(msg).setFocus("#filter-name"));
-			data = server_data.filter(row => sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
-			fnPaginate();
+			fnPaginate(server_data.filter(fnFilter)); // server call = dom.send(form).then(users => { fnPaginate(users); });
 		});
 
 		// Eventos de control para el formulario de datos
@@ -203,16 +211,14 @@ dom.ready(function() {
 			.addClick("a[href='#last-item']", el => fnView(data.length))
 			.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
 			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-			.addClick("button.reset-form", el => dom.clearForm(el.form))
-			.addClick("button#clone", el => {
-				if (!fnValidate(el.form))
-					return; // errores de validacion
-				const promise = resume.data.id 
-							? dom.api.put(ENDPOINT + "/users/" + resume.data.id, resume.data).then(user => fnCreate(ab.flush(user, ["id"])))
-							: dom.api.post(ENDPOINT + "/users", resume.data).then(user => data.push(user));
-				promise.then(() => dom.updateTable("#pruebas", data, resume, STYLES).showOk("saveOk"));
-			});
-		dom.onSubmitForm("#test", form => {
+		dom.addClick("button#clone", el => {
+			if (!fnValidate(el.form))
+				return; // errores de validacion
+			const promise = resume.data.id 
+						? dom.api.put(ENDPOINT + "/users/" + resume.data.id, resume.data).then(user => fnCreate(ab.flush(user, ["id"])))
+						: dom.api.post(ENDPOINT + "/users", resume.data).then(user => data.push(user));
+			promise.then(() => dom.updateTable("#pruebas", data, resume, STYLES).showOk("saveOk"));
+		}).onSubmitForm("#test", form => {
 			if (!fnValidate(form))
 				return; // errores de validacion
 			const promise = resume.data.id 
