@@ -503,6 +503,7 @@ function DomBox(opts) {
 
 		self.onForm = (selector, name, fn) => fnAddEvent(self.getForm(selector), name, fn);
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), "change", fn);
+		self.onResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), "change", fn);
 		self.onChangeInputs = (selector, fn) => self.change(self.getInputs(selector), fn);
