@@ -162,7 +162,8 @@ function StringBox() {
 		return isset(a) ? -1 : 1; //nulls last
 	}
 
-	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // i-equal
+	this.cmpBy = (a, b, name) => self.cmp(a[name], b[name]); // compare objects prop.
+	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // insensitive equal
 	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
 	this.olike = (obj, names, val) => names.some(name => self.ilike(obj[name], val));
 	this.alike = (obj, names, val) => self.words(val).some(v => self.olike(obj, names, v));
