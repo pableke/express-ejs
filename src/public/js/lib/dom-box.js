@@ -561,7 +561,7 @@ function DomBox(opts) {
 			resume.page = +(resume.start / resume.pageSize);
 
 			if (resume.sortBy) { // Sort full array, default sort by string
-				const fnSort = resume.sort || ((a, b) => sb.cmp(a[resume.sortBy], b[resume.sortBy]));
+				const fnSort = resume.sort || ((a, b) => sb.cmpBy(a, b, resume.sortBy));
 				ab.sort(data, resume.sortDir, fnSort); // Sort before paginate
 			}
 			else {
@@ -742,10 +742,13 @@ function DomBox(opts) {
 
 		function fnShowTab(i) { //show tab by index
 			i = nb.range(i, 0, _tabSize); // Force range
+			self.closeAlerts(); // always close alerts
+			if (i == _tabIndex)
+				return self; // not change tab
 			if ((i > 0) || (_tabIndex > 0)) { // Nav in tabs
 				const tab = tabs[i]; // get next tab
 				// Trigger show tab event (onShowTab) and change tab if all ok
-				if (self.closeAlerts().trigger(tab, tab.id).isOk()) {
+				if (self.trigger(tab, tab.id).isOk()) {
 					const progressbar = self.get("#progressbar");
 					if (progressbar) { // progressbar is optional
 						const step = "step-" + i; //go to a specific step on progressbar

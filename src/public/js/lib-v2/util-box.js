@@ -139,7 +139,8 @@ dom.ready(function() {
 		const fnCreate = row => !dom.createRow("#test", RESUME, STYLES, row).hide(".update-only");
 		const fnView = index => !dom.selectRow("#test", data, RESUME, STYLES, index).show(".update-only").viewTab(3);
 		const fnList = arr => { data = arr; dom.repaginate("#pruebas", data, RESUME, STYLES).setFocus("#filter-name"); }
-		const fnUpdate = msg => dom.updateTable("#pruebas", data, RESUME, STYLES).showOk("saveOk");
+		const fnUpdate = tab => dom.updateTable("#pruebas", data, RESUME, STYLES).viewTab(tab).showOk("saveOk");
+		const fnPost = (obj, tab) => { data.push(obj); fnUpdate(tab); };
 		const fnValidate = form => {
 			var aux = dom.validate(form, {
 				testFormError: "form err", fecha: i18n.leToday, imp: i18n.gt0, name: i18n.required, memo: i18n.required
@@ -214,14 +215,14 @@ dom.ready(function() {
 			if (!fnValidate(el.form))
 				return; // errores de validacion
 			RESUME.data.id 
-					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ab.flush(user, ["id"])); fnUpdate(); })
-					: dom.api.post(ENDPOINT, RESUME.data).then(user => { data.push(user); fnUpdate(); });
+					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ab.flush(user, ["id"])); fnUpdate(3); })
+					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 3));
 		}).onSubmitForm("#test", form => {
 			if (!fnValidate(form))
 				return; // errores de validacion
 			RESUME.data.id 
-					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnUpdate().viewTab(2); })
-					: dom.api.post(ENDPOINT, RESUME.data).then(user => { data.push(user); fnUpdate().viewTab(2); });
+					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => fnUpdate(2))
+					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 2));
 		});
 	});
 
