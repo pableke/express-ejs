@@ -127,72 +127,71 @@ dom.ready(function() {
 	dom.onExitTab(() => console.log("exit tabs"));
 	dom.onShowTab(1, tab => console.log("show tab-1"));
 	dom.onLoadTab(2, tab => { //table and form handlers
-		const DB = [
-			{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01", binary: 5}, 
-			{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1, binary: 7}, 
-			{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81, binary: 9}, 
-			{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35", binary: 3}, 
-			{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
-			{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47, binary: 6},
-			{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
-		];
-
+		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
+		const RESUME = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
 		const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat };
 		const STYLES = {
 			imp: i18n.isoFloat, fecha: i18n.fmtDate,
-			onRender: row => { resume.imp += (row.imp || 0); } // onRenderRow
+			onRender: row => { RESUME.imp += (row.imp || 0); } // onRenderRow
 		};
 
-		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
-		const resume = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
-
-		const fnLoad = row => dom.display("#test", row, STYLES).viewTab(3);
-		const fnCreate = row => { dom.createRow("#pruebas", resume, row).hide(".update-only"); fnLoad(row); }
-		const fnView = index => { dom.selectRow("#pruebas", data, resume, index).show(".update-only"); fnLoad(resume.data); }
-		const fnPaginate = arr => { data = arr; dom.repaginate("#pruebas", data, resume, STYLES).setFocus("#filter-name"); }
+		var data, server_data; // Continers
+		const fnCreate = row => !dom.createRow("#test", RESUME, STYLES, row).hide(".update-only");
+		const fnView = index => !dom.selectRow("#test", data, RESUME, STYLES, index).show(".update-only").viewTab(3);
+		const fnList = arr => { data = arr; dom.repaginate("#pruebas", data, RESUME, STYLES).setFocus("#filter-name"); }
+		const fnUpdate = msg => dom.updateTable("#pruebas", data, RESUME, STYLES).showOk("saveOk");
 		const fnValidate = form => {
 			var aux = dom.validate(form, {
-				testFormError: "form err", fecha: i18n.past, imp: i18n.gt0, name: i18n.required, memo: i18n.required
+				testFormError: "form err", fecha: i18n.leToday, imp: i18n.gt0, name: i18n.required, memo: i18n.required
 			});
-			return aux && Object.assign(resume.data, aux);
+			return aux && Object.assign(RESUME.data, aux);
 		}
 
-		var data, server_data; // Continers
-		const ENDPOINT = "https://jsonplaceholder.typicode.com";
-		dom.api.get(ENDPOINT + "/users").then(users => {
-			server_data = data = users; // Continers
+		const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
+		dom.api.get(ENDPOINT).then(users => { //call to simulate read data from server
+			const DB = [
+				{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01", binary: 5}, 
+				{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1, binary: 7}, 
+				{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81, binary: 9}, 
+				{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35", binary: 3}, 
+				{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
+				{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47, binary: 6},
+				{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
+			];
+
+			server_data = users; // Continers
 			users.forEach((user, i) => {
 				user.memo = DB[i]?.memo;
 				user.imp = DB[i]?.imp;
 				user.fecha = DB[i]?.fecha;
 				user.binary = DB[i]?.binary;
 			});
-			dom.table("#pruebas", data, resume, STYLES);
+			fnList(users);
 		});
 
 		// Eventos de las tablas de consulta
 		dom.onRenderTable("#pruebas", (table, ev) => {
-			resume.imp = 0; // Init. resume: onRenderTable before onRenderRow
+			RESUME.imp = 0; // Init. resume: onRenderTable before onRenderRow
 			dom.toggleHide("a[href='#clear-pruebas']", !data.length);
 		});
 		dom.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
 			.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
-			.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, resume, STYLES))
+			.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, RESUME, STYLES))
 			.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-			//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, resume, STYLES))
-			.onTable("#pruebas", "sort-name", table => { delete resume.sort; })
-			.onTable("#pruebas", "sort-memo", table => { resume.sort = fnMemo; }) // default sort as string
-			.onTable("#pruebas", "sort-imp", table => { resume.sort = (a, b) => nb.cmp(a.imp, b.imp); })
-			.onTable("#pruebas", "sort-fecha", table => { delete resume.sort; }) // default sort as string (isoDate)
-			.onTable("#pruebas", "sort", table => dom.table(table, data, resume, STYLES))
-			.onChangeInput("#page-size", el => { resume.pageSize = +el.value; fnPaginate(data) });
+			//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, RESUME, STYLES))
+			.onTable("#pruebas", "sort-name", table => { delete RESUME.sort; })
+			.onTable("#pruebas", "sort-memo", table => { RESUME.sort = fnMemo; }) // default sort as string
+			.onTable("#pruebas", "sort-imp", table => { RESUME.sort = (a, b) => nb.cmp(a.imp, b.imp); })
+			.onTable("#pruebas", "sort-fecha", table => { delete RESUME.sort; }) // default sort as string (isoDate)
+			.onSortTable("#pruebas", table => dom.table(table, data, RESUME, STYLES))
+			.onChangeInput("#page-size", el => { RESUME.pageSize = +el.value; fnList(data) });
 
 		// Eventos de control para el filtro de la tabla
 		dom.setRangeDate("#f1", "#f2") // Filter range date
-			.addClick("a.create-data", () => fnCreate({}));
+			.onClick("a.create-data", () => fnCreate({}));
 		dom.onResetForm("#filter", form => {
 			setTimeout(function() { // Do what you need after reset the form
-				fnPaginate(server_data); // server call = dom.send(form).then(users => { server_data = users; fnPaginate(users); });
+				fnList(server_data); // server call = dom.send(form).then(fnList);
 			}, 1);
 			// Do what you need before reset the form
 			return dom.closeAlerts(); // default = reset
@@ -201,30 +200,28 @@ dom.ready(function() {
 			const fields = ["name", "memo"]; // Strings ilike filter
 			const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
 			dom.closeAlerts().load(form, FILTER, PARSERS);
-			fnPaginate(server_data.filter(fnFilter)); // server call = dom.send(form).then(users => { fnPaginate(users); });
+			fnList(server_data.filter(fnFilter)); // server call = dom.send(form).then(fnList);
 		});
 
 		// Eventos de control para el formulario de datos
 		dom.addClick("a[href='#first-item']", el => fnView(0))
-			.addClick("a[href='#prev-item']", el => fnView(resume.index - 1))
-			.addClick("a[href='#next-item']", el => fnView(resume.index + 1))
+			.addClick("a[href='#prev-item']", el => fnView(RESUME.index - 1))
+			.addClick("a[href='#next-item']", el => fnView(RESUME.index + 1))
 			.addClick("a[href='#last-item']", el => fnView(data.length))
-			.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, resume, STYLES))
-			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
+			.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, RESUME, STYLES))
+			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
 		dom.addClick("button#clone", el => {
 			if (!fnValidate(el.form))
 				return; // errores de validacion
-			const promise = resume.data.id 
-						? dom.api.put(ENDPOINT + "/users/" + resume.data.id, resume.data).then(user => fnCreate(ab.flush(user, ["id"])))
-						: dom.api.post(ENDPOINT + "/users", resume.data).then(user => data.push(user));
-			promise.then(() => dom.updateTable("#pruebas", data, resume, STYLES).showOk("saveOk"));
+			RESUME.data.id 
+					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ab.flush(user, ["id"])); fnUpdate(); })
+					: dom.api.post(ENDPOINT, RESUME.data).then(user => { data.push(user); fnUpdate(); });
 		}).onSubmitForm("#test", form => {
 			if (!fnValidate(form))
 				return; // errores de validacion
-			const promise = resume.data.id 
-						? dom.api.put(ENDPOINT + "/users/" + resume.data.id, resume.data)
-						: dom.api.post(ENDPOINT + "/users", resume.data).then(user => data.push(user));
-			promise.then(() => dom.updateTable("#pruebas", data, resume, STYLES).viewTab(2).showOk("saveOk"));
+			RESUME.data.id 
+					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnUpdate().viewTab(2); })
+					: dom.api.post(ENDPOINT, RESUME.data).then(user => { data.push(user); fnUpdate().viewTab(2); });
 		});
 	});
 

@@ -647,24 +647,9 @@ function DomBox(opts) {
 			// Confirm, close prev. alerts and trigger remove event
 			let ok = table && data && i18n.confirm(styles?.remove || "remove");
 			if (ok && self.closeAlerts().trigger(table, "remove", resume.data).isOk()) {
-				resume.size--; // Update size
-				resume.total--; // Update total numrows
-				self.selectRow(table, data, resume, resume.index);
-				resume.row?.remove(); // Remove row element
 				data.splice(resume.index, 1); // Remove data row
-				if (resume.total == 0) { // Is empty table?
-					fnRendetTfoot(table, resume, styles); // First render footer
-					fnToggleTbody(table); // Toggle body if no data
-					fnPagination(table, data, resume, styles); // Render asociated pages
-				}
-				else if (resume.size == 0) { // Is empty Page?
-					resume.start = 0; // Go first page
-					fnRenderRows(table, data, resume, styles); // Build table rows
-				}
-				else {
-					fnRendetTfoot(table, resume, styles); // First render footer
-					fnPagination(table, data, resume, styles); // Render asociated pages
-				}
+				resume.start = (resume.size > 1) ? resume.start : 0; // If empty Page => Go first page
+				fnRenderRows(table, data, resume, styles); // Build table rows
 			}
 			return self;
 		}
@@ -673,24 +658,22 @@ function DomBox(opts) {
 			table = self.getTable(table); // Search table
 			return table ? fnRenderRows(table, data, resume, styles) : self;
 		}
-		self.selectRow = function(table, data, resume, index) {
-			table = self.getTable(table); // Search table
-			index = nb.range(index, 0, data.length - 1);
+		function fnDisplayRow(form, resume, styles, row, index) {
 			resume.index = index; // Current position
-			resume.data = data[index]; // Current data row
-			const tbody = table.tBodies[0]; // Data rows
-			resume.row = nb.between(index, resume.start, resume.end) ? tbody.children[index - resume.start] : null;
-			return self;
-		}
-		self.createRow = function(table, resume, row) {
-			resume.index = -1; // Current position
 			resume.data = row; // Current data row
-			delete resume.row;
-			return self;
+			delete resume.row; // Not row selected
+			return self.display(form, row, styles);
 		}
-
-		self.list = (selector, data, resume, styles) => self.apply(selector, tables, table => fnRenderRows(table, data, resume, styles));
-		self.removeRow = (table, data, resume, styles) => fnRemoveRow(self.getTable(table), data, resume, styles);
+		self.selectRow = function(form, data, resume, styles, index) {
+			index = nb.range(index, 0, data.length - 1); // close range
+			return fnDisplayRow(form, resume, styles, data[index], index);
+		}
+		self.createRow = function(form, resume, styles, row) {
+			return fnDisplayRow(form, resume, styles, row, -1);
+		}
+		self.removeRow = function(table, data, resume, styles) {
+			return fnRemoveRow(self.getTable(table), data, resume, styles);
+		}
 
 		self.repaginate = function(table, data, resume, styles) {
 			resume.start = 0; // Go first page
