@@ -713,8 +713,8 @@ function DomBox(opts) {
 				fnToggleOrder(el); // Update all sort icons
 			});
 
-			// Toggle body if no data and is not a template
-			table.dataset.template || fnToggleTbody(table);
+			// Toggle body if no data and is not hide
+			isHide(table.tBodies[0]) || fnToggleTbody(table);
 		});
 		/**************** Tables/rows helper ****************/
 
@@ -737,8 +737,8 @@ function DomBox(opts) {
 		function fnShowTab(i) { //show tab by index
 			i = nb.range(i, 0, _tabSize); // Force range
 			self.closeAlerts(); // always close alerts
-			if (i == _tabIndex)
-				return self; // not change tab
+			if (i == _tabIndex) // is current tab
+				return self; // nothing to do
 			if ((i > 0) || (_tabIndex > 0)) { // Nav in tabs
 				const tab = tabs[i]; // get next tab
 				// Trigger show tab event (onShowTab) and change tab if all ok
