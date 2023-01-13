@@ -670,12 +670,8 @@ function DomBox(opts) {
 			index = nb.range(index, 0, data.length - 1); // close range
 			return fnDisplayRow(form, resume, styles, data[index], index);
 		}
-		self.createRow = function(form, resume, styles, row) {
-			return fnDisplayRow(form, resume, styles, row, -1);
-		}
-		self.removeRow = function(table, data, resume, styles) {
-			return fnRemoveRow(self.getTable(table), data, resume, styles);
-		}
+		self.createRow = (form, resume, styles, row) => fnDisplayRow(form, resume, styles, row, -1);
+		self.removeRow = (table, data, resume, styles) => fnRemoveRow(self.getTable(table), data, resume, styles);
 
 		self.repaginate = function(table, data, resume, styles) {
 			resume.start = 0; // Go first page
