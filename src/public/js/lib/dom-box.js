@@ -68,23 +68,21 @@ function DomBox(opts) {
 	}
 
 	// Iterators and Filters
+	const fnEach = (list, fn) => fnSelf(ab.each(fnQueryAll(list), fn));
 	this.each = function(list, fn) {
-		if (list) {
-			if (list.nodeType === 1)
-				fn(list); // Is DOMElement
-			else // Is Selector or NodeList
-				ab.each(fnQueryAll(list), fn);
-		}
+		if (list) // Is DOMElement, selector or NodeList
+			(list.nodeType == 1) ? fn(list) : fnEach(list, fn);
 		return self;
 	}
-	this.apply = (selector, list, cb) => self.each(list, el => el.matches(selector) && cb(el));
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
 	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
 	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
 	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
+	this.toArray = list => [...fnQueryAll(list)];
 	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
-	this.sort = (list, cb)  => [...fnQueryAll(list)].sort(cb);
-	this.map = (list, cb)  => [...fnQueryAll(list)].map(cb);
+	this.apply = (selector, list, fn) => fnEach(list, (el, i) => el.matches(selector) && fn(el, i));
+	this.sort = (list, cb)  => self.toArray(list).sort(cb);
+	this.map = (list, cb)  => self.toArray(list).map(cb);
 	this.values = list => self.map(list, el => el.value);
 
 	this.prev = (el, selector) => {
@@ -472,6 +470,7 @@ function DomBox(opts) {
 		self.getInput = elem => sb.isstr(elem) ? self.find(elem, inputs) : elem;
 		self.getInputs = elem => elem ? self.filter(elem, inputs) : inputs;
 
+		self.eachInput = (selector, fn) => self.apply(selector, inputs, fn);
 		self.getValue = el => { el = self.getInput(el); return el && el.value; }
 		self.setValue = (el, value) => { el = self.getInput(el); return el ? fnSetVal(el, value) : self; }
 		self.setValues = (selector, value) => self.apply(selector, inputs, input => fnSetVal(input, value));
@@ -779,11 +778,15 @@ function DomBox(opts) {
 		}
 
 		// Auto check-all inputs groups
-		self.each(self.getInputs(CHEK_GROUP_SELECTOR), el => {
-			const group = self.getInputs(CHEK_GROUP_SELECTOR + "-" + el.name);
+		self.eachInput(CHEK_GROUP_SELECTOR, el => {
+			const group = self.getInputs(CHEK_GROUP_SELECTOR + "-" + el.id);
 			self.checkval(el, group, +el.value)
 				.click(el, aux => { el.value = self.check(group, el.checked).integer(group); return true; })
 				.click(group, aux => self.checkval(el, group, self.integer(group)));
+		}).eachInput(CHEK_LIST_SELECTOR, el => {
+			const group = self.getInputs(CHEK_LIST_SELECTOR + "-" + el.id);
+			self.click(el, aux => self.check(group, el.checked))
+				.click(group, aux => { el.checked = ab.every(group, el => el.checked); return true; });
 		});
 
 		// Clipboard function

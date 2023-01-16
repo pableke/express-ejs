@@ -25,7 +25,7 @@ dom.ready(function() {
 	// End loading div
 
 	// Inputs formater
-	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
+	dom.eachInput(".ui-bool", el => { el.value = i18n.fmtBool(el.value); })
 		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 
@@ -36,18 +36,6 @@ dom.ready(function() {
 		dom.setText(dom.get(".counter", el.parentNode), value);
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
-
-	// Common validators for fields
-	dom.addError = dom.setError = dom.setInputError; // Synonym
-	dom.required = (el, msg) => dom.setError(el, msg, null, i18n.required);
-	dom.login = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.login);
-	dom.email = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.email);
-	dom.user = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.user);
-	dom.intval = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.intval);
-	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
-	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
-	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
-	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(selector, opts) {
@@ -93,7 +81,6 @@ dom.ready(function() {
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
 		});
 	}
-	// Extends dom-box actions
 
 	// Build tree menu as UL > Li > *
 	dom.each("ul.menu", menu => {
