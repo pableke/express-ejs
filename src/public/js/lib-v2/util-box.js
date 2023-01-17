@@ -111,8 +111,9 @@ dom.ready(function() {
 	});
 
 	// TABS events and handlers
-	dom.onExitTab(() => console.log("exit tabs"));
-	dom.onShowTab(1, tab => console.log("show tab-1"));
+	dom.onPrevTab(1, tab => console.log("prev event on tab-1"))
+		.onShowTab(1, tab => console.log("show event on tab-1"))
+		.onNextTab(1, tab => console.log("next event on tab-1"));
 	dom.onLoadTab(2, tab => { //table and form handlers
 		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
 		const RESUME = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
@@ -164,7 +165,7 @@ dom.ready(function() {
 		});
 		dom.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
 			.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
-			.addClick("a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, RESUME, STYLES))
+			.setClick(tab, "a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, RESUME, STYLES))
 			.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
 			//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, RESUME, STYLES))
 			.onTable("#pruebas", "sort-name", table => { delete RESUME.sort; })

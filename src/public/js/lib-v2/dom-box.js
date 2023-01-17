@@ -418,6 +418,7 @@ function DomBox(opts) {
 
 	this.click = (list, fn) => self.each(list, (el, i) => fnEvent(el, "click", i, fn));
 	this.addClick = (el, fn) => fnAddEvent(fnQuery(el), "click", fn);
+	this.setClick = (parent, selector, fn) => fnAddEvent(self.get(selector, parent), "click", fn);
 	this.onclick = this.onClick = self.click;
 
 	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, "change", i, fn));
@@ -542,13 +543,9 @@ function DomBox(opts) {
 			else
 				self.hide(list[0]).show(list[1]);
 		}
-		function fnRendetTfoot(table, resume, styles) {
-			// Trigger event after change data and before render it, after redraw footer
-			return self.trigger(table, "render").render(table.tFoot, tpl => sb.format(resume, tpl, styles));
-		}
 		self.tfoot = function(table, resume, styles) {
-			table = self.getTable(table); // find table on tables array
-			return table ? fnRendetTfoot(table, resume, styles) : self; // Render footer
+			table = self.getTable(table); // find table and trigger event after change data and before render it (after redraw footer)
+			return table ? self.trigger(table, "render").render(table.tFoot, tpl => sb.format(resume, tpl, styles)) : self; // Render footer
 		}
 
 		function fnRenderRows(table, data, resume, styles) {
@@ -726,32 +723,31 @@ function DomBox(opts) {
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
 		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
-		self.onLoadTab = (id, fn) => self.onTab(id, "tab-" + id, fn, { once: true });
-		self.onShowTab = (id, fn) => self.onTab(id, "tab-" + id, fn);
+		self.onPrevTab = (id, fn) => self.onTab(id, "prev-tab", fn);
+		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
+		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
+		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
 		self.onChangeTab = (id, fn) => self.onTab(id, "change", fn);
-		self.onExitTab = fn => fnAddEvent(tabs[0], "exit", fn);
 
 		function fnShowTab(i) { //show tab by index
-			i = nb.range(i, 0, _tabSize); // Force range
 			self.closeAlerts(); // always close alerts
+			i = nb.range(i, 0, _tabSize); // Force range
 			if (i == _tabIndex) // is current tab
 				return self; // nothing to do
-			if ((i > 0) || (_tabIndex > 0)) { // Nav in tabs
-				const tab = tabs[i]; // get next tab
-				// Trigger show tab event (onShowTab) and change tab if all ok
-				if (self.trigger(tab, tab.id).isOk()) {
-					const progressbar = self.get("#progressbar");
-					if (progressbar) { // progressbar is optional
-						const step = "step-" + i; //go to a specific step on progressbar
-						self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
-					}
-					_tabIndex = i; // set current index
-					self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
-						.setFocus(tab).scroll(); // Auto set focus and scroll
+			const tab = tabs[i]; // get next tab
+			const currentTab = tabs[_tabIndex]; // get current tab
+			// Trigger prev o next tab event and after show tab event (show-tab) and change tab if all ok
+			var ok = (i < _tabIndex) ? self.trigger(currentTab, "prev-tab").isOk() : self.trigger(currentTab, "next-tab").isOk();
+			if (ok && self.trigger(tab, "show-tab").isOk()) {
+				const progressbar = self.get("#progressbar");
+				if (progressbar) { // progressbar is optional
+					const step = "step-" + i; //go to a specific step on progressbar
+					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
 				}
+				_tabIndex = i; // set current index
+				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
+					.setFocus(tab).scroll(); // Auto set focus and scroll
 			}
-			else // Is first tab and click on prev button
-				self.trigger(tab, "exit"); // Trigger exit event
 			return self;
 		}
 
