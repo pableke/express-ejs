@@ -11,7 +11,6 @@ function I18nBox() {
 	const MSGS = new Map(); // Messages container
 	const KEY_ERROR = "msgError"; // Error name message
 
-	const modules = {}; // Languages for modules
 	const langs = { // Main language container
 		en: {
 			lang: "en", // English
@@ -144,19 +143,30 @@ function I18nBox() {
 
 	let _lang = langs.es; // Default language
 
-	this.getLangs = function(mod) {
-		return modules[mod] || langs;
+	this.getLangs = () => langs;
+	this.getCurrent = () => _lang;
+	this.getLang = lang => langs[lang] || langs[lang && lang.substr(0, 2)] || _lang;
+	this.setLang = (lang, data) => { langs[lang] = data; return self; }
+	this.addLang = (lang, data) => self.setLang(Object.assign(langs[lang] || {}, data));
+	this.addLangs = langs => { for (const k in langs) self.addLang(k, langs[k]); return self; }
+	this.loadLang = lang => { _lang = self.getLang(lang); return self; }
+	this.getI18n = self.getLang;
+	this.setI18n = self.setLang;
+
+	this.getModule = (mod, lang) => lang ? langs[mod][lang] : langs[mod];
+	this.setModule = (mod, lang, data) => {
+		langs[mod] = langs[mod] || {}; // Create new module
+		langs[mod][lang] = data;
+		return self;
 	}
-	this.getLang = function(lang, mod) {
-		let aux = self.getLangs(mod);
-		return aux[lang] || _lang;
+	this.addModule = (mod, lang, data) => {
+		langs[mod] = langs[mod] || {}; // Create new module
+		langs[mod][lang] = Object.assign(langs[mod][lang] || {}, langs[lang], data);
+		return self;
 	}
-	this.getI18n = function(lang, mod) {
-		let aux = self.getLangs(mod); // find module language
-		return lang ? (aux[lang] || aux[lang.substr(0, 2)] || _lang) : _lang;
-	}
-	this.setI18n = function(lang, mod) {
-		_lang = self.getI18n(lang, mod);
+	this.loadModule = (mod, lang) => {
+		lang = lang || _lang.lang; // default lang id
+		_lang = langs[mod][lang] || langs[lang] || _lang;
 		return self;
 	}
 
@@ -165,21 +175,6 @@ function I18nBox() {
 	this.set = (name, value) => { _lang[name] = value; return self; }
 	this.msg = (name, data, opts) => sb.format(data, self.tr(name), opts);
 	this.format = (tpl, opts) => sb.format(_lang, tpl, opts);
-
-	this.addLang = function(lang, data, mod) {
-		if (mod) { // Add default messages to specific module
-			let aux = modules[mod] = modules[mod] || {}; // Create if not exists
-			aux[lang] = Object.assign(aux[lang] || {}, langs[lang], data);
-		}
-		else
-			langs[lang] = Object.assign(langs[lang] || {}, data);
-		return self;
-	}
-	this.addLangs = function(langs, mod) {
-		for (const k in langs)
-			self.addLang(k, langs[k], mod);
-		return self;
-	}
 
 	// Shortcuts
 	this.toInt = str => _lang.toInt(str);
@@ -267,8 +262,9 @@ function I18nBox() {
 	this.idlist = (name, value, msg, msgtip) => self.valid(name, valid.idlist(value), msg, msgtip ?? "errRegex");
 	this.email = (name, value, msg, msgtip) => self.valid(name, valid.email(value), msg, msgtip ?? "errCorreo");
 
-	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.isDate(value), msg, msgtip ?? "errDate");
+	this.isDate = (name, value, msg, msgtip) => self.valid(name, valid.date(value), msg, msgtip ?? "errDate");
 	this.past = (name, value, msg, msgtip) => self.valid(name, valid.past(value), msg, msgtip ?? "errDateLe");
+	this.leToday = (name, value, msg, msgtip) => self.valid(name, valid.leToday(value), msg, msgtip ?? "errDateGe");
 	this.future = (name, value, msg, msgtip) => self.valid(name, valid.future(value), msg, msgtip ?? "errDateGt");
 	this.geToday = (name, value, msg, msgtip) => self.valid(name, valid.geToday(value), msg, msgtip ?? "errDateGe");
 

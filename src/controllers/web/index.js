@@ -1,6 +1,6 @@
 
-const util = require("app/lib/util-box.js");
+import util from "app/lib/util-box.js";
 
-exports.index = (req, res) => {
+export const index = (req, res) => {
 	util.render(res, "tests/index");
 };

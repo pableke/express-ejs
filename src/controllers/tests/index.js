@@ -1,15 +1,14 @@
 
-const fs = require("fs"); //file system
-const path = require("path"); //file and directory paths
-const cp = require("child_process"); //system calls
-const i18n = require("app/lib/i18n-box.js");
-const util = require("app/lib/util-box.js");
+import fs from "fs"; //file system
+import path from "path"; //file and directory paths
+import cp from "child_process"; //system calls
+import util from "app/lib/util-box.js";
 
-exports.index = (req, res) => {
+export const index = (req, res) => {
 	util.render(res, "tests/index");
 }
 
-exports.email = (req, res, next) => {
+export const email = (req, res, next) => {
 	util.setBody(res, "tests/index").sendMail({
 		to: "pableke@gmail.com",
 		subject: req.body.asunto,
@@ -25,7 +24,7 @@ const users = [ // JSON DB for tests
 	{ name: "fila 3", imp:24566.95675, fCreacion: "2022-01-01T10:22:53" }
 ];
 
-exports.xls = function(req, res) {
+export const xls = function(req, res) {
 	util.xls(res, {
 		filename: "tests.xlsx",
 		author: "Pablo Rosique Vidal",
@@ -38,11 +37,11 @@ exports.xls = function(req, res) {
 	});
 }
 
-exports.zip = function(req, res) {
+export const zip = function(req, res) {
 	util.zip(res, "tests.zip", ["tests.xlsx", "Gestión_Documental.pdf", "Guías_Docentes.pdf"].map(util.getFile));
 }
 
-exports.pdf = (req, res, next) => {
+export const pdf = (req, res, next) => {
 	res.locals.users = users;
 	util.setBody(res, "tests/index")
 		.pdf(res, "tests/reports/test.ejs")
