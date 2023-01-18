@@ -7,10 +7,11 @@
 import express from "express"; //infraestructura web
 import session from "express-session"; //session handler
 import * as uuid from "uuid"; //generate random ids
-import { PORT, DIR_PUBLIC, DIR_VIEWS, SESSION_SECRET, SESSION_NAME } from "./config.js";
 
 import dao from "app/dao/factory.js"; // DAO factory
 import util from "app/lib/util-box.js"; // Util helpers
+import routes from "./routes/routes.js"; // All routes
+import { PORT, DIR_PUBLIC, DIR_VIEWS, SESSION_SECRET, SESSION_NAME } from "./config.js";
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -49,18 +50,17 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response function helpers
-	res.on("finish", () => util.i18n.reset()); // Close response event
+	//res.on("finish", () => util.i18n.reset()); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = util.i18n.setI18n(lang).get("lang"); // Set language id
-	res.locals.i18n = util.i18n.getLang(); // Set texts on view
+	req.session.lang = res.locals.lang = util.i18n.loadLang(lang).get("lang"); // Set language id
 
 	// Load specific user menus or public menus on view
-	res.locals.menus = req.session.menus || dao.web.myjson.menus.getPublic(lang);
+	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);
 	next(); //go next middleware
 });
-//app.use(require("./routes/routes.js")); //add all routes
+app.use(routes); // Use all routes
 app.use((err, req, res, next) => { //global handler error
 	if (util.sb.isstr(err)) // Exception or message to string
 		util.i18n.setError(err); // i18n key or string

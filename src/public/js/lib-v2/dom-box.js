@@ -735,10 +735,8 @@ function DomBox(opts) {
 			if (i == _tabIndex) // is current tab
 				return self; // nothing to do
 			const tab = tabs[i]; // get next tab
-			const currentTab = tabs[_tabIndex]; // get current tab
-			// Trigger prev o next tab event and after show tab event (show-tab) and change tab if all ok
-			var ok = (i < _tabIndex) ? self.trigger(currentTab, "prev-tab").isOk() : self.trigger(currentTab, "next-tab").isOk();
-			if (ok && self.trigger(tab, "show-tab").isOk()) {
+			// Trigger prev or next tab event and after show tab event (show-tab) and change tab if all ok
+			if (self.trigger(tabs[_tabIndex], (i < _tabIndex) ? "prev-tab" : "next-tab").isOk() && self.trigger(tab, "show-tab").isOk()) {
 				const progressbar = self.get("#progressbar");
 				if (progressbar) { // progressbar is optional
 					const step = "step-" + i; //go to a specific step on progressbar

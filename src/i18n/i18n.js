@@ -1,4 +1,6 @@
 
+import i18n from "../lib/i18n-box.js"
+
 import en from "./en.js";
 import es from "./es.js";
 
@@ -8,8 +10,9 @@ import test_es from "./test/es.js";
 import web_en from "./web/en.js";
 import web_es from "./web/es.js";
 
-export default {
-	main: { en, es }, // Default
-	test: { en: test_en, es: test_es }, // Test module
-	web: { en: web_en, es: web_es } // Web module
-};
+
+i18n.addLang("en", en).addLang("es", es);
+i18n.addModule("test", "en", test_en).addModule("test", "es", test_es);
+i18n.addModule("web", "en", web_en).addModule("web", "es", web_es);
+
+export default i18n;

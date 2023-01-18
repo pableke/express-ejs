@@ -13,15 +13,12 @@
 	<!-- google fonts -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap">
 
-	<!-- Styles css jquery + animateCSS -->
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-	<link rel="stylesheet" href="/public/css/styles.min.css" type="text/css" />
+	<!-- CSS Styles -->
+	<link rel="stylesheet" href="/public/css/styles.min.css">
 	<link rel="manifest" href="/public/manifest.json" />
 
-	<!-- jQuery, jQuery UI, fontawesome -->
-	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+	<!-- JS Scripts -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="https://kit.fontawesome.com/76f12cea70.js" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="/public/js/lib-min.js"></script>
 </head>
@@ -49,23 +46,23 @@
 
 	<div class="alerts">
 		<div class="alert alert-success hide">
-			<div class="alert-icon"><img src="/public/img/png/check.png"></div>
-			<div class="alert-text"><%=msgs.get("msgOk")%></div>
+			<div class="alert-icon"><i class="fas fa-check-circle fa-3x"></i></div>
+			<div class="alert-text">ok!</div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-info hide">
-			<div class="alert-icon"><img src="/public/img/png/info-about.png"></div>
-			<div class="alert-text"><%=msgs.get("msgInfo")%></div>
+			<div class="alert-icon"><i class="fas fa-info fa-3x"></i></div>
+			<div class="alert-text"></div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-warn hide">
-			<div class="alert-icon"><img src="/public/img/png/warning2.png"></div>
-			<div class="alert-text"><%=msgs.get("msgWarn")%></div>
+			<div class="alert-icon"><i class="fas fa-exclamation-triangle fa-3x"></i></div>
+			<div class="alert-text">Aviso</div>
 			<div class="alert-close">&times;</div>
 		</div>
 		<div class="alert alert-danger hide">
-			<div class="alert-icon"><img src="/public/img/png/error.png"></div>
-			<div class="alert-text"><%=msgs.get("msgError")%></div>
+			<div class="alert-icon"><i class="fas fa-exclamation fa-3x"></i></div>
+			<div class="alert-text">Error</div>
 			<div class="alert-close">&times;</div>
 		</div>
 	</div>
