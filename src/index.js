@@ -11,7 +11,7 @@ import * as uuid from "uuid"; //generate random ids
 import dao from "app/dao/factory.js"; // DAO factory
 import util from "app/lib/util-box.js"; // Util helpers
 import routes from "./routes/routes.js"; // All routes
-import { PORT, DIR_PUBLIC, DIR_VIEWS, SESSION_SECRET, SESSION_NAME } from "./config.js";
+import config from "./config.js"; // Configurations
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -21,14 +21,14 @@ import { PORT, DIR_PUBLIC, DIR_VIEWS, SESSION_SECRET, SESSION_NAME } from "./con
 const app = express(); // Instance
 // Template engines for views
 app.set("view engine", "ejs");
-app.set("views", DIR_VIEWS);
+app.set("views", config.DIR_VIEWS);
 
 app.locals._tplBody = "web/index"; // Default body
 app.locals.msgs = util.i18n.getMsgs(); // Set messages
 app.locals.body = {}; // Set data on response
 
 // Express configurations
-app.use("/public", express.static(DIR_PUBLIC)); // static files
+app.use("/public", express.static(config.DIR_PUBLIC)); // static files
 app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
 app.use(express.json({ limit: "90mb" }));
 
@@ -38,8 +38,8 @@ app.use(session({ //session config
 	rolling: true, // Reset expiration to maxAge
 	saveUninitialized: false,
 	genid: req => uuid.v1(), //use UUIDs for session IDs
-	secret: SESSION_SECRET,
-	name: SESSION_NAME,
+	secret: config.SESSION_SECRET,
+	name: config.SESSION_NAME,
 	cookie: {
 		secure: false, //require https
 		sameSite: true, //blocks CORS requests on cookies. This will affect the workflow on API calls and mobile applications
@@ -50,11 +50,12 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response function helpers
-	//res.on("finish", () => util.i18n.reset()); // Close response event
+	res.on("finish", () => util.i18n.reset()); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
 	req.session.lang = res.locals.lang = util.i18n.loadLang(lang).get("lang"); // Set language id
+	//res.locals.i18n = util.i18n.getCurrent();
 
 	// Load specific user menus or public menus on view
 	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);
@@ -75,17 +76,17 @@ app.use((err, req, res, next) => { //global handler error
 });
 app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		util.text(res, util.i18n.get("err404"), 404); //ajax response
+		util.msg(res, "err404", 404); //ajax response
 	else
 		util.render(res, "errors/404", 404); //show 404 page
 });
 
 // Start servers (db's and http)
-const server = app.listen(PORT, err => {
+const server = app.listen(config.PORT, err => {
 	if (err) // If error => stop
 		return console.log(err);
 	dao.open(); //open db's factories
-	console.log("> Server listening on http://localhost:" + PORT);
+	console.log("> Server listening on http://localhost:" + config.PORT);
 });
 
 //capture Node.js Signals and Events

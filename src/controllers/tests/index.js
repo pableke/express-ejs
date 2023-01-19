@@ -1,10 +1,22 @@
 
-import fs from "fs"; //file system
-import path from "path"; //file and directory paths
-import cp from "child_process"; //system calls
 import util from "app/lib/util-box.js";
 
 export const index = (req, res) => {
+	util.render(res, "tests/index");
+}
+
+export const lang = (req, res, next) => {
+	util.lang(res, "test");
+	next();
+}
+
+export const save = (req, res) => {
+	console.log("req", req.body);
+	util.msg(res, "saveOk");
+}
+
+export const saveAndList = (req, res) => {
+	console.log("req", req.body);
 	util.render(res, "tests/index");
 }
 
@@ -43,7 +55,5 @@ export const zip = function(req, res) {
 
 export const pdf = (req, res, next) => {
 	res.locals.users = users;
-	util.setBody(res, "tests/index")
-		.pdf(res, "tests/reports/test.ejs")
-		.catch(next);
+	util.setBody(res, "tests/index").pdf(res, "tests/reports/test.ejs").catch(next);
 }

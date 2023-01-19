@@ -85,9 +85,10 @@ function DomBox(opts) {
 		const opts = { action: form.action };
 		opts.method = method || form.method; //method-override
 		opts.tokenName = tokenName || form.dataset.tokenName; //jwt name
+		self.eachInput(CHEK_GROUP_SELECTOR, el => fd.set(el.name, el.value)); //force add binaries as single value
 		opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).then(msg => self.setOk(form, msg)).catch(self.setErrors);
+		return self.fetch(opts).catch(self.setErrors);
 	}
 
 	function fnFetchJSON(action, method, data) { // CREATE
@@ -452,7 +453,7 @@ function DomBox(opts) {
 		const texts = self.getAll("." + CONFIG.classAlertText, alerts);
 		const showAlert = el => self.fadeIn(el.parentNode);
 		const closeAlert = el => self.fadeOut(el.parentNode);
-		const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, txt).scroll() : self;
+		const setAlert = (el, txt) => txt ? showAlert(el).setHtml(el, i18n.tr(txt)).scroll() : self;
 
 		self.showOk = msg => setAlert(texts[0], msg); //green
 		self.showInfo = msg => setAlert(texts[1], msg); //blue

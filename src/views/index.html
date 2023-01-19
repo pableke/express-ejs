@@ -219,7 +219,8 @@
 			</div>
 
 			<form id="test" action="test" method="post">
-			<input type="hidden" id="id" name="id" value="" />
+			<!-- reset form not to aplly for hidden inputs -->
+			<input type="text" id="id" name="id" value="" class="hide" />
 
 			<div class="navbar">
 				<div class="ui-group ui-block">
@@ -251,10 +252,10 @@
 					<label for="binary" class="inline">All:</label><input id="binary" type="checkbox" name="binary" class="check-group ui-check">
 				</div>
 				<div class="ui-group ui-row"> <!-- check-list checked subgroup by id -->
-					<label for="check-list1" class="inline">check1:</label><input id="check-list1" type="checkbox" name="values" class="check-list-values ui-check">
-					<label for="check-list2" class="inline">check2:</label><input id="check-list2" type="checkbox" name="values" class="check-list-values ui-check">
-					<label for="check-list3" class="inline">check3:</label><input id="check-list3" type="checkbox" name="values" class="check-list-values ui-check">
-					<label for="check-list4" class="inline">check4:</label><input id="check-list4" type="checkbox" name="values" class="check-list-values ui-check">
+					<label for="check-list1" class="inline">check1:</label><input id="check-list1" type="checkbox" name="values" value="1" class="check-list-values ui-check">
+					<label for="check-list2" class="inline">check2:</label><input id="check-list2" type="checkbox" name="values" value="2" class="check-list-values ui-check">
+					<label for="check-list3" class="inline">check3:</label><input id="check-list3" type="checkbox" name="values" value="3" class="check-list-values ui-check">
+					<label for="check-list4" class="inline">check4:</label><input id="check-list4" type="checkbox" name="values" value="4" class="check-list-values ui-check">
 					<label for="values" class="inline">All:</label><input id="values" type="checkbox" class="check-list ui-check">
 				</div>
 				<div class="ui-group ui-row">
