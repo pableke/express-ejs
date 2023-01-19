@@ -46,19 +46,6 @@ exports.check = function(req, res, next) {
 		next(ex);
 	}
 }
-exports.auth = function(req, res, next) {
-	res.setBody(TPL_LOGIN); //if error => go login
-	if (!req.session || !req.sessionID) //not session found
-		return next("err401");
-	// Update session helper
-	req.session.redirTo = !req.xhr && (req.method == "GET") && req.originalUrl;
-	if (!req.session.user) //user not logged
-		return next("err401");
-	if (req.session.cookie.maxAge < 1) //time session expired
-		return next("endSession");
-	delete req.session.redirTo;
-	next(); //next middleware
-}
 
 exports.token = function(req, res, next) {
 	try {

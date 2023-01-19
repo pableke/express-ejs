@@ -1,14 +1,14 @@
 
 import mysql from "mysql"; // MySql connector
-import { MYSQL_HOST, MYSQL_NAME, MYSQL_PORT, MYSQL_USER, MYSQL_PASS } from "../../../config.js"
+import config from "../../../config.js"
 
 const pool = mysql.createPool({
-	host: MYSQL_HOST,
-	database: MYSQL_NAME,
+	host: config.MYSQL_HOST,
+	database: config.MYSQL_NAME,
 	connectionLimit: 10,
-	port: MYSQL_PORT,
-	user: MYSQL_USER,
-	password: MYSQL_PASS
+	port: config.MYSQL_PORT,
+	user: config.MYSQL_USER,
+	password: config.MYSQL_PASS
 });
 
 pool.exec = function(sql) {

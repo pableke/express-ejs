@@ -14,15 +14,18 @@ import dt from "./date-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 import valid from "./validator-box.js";
-import i18n from "./i18n-box.js";
-import { DIR_FILES, DIR_VIEWS, GMAIL_USER, GMAIL_PASS } from "../config.js";
+import i18n from "../i18n/i18n.js";
+import config from "../config.js";
 
 function UtilBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
-	this.text = (res, msg, status) => { res.setHeader("content-type", "text/plain").status(status || 200).send(msg); return self; }
-	this.msgs = (res, status) => { res.status(status || 200).json(i18n.toMsgs()); return self; }
+	this.lang = (res, mod) => { res.locals.i18n = i18n.loadModule(mod).getCurrent(); return self; }
+	this.json = (res, data, status) => { res.status(status || 200).json(data); return self; }
+	this.text = (res, txt, status) => { res.setHeader("content-type", "text/plain").status(status || 200).send(txt); return self; }
+	this.msg = (res, msg, status) => self.text(res, i18n.tr(msg), status);
+	this.msgs = (res, status) => self.json(res, i18n.toMsgs(), status);
 	this.error = (res, status) => (i18n.getNumMsgs() > 1) ? self.msgs(res, status) : self.text(res, i18n.getError(), status);
 
 	this.render = function(res, tpl, status) {
@@ -40,8 +43,8 @@ function UtilBox() {
 	}
 
 	/******************* send file to client *******************/
-	this.getFile = filename => path.join(DIR_FILES, filename);
-	this.getView = filename => path.join(DIR_VIEWS, filename);
+	this.getFile = filename => path.join(config.DIR_FILES, filename);
+	this.getView = filename => path.join(config.DIR_VIEWS, filename);
 	this.sendFile = function(res, filename, type) {
 		const filepath = self.getFile(filename);
 		const stat = fs.statSync(filepath);
@@ -89,8 +92,8 @@ function UtilBox() {
 	/******************* upload multipart files *******************/
 	const UPLOADS = {
 		keepExtensions: true,
-		uploadDir: path.join(DIR_FILES, "uploads"),
-		thumbDir: path.join(DIR_FILES, "thumbs"),
+		uploadDir: path.join(config.DIR_FILES, "uploads"),
+		thumbDir: path.join(config.DIR_FILES, "thumbs"),
 		maxFieldsSize: 30 * 1024 * 1024, //30mb
 		maxFileSize: 60 * 1024 * 1024, //60mb
 		maxFields: 1000,
@@ -135,8 +138,8 @@ function UtilBox() {
 		service: "gmail",
 		secure: true,
 		auth: {
-			user: GMAIL_USER,
-			pass: GMAIL_PASS
+			user: config.GMAIL_USER,
+			pass: config.GMAIL_PASS
 		}
 	});
 

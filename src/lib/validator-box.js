@@ -21,7 +21,9 @@ function ValidatorBox() {
 	const RE_DIGITS = /^\d+$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
-	const RE_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+	const RE_DATE = /^\d{4}-[01]\d-[0-3]\d/;
+	const RE_TIME = /[0-2]\d:[0-5]\d:[0-5]\d[\.\d{1,3}]?$/;
+	const RE_DATE_TIME = /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[\.\d{1,3}]?$/;
 	const RE_LOGIN = /^[\w#@&°!§%;:=\^\/\(\)\?\*\+\~\.\,\-\$]{8,}$/;
 	const RE_IPv4 = /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
 	const RE_IPv6 = /^([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}$/;
@@ -74,6 +76,8 @@ function ValidatorBox() {
 
 	this.regex = (re, value) => sb.test(sb.trim(value), re);
 	this.date = value => self.regex(RE_DATE, value);
+	this.time = value => self.regex(RE_TIME, value);
+	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
 	this.login = value => self.regex(RE_LOGIN, value);
 	this.digits = value => self.regex(RE_DIGITS, value);
 	this.idlist = value => self.regex(RE_IDLIST, value);
@@ -83,23 +87,18 @@ function ValidatorBox() {
 		return value && value.toLowerCase();
 	}
 
-	this.isDate = function(str) {
-		let date = dt.toDate(str);
-		return isDate(date) ? date : null;
-	}
-	this.past = function(str) {
-		let date = dt.toDate(str);
-		return dt.past(date) ? date : null;
-	}
-	this.future = function(str) {
-		let date = dt.toDate(str);
-		return dt.future(date) ? date : null;
-	}
-	this.geToday = function(str) {
-		let date = dt.toDate(str);
-		return dt.geToday(date) ? date : null;
-	}
+	// Date validations in string iso format (ej: "2022-05-11T12:05:01")
+	const systime = (new Date()).toISOString().substring(0, 19); // exclude ms
+	const sysdate = systime.substring(0, 10);
+	const eqSize = (s1, s2) => (sb.size(s1) == sb.size(s2));
+	this.past = str => (eqSize(str, sysdate) && (str < sysdate)) ? str : null;
+	this.dtPast = str => (eqSize(str, systime) && (str < systime)) ? str : null;
+	this.leToday = str => (eqSize(str, sysdate) && (str <= sysdate)) ? str : null;
+	this.future = str => (eqSize(str, sysdate) && (str > sysdate)) ? str : null;
+	this.dtFuture = str => (eqSize(str, systime) && (str > systime)) ? str : null;
+	this.geToday = str => (eqSize(str, sysdate) && (str >= sysdate)) ? str : null;
 
+	// Persons ID's
 	function fnLetraDni(value) {
 		const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
 		let letra = letras.charAt(parseInt(value, 10) % 23);
@@ -150,6 +149,7 @@ function ValidatorBox() {
 		return self.dni(value) || self.cif(value) || self.nie(value);
 	}
 
+	// Bancks entities and credit cards
 	this.iban = function(IBAN) {
 		const CODE_LENGTHS = {
 			AD: 24, AE: 23, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BR: 29,
