@@ -13,8 +13,8 @@ import ab from "./array-box.js";
 import dt from "./date-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
+import i18n from "./i18n-box.js";
 import valid from "./validator-box.js";
-import i18n from "../i18n/i18n.js";
 import config from "../config.js";
 
 function UtilBox() {
