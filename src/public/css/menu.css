@@ -33,7 +33,7 @@ ul.menu .nav-tri:after { content: "\25B6"; }
 /* Breadcrumb pagination */
 ul.breadcrumb { padding: 10px 16px; list-style: none; background-color: #eee; }
 ul.breadcrumb li { display: inline; font-size: 12px; }
-ul.breadcrumb li+li:before { padding: 8px; color: black; content: "/\00a0"; }
+ul.breadcrumb li+li:before { padding: 8px; color: black; content: "\002F"; }
 ul.breadcrumb li a { color: #0275d8; text-decoration: none; }
 ul.breadcrumb li a:hover { color: #01447e; text-decoration: underline; }
 /* Breadcrumb pagination */
@@ -50,6 +50,12 @@ ul.tags li {
 }
 ul.tags li:hover { background-color: crimson; color: white; }
 /* Tags */
+
+/* UL inline list */
+ul.inline { padding: 10px 16px; list-style: none; }
+ul.inline li { display: inline; }
+ul.inline li+li:before { padding: 8px; color: black; content: "\007C"; }
+/* UL inline list */
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media screen and (max-width: 575.98px) {

@@ -3,6 +3,7 @@ import dt from "./date-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 import valid from "./validator-box.js";
+import langs from "../i18n/i18n.js";
 
 /**
  * Internacionalization module require: 
@@ -284,4 +285,9 @@ function I18nBox() {
 	this.creditCardNumber = (name, value, msg, msgtip) => self.valid(name, valid.creditCardNumber(value), msg, msgtip ?? "errRegex");
 }
 
-export default new I18nBox();
+const i18n = new I18nBox();
+i18n.addLang("en", langs.en).addLang("es", langs.es);
+i18n.addModule("test", "en", langs.test_en).addModule("test", "es", langs.test_es);
+i18n.addModule("web", "en", langs.web_en).addModule("web", "es", langs.web_es);
+
+export default i18n;
