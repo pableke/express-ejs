@@ -9,9 +9,9 @@ import session from "express-session"; //session handler
 import * as uuid from "uuid"; //generate random ids
 
 import dao from "app/dao/factory.js"; // DAO factory
-import util from "app/lib/util-box.js"; // Util helpers
+import util from "app/mod/node-box.js"; // Util helpers
 import routes from "./routes/routes.js"; // All routes
-import config from "./config.js"; // Configurations
+import config from "app/dist/config.js"; // Configurations
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),

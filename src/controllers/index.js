@@ -1,5 +1,5 @@
 
-import util from "app/lib/util-box.js";
+import util from "app/mod/node-box.js";
 
 const TPL_LOGIN = "web/forms/login";
 const TPL_ADMIN = "web/list/index";

@@ -1,6 +1,6 @@
 
 const path = require("path"); //file and directory paths
-const myjson = require("app/lib/myjson.js");
+const myjson = require("app/mod/myjson.js");
 const menus = require("./menus.js");
 const users = require("./users.js");
 const um = require("./users-menus.js");

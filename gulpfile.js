@@ -3,7 +3,8 @@
 //npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
 import fs from "fs"; //file system module
 import path from "path"; //file and directory paths
-import gulp from "gulp";
+import url from "url"; // Url handler
+import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
 import minifyejs from "gulp-minify-ejs";
 import uglify from 'gulp-uglify';
@@ -15,19 +16,12 @@ import strip from "gulp-strip-comments";
 //const rename from "gulp-rename");
 
 // Settings
+const FOLDERS = [ "dist", "dist/controllers", "dist/dao", "dist/i18n", "dist/routes" ];
+const MODULES = [ "src/*.js", "src/controllers/**/*.js", "src/dao/**/*.js", "src/i18n/**/*.js", "src/routes/**/*.js" ];
 const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs" ];
-const MODULES = [ "src/*.js", "src/routes/**/*.js", "src/lib/**/*.js", "src/i18n/**/*.js", "src/dao/**/*.js", "src/controllers/**/*.js", "certs/*.pem" ]
-const CSS_FILES = [
-	"src/public/css/style.css", "src/public/css/menu.css", "src/public/css/progressbar.css", "src/public/css/form.css", "src/public/css/table.css", "src/public/css/print.css"
-];
-const JS_LIB = [
-	"src/public/js/lib-v2/array-box.js", "src/public/js/lib-v2/date-box.js", "src/public/js/lib-v2/dom-box.js", "src/public/js/lib-v2/graph-box.js", 
-	"src/public/js/lib-v2/i18n-box.js", "src/public/js/lib-v2/number-box.js", "src/public/js/lib-v2/string-box.js", "src/public/js/lib-v2/tree-box.js", 
-	"src/public/js/lib-v2/validator-box.js", "src/public/js/lib-v2/util-box.js"
-];
-const JS_WEB = [
-	"src/public/js/web/form.js"
-];
+const CSS_FILES = [ "src/public/css/web/**/*.css" ];
+const JS_MOD = [ "src/public/js/mod/**/*.js", "src/public/js/mod/**/*.mjs" ];
+const JS_WEB = [ "src/public/js/web/**/*.js", "src/public/js/web/**/*.mjs" ];
 const JS_UAE = [
 	"src/public/js/lib/array-box.js", "src/public/js/lib/date-box.js", "src/public/js/lib/dom-box.js", "src/public/js/lib/i18n-box.js", 
 	"src/public/js/lib/number-box.js", "src/public/js/lib/string-box.js", "src/public/js/lib/validator-box.js", "src/public/js/uae/util-box.js"
@@ -36,24 +30,23 @@ const JS_UAE_IRSE = [
 	"src/public/js/uae/irse/i18n.js", "src/public/js/uae/irse/perfil.js", "src/public/js/uae/irse/organicas.js", "src/public/js/uae/irse/imputacion.js", 
 	"src/public/js/uae/irse/rutas.js", "src/public/js/uae/irse/dietas.js", "src/public/js/uae/irse/irse.js"
 ];
-const JS_UAE_PRESTO = [
-	"src/public/js/uae/presto/i18n.js", "src/public/js/uae/presto/nav.js", "src/public/js/uae/presto/apli.js", "src/public/js/uae/presto/presto.js"
-];
-const JS_UAE_XECO = [
-	"src/public/js/uae/xeco/i18n.js", "src/public/js/uae/xeco/xeco.js"
-];
+const JS_UAE_PRESTO = [ "src/public/js/uae/presto/**/*.js", "src/public/js/uae/presto/**/*.mjs" ];
+const JS_UAE_XECO = [ "src/public/js/uae/xeco/**/*.js", "src/public/js/uae/xeco/**/*.mjs" ];
 
 // Task to minify all views (HTML's and EJS's)
-gulp.task("minify-html", () => {
+gulp.task("minify-html", done => {
 	const config = {
 		collapseWhitespace: true,
 		removeComments: false, //removeComments => remove CDATA
 		removeRedundantAttributes: true //remove attr with default value
 	};
-	return gulp.src(HTML_PATH)
-				.pipe(strip()).pipe(htmlmin(config)).pipe(cssInline()).pipe(minifyejs())
+	var stream = gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(config)).pipe(cssInline()).pipe(minifyejs())
 				//.pipe(replace('<base href="src/">', '<base href="dist/">'))
 				.pipe(gulp.dest("dist/views"));
+	stream.on("end", () => {
+		gulp.src("dist/views").pipe(gulp.symlink("node_modules/app"));
+		done();
+	});
 });
 
 // Tasks to minify CSS's
@@ -67,12 +60,12 @@ gulp.task("minify-css", () => {
 });
 
 // Tasks to minify JS's
-gulp.task("minify-js", () => {
-	return gulp.src(JS_LIB)
-				.pipe(concat("lib-min.js"))
-				.pipe(uglify())
-				.pipe(gulp.dest("src/public/js"))
-				.pipe(gulp.dest("dist/public/js"));
+gulp.task("minify-js", done => {
+	var stream = gulp.src(JS_MOD).pipe(uglify()).pipe(gulp.dest("dist/public/js/mod"));
+	stream.on("end", () => {
+		gulp.src("dist/public/js/mod").pipe(gulp.symlink("node_modules/app"));
+		done();
+	});
 });
 gulp.task("minify-js-web", () => {
 	return gulp.src(JS_WEB)
@@ -112,44 +105,29 @@ gulp.task("minify-js-uae-xeco", () => {
 
 // Tasks to copy sources to dist
 gulp.task("copy-modules", () => {
-	gulp.src(MODULES[0]).pipe(gulp.dest("dist"));
-	gulp.src(MODULES[1]).pipe(gulp.dest("dist/routes"));
-	gulp.src(MODULES[2]).pipe(gulp.dest("dist/lib"));
-	gulp.src(MODULES[3]).pipe(gulp.dest("dist/i18n"));
-	gulp.src(MODULES[4]).pipe(gulp.dest("dist/dao"));
-	gulp.src(MODULES[5]).pipe(gulp.dest("dist/controllers"));
-	return gulp.src(MODULES[6]).pipe(gulp.dest("dist/certs"));
+	FOLDERS.forEach(dir => (fs.existsSync(dir) || fs.mkdirSync(dir)));
+	MODULES.forEach((mod, i) => gulp.src(mod).pipe(gulp.dest(FOLDERS[i])));
+	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
+	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
+	return gulp.src("src/public/img/**/*").pipe(gulp.dest("dist/public/img"));
 });
 
 // Task to create symlink in root => node_modules
 gulp.task("symlinks", () => {
-	//ln -s ../../src/controllers/web/public node_modules/app
-	//mv node_modules/app/controllers node_modules/app/ctrl
-	//cp -r node_modules/app/controllers node_modules/app/ctrl
-	//gulp.src("src/config.js", { followSymlinks: false, nodir: true })
-		//.pipe(gulp.symlink("node_modules/app", { overwrite: true, relativeSymlinks: true }));
-	gulp.src("src/controllers").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("src/dao").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("src/i18n").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("src/lib").pipe(gulp.symlink("node_modules/app"));
-	return gulp.src("src/views").pipe(gulp.symlink("node_modules/app"));
-});
+	gulp.src("dist/dao").pipe(gulp.symlink("node_modules/app"));
+	gulp.src("dist/i18n").pipe(gulp.symlink("node_modules/app"));
+	gulp.src("dist/controllers").pipe(gulp.symlink("node_modules/app"));
 
-// Tasks to copy files once
-gulp.task("copy-files", () => {
-	if (fs.existsSync("dist/dbs"))
-		return gulp; //initialize statics once
-	gulp.src("src/dbs/**/*").pipe(gulp.dest("dist/dbs"));
-	gulp.src("src/public/*.json").pipe(gulp.dest("dist/public"));
-	gulp.src("src/public/files/**/*").pipe(gulp.dest("dist/public/files"));
-	return gulp.src("src/public/img/**/*").pipe(gulp.dest("dist/public/img"));
+	gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
+	//const root = url.fileURLToPath(new URL(".", import.meta.url));
+	//fs.symlink(root + "dist/config.js", root + "node_modules/app", console.error);
 });
 
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(MODULES, gulp.series("copy-modules"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
-	gulp.watch(JS_LIB, gulp.series("minify-js"));
+	gulp.watch(JS_MOD, gulp.series("minify-js"));
 	gulp.watch(JS_WEB, gulp.series("minify-js-web"));
 	gulp.watch(JS_UAE, gulp.series("minify-js-uae"));
 	gulp.watch(JS_UAE_IRSE, gulp.series("minify-js-uae-irse"));
@@ -161,5 +139,5 @@ gulp.task("watch", () => {
 gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
 									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", "minify-js-uae-presto", "minify-js-uae-xeco",
-									"copy-modules", "symlinks", "copy-files", 
+									"copy-modules", "symlinks", 
 									"watch"));

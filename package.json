@@ -7,7 +7,7 @@
   "scripts": {
     "build": "gulp",
     "test": "node --no-warnings ./tests/i18n.test.js",
-    "dev": "nodemon --watch src --ignore src/public --ignore src/dbs ./dist/index.js",
+    "dev": "nodemon --watch src --ignore src/dbs ./dist/index.js",
     "start": "node ./dist/index.js"
   },
   "keywords": [],

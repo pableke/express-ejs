@@ -1,15 +1,10 @@
 
-// Configure JS client
-const ab = new ArrayBox(); //array-box
-const dt = new DateBox(); //datetime-box
-const gb = new GraphBox(); //graph-box structure
-const nb = new NumberBox(); //number box
-const sb = new StringBox(); //string box
-const tb = new TreeBox(); //tree-box structure
-
-const valid = new ValidatorBox(); //validators
-const i18n = new I18nBox(); //messages
-const dom = new DomBox(); //HTML-DOM box
+import ab from "./array-box.js";
+import nb from "./number-box.js";
+import sb from "./string-box.js";
+import i18n from "./i18n-box.js";
+import valid from "./validator-box.js";
+import dom from "./dom-box.js";
 
 //DOM is fully loaded
 dom.ready(function() {
@@ -130,9 +125,7 @@ dom.ready(function() {
 		const fnUpdate = (tab, msg) => dom.updateTable("#pruebas", data, RESUME, STYLES).viewTab(tab).showOk(msg || "saveOk");
 		const fnPost = (obj, tab, msg) => { data.push(obj); fnUpdate(tab, msg); };
 		const fnValidate = form => {
-			var aux = dom.validate(form, {
-				testFormError: "errForm", fecha: i18n.leToday, imp: i18n.gt0, name: i18n.required, memo: i18n.required
-			});
+			var aux = dom.validate(form);
 			return aux && Object.assign(RESUME.data, aux);
 		}
 
@@ -208,11 +201,11 @@ dom.ready(function() {
 					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 3));
 		}).onSubmitForm("#test", form => {
 			return fnValidate(form) && !dom.send(form).then(msg => fnUpdate(2, msg));
-			if (!fnValidate(form))
+			/*if (!fnValidate(form))
 				return; // errores de validacion
 			RESUME.data.id 
 					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => fnUpdate(2))
-					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 2));
+					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 2));*/
 		});
 	});
 

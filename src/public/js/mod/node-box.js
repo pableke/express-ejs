@@ -15,9 +15,10 @@ import nb from "./number-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
 import valid from "./validator-box.js";
-import config from "../config.js";
+import langs from "app/i18n/langs.js";
+import config from "app/dist/config.js";
 
-function UtilBox() {
+function NodeBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
@@ -27,6 +28,7 @@ function UtilBox() {
 	this.msg = (res, msg, status) => self.text(res, i18n.tr(msg), status);
 	this.msgs = (res, status) => self.json(res, i18n.toMsgs(), status);
 	this.error = (res, status) => (i18n.getNumMsgs() > 1) ? self.msgs(res, status) : self.text(res, i18n.getError(), status);
+	this.err = res => self.error(res, 500);
 
 	this.render = function(res, tpl, status) {
 		self.setBody(res, tpl);
@@ -250,7 +252,11 @@ function UtilBox() {
 	this.i18n = i18n;
 }
 
-export default new UtilBox();
+i18n.addLang("en", langs.en).addLang("es", langs.es);
+i18n.setModule("test", "en", langs.test_en).setModule("test", "es", langs.test_es);
+i18n.setModule("web", "en", langs.web_en).setModule("web", "es", langs.web_es);
+
+export default new NodeBox();
 
 /*exports.post = function(req, res, next) {
 	let rawData = ""; // Buffer

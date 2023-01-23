@@ -1,7 +1,7 @@
 
 const fetch = require("node-fetch"); //ajax calls
 const dao = require("app/dao/factory.js");
-const util = require("app/lib/util-box.js");
+const util = require("app/mod/util-box.js");
 
 exports.view = function(req, res) {
 	res.build("web/forms/public/reactive");
