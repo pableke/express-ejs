@@ -1,6 +1,6 @@
 
-const ab = require("app/lib/array-box.js");
-const sb = require("app/lib/string-box.js");
+const ab = require("app/mod/array-box.js");
+const sb = require("app/mod/string-box.js");
 
 // Menus DAO
 module.exports = function(table) {

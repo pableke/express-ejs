@@ -1,6 +1,6 @@
 
 const bcrypt = require("bcrypt"); //encrypt
-const i18n = require("app/lib/i18n-box.js");
+const i18n = require("app/mod/i18n-box.js");
 
 // User DAO
 module.exports = function(table) {

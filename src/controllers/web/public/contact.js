@@ -1,6 +1,6 @@
 
-const i18n = require("app/lib/i18n-box.js");
-const util = require("app/lib/util-box.js");
+const i18n = require("app/mod/i18n-box.js");
+const util = require("app/mod/util-box.js");
 
 const TPL_CONTACT = "web/forms/public/contact";
 

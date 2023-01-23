@@ -1,5 +1,5 @@
 
-import util from "app/lib/util-box.js";
+import util from "app/mod/node-box.js";
 
 export const index = (req, res) => {
 	util.render(res, "tests/index");
@@ -12,7 +12,10 @@ export const lang = (req, res, next) => {
 
 export const save = (req, res) => {
 	console.log("req", req.body);
-	util.msg(res, "saveOk");
+	
+	util.i18n.validate(req.body); /*? util.msg(res, "saveOk") :*/ 
+	util.i18n.setError("errForm");
+	util.err(res);
 }
 
 export const saveAndList = (req, res) => {

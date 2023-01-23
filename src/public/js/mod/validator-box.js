@@ -1,11 +1,10 @@
 
-import dt from "./date-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 
 /**
  * ValidatorBox module require
- * StringBox (sb), DateBox (dt) and NumberBox (nb)
+ * StringBox (sb) and NumberBox (nb)
  * 
  * @module ValidatorBox
  */

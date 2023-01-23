@@ -1,8 +1,8 @@
 
 const dao = require("app/dao/factory.js");
-const valid = require("app/lib/validator-box.js");
-const util = require("app/lib/util-box.js");
-//const pagination = require("app/lib/pagination.js");
+const valid = require("app/mod/validator-box.js");
+const util = require("app/mod/util-box.js");
+//const pagination = require("app/mod/pagination.js");
 
 // View config
 const TPL_LIST = "web/list/menu/menus";

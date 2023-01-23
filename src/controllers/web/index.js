@@ -1,5 +1,5 @@
 
-import util from "app/lib/util-box.js";
+import util from "app/mod/node-box.js";
 
 export const index = (req, res) => {
 	util.render(res, "tests/index");

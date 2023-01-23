@@ -1,4 +1,9 @@
 
+import ab from "./array-box.js";
+import nb from "./number-box.js";
+import sb from "./string-box.js";
+import i18n from "./i18n-box.js";
+
 /**
  * Vanilla JS DOM-Box module, require:
  * ArrayBox (ab), NumberBox (nb), StringBox (sb) and i18nBox (i18n)
@@ -71,14 +76,16 @@ function DomBox(opts) {
 		if (token) // token to be sended to server
 			opts.headers["Authorization"] = "Bearer " + token;
 		return window.fetch(opts.action, opts).then(res => {
-			if (!res.ok) // status ok = 200
-				return Promise.reject("Error " + res.status + " " + res.url);
-			token = res.headers.get(opts.tokenName);
-			if (token) // token to be returned to server
-				window.sessionStorage.setItem(opts.tokenName, token);
 			const contentType = res.headers.get("content-type") || EMPTY; //response type
-			return contentType.includes("application/json") ? res.json() : res.text(); //response
-		}).catch(self.showError).finally(self.working); //set error handler and close loading...
+			const promise = contentType.includes("application/json") ? res.json() : res.text();
+			if (res.ok) { // status ok = 200
+				token = res.headers.get(opts.tokenName);
+				if (token) // token to be returned to server
+					window.sessionStorage.setItem(opts.tokenName, token);
+				return promise;
+			}
+			return promise.then(data => { self.setErrors(data); return Promise.reject(data); });
+		}).finally(self.working); //set error handler and close loading...
 	}
 	this.send = function(form, method, tokenName) {
 		const fd = new FormData(form);
@@ -88,13 +95,13 @@ function DomBox(opts) {
 		self.eachInput(CHEK_GROUP_SELECTOR, el => fd.set(el.name, el.value)); //force add binaries as single value
 		opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).catch(self.setErrors);
+		return self.fetch(opts);
 	}
 
 	function fnFetchJSON(action, method, data) { // CREATE
 		const opts = { action, method, body: JSON.stringify(data) };
 		opts.headers = { "Content-Type": "application/json; charset=utf-8" };
-		return self.fetch(opts).catch(self.setErrors);
+		return self.fetch(opts);
 	}
 	this.api = { // API REST full ej: https://jsonplaceholder.typicode.com/users
 		get: action => self.fetch({ action }), // READ
@@ -253,19 +260,16 @@ function DomBox(opts) {
 		return fn(el.name, el.value, msg, msgtip) ? self : fnSetError(el);
 	}
 	this.validateInputs = (inputs, validators, messages) => {
-		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
-
+		validators = validators || {}; // Default container
 		messages.msgError = messages.msgError || validators.msgError;
 		return fnValidate(inputs, validators, messages);
 	}
 	this.validate = (form, validators, messages) => {
 		form = self.getForm(form); // Get form
-		validators = validators || {}; // Default container
 		messages = messages || {}; // View messages
-
-		const key = form.getAttribute("id") + "FormError"; // Specific key error message
-		messages.msgError = messages[key] || validators[key] || messages.msgError || validators.msgError;
+		validators = validators || i18n.getForm(form.getAttribute("id")); // Default container
+		messages.msgError = messages.msgError || validators.msgError;
 		return fnValidate(self.filter(INPUTS, form.elements), validators, messages);
 	}
 
@@ -463,7 +467,7 @@ function DomBox(opts) {
 			return msgs ? self.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : self;
 		}
 		self.closeAlerts = function() { // Hide all alerts
-			i18n.start(); // Reinit error counter
+			i18n.reset(); // Reinit error counter
 			const tips = self.getAll(TIP_ERR_SELECTOR); //tips messages
 			return self.each(texts, closeAlert).removeClass(inputs, CONFIG.classInputError).html(tips, "").hide(tips);
 		}
@@ -786,3 +790,5 @@ function DomBox(opts) {
 		document.body.prepend(TEXT);
 	});
 }
+
+export default new DomBox();
