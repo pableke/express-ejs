@@ -12,10 +12,7 @@ export const lang = (req, res, next) => {
 
 export const save = (req, res) => {
 	console.log("req", req.body);
-	
-	util.i18n.validate(req.body); /*? util.msg(res, "saveOk") :*/ 
-	util.i18n.setError("errForm");
-	util.err(res);
+	util.i18n.validate(req.body) ? util.msg(res, "saveOk") : util.err(res);
 }
 
 export const saveAndList = (req, res) => {
