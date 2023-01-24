@@ -1,0 +1,19 @@
+
+import i18n from "./i18n-core.js";
+
+export default {
+	msgError: "errForm",
+	fecha: i18n.leToday, imp: i18n.gt0, 
+	name: i18n.required, memo: i18n.required,
+
+	login: {
+		msgError: "errUserNotFound",
+		usuario: i18n.user, clave: i18n.login
+	},
+
+	contact: {
+		msgError: "errSendContact",
+		nombre: i18n.required, correo: i18n.email,
+		asunto: i18n.required, info: i18n.required
+	}
+};
