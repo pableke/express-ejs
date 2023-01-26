@@ -1,5 +1,10 @@
 
+import fs from "fs"; //file system module
+import path from "path"; //file and directory paths
+import formidable from "formidable"; //file uploads
+import sharp from "sharp"; //image resizer
 import util from "app/mod/node-box.js";
+import config from "app/dist/config.js";
 
 const TPL_LOGIN = "web/forms/login";
 const TPL_ADMIN = "web/list/index";
@@ -100,3 +105,45 @@ export const destroy = function(req, res) {
 	fnLogout(req); //onclose even client
     res.status(200).send("ok"); //response ok
 }
+
+/******************* upload multipart files *******************/
+const UPLOADS = {
+	keepExtensions: true,
+	uploadDir: path.join(config.DIR_FILES, "uploads"),
+	thumbDir: path.join(config.DIR_FILES, "thumbs"),
+	maxFieldsSize: 30 * 1024 * 1024, //30mb
+	maxFileSize: 60 * 1024 * 1024, //60mb
+	maxFields: 1000,
+	multiples: true
+};
+
+export const multipart = function(req, res, next) { //validate all form post
+	const form = formidable(UPLOADS); //file upload options
+	const fields = req.body = {}; //fields container
+
+	form.on("field", function(field, value) {
+		fields[field] = value;
+	});
+	form.on("fileBegin", function(field, file) {
+		let name = path.basename(file.path).replace("upload_", "");
+		file.path = path.join(path.dirname(file.path), name);
+	});
+	form.on("file", function(field, file) {
+		fields[field] = fields[field] || [];
+		if (file.size < 1) //empty uploaded file
+			return fs.unlink(file.path, err => {});
+		if (file.type.startsWith("image")) {
+			sharp(file.path)
+				.resize({ width: 250 })
+				.toFile(path.join(UPLOADS.thumbDir, path.basename(file.path)))
+				//.then(info => console.log(info))
+				.catch(err => console.log(err));
+		}
+		fields[field].push(file);
+	});
+	form.once("error", err => next(err));
+	form.once("end", () => next());
+	form.parse(req);
+	return self;
+}
+/******************* upload multipart files *******************/

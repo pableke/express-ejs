@@ -47,9 +47,9 @@ dom.ready(function() {
 		opts.open = opts.open || fnFalse; //triggered if the value has changed
 		opts.focus = opts.focus || fnFalse; //no change focus on select
 		opts.load = opts.load || fnFalse; //triggered when select an item
-		opts.sort = opts.sort || data => data; //sort array data received
+		opts.sort = opts.sort || ((data) => data); //sort array data received
 		opts.remove = opts.remove || fnFalse; //triggered when no item selected
-		opts.render = opts.render || () => "-"; //render on input
+		opts.render = opts.render || (() => "-"); //render on input
 		opts.search = (ev, ui) => _search; //lunch source
 		opts.select = function(ev, ui) { //triggered when select an item
 			opts.load(ui.item, this, fnGetIds(this)); //update inputs

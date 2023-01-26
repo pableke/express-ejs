@@ -104,28 +104,41 @@ function I18nBox() {
 	// Validators
 	const fnValid = (name, value, msg, msgtip) => !(sb.isset(value) ? DATA.set(name, value) : self.setError(msg, name, msgtip));
 	this.required = (name, value, msg) => fnValid(name, valid.required(value), msg, "errRequired");
+	this.required10 = (name, value, msg) => fnValid(name, valid.required10(value), msg, "errRequired");
+	this.required50 = (name, value, msg) => fnValid(name, valid.required50(value), msg, "errRequired");
+	this.required100 = (name, value, msg) => fnValid(name, valid.required100(value), msg, "errRequired");
+	this.required200 = (name, value, msg) => fnValid(name, valid.required200(value), msg, "errRequired");
+	this.required500 = (name, value, msg) => fnValid(name, valid.required500(value), msg, "errRequired");
+
 	this.size10 = (name, value, msg, msgtip) => fnValid(name, valid.size10(value), msg, msgtip ?? "errMaxlength");
 	this.size50 = (name, value, msg, msgtip) => fnValid(name, valid.size50(value), msg, msgtip ?? "errMaxlength");
+	this.size100 = (name, value, msg, msgtip) => fnValid(name, valid.size100(value), msg, msgtip ?? "errMaxlength");
 	this.size200 = (name, value, msg, msgtip) => fnValid(name, valid.size200(value), msg, msgtip ?? "errMaxlength");
 	this.size300 = (name, value, msg, msgtip) => fnValid(name, valid.size300(value), msg, msgtip ?? "errMaxlength");
 
 	this.text10 = (name, value, msg, msgtip) => fnValid(name, valid.text10(value), msg, msgtip ?? "errMaxlength");
 	this.text50 = (name, value, msg, msgtip) => fnValid(name, valid.text50(value), msg, msgtip ?? "errMaxlength");
+	this.text100 = (name, value, msg, msgtip) => fnValid(name, valid.text100(value), msg, msgtip ?? "errMaxlength");
 	this.text200 = (name, value, msg, msgtip) => fnValid(name, valid.text200(value), msg, msgtip ?? "errMaxlength");
 	this.text300 = (name, value, msg, msgtip) => fnValid(name, valid.text300(value), msg, msgtip ?? "errMaxlength");
-	this.text = (name, value, msg, msgtip) => fnValid(name, valid.text(value), msg, msgtip ?? "errMaxlength");
 
 	this.fk = (name, value, msg, msgtip) => fnValid(name, valid.fk(value), msg, msgtip ?? "errNumber");
 	this.intval = (name, value, msg, msgtip) => fnValid(name, valid.intval(value), msg, msgtip ?? "errRange");
 	this.intval3 = (name, value, msg, msgtip) => fnValid(name, valid.intval3(value), msg, msgtip ?? "errRange");
+	this.intval9 = (name, value, msg, msgtip) => fnValid(name, valid.intval9(value), msg, msgtip ?? "errRange");
 	this.iGt0 = (name, value, msg, msgtip) => fnValid(name, valid.gt0(_lang.toInt(value)), msg, msgtip ?? "errNumber");
 	this.gt0 = (name, value, msg, msgtip) => fnValid(name, valid.gt0(_lang.toFloat(value)), msg, msgtip ?? "errGt0");
 
 	this.regex = (name, value, msg, msgtip) => fnValid(name, valid.regex(value), msg, msgtip ?? "errRegex");
+	this.word = (name, value, msg, msgtip) => fnValid(name, valid.word(value), msg, msgtip ?? "errRegex");
+	this.words = (name, value, msg, msgtip) => fnValid(name, valid.words(value), msg, msgtip ?? "errRegex");
 	this.login = (name, value, msg, msgtip) => fnValid(name, valid.login(value), msg, msgtip ?? "errRegex");
+	this.password = (name, value, msg, msgtip) => fnValid(name, valid.password(value), msg, msgtip ?? "errRegex");
+	this.email = (name, value, msg, msgtip) => fnValid(name, valid.email(value), msg, msgtip ?? "errCorreo");
+	this.code = (name, value, msg, msgtip) => fnValid(name, valid.code(value), msg, msgtip ?? "errRegex");
 	this.digits = (name, value, msg, msgtip) => fnValid(name, valid.digits(value), msg, msgtip ?? "errNumber");
 	this.idlist = (name, value, msg, msgtip) => fnValid(name, valid.idlist(value), msg, msgtip ?? "errRegex");
-	this.email = (name, value, msg, msgtip) => fnValid(name, valid.email(value), msg, msgtip ?? "errCorreo");
+	this.array = (name, value, msg, msgtip) => fnValid(name, valid.array(value), msg, msgtip ?? "errRegex");
 
 	this.isDate = (name, value, msg, msgtip) => fnValid(name, valid.date(value), msg, msgtip ?? "errDate");
 	this.past = (name, value, msg, msgtip) => fnValid(name, valid.past(value), msg, msgtip ?? "errDateLe");

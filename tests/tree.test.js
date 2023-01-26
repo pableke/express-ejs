@@ -1,7 +1,7 @@
 
 import test from "node:test";
 import assert from "node:assert";
-import tb from "app/lib/tree-box.js";
+import tb from "app/mod/tree-box.js";
 
 // Tree, group and resume
 const arr = [

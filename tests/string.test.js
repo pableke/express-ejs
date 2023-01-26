@@ -1,7 +1,7 @@
 
 import test from "node:test";
 import assert from "node:assert";
-import sb from "../src/lib/string-box.js";
+import sb from "app/mod/string-box.js";
 
 test("Wrap", () => {
 	assert.equal(sb.iwrap("23024374V - Pablo Rosique Vidal"), "23024374V - Pablo Rosique Vidal");

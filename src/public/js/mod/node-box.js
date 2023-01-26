@@ -5,8 +5,6 @@ import cp from "child_process"; //system calls
 //import qs from "querystring"; //parse post data
 import xls from "excel4node"; //JSON to Excel
 import nodemailer from "nodemailer"; //send emails
-import formidable from "formidable"; //file uploads
-import sharp from "sharp"; //image resizer
 import ejs from "ejs"; //tpl engine
 
 import ab from "./array-box.js";
@@ -91,48 +89,6 @@ function NodeBox() {
 	}
 	/******************* ZIP multiple files *******************/
 
-	/******************* upload multipart files *******************/
-	const UPLOADS = {
-		keepExtensions: true,
-		uploadDir: path.join(config.DIR_FILES, "uploads"),
-		thumbDir: path.join(config.DIR_FILES, "thumbs"),
-		maxFieldsSize: 30 * 1024 * 1024, //30mb
-		maxFileSize: 60 * 1024 * 1024, //60mb
-		maxFields: 1000,
-		multiples: true
-	};
-
-	this.multipart = function(req, res, next) { //validate all form post
-		const form = formidable(UPLOADS); //file upload options
-		const fields = req.body = {}; //fields container
-
-		form.on("field", function(field, value) {
-			fields[field] = value;
-		});
-		form.on("fileBegin", function(field, file) {
-			let name = path.basename(file.path).replace("upload_", "");
-			file.path = path.join(path.dirname(file.path), name);
-		});
-		form.on("file", function(field, file) {
-			fields[field] = fields[field] || [];
-			if (file.size < 1) //empty uploaded file
-				return fs.unlink(file.path, err => {});
-			if (file.type.startsWith("image")) {
-				sharp(file.path)
-					.resize({ width: 250 })
-					.toFile(path.join(UPLOADS.thumbDir, path.basename(file.path)))
-					//.then(info => console.log(info))
-					.catch(err => console.log(err));
-			}
-			fields[field].push(file);
-		});
-		form.once("error", err => next(err));
-		form.once("end", () => next());
-		form.parse(req);
-		return self;
-	}
-	/******************* upload multipart files *******************/
-
 	/******************* send html mails *******************/
 	// create reusable transporter object using the default SMTP transport
 	// allow non secure apps to access gmail: https://myaccount.google.com/lesssecureapps
@@ -153,22 +109,22 @@ function NodeBox() {
 			console.log("> Mail server is ready to take our messages");
 	});
 
-	this.sendMail = function(mail) {
-		const MESSAGE = {
-			from: "info@gmail.com", // sender address
-			to: "pablo.rosique@upct.es", // list of receivers
-			body: "tests/emails/test.ejs", // default template
-			subject: "Mailer no reply", // Subject line
-			text: "Email submitted", // plain text body
-			html: "<html><body>Email submitted</body></html>" // html contents
-			/*attachments: [ // array of attachment objects
-				{ filename: "text1.txt", content: "hello world!" }, // utf-8 string as an attachment
-				{ filename: "test.zip", content: fs.createReadStream("src/public/temp/test.zip") }, //stream as an attachment
-				{ filename: "license.txt", path: "https://raw.github.com/nodemailer/nodemailer/master/LICENSE" }, // use URL as an attachment
-				{ filename: "text2.txt", content: "aGVsbG8gd29ybGQh", encoding: "base64" } // encoded string as an attachment
-			]*/
-		};
+	const MESSAGE = {
+		from: "info@gmail.com", // sender address
+		to: "pablo.rosique@upct.es", // list of receivers
+		body: "tests/emails/test.ejs", // default template
+		subject: "Mailer no reply", // Subject line
+		text: "Email submitted", // plain text body
+		html: "<html><body>Email submitted</body></html>" // html contents
+		/*attachments: [ // array of attachment objects
+			{ filename: "text1.txt", content: "hello world!" }, // utf-8 string as an attachment
+			{ filename: "test.zip", content: fs.createReadStream("src/public/temp/test.zip") }, //stream as an attachment
+			{ filename: "license.txt", path: "https://raw.github.com/nodemailer/nodemailer/master/LICENSE" }, // use URL as an attachment
+			{ filename: "text2.txt", content: "aGVsbG8gd29ybGQh", encoding: "base64" } // encoded string as an attachment
+		]*/
+	};
 
+	this.sendMail = function(mail) {
 		mail = mail || MESSAGE;
 		mail.to = mail.to || MESSAGE.to;
 		mail.body = mail.body || MESSAGE.body;
