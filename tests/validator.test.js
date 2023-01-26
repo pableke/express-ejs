@@ -1,7 +1,7 @@
 
 import test from "node:test";
 import assert from "node:assert";
-import valid from "../src/lib/validator-box.js";
+import valid from "app/mod/validator-box.js";
 
 // Size validators
 test("String / text length", () => {
@@ -20,9 +20,10 @@ test("String / text length", () => {
 test("Integer / Floats ranges", () => {
 	assert.equal(valid.intval(), null);
 	assert.equal(valid.intval(""), null);
-	assert.equal(valid.intval(0), null);
+	assert.equal(valid.intval(0), 0);
 	assert.equal(valid.intval(9), 9);
-	assert.equal(valid.intval(10), null);
+	assert.equal(valid.intval3(10), null);
+	assert.equal(valid.intval(10), 10);
 
 	assert.equal(valid.gt0(), null);
 	assert.equal(valid.gt0(""), null);
@@ -38,6 +39,12 @@ test("Integer / Floats ranges", () => {
 test("E-Mails / Digits", () => {
 	assert.equal(valid.email(), null);
 	assert.equal(valid.email("asdf@asdf.com"), "asdf@asdf.com");
+
+	assert.deepEqual(valid.array(), null);
+	assert.deepEqual(valid.array(""), null);
+	assert.deepEqual(valid.array("13"), [13]);
+	assert.deepEqual(valid.array(["13", "0", "849"]), [13,0,849]);
+	assert.deepEqual(valid.array("1,000,0,234,754,7676"), [1,0,0,234,754,7676]);
 });
 
 // Type validators

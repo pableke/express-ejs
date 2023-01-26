@@ -18,6 +18,7 @@ function ValidatorBox() {
 
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
+	const RE_WORDS = /^\w+(,\w+)*$/;
 	const RE_IDLIST = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
 	const RE_DATE = /^\d{4}-[01]\d-[0-3]\d/;
@@ -41,49 +42,59 @@ function ValidatorBox() {
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
 	const minify = sb.toUpperWord;
+	const fnRange = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
+	const between = (str, min, max) => nb.between(sb.size(str), min, max) ? str : null; // for String and Arrays
+	const fnSplit = str => between(sb.split(str, ","), 1, 100); // for String and Arrays
 
 	// Validators
-	this.range = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
-	this.gt0 = num => self.range(num, .0001, 1e9); // Float range great than 0
-	this.intval = num => self.range(nb.intval(num), 1, 9);
-	this.intval3 = num => self.range(nb.intval(num), 1, 3);
-	this.intval5 = num => self.range(nb.intval(num), 1, 5);
-	this.fk = num => self.range(nb.intval(num), 1, Infinity);
+	this.intval = num => { var aux = parseInt(num); return isNaN(aux) ? null : aux; }
+	this.intval3 = num => fnRange(nb.intval(num), 1, 3);
+	this.intval5 = num => fnRange(nb.intval(num), 1, 5);
+	this.intval9 = num => fnRange(nb.intval(num), 1, 9);
+	this.range = (num, min, max) => fnRange(num, min, max);
+	this.fk = num => fnRange(nb.intval(num), 1, Infinity);
+	this.gt0 = num => fnRange(num, .0001, 1e9); // Float
 
-	this.size = function(str, min, max) {
-		str = sb.trim(str); // min/max string length
-		return nb.between(sb.size(str), min, max) ? str : null;
-	}
+	this.size = (str, min, max) => between(sb.trim(str), min, max);
 	this.required = value => self.size(value, 1, 1000);
+	this.required10 = value => self.size(value, 1, 10);
+	this.required50 = value => self.size(value, 1, 50);
+	this.required100 = value => self.size(value, 1, 100);
+	this.required200 = value => self.size(value, 1, 200);
+	this.required500 = value => self.size(value, 1, 500);
+
 	this.size10 = str => self.size(str, 0, 10);
 	this.size50 = str => self.size(str, 0, 50);
+	this.size100 = str => self.size(str, 0, 100);
 	this.size200 = str => self.size(str, 0, 200);
 	this.size300 = str => self.size(str, 0, 300);
 
 	this.unescape = str => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
 	this.escape = str => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
 
-	function fnText(str, min, max) {
-		str = self.escape(str);
-		return nb.between(sb.size(str), min, max) ? str : null;
-	}
-	this.text10 = str => fnText(str, 0, 10);
-	this.text50 = str => fnText(str, 0, 50);
-	this.text200 = str => fnText(str, 0, 200);
-	this.text300 = str => fnText(str, 0, 300);
-	this.text = str => fnText(str, 0, 1000);
+	this.text = (str, min, max) => between(self.escape(str), min, max);
+	this.text10 = str => self.text(str, 0, 10);
+	this.text50 = str => self.text(str, 0, 50);
+	this.text100 = str => self.text(str, 0, 100);
+	this.text200 = str => self.text(str, 0, 200);
+	this.text300 = str => self.text(str, 0, 300);
 
 	this.regex = (re, value) => sb.test(sb.trim(value), re);
 	this.date = value => self.regex(RE_DATE, value);
 	this.time = value => self.regex(RE_TIME, value);
 	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
-	this.login = value => self.regex(RE_LOGIN, value);
+	this.word = value => self.regex(/\w+/, self.size50(value));
+	this.words = value => Array.isArray(value) ? value : fnSplit(self.regex(RE_WORDS, value));
+	this.login = value => self.regex(RE_LOGIN, self.size200(value));
+	this.password = value => self.regex(RE_LOGIN, self.size200(value));
+	this.swift = value => self.regex(RE_SWIFT, value);
+	this.email = value => sb.lower(self.regex(RE_MAIL, self.size200(value)));
+	this.code = value => sb.upper(self.regex(RE_LOGIN, self.size50(value)));
 	this.digits = value => self.regex(RE_DIGITS, value);
 	this.idlist = value => self.regex(RE_IDLIST, value);
-	this.swift = value => self.regex(RE_SWIFT, value);
-	this.email = function(value) {
-		value = self.regex(RE_MAIL, value);
-		return value && value.toLowerCase();
+	this.array = value => {
+		value = Array.isArray(value) ? value : fnSplit(self.idlist(value));
+		return value ? value.map(nb.intval) : value;
 	}
 
 	// Date validations in string iso format (ej: "2022-05-11T12:05:01")

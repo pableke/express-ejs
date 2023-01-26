@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "gulp",
-    "test": "node --no-warnings ./tests/i18n.test.js",
+    "test": "node --no-warnings ./tests/validator.test.js",
     "dev": "nodemon --watch dist --ignore dist/img --ignore dist/css ./dist/index.js",
+    "static": "live-server src/public --port=3001",
     "start": "node ./dist/index.js"
   },
   "keywords": [],
@@ -41,6 +42,7 @@
     "gulp-replace": "^1.1.3",
     "gulp-strip-comments": "^2.5.2",
     "gulp-uglify": "^3.0.2",
+    "live-server": "^1.2.2",
     "nodemon": "^2.0.7"
   },
   "repository": {
