@@ -87,13 +87,17 @@ function DomBox(opts) {
 			return promise.then(data => { self.setErrors(data); return Promise.reject(data); });
 		}).finally(self.working); //set error handler and close loading...
 	}
+	this.ajax = action => self.fetch({ action });
 	this.send = function(form, method, tokenName) {
 		const fd = new FormData(form);
 		const opts = { action: form.action };
 		opts.method = method || form.method; //method-override
 		opts.tokenName = tokenName || form.dataset.tokenName; //jwt name
-		self.eachInput(CHEK_GROUP_SELECTOR, el => fd.set(el.name, el.value)); //force add binaries as single value
-		opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
+		self.apply(CHEK_GROUP_SELECTOR, form.elements, el => fd.set(el.name, el.value)); //force add binaries as single value
+		if (opts.method == "get") // Form get => prams in url
+			opts.action += "?" + (new URLSearchParams(fd)).toString();
+		else
+			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
 		return self.fetch(opts);
 	}
@@ -113,18 +117,20 @@ function DomBox(opts) {
 
 	// Iterators and Filters
 	const fnEach = (list, fn) => fnSelf(ab.each(fnQueryAll(list), fn));
+	const fnReverse = (list, fn) => fnSelf(ab.reverse(list, fn));
 	this.each = function(list, fn) {
 		if (list) // Is DOMElement, selector or NodeList
 			(list.nodeType == 1) ? fn(list) : fnEach(list, fn);
 		return self;
 	}
-	this.reverse = (list, cb) => fnSelf(ab.reverse(list, cb));
+	this.reverse = (list, cb) => fnReverse(list, cb);
 	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
 	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
 	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
 	this.toArray = list => [...fnQueryAll(list)];
 	this.filter = (selector, list) => [...list].filter(el => el.matches(selector));
 	this.apply = (selector, list, fn) => fnEach(list, (el, i) => el.matches(selector) && fn(el, i));
+	this.applyReverse = (selector, list, fn) => fnReverse(list, (el, i) => el.matches(selector) && fn(el, i));
 	this.sort = (list, cb)  => self.toArray(list).sort(cb);
 	this.map = (list, cb)  => self.toArray(list).map(cb);
 	this.values = list => self.map(list, el => el.value);
@@ -156,7 +162,8 @@ function DomBox(opts) {
 	}
 
 	// Inputs and focusables selectors
-	const INPUTS = "input,textarea,select";
+	const INPUTS = "input,select,textarea";
+	const FIELDS = "input[name],select[name],textarea[name]";
 	const fnVisible = el => (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
 	const fnFocus = input => (fnVisible(input) && input.matches("[tabindex]:not([type=hidden],[readonly],[disabled])"));
 
@@ -167,22 +174,8 @@ function DomBox(opts) {
 	this.check = (list, value) => self.each(list, input => { input.checked = value; });
 	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
 	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
-	this.getFormInputs = form => self.filter(INPUTS, self.getForm(form).elements);
-	this.binary = (list, mask) => self.each(list, (el, i) => { el.checked = nb.mask(mask, i); });
-	this.integer = list => {
-		let aux = ""; // Binary string, for example: "01001011"
-		self.reverse(list, el => { aux += el.checked ? "1" : "0"; });
-		return parseInt(aux, 2); // Bin2Int
-	}
-	this.checkval = (el, group, value) => {
-		el.value = value || 0; // force integer
-		self.binary(group, el.value); // check/uncheck subgroup
-		el.checked = ab.every(group, el => el.checked);
-		return self;
-	}
 
-	// Inputs values
-	function fnSetVal(el, value) {
+	const fnSetVal = (el, value) => {
 		value = value ?? EMPTY; // define value as string
 		if (el.tagName === "SELECT") // select option
 			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
@@ -192,6 +185,21 @@ function DomBox(opts) {
 			el.value = value;
 		return self;
 	}
+	const fnCheckVal = (el, group, value) => {
+		el.value = value || 0; // force integer
+		self.each(group, (check, i) => { check.checked = nb.mask(el.value, i); });
+		el.checked = ab.every(group, el => el.checked);
+		return self;
+	}
+	const fnCheckList = (el, group, value) => {
+		el.value = value; // id list
+		const values = sb.array(el.value);
+		el.checked = (group.length == ab.size(values));
+		return self.check(group, false).each(values, val => {
+			self.setValue(self.find("[value='" + val + "']", group), val);
+		});
+	}
+
 	this.getValue = el => el && el.value;
 	this.getVal = selector => self.getValue(fnQuery(selector));
 	this.setValue = (el, value) => el ? fnSetVal(el, value) : self;
@@ -209,45 +217,42 @@ function DomBox(opts) {
 	this.attr = (list, name, value) => self.each(list, el => el.setAttribute(name, value));
 	this.removeAttr = (list, name) => self.each(list, el => el.removeAttribute(name));
 
-	this.loadInputs = (inputs, data, parsers) => {
-		parsers = parsers || {}; // Default container
-		return self.each(inputs, el => {
-			const fn = parsers[el.name] || fnParam; // Field parser type
-			data[el.name] = fn(el.value); // Parse type
+	this.load = (form, data, parsers) => {
+		data = data || {}; // Data container
+		parsers = parsers || {}; // Parsers container
+		form = self.getForm(form); // search form
+		self.apply(FIELDS, form.elements, el => {
+			const fn = parsers[el.name] || fnParam;
+			data[el.name] = fn(el.value);
 		});
+		return data;
 	}
-	this.displayInputs = (inputs, data, styles) => {
+	this.display = (form, data, styles) => {
 		const fnDate = value => sb.substring(value, 0, 10); // Value = string date time
 		const TYPES = {
 			"datetime": fnParam, //"number": fnParam, // Not to change style
 			"date": fnDate, "week": fnDate, "month": fnDate // Styled for type=date
 		};
 		styles = styles || TYPES; // Optional styles
+		form = self.getForm(form); // search form
+		const inputs = form.elements; // all form inputs
 
-		return self.each(inputs, el => {
+		return self.apply(FIELDS, inputs, el => {
 			if (el.classList.contains(CONFIG.classCheckGroup)) // Integer mask by checkboxes
-				self.checkval(el, self.filter(CHEK_GROUP_SELECTOR + "-" + el.name, inputs), data[el.name]);
+				fnCheckVal(el, self.filter(CHEK_GROUP_SELECTOR + "-" + el.name, inputs), data[el.name]);
+			else if (el.classList.contains(CONFIG.classCheckList)) // list values by checkboxes
+				fnCheckList(el, self.filter(CHEK_LIST_SELECTOR + "-" + el.name, inputs), data[el.name]);
 			else {
 				const fn = TYPES[el.type] || styles[el.name] || fnParam; // Field style type
 				fnSetVal(el, fn(data[el.name])); // Display styled value
 			}
 		});
 	}
-	this.load = (form, data, parsers) => self.loadInputs(self.getFormInputs(form), data, parsers);
-	this.display = (form, data, styles) => self.displayInputs(self.getFormInputs(form), data, styles);
 
 	function fnSetError(el) {
 		const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
 		return self.showError(i18n.getError()).setHtml(tip, i18n.getMsg(el.name)).show(tip)
 					.addClass(el, CONFIG.classInputError).focus(el);
-	}
-	function fnValidate(inputs, validators, messages) {
-		self.closeAlerts().reverse(inputs, el => { // Reverse iterator
-			const fn = validators[el.name] || fnSelf; // Validator function
-			const msgtip = messages[el.name] || validators[el.name + "Error"];
-			fn(el.name, el.value, messages.msgError, msgtip) || fnSetError(el);
-		});
-		return self.isOk() ? i18n.toData() : null;
 	}
 	this.setInputError = (el, msg, msgtip, fn) => {
 		el = self.getInput(el); // Get input
@@ -259,18 +264,17 @@ function DomBox(opts) {
 		}
 		return fn(el.name, el.value, msg, msgtip) ? self : fnSetError(el);
 	}
-	this.validateInputs = (inputs, validators, messages) => {
-		messages = messages || {}; // View messages
-		validators = validators || {}; // Default container
-		messages.msgError = messages.msgError || validators.msgError;
-		return fnValidate(inputs, validators, messages);
-	}
 	this.validate = (form, validators, messages) => {
 		form = self.getForm(form); // Get form
 		messages = messages || {}; // View messages
 		validators = validators || i18n.getForm(form.getAttribute("id")); // Default container
 		messages.msgError = messages.msgError || validators.msgError;
-		return fnValidate(self.filter(INPUTS, form.elements), validators, messages);
+		self.closeAlerts().applyReverse(FIELDS, form.elements, el => { // Reverse iterator
+			const fn = validators[el.name] || fnSelf; // Validator function
+			const msgtip = messages[el.name] || validators[el.name + "Error"];
+			fn(el.name, el.value, messages.msgError, msgtip) || fnSetError(el);
+		});
+		return self.isOk() ? i18n.toData() : null;
 	}
 
 	function fnContents(el, value) { el.classList.toggle(CONFIG.classHide, !value); return self; }
@@ -510,7 +514,8 @@ function DomBox(opts) {
 
 		self.onForm = (selector, name, fn) => fnAddEvent(self.getForm(selector), name, fn);
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), "change", fn);
-		self.onResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
+		self.beforeResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
+		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), "change", fn);
 		self.onChangeInputs = (selector, fn) => self.change(self.getInputs(selector), fn);
@@ -775,13 +780,28 @@ function DomBox(opts) {
 		// Auto check-all inputs groups
 		self.eachInput(CHEK_GROUP_SELECTOR, el => {
 			const group = self.getInputs(CHEK_GROUP_SELECTOR + "-" + el.id);
-			self.checkval(el, group, +el.value)
-				.click(el, aux => { el.value = self.check(group, el.checked).integer(group); return true; })
-				.click(group, aux => self.checkval(el, group, self.integer(group)));
+			const checkboxes = (el, list) => {
+				let aux = ""; // Binary string, for example: "01001011"
+				self.reverse(list, el => { aux += el.checked ? "1" : "0"; });
+				el.value = parseInt(aux, 2); // Bin2Int
+				return self;
+			}
+
+			self.click(el, aux => { self.check(group, el.checked); return checkboxes(el, group); })
+				.click(group, aux => { checkboxes(el, group); return fnCheckVal(el, group, el.value); });
+			fnCheckVal(el, group, +el.value);
 		}).eachInput(CHEK_LIST_SELECTOR, el => {
 			const group = self.getInputs(CHEK_LIST_SELECTOR + "-" + el.id);
-			self.click(el, aux => self.check(group, el.checked))
-				.click(group, aux => { el.checked = ab.every(group, el => el.checked); return true; });
+			const checkboxes = (el, list) => {
+				el.value = ""; // init list
+				self.apply(":checked", list, check => { el.value += "," + check.value; });
+				el.value = sb.ltrim(el.value, ",");
+				return self;
+			}
+
+			self.click(el, aux => { self.check(group, el.checked); return checkboxes(el, group); })
+				.click(group, aux => { checkboxes(el, group); return fnCheckList(el, group, el.value); });
+			fnCheckList(el, group, el.value);
 		});
 
 		// Clipboard function

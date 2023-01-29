@@ -140,23 +140,6 @@ function ArrayBox() {
 		return data;
 	}
 	this.merge = this.toObject;
-	this.copy = function(data, keys) {
-		let result = {}; // Output
-		keys.forEach(k => { result[k] = data[k]; });
-		return result;
-	}
-	this.assign = this.copy;
-	this.flush = function(data, keys) {
-		let result = Object.assign({}, data);
-		keys.forEach(k => { delete result[k]; });
-		return result;
-	}
-	this.clean = this.flush;
-	this.clear = function(obj) {
-		for (let k in obj)
-			delete obj[k];
-		return obj;
-	}
 
 	// Serialization
 	this.stringify = (data, separator, i, j) => data.stringify(separator, i, j);

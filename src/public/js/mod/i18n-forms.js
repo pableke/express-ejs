@@ -6,6 +6,10 @@ export default {
 	fecha: i18n.leToday, imp: i18n.gt0, 
 	name: i18n.required, memo: i18n.required,
 
+	ftest: {
+		imp1: i18n.toFloat, imp2: i18n.toFloat
+	},
+
 	login: {
 		msgError: "errUserNotFound",
 		usuario: i18n.user, clave: i18n.login

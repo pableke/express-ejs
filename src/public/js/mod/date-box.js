@@ -138,9 +138,10 @@ function DateBox() {
 	this.past = date => self.lt(date, sysdate);
 
 	function fnBetween(date, min, max) { // value into a range
-		min = isDate(min) ? min.getTime() : date.getTime();
-		max = isDate(max) ? max.getTime() : date.getTime();
-		return (min <= date.getTime()) && (date.getTime() <= max);
+		const time = date.getTime();
+		min = isDate(min) ? min.getTime() : time;
+		max = isDate(max) ? max.getTime() : time;
+		return (min <= time) && (time <= max);
 	}
 	this.in = (date, min, max) => isDate(date) ? fnBetween(date, min, max) : true; // Open range filter
 	this.between = (date, min, max) => isDate(date) && fnBetween(date, min, max); // Date into a range
