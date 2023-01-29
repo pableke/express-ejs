@@ -1,5 +1,7 @@
 
 import util from "app/mod/node-box.js";
+import forms from "app/mod/i18n-forms.js";
+import db from "./tests.db.js";
 
 export const index = (req, res) => {
 	util.render(res, "tests/index");
@@ -10,8 +12,16 @@ export const lang = (req, res, next) => {
 	next();
 }
 
+export const filter = (req, res) => {
+	const FILTER = util.ob.parse(req.query, forms.ftest);
+	console.log("filter", req.query, FILTER);
+	const fields = ["name", "memo"]; // Strings ilike filter
+	const fnFilter = row => (util.sb.multilike(row, FILTER, fields) && util.nb.in(row.imp, FILTER.imp1, FILTER.imp2) && util.sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
+	util.json(res, db.filter(fnFilter));
+}
+
 export const save = (req, res) => {
-	console.log("req", req.body);
+	console.log("save", req.body);
 	util.i18n.validate(req.body) ? util.msg(res, "saveOk") : util.err(res);
 }
 

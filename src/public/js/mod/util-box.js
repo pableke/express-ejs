@@ -1,6 +1,7 @@
 
 import ab from "./array-box.js";
 import nb from "./number-box.js";
+import ob from "./object-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
 import valid from "./validator-box.js";
@@ -118,7 +119,7 @@ dom.ready(function() {
 			onRender: row => { RESUME.imp += (row.imp || 0); } // onRenderRow
 		};
 
-		var data, server_data; // Continers
+		var data; // Continer
 		const fnCreate = row => !dom.createRow("#test", RESUME, STYLES, row).hide(".update-only");
 		const fnView = index => !dom.selectRow("#test", data, RESUME, STYLES, index).show(".update-only").viewTab(3);
 		const fnList = arr => { data = arr; dom.repaginate("#pruebas", data, RESUME, STYLES).setFocus("#filter-name"); }
@@ -141,7 +142,6 @@ dom.ready(function() {
 				{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
 			];
 
-			server_data = users; // Continers
 			users.forEach((user, i) => {
 				user.memo = DB[i]?.memo;
 				user.imp = DB[i]?.imp;
@@ -170,20 +170,9 @@ dom.ready(function() {
 
 		// Eventos de control para el filtro de la tabla
 		dom.setRangeDate("#f1", "#f2") // Filter range date
-			.onClick("a.create-data", () => fnCreate({}));
-		dom.onResetForm("#filter", form => {
-			setTimeout(function() { // Do what you need after reset the form
-				fnList(server_data); // server call = dom.send(form).then(fnList);
-			}, 1);
-			// Do what you need before reset the form
-			return dom.closeAlerts(); // default = reset
-		}).onSubmitForm("#filter", form => {
-			const FILTER = {}; // Container
-			const fields = ["name", "memo"]; // Strings ilike filter
-			const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.in(row.fecha, FILTER.f1, FILTER.f2));
-			dom.closeAlerts().load(form, FILTER, PARSERS);
-			fnList(server_data.filter(fnFilter)); // server call = dom.send(form).then(fnList);
-		});
+			.onClick("a.create-data", () => fnCreate({}))
+			.afterResetForm("#filter", form => dom.send(form).then(fnList))
+			.onSubmitForm("#filter", form => !dom.send(form).then(fnList));
 
 		// Eventos de control para el formulario de datos
 		dom.addClick("a[href='#first-item']", el => fnView(0))
@@ -197,7 +186,7 @@ dom.ready(function() {
 			if (!fnValidate(el.form))
 				return; // errores de validacion
 			RESUME.data.id 
-					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ab.flush(user, ["id"])); fnUpdate(3); })
+					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ob.flush(user, ["id"])); fnUpdate(3); })
 					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 3));
 		}).onSubmitForm("#test", form => {
 			return fnValidate(form) && !dom.send(form).then(msg => fnUpdate(2, msg));

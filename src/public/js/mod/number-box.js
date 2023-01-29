@@ -73,6 +73,7 @@ function NumberBox() {
 	this.enFmtInt = str => self.fmtInt(str, COMMA); // reformat EN String
 	this.esFmtInt = str => self.fmtInt(str, DOT); // reformat ES String
 	this.intval = str => parseInt(str) || 0; //integer
+	this.numbers = arr => arr ? arr.map(self.intval) : arr;
 
 	// Floats
 	this.toFloat = function(str, d) { //String to Float

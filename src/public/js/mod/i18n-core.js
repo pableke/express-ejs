@@ -102,7 +102,7 @@ function I18nBox() {
 	this.getData = name => name ? DATA.get(name) : DATA;
 
 	// Validators
-	const fnValid = (name, value, msg, msgtip) => !(sb.isset(value) ? DATA.set(name, value) : self.setError(msg, name, msgtip));
+	const fnValid = (name, value, msg, msgtip) => (sb.isset(value) ? DATA.set(name, value) : !self.setError(msg, name, msgtip));
 	this.required = (name, value, msg) => fnValid(name, valid.required(value), msg, "errRequired");
 	this.required10 = (name, value, msg) => fnValid(name, valid.required10(value), msg, "errRequired");
 	this.required50 = (name, value, msg) => fnValid(name, valid.required50(value), msg, "errRequired");
@@ -132,13 +132,13 @@ function I18nBox() {
 	this.regex = (name, value, msg, msgtip) => fnValid(name, valid.regex(value), msg, msgtip ?? "errRegex");
 	this.word = (name, value, msg, msgtip) => fnValid(name, valid.word(value), msg, msgtip ?? "errRegex");
 	this.words = (name, value, msg, msgtip) => fnValid(name, valid.words(value), msg, msgtip ?? "errRegex");
+	this.array = (name, value, msg, msgtip) => fnValid(name, valid.array(value), msg, msgtip ?? "errRegex");
+	this.list = (name, value, msg, msgtip) => fnValid(name, valid.list(value), msg, msgtip ?? "errRegex");
+	this.digits = (name, value, msg, msgtip) => fnValid(name, valid.digits(value), msg, msgtip ?? "errNumber");
 	this.login = (name, value, msg, msgtip) => fnValid(name, valid.login(value), msg, msgtip ?? "errRegex");
 	this.password = (name, value, msg, msgtip) => fnValid(name, valid.password(value), msg, msgtip ?? "errRegex");
 	this.email = (name, value, msg, msgtip) => fnValid(name, valid.email(value), msg, msgtip ?? "errCorreo");
 	this.code = (name, value, msg, msgtip) => fnValid(name, valid.code(value), msg, msgtip ?? "errRegex");
-	this.digits = (name, value, msg, msgtip) => fnValid(name, valid.digits(value), msg, msgtip ?? "errNumber");
-	this.idlist = (name, value, msg, msgtip) => fnValid(name, valid.idlist(value), msg, msgtip ?? "errRegex");
-	this.array = (name, value, msg, msgtip) => fnValid(name, valid.array(value), msg, msgtip ?? "errRegex");
 
 	this.isDate = (name, value, msg, msgtip) => fnValid(name, valid.date(value), msg, msgtip ?? "errDate");
 	this.past = (name, value, msg, msgtip) => fnValid(name, valid.past(value), msg, msgtip ?? "errDateLe");

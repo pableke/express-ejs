@@ -19,7 +19,7 @@ function ValidatorBox() {
 	//RegEx for validating
 	const RE_DIGITS = /^\d+$/;
 	const RE_WORDS = /^\w+(,\w+)*$/;
-	const RE_IDLIST = /^\d+(,\d+)*$/;
+	const RE_ARRAY = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
 	const RE_DATE = /^\d{4}-[01]\d-[0-3]\d/;
 	const RE_TIME = /[0-2]\d:[0-5]\d:[0-5]\d[\.\d{1,3}]?$/;
@@ -44,7 +44,8 @@ function ValidatorBox() {
 	const minify = sb.toUpperWord;
 	const fnRange = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
 	const between = (str, min, max) => nb.between(sb.size(str), min, max) ? str : null; // for String and Arrays
-	const fnSplit = str => between(sb.split(str, ","), 1, 100); // for String and Arrays
+	const fnSplit = (re, value) => sb.test(value, re) ? value.split(",") : null; // validate and split input
+	const numbers = arr => nb.between(sb.size(arr), 1, 100) ? arr.map(nb.intval) : null; // for Array numbers
 
 	// Validators
 	this.intval = num => { var aux = parseInt(num); return isNaN(aux) ? null : aux; }
@@ -84,18 +85,15 @@ function ValidatorBox() {
 	this.time = value => self.regex(RE_TIME, value);
 	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
 	this.word = value => self.regex(/\w+/, self.size50(value));
-	this.words = value => Array.isArray(value) ? value : fnSplit(self.regex(RE_WORDS, value));
+	this.words = value => between(Array.isArray(value) ? value : fnSplit(RE_WORDS, sb.clean(value)), 1, 100);
+	this.array = value => numbers(Array.isArray(value) ? value : fnSplit(RE_ARRAY, sb.clean(value)));
+	this.list = value => value ? self.array(value) : []; // optional array
+	this.digits = value => self.regex(RE_DIGITS, self.size50(value));
 	this.login = value => self.regex(RE_LOGIN, self.size200(value));
 	this.password = value => self.regex(RE_LOGIN, self.size200(value));
 	this.swift = value => self.regex(RE_SWIFT, value);
 	this.email = value => sb.lower(self.regex(RE_MAIL, self.size200(value)));
 	this.code = value => sb.upper(self.regex(RE_LOGIN, self.size50(value)));
-	this.digits = value => self.regex(RE_DIGITS, value);
-	this.idlist = value => self.regex(RE_IDLIST, value);
-	this.array = value => {
-		value = Array.isArray(value) ? value : fnSplit(self.idlist(value));
-		return value ? value.map(nb.intval) : value;
-	}
 
 	// Date validations in string iso format (ej: "2022-05-11T12:05:01")
 	const systime = (new Date()).toISOString().substring(0, 19); // exclude ms

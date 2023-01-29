@@ -43,7 +43,9 @@ test("E-Mails / Digits", () => {
 	assert.deepEqual(valid.array(), null);
 	assert.deepEqual(valid.array(""), null);
 	assert.deepEqual(valid.array("13"), [13]);
-	assert.deepEqual(valid.array(["13", "0", "849"]), [13,0,849]);
+	assert.deepEqual(valid.array("13,0,849,041"), [13,0,849,41]);
+	assert.deepEqual(valid.array("13, 0, 849,041"), [13,0,849,41]);
+	assert.deepEqual(valid.array(["13", "0", "849", "1029"]), [13,0,849, 1029]);
 	assert.deepEqual(valid.array("1,000,0,234,754,7676"), [1,0,0,234,754,7676]);
 });
 
