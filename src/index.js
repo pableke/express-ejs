@@ -63,22 +63,19 @@ app.use((req, res, next) => {
 });
 app.use(routes); // Use all routes
 app.use((err, req, res, next) => { //global handler error
-	if (util.sb.isstr(err)) // Exception or message to string
-		util.i18n.setError(err); // i18n key or string
-
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		util.error(res, 500);
+		util.msgErr500(res, "" + err); // return string error
 	else // Is non ajax request => render template body
-		util.render(res, res.locals._tplBody, 500);
+		util.err500(res, "" + err); // error view
 
 	// Show log error for console
-	console.error("> Log:", util.i18n.getError() || err);
+	console.error("> Log:", req.url, "" + err);
 });
 app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		util.msg(res, "err404", 404); //ajax response
+		util.msgErr404(res, "err404"); //ajax response
 	else
-		util.render(res, "errors/404", 404); //show 404 page
+		util.err404(res, "errors/404"); //show 404 page
 });
 
 // Start servers (db's and http)

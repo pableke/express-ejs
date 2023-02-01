@@ -12,7 +12,8 @@ export default {
 
 	login: {
 		msgError: "errUserNotFound",
-		usuario: i18n.user, clave: i18n.login
+		usuario: i18n.user, usuarioError: "errUsuario",
+		clave: i18n.login, claveError: "errClave"
 	},
 
 	contact: {

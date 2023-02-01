@@ -22,26 +22,28 @@ function NodeBox() {
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
 	this.lang = (res, mod) => { res.locals.i18n = i18n.loadModule(mod).getCurrent(); return self; }
-	this.json = (res, data, status) => { res.status(status || 200).json(data); return self; }
-	this.text = (res, txt, status) => { res.setHeader("content-type", "text/plain").status(status || 200).send(txt); return self; }
-	this.msg = (res, msg, status) => self.text(res, i18n.tr(msg), status);
-	this.msgs = (res, status) => self.json(res, i18n.toMsgs(), status);
-	this.error = (res, status) => (i18n.getNumMsgs() > 1) ? self.msgs(res, status) : self.text(res, i18n.getError(), status);
-	this.err = res => self.error(res, 500);
 
-	this.render = function(res, tpl, status) {
-		self.setBody(res, tpl);
-		res.status(status || 200).render("index");
+	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
+	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
+	const fnSendText = (res, status, value) => fnSend(res, "text/html", status, value);
+
+	this.json = (res, data) => fnSendJson(res, 200, data);
+	this.text = (res, txt) => fnSendText(res, 200, txt);
+	this.msg = (res, msg) => fnSendText(res, 200, i18n.tr(msg));
+	this.msgError = (res, msg, status) => fnSendText(res, status, i18n.tr(msg));
+	this.msgErr404 = (res, msg) => self.msgError(res, msg, 404);
+	this.msgErr500 = (res, msg) => self.msgError(res, msg, 500);
+	this.msgs = res => (i18n.getNumMsgs() > 1) ? fnSendJson(res, 500, i18n.toMsgs()) : fnSendText(res, 500, i18n.getError());
+
+	const fnRender = (res, status, tpl) => {
+		tpl && self.setBody(res, tpl); // update body view
+		res.status(status).render("index"); // render view
 		return self;
 	}
-	this.build = function(res, msg) {
-		i18n.setOk(msg);
-		return self.render(res, res.locals._tplBody);
-	}
-	this.html = function(res, contents) {
-		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
-		return self;
-	}
+	this.render = (res, tpl) => fnRender(res, 200, tpl);
+	this.build = (res, msg, tpl) => { i18n.setOk(msg); return fnRender(res, 200, tpl); }
+	this.err500 = (res, msg, tpl) => { i18n.setError(msg); return fnRender(res, 500, tpl); }
+	this.err404 = (res, tpl) => fnRender(res, 404, tpl);
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);
@@ -57,9 +59,13 @@ function NodeBox() {
 		fs.createReadStream(filepath).pipe(res);
 		return self;
 	}
+	this.html = function(res, contents) {
+		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
+		return self;
+	}
 	this.view = function(res, tpl) {
 		fs.readFile(self.getView(tpl), "utf-8", (err, data) => {
-			err ? self.text(res, "" + err, 500) : self.html(res, data);
+			err ? self.msgErr500(res, "" + err) : self.html(res, data);
 		});
 		return self;
 	}

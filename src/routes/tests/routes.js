@@ -2,6 +2,7 @@
 import express from "express";
 const router = express.Router();
 
+import * as ctrl from "app/controllers/index.js";
 import * as tests from "app/controllers/tests/index.js";
 
 router.use(tests.lang); // first middleware to be executed before rest of routes
@@ -11,5 +12,10 @@ router.post("/data.html", tests.save).post("/save.html", tests.save);
 router.get("/mail.html", tests.email).get("/email.html", tests.email);
 router.get("/xls.html", tests.xls).get("/xlsx.html", tests.xls).get("/excel.html", tests.xls);
 router.get("/zip.html", tests.zip).get("/pdf.html", tests.pdf);
+
+// TESTS - API
+router.post("/sign", ctrl.sign);
+router.use("/api", ctrl.verify);
+router.get("/api/users", tests.filter);
 
 export default router;

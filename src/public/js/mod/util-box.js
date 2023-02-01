@@ -131,25 +131,7 @@ dom.ready(function() {
 		}
 
 		const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-		dom.api.get(ENDPOINT).then(users => { //call to simulate read data from server
-			const DB = [
-				{id:1,name:"Row 1", memo: "jj234 234234 kjhl", imp: 10.7, fecha: "2022-05-20 12:00:01", binary: 5}, 
-				{id:2,name:"Row 2", memo: "ab jdasklñlkaf jasfd", imp: 3256.1, binary: 7}, 
-				{id:3,name:"Row 3", memo: "tt 8374 124893 aksdfj", imp: 154.81, binary: 9}, 
-				{id:4,name:"Row 4", memo: "hh ñldjafj añskdj", imp: .34, fecha: "2022-03-21 09:41:35", binary: 3}, 
-				{id:5,name:"Row 5", memo: "bc lfda lsañkdfj fjs", imp: 99.4}, 
-				{id:6,name:"Row 6", memo: "lñasdkfdk sldañkf ddd", imp: 613.47, binary: 6},
-				{id:7,name:"Row 7", memo: "lñasdkfdk sldañkf", fecha: "2022-01-17 14:25:11", binary: 15}
-			];
-
-			users.forEach((user, i) => {
-				user.memo = DB[i]?.memo;
-				user.imp = DB[i]?.imp;
-				user.fecha = DB[i]?.fecha;
-				user.binary = DB[i]?.binary;
-			});
-			fnList(users);
-		});
+		dom.api.get(ENDPOINT).then(fnList); //call to simulate read data from server
 
 		// Eventos de las tablas de consulta
 		dom.onRenderTable("#pruebas", (table, ev) => {
@@ -205,5 +187,7 @@ dom.ready(function() {
 
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
-	//dom.onclick("a.ajax", el => !dom.api.get(el.href)).onclick("button.ajax", el => !dom.send(el.form)); // Ajax calls
+	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.form)); // Ajax calls
+	//dom.api.post("/tests/sign", { usuario: "pablo", clave: "1234" }).then(token => window.sessionStorage.setItem("web", token)); // Read token
+	//dom.api.get("/tests/api/users", "web").then(console.log);
 });
