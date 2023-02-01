@@ -21,8 +21,12 @@ export const filter = (req, res) => {
 }
 
 export const save = (req, res) => {
-	console.log("save", req.body);
-	util.i18n.validate(req.body) ? util.msg(res, "saveOk") : util.err(res);
+	const data = util.i18n.validate(req.body);
+	console.log("save", req.body, data);
+	if (util.i18n.isError())
+		return util.err(res);
+	//save data un DB .....
+	util.msg(res, "saveOk");
 }
 
 export const saveAndList = (req, res) => {
@@ -31,12 +35,12 @@ export const saveAndList = (req, res) => {
 }
 
 export const email = (req, res, next) => {
-	util.setBody(res, "tests/index").sendMail({
+	util.sendMail({
 		to: "pableke@gmail.com",
 		subject: req.body.asunto,
 		body: "tests/emails/test.ejs",
 		data: res.locals //data
-	}).then(info => util.build(res, "msgCorreo"))
+	}).then(info => util.msg(res, "msgCorreo"))
 		.catch(err => next("errSendMail"));
 }
 

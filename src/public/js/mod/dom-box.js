@@ -72,27 +72,20 @@ function DomBox(opts) {
 		//opts = opts || {}; //default config
 		opts.headers = opts.headers || {}; //init. headers
 		opts.headers["x-requested-with"] = "XMLHttpRequest"; //add ajax header
-		var token = window.sessionStorage.getItem(opts.tokenName);
-		if (token) // token to be sended to server
-			opts.headers["Authorization"] = "Bearer " + token;
+		if (opts.token) // token to be sended to server
+			opts.headers["authorization"] = "Bearer " + (window.sessionStorage.getItem(opts.token) || opts.token);
 		return window.fetch(opts.action, opts).then(res => {
 			const contentType = res.headers.get("content-type") || EMPTY; //response type
 			const promise = contentType.includes("application/json") ? res.json() : res.text();
-			if (res.ok) { // status ok = 200
-				token = res.headers.get(opts.tokenName);
-				if (token) // token to be returned to server
-					window.sessionStorage.setItem(opts.tokenName, token);
-				return promise;
-			}
-			return promise.then(data => { self.setErrors(data); return Promise.reject(data); });
+			return res.ok ? promise : promise.then(data => { self.setErrors(data); return Promise.reject(data); }); // status ok = 200
 		}).finally(self.working); //set error handler and close loading...
 	}
 	this.ajax = action => self.fetch({ action });
-	this.send = function(form, method, tokenName) {
+	this.send = function(form, method, token) {
 		const fd = new FormData(form);
 		const opts = { action: form.action };
 		opts.method = method || form.method; //method-override
-		opts.tokenName = tokenName || form.dataset.tokenName; //jwt name
+		opts.token = token || form.dataset.token; //jwt name
 		self.apply(CHEK_GROUP_SELECTOR, form.elements, el => fd.set(el.name, el.value)); //force add binaries as single value
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
@@ -102,17 +95,17 @@ function DomBox(opts) {
 		return self.fetch(opts);
 	}
 
-	function fnFetchJSON(action, method, data) { // CREATE
-		const opts = { action, method, body: JSON.stringify(data) };
+	function fnFetchJSON(action, token, method, data) { // CREATE
+		const opts = { action, token, method, body: JSON.stringify(data) };
 		opts.headers = { "Content-Type": "application/json; charset=utf-8" };
 		return self.fetch(opts);
 	}
 	this.api = { // API REST full ej: https://jsonplaceholder.typicode.com/users
-		get: action => self.fetch({ action }), // READ
-		post: (action, data) => fnFetchJSON(action, "POST", data), // CREATE
-		put: (action, data) => fnFetchJSON(action, "PUT", data), // UPDATE
-		patch: (action, data) => fnFetchJSON(action, "PATCH", data), // PATCH
-		delete: action => self.fetch({ action, method: "DELETE" }) //DELETE
+		get: (action, token) => self.fetch({ action, token }), // READ
+		post: (action, data, token) => fnFetchJSON(action, token, "POST", data), // CREATE
+		put: (action, data, token) => fnFetchJSON(action, token, "PUT", data), // UPDATE
+		patch: (action, data, token) => fnFetchJSON(action, token, "PATCH", data), // PATCH
+		delete: (action, token) => self.fetch({ action, token, method: "DELETE" }) //DELETE
 	};
 
 	// Iterators and Filters
@@ -500,7 +493,7 @@ function DomBox(opts) {
 
 		self.eachInput = (selector, fn) => self.apply(selector, inputs, fn);
 		self.getInputValue = el => self.getValue(self.getInput(el));
-		self.setInputValue = (el, value) => self.setValue(self.getInput(el));
+		self.setInputValue = (el, value) => self.setValue(self.getInput(el), value);
 		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getInputValue(i2));
 		self.setAttrInput = (selector, name, value) => self.setAttribute(self.getInput(selector), name, value);
 		self.delAttrInput = (selector, name) => self.removeAttr(self.getInput(selector), name);

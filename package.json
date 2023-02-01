@@ -7,7 +7,7 @@
   "scripts": {
     "build": "gulp",
     "test": "node --no-warnings ./tests/validator.test.js",
-    "dev": "nodemon --watch src --ignore src/img --ignore src/css ./src/index.js",
+    "dev": "nodemon --watch src --ignore src/public/img --ignore src/public/css ./src/index.js",
     "static": "live-server src/public --port=3001",
     "start": "node ./dist/index.js"
   },
