@@ -9,6 +9,6 @@ import web from "./web/routes.js";
 // Specific middlewares for each module
 router.use("/tests", tests);
 router.use("/uae", uae);
-router.use("", web);
+router.use("", web).use("/web", web);
 
 export default router;

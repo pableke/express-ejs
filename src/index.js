@@ -69,7 +69,7 @@ app.use((err, req, res, next) => { //global handler error
 		util.err500(res, "" + err); // error view
 
 	// Show log error for console
-	console.error("> Log:", req.url, "" + err);
+	console.error("> Log:", req.url, err);
 });
 app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")

@@ -10,6 +10,8 @@ router.get("/", web.index).get("/index.html", web.index).get("/home.html", web.i
 //router.use(require("./public.js"));
 
 router.get("/logout.html", ctrl.logout).get("/signout.html", ctrl.logout);
+router.get("/destroy.html", ctrl.destroy).get("/unload.html", ctrl.destroy);
+router.get("/web/destroy.html", ctrl.destroy).get("/web/unload.html", ctrl.destroy);
 router.get("/session/destroy.html", ctrl.destroy).get("/session/unload.html", ctrl.destroy);
 router.get("/login.html", ctrl.view).get("/signin.html", ctrl.view);
 router.post("/login.html", ctrl.check).post("/signin.html", ctrl.check);

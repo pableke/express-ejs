@@ -14,6 +14,26 @@ const TPL_ADMIN = "web/list/index";
 export const view = function(req, res) {
 	util.render(res, TPL_LOGIN);
 }
+function fnLogout(req) {
+	delete req.session.user; //remove user
+	delete req.session.menus; //remove menus
+	//remove session: regenerated next request
+	req.session.destroy(); //specific destroy
+	delete req.session; //full destroy
+}
+export const logout = function(req, res) {
+	fnLogout(req); //click logout user
+	util.build(res, "msgLogout", TPL_LOGIN);
+}
+export const destroy = function(req, res) {
+	fnLogout(req); //onclose even client
+	util.text(res, "ok"); //response ok
+}
+
+export const home = function(req, res) {
+	// Reset list configuration
+	util.render(res, TPL_ADMIN);
+}
 
 export const check = function(req, res, next) {
 	util.setBody(res, TPL_LOGIN); // default view login
@@ -79,27 +99,6 @@ export const verify = function(req, res, next) {
 	} catch (ex) {
 		next(ex);
 	}
-}
-
-export const home = function(req, res) {
-	// Reset list configuration
-	util.render(res, TPL_ADMIN);
-}
-
-function fnLogout(req) {
-	delete req.session.user; //remove user
-	delete req.session.menus; //remove menus
-	//remove session: regenerated next request
-	req.session.destroy(); //specific destroy
-	delete req.session; //full destroy
-}
-export const logout = function(req, res) {
-	fnLogout(req); //click logout user
-	util.build(res, "msgLogout", TPL_LOGIN);
-}
-export const destroy = function(req, res) {
-	fnLogout(req); //onclose even client
-	uti.text(res, "ok"); //response ok
 }
 
 /******************* upload multipart files *******************/
