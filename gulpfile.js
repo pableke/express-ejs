@@ -71,15 +71,14 @@ gulp.task("minify-js-web", () => {
 	return gulp.src(JS_WEB)
 				.pipe(concat("web-min.js"))
 				.pipe(uglify())
-				.pipe(gulp.dest("src/public/js"))
 				.pipe(gulp.dest("dist/public/js"));
 });
 gulp.task("minify-js-uae", () => {
 	return gulp.src(JS_UAE)
 				.pipe(concat("uae-min.js"))
 				.pipe(uglify())
-				.pipe(gulp.dest("src/public/js"))
-				.pipe(gulp.dest("dist/public/js"));
+				.pipe(gulp.dest("src/public/js/uae"))
+				.pipe(gulp.dest("dist/public/js/uae"));
 });
 gulp.task("minify-js-uae-irse", () => {
 	return gulp.src(JS_UAE_IRSE)

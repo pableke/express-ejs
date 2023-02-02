@@ -4,6 +4,7 @@ import nb from "./number-box.js";
 import ob from "./object-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
+import forms from "./i18n-forms.js";
 import valid from "./validator-box.js";
 import dom from "./dom-box.js";
 
@@ -107,9 +108,10 @@ dom.ready(function() {
 	});
 
 	// TABS events and handlers
-	dom.onPrevTab(1, tab => console.log("prev event on tab-1"))
-		.onShowTab(1, tab => console.log("show event on tab-1"))
-		.onNextTab(1, tab => console.log("next event on tab-1"));
+	dom.onShowTab(1, tab => { // contact form
+		dom.onChangeInput("#correo", el => { el.value = sb.lower(el.value); })
+			.onSubmitForm("#contact", form => dom.validate(form, forms.contact) && !dom.send(form).then(msg => dom.setOk(form, msg))) // AJAX Forms
+	});
 	dom.onLoadTab(2, tab => { //table and form handlers
 		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
 		const RESUME = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
@@ -119,7 +121,7 @@ dom.ready(function() {
 			onRender: row => { RESUME.imp += (row.imp || 0); } // onRenderRow
 		};
 
-		var data; // Continer
+		var data; // Container
 		const fnCreate = row => !dom.createRow("#test", RESUME, STYLES, row).hide(".update-only");
 		const fnView = index => !dom.selectRow("#test", data, RESUME, STYLES, index).show(".update-only").viewTab(3);
 		const fnList = arr => { data = arr; dom.repaginate("#pruebas", data, RESUME, STYLES).setFocus("#filter-name"); }
@@ -181,9 +183,15 @@ dom.ready(function() {
 	});
 
 	// Onclose event tab/browser of client user
-	/*window.addEventListener("unload", ev => {
-		//dom.ajax("/session/destroy.html");
-	});*/
+	window.addEventListener("unload", ev => dom.ajax("/destroy.html"));
+	// Google recptcha
+	/*if (sb.isset(window.grecaptcha)) {
+		grecaptcha.ready(function() { // Is ready for token
+			grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
+				.then(token => dom.setInputValue("#token", token))
+				.catch(dom.showError);
+		});
+	}*/
 
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));

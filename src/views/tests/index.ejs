@@ -1,10 +1,10 @@
 <!-- progressbar -->
 <ul id="progressbar">
-<li id="step-0" class="active">Home</li>
-<li id="step-1">Messages</li>
-<li id="step-2">Tables</li>
-<li id="step-3">Forms</li>
-<li id="step-4">Resume</li>
+	<li id="step-0" class="active">Home</li>
+	<li id="step-1">Messages</li>
+	<li id="step-2">Tables</li>
+	<li id="step-3">Forms</li>
+	<li id="step-4">Resume</li>
 </ul>
 
 <div id="tab-0" class="tab-content active">
@@ -60,106 +60,133 @@
 </div>
 
 <div id="tab-1" class="tab-content">
-	<div class="cards-glass">
-		<div class="card-glass">
-			<h2>Card 1</h2>
-			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
-		</div>
-		<div class="card-glass">
-			<h2>Card 2</h2>
-			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
-		</div>
-		<div class="card-glass">
-			<h2>Card 3</h2>
-			<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut aliquam commodi earum, ducimus impedit, quo minus veniam error vel itaque aperiam id ipsa dolor totam inventore reprehenderit eius debitis quis!</p>
-		</div>
+	<div class="form-glass">
+		<h2><%=i18n.lblFormContact%></h2>
+
+		<form id="contact" action="/contact.html" method="post" class="ajax">
+			<input type="hidden" id="token" name="token" />
+
+			<div class="ui-group ui-block">
+				<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+				<input type="text" id="nombre" name="nombre" value="<%=body.nombre%>" maxlength="200" tabindex="1" 
+					class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
+				<i class="input-item input-icon fas fa-signature"></i>
+				<div class="ui-errtip"><%=msgs.get("nombre")%></div>
+			</div>
+
+			<div class="ui-group ui-block">
+				<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
+				<input type="text" id="correo" name="correo" value="<%=body.correo%>" maxlength="200" tabindex="2" 
+					class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
+				<i class="input-item input-icon far fa-envelope"></i>
+				<div class="ui-errtip"><%=msgs.get("correo")%></div>
+			</div>
+
+			<div class="ui-group ui-block">
+				<label for="asunto" class="required"><%=i18n.lblAsunto%>:</label>
+				<input type="text" id="asunto" name="asunto" value="<%=body.asunto%>" maxlength="200" tabindex="7" 
+					class="input-item ui-control ui-text" placeholder="Type a resume" />
+				<i class="input-item input-icon fas fa-at"></i>
+				<div class="ui-errtip"><%=msgs.get("asunto")%></div>
+			</div>
+
+			<div class="ui-group ui-block">
+				<label for="info" class="required">Informacion:</label>
+				<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"><%=body.info%></textarea>
+				<span class="msg-error"></span>
+				<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
+				<div class="ui-errtip"><%=msgs.get("info")%></div>
+			</div>
+
+			<hr/>
+			<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>"><%=i18n.lblEnviar%><i class="fas fa-angle-double-right icon"></i></button>
+			<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i><%=i18n.lblLimpiar%></button>
+		</form>
 	</div>
 
 	<div class="navbar">
-		<a href="#tab-0" class="btn btn-primary hide"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
 		<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
 		<a href="#next-tab" class="btn btn-primary">Sig.<i class="fas fa-angle-double-right icon"></i></a>
-		<a href="#tab-2" class="btn btn-primary">&nbsp;<i class="fas fa-angle-double-right"></i></a>
 	</div>
 </div>
 
 <div id="tab-2" class="tab-content">
-<form id="filter" action="/tests/filter.html">
-	<div class="navbar">
-		<div class="ui-group ui-block">
-			<label for="filter-name" class="required">Nombre:</label>
-			<input type="text" id="filter-name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
+	<form id="filter" action="/tests/filter.html">
+		<div class="navbar">
+			<div class="ui-group ui-block">
+				<label for="filter-name" class="required">Nombre:</label>
+				<input type="text" id="filter-name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
+			</div>
+			<div class="ui-group ui-block">
+				<label for="filter-memo" class="required">Memoria:</label>
+				<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="2"/>
+			</div>
+			<div class="ui-group ui-block">
+				<label for="imp1" class="required">Importe:</label>
+				<input type="text" id="imp1" name="imp1" value="" class="ui-item ui-control ui-float" tabindex="3" />...
+				<input type="text" id="imp2" name="imp2" value="" class="ui-item ui-control ui-float" tabindex="4" />
+			</div>
+			<div class="ui-group ui-block">
+				<label for="f1" class="required">Fecha:</label>
+				<input type="date" id="f1" name="f1" value="" class="ui-item ui-control ui-date" tabindex="5" />...
+				<input type="date" id="f2" name="f2" value="" class="ui-item ui-control ui-date" tabindex="6" />
+			</div>
 		</div>
-		<div class="ui-group ui-block">
-			<label for="filter-memo" class="required">Memoria:</label>
-			<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="2"/>
+
+		<div class="navbar">
+			<a href="#tab-0" tabindex="100" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+			<a href="#prev-tab" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+			<button type="reset" class="btn btn-light" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
+			<button type="submit" class="btn btn-primary" tabindex="103">Buscar <i class="fas fa-search icon"></i></button>
+			<a href="#tab-3" tabindex="104" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
+			<hr/>
 		</div>
-		<div class="ui-group ui-block">
-			<label for="imp1" class="required">Importe:</label>
-			<input type="text" id="imp1" name="imp1" value="" class="ui-item ui-control ui-float" tabindex="3" />...
-			<input type="text" id="imp2" name="imp2" value="" class="ui-item ui-control ui-float" tabindex="4" />
-		</div>
-		<div class="ui-group ui-block">
-			<label for="f1" class="required">Fecha:</label>
-			<input type="date" id="f1" name="f1" value="" class="ui-item ui-control ui-date" tabindex="5" />...
-			<input type="date" id="f2" name="f2" value="" class="ui-item ui-control ui-date" tabindex="6" />
-		</div>
-	</div>
+	</form>
+
+	<table id="pruebas" data-sort-by="memo" data-sort-dir="desc">
+		<thead>
+			<tr>
+				<th>Nº</th>
+				<th>Nombre<a href="#name" class="sort sort-none"></a></th>
+				<th>E-Mail<a href="#email" class="sort sort-none"></a></th>
+				<th>Info<a href="#memo" class="sort sort-none"></a></th>
+				<th>Importe<a href="#imp" class="sort sort-none"></a></th>
+				<th>Fecha<a href="#fecha" class="sort sort-none"></a></th>
+				<th>C4</th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody id="pruebas-row" class="hide">
+			<tr class="tb-data">
+				<td class="text-center">@count;</td>
+				<td><a href="#find">@name;</a></td>
+				<td>@email;</td>
+				<td>@memo;</td>
+				<td class="textr">@imp;</td>
+				<td class="text-center">@fecha;</td>
+				<td class="text-center"><input type="text" name="test"/></td>
+				<td class="text-center">
+					<a href="#find"><i class="fas fa-search icon"></i></a>
+					<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
+				</td>
+			</tr>
+		</tbody>
+		<tbody class="no-data">
+			<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
+		</tbody>
+		<tfoot data-tpl="pruebas-footer" class="hide">
+			<tr><td colspan="4">Filas: @size; / @total;</td><td class="textr">@imp;</td><td colspan="3"></td></tr>
+		</tfoot>
+	</table>
+	<div class="fr ui-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
+	<div class="pagination"></div>
 
 	<div class="navbar">
-		<a href="#tab-0" tabindex="100" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
-		<a href="#prev-tab" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-		<button type="reset" class="btn btn-light" tabindex="102">Limpiar <i class="fas fa-solid fa-broom"></i></button>
-		<button type="submit" class="btn btn-primary" tabindex="103">Buscar <i class="fas fa-search icon"></i></button>
-		<a href="#tab-3" tabindex="104" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
-		<hr/>
+		<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
+		<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+		<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
+		<a href="#clear-pruebas" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
 	</div>
-</form>
-
-<table id="pruebas" data-sort-by="memo" data-sort-dir="desc">
-	<thead>
-		<tr>
-			<th>Nº</th>
-			<th>Nombre<a href="#name" class="sort sort-none"></a></th>
-			<th>E-Mail<a href="#email" class="sort sort-none"></a></th>
-			<th>Info<a href="#memo" class="sort sort-none"></a></th>
-			<th>Importe<a href="#imp" class="sort sort-none"></a></th>
-			<th>Fecha<a href="#fecha" class="sort sort-none"></a></th>
-			<th>C4</th>
-			<th>Acciones</th>
-		</tr>
-	</thead>
-	<tbody id="pruebas-row" class="hide">
-		<tr class="tb-data">
-			<td class="text-center">@count;</td>
-			<td><a href="#find">@name;</a></td>
-			<td>@email;</td>
-			<td>@memo;</td>
-			<td class="textr">@imp;</td>
-			<td class="text-center">@fecha;</td>
-			<td class="text-center"><input type="text" name="test"/></td>
-			<td class="text-center">
-				<a href="#find"><i class="fas fa-search icon"></i></a>
-				<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
-			</td>
-		</tr>
-	</tbody>
-	<tbody class="no-data">
-		<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
-	</tbody>
-	<tfoot data-tpl="pruebas-footer" class="hide">
-		<tr><td colspan="4">Filas: @size; / @total;</td><td class="textr">@imp;</td><td colspan="3"></td></tr>
-	</tfoot>
-</table>
-<div class="fr ui-group"><input type="range" id="page-size" name="page-size" min="20" max="200" value="60" step="10" /></div>
-<div class="pagination"></div>
-
-<div class="navbar">
-	<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left"></i>&nbsp;</a>
-	<a href="#prev-tab" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-	<a href="#tab-3" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
-	<a href="#clear-pruebas" class="btn btn-danger" tabindex="103"><i class="fas fa-solid fa-trash"></i> Borrar</a>
-</div>
 </div>
 
 <div id="tab-3" class="tab-content">
@@ -239,3 +266,7 @@
 		<li><a href="/contact.html">Contact</a></li>
 	</ul>
 </div>
+
+<!--
+<script src="https://www.google.com/recaptcha/api.js?render=6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ"></script>
+-->
