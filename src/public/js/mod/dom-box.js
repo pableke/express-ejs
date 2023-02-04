@@ -436,9 +436,7 @@ function DomBox(opts) {
 	this.onsubmit = this.onSubmit = self.submit;
 
 	this.ready(function() {
-		i18n.setI18n(self.getLang()); // Set language
 		const reader = new FileReader(); // File Reader object
-
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables

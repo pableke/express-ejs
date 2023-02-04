@@ -184,14 +184,13 @@ dom.ready(function() {
 
 	// Onclose event tab/browser of client user
 	window.addEventListener("unload", ev => dom.ajax("/destroy.html"));
-	// Google recptcha
-	/*if (sb.isset(window.grecaptcha)) {
+	if (window.grecaptcha) { // Google recptcha
 		grecaptcha.ready(function() { // Is ready for token
 			grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
 				.then(token => dom.setInputValue("#token", token))
 				.catch(dom.showError);
 		});
-	}*/
+	}
 
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));

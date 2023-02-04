@@ -86,6 +86,7 @@ function ValidatorBox() {
 	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
 	this.word = value => self.regex(/\w+/, self.size50(value));
 	this.words = value => between(Array.isArray(value) ? value : fnSplit(RE_WORDS, sb.clean(value)), 1, 100);
+	this.line = value => value ? self.words(value) : []; // optional words
 	this.array = value => numbers(Array.isArray(value) ? value : fnSplit(RE_ARRAY, sb.clean(value)));
 	this.list = value => value ? self.array(value) : []; // optional array
 	this.digits = value => self.regex(RE_DIGITS, self.size50(value));

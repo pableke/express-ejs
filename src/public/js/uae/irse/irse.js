@@ -1,7 +1,6 @@
 
 dom.ready(function() {
-	i18n.setI18n(IRSE.lang).addLangs(IRSE_I18N); //Set init. config
-	Object.assign(IRSE, i18n.getMsgs()); //Add date config
+	i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
 	dom.tr(".i18n-tr-h1"); //local traductor
 
 	/********** uxxiec autocomplete **********/

@@ -17,12 +17,20 @@ function DomBox(opts) {
 		classAlertText: "alert-text",
 		classAlertClose: "alert-close",
 		classInputError: "ui-error",
-		classTipError: "ui-errtip"
+		classTipError: "ui-errtip",
+		//classSortNone: "sort-none",
+		//classSortDesc: "sort-desc",
+		//classSortAsc: "sort-asc",
+		//classSortTable: "sort",
+		classCheckList: "check-list",
+		classCheckGroup: "check-group"
 	}
 
 	// Update congig
 	Object.assign(CONFIG, opts);
 	const TIP_ERR_SELECTOR = "." + CONFIG.classTipError;
+	const CHEK_LIST_SELECTOR = "." + CONFIG.classCheckList;
+	const CHEK_GROUP_SELECTOR = "." + CONFIG.classCheckGroup;
 
 	const fnSelf = () => self;
 	const fnParam = value => value; // return param value
@@ -416,7 +424,6 @@ function DomBox(opts) {
 	this.onsubmit = this.onSubmit = self.submit;
 
 	this.ready(function() {
-		i18n.setI18n(self.getLang()); // Set language
 		const reader = new FileReader(); // File Reader object
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
@@ -500,6 +507,8 @@ function DomBox(opts) {
 
 		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
+		self.beforeResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
+		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onChangeForms = (selector, fn) => fnAddEvents(selector, forms, ON_CHANGE, fn);
 		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);

@@ -14,9 +14,10 @@ function I18nBox() {
 
 	this.getLangs = () => langs;
 	this.getCurrent = () => _lang;
+	this.setCurrent = lang => { _lang = langs[lang] || _lang; return self; }
 	this.getLang = lang => langs[lang] || langs[lang && lang.substr(0, 2)] || _lang;
 	this.setLang = (lang, data) => { langs[lang] = data; return self; }
-	this.addLang = (lang, data) => self.setLang(Object.assign(langs[lang] || {}, data));
+	this.addLang = (lang, data) => self.setLang(lang, Object.assign(langs[lang] || {}, data));
 	this.addLangs = langs => { for (const k in langs) self.addLang(k, langs[k]); return self; }
 	this.loadLang = lang => { _lang = self.getLang(lang); return self; }
 	this.getI18n = self.getLang;

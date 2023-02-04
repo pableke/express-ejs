@@ -1,6 +1,6 @@
 
 dom.ready(function() {
-	i18n.setI18n("es").addLangs(TC_I18N);
+	i18n.addLangs(TC_I18N).setCurrent("es");
 
 	const form = $("form#xeco");
 	const op2 = $("input#op2", form);
@@ -197,7 +197,7 @@ dom.ready(function() {
 			dom.addError("#importe", "Debe indicar un importe mayor de 0,00 &euro; para la partida que disminuye");
 		if (!incrementar.length) //todas las solicitudes tienen partidas a aumentar
 			dom.addError("#eco3d", "Debe seleccionar al menos una partida a aumentar!", msgRequired);
-		if (pdec.importe != pinc.importe)
+		if (!nb.eq01(pdec.importe, pinc.importe))
 			dom.addError("#eco3d", "El importe de la partida que disminuye no coincide con el de la/las que aumentan!");
 		if (partidas.isValidableCd() && ((pdec.cd || 0) < pinc.importe)) //TCR o AFC
 			dom.addError("#eco3d", "Cr&eacute;dito m&aacute;ximo disponible excedido!");
