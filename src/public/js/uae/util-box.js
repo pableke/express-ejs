@@ -14,8 +14,8 @@ const dpLatin = i18n.toDate;
 const dfLatin = i18n.isoDate;
 
 //gestion de informes y mensajes
-function handleReport(xhr, status, args) { dom.closeAlerts().showError(args && args.msgerr).redir(args && args.url); }
-function handleMessages(xhr, status, args) { dom.closeAlerts().showError(args && args.msgerr).showOk(args && args.msgok); }
+function handleMessages(xhr, status, args) { unloading(); dom.showAlerts(ab.parse(args.data)); }
+function handleReport(xhr, status, args) { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }
 function fnRechazar() { //envia el rechazo al servidor si hay motivo
 	return dom.closeAlerts().required("#rechazo", "Debe indicar un motivo para el rechazo de la solicitud.").isOk() && i18n.confirm("msgRechazar");
 }
@@ -47,14 +47,14 @@ dom.ready(function() {
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
 	const ibox = document.body.lastElementChild;
-	window.loading = window.MostrarProgreso = () => $(ibox).show();
+	window.loading = window.MostrarProgreso = () => { dom.closeAlerts(); $(ibox).show(); };
 	window.unloading = () => $(ibox).hide();
 
 	// Scroll body to top on click and toggle back-to-top arrow
-	dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>');
-	const top = document.body.lastElementChild;
-	window.onscroll = function() { dom.toggleHide(top, this.pageYOffset < 80); }
-	dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
+	//dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>');
+	//const top = document.body.lastElementChild;
+	//window.onscroll = function() { dom.toggleHide(top, this.pageYOffset < 80); }
+	//dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
 
 	// Inputs formated
 	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
