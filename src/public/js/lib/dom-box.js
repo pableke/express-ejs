@@ -538,6 +538,7 @@ function DomBox(opts) {
 		self.onChangeTable = (selector, fn) => self.onTable(selector, "change", fn);
 		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "change", fn);
 		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
+		self.afterRenderTable = (selector, fn) => self.onTable(selector, "rendered", fn);
 		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
 		self.onPaginationTable = (selector, fn) => self.onTable(selector, "pagination", fn);
 
@@ -584,7 +585,7 @@ function DomBox(opts) {
 
 			const tbody = table.tBodies[0]; // Data rows
 			fnRendetTfoot(table, resume, styles); // First render footer
-			self.render(tbody, tpl => ab.format(aux, tpl, styles)); // Render rows
+			self.render(tbody, tpl => ab.format(aux, tpl, styles)).trigger(table, "rendered"); // Render rows
 			fnToggleTbody(table); // Toggle body if no data
 			fnPagination(table, data, resume, styles); // Render asociated pages
 
@@ -593,6 +594,12 @@ function DomBox(opts) {
 				resume.row = row; // TR parent row
 				resume.index = resume.start + i; // Real index
 				resume.data = data[resume.index]; // Current data row
+				resume.element = ev.target; // Element to trigger event
+				self.trigger(table, "change-" + ev.target.name, resume); // Specific change event
+			}).change(table.tFoot.children, (row, ev, i) => {
+				resume.row = row; // TR parent row
+				resume.index = i; // Real index
+				resume.data = null; // no data
 				resume.element = ev.target; // Element to trigger event
 				self.trigger(table, "change-" + ev.target.name, resume); // Specific change event
 			}).click(self.getAll("a[href]", tbody), el => {

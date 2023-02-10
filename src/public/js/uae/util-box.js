@@ -47,7 +47,7 @@ dom.ready(function() {
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
 	const ibox = document.body.lastElementChild;
-	window.loading = window.MostrarProgreso = () => { dom.closeAlerts(); $(ibox).show(); };
+	window.loading = window.MostrarProgreso = () => { dom.closeAlerts(); return $(ibox).show(); };
 	window.unloading = () => $(ibox).hide();
 
 	// Scroll body to top on click and toggle back-to-top arrow
@@ -57,7 +57,7 @@ dom.ready(function() {
 	//dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
 
 	// Inputs formated
-	dom.each(dom.getInputs(".ui-bool"), el => { el.value = i18n.fmtBool(el.value); })
+	dom.eachInput(".ui-bool", el => { el.value = i18n.fmtBool(el.value); })
 		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.setAttrInputs(".ui-date", "type", "date").setAttrInputs(".disabled,.ui-state-disabled", "readonly", true);
