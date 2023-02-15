@@ -34,6 +34,13 @@ dom.ready(function() {
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 
+	// Common validators for fields
+	dom.addError = dom.setError = dom.setInputError; // Synonym
+	dom.required = (el, msg) => dom.setError(el, msg, null, i18n.required);
+	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
+	dom.leToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.leToday);
+	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
+
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(selector, opts) {
 		const fnFalse = () => false;

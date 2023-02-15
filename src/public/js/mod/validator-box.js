@@ -17,7 +17,7 @@ function ValidatorBox() {
 	const ESCAPE_MAP = { '"': "&#34;", "'": "&#39;", "&": "&#38;", "<": "&#60;", ">": "&#62;", "\\": "&#92;" };
 
 	//RegEx for validating
-	const RE_DIGITS = /^\d+$/;
+	const RE_DIGITS = /^[1-9]\d*$/;
 	const RE_WORDS = /^\w+(,\w+)*$/;
 	const RE_ARRAY = /^\d+(,\d+)*$/;
 	const RE_MAIL = /\w+[^\s@]+@[^\s@]+\.[^\s@]+/;
@@ -48,12 +48,11 @@ function ValidatorBox() {
 	const numbers = arr => nb.between(sb.size(arr), 1, 100) ? arr.map(nb.intval) : null; // for Array numbers
 
 	// Validators
-	this.intval = num => { var aux = parseInt(num); return isNaN(aux) ? null : aux; }
+	this.intval = num => { num = parseInt(num); return isNaN(aux) ? null : aux; }
 	this.intval3 = num => fnRange(nb.intval(num), 1, 3);
 	this.intval5 = num => fnRange(nb.intval(num), 1, 5);
 	this.intval9 = num => fnRange(nb.intval(num), 1, 9);
 	this.range = (num, min, max) => fnRange(num, min, max);
-	this.fk = num => fnRange(nb.intval(num), 1, Infinity);
 	this.gt0 = num => fnRange(num, .0001, 1e9); // Float
 
 	this.size = (str, min, max) => between(sb.trim(str), min, max);

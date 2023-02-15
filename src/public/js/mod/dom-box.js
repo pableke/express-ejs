@@ -414,7 +414,7 @@ function DomBox(opts) {
 	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", 0, fn);
 	this.trigger = function(el, name, detail) {
-		el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
+		fnQuery(el).dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
 		return self;
 	}
 
@@ -493,8 +493,11 @@ function DomBox(opts) {
 		self.getInputValue = el => self.getValue(self.getInput(el));
 		self.setInputValue = (el, value) => self.setValue(self.getInput(el), value);
 		self.copyVal = (i1, i2) => self.setInputValue(i1, self.getInputValue(i2));
-		self.setAttrInput = (selector, name, value) => self.setAttribute(self.getInput(selector), name, value);
-		self.delAttrInput = (selector, name) => self.removeAttr(self.getInput(selector), name);
+		self.setAttrInput = (selector, name, value) => self.apply(selector, inputs, input => input.setAttribute(name, value));
+		self.delAttrInput = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
+		self.swapAttr = (selector, a1, a2) => self.apply(selector, inputs, input => {
+			input.setAttribute(a2, input.getAttribute(a1)); input.removeAttribute(a1);
+		});
 
 		self.setFocus = el => self.focus(sb.isstr(el) ? self.find(el, inputs) : ab.find(self.inputs(el), fnFocus));
 		self.autofocus = elements => self.focus(ab.find(elements || inputs, fnFocus)); // Set focus on first visible input
@@ -508,9 +511,10 @@ function DomBox(opts) {
 		self.beforeResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
 		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
+		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), "change", fn);
 		self.onChangeInputs = (selector, fn) => self.change(self.getInputs(selector), fn);
-		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, fn).onChangeInputs(selector, fn);
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position

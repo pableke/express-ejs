@@ -30,6 +30,7 @@ export default {
 		//confirm cuestions
 		saveOk: "Element saved successfully!",
 		remove: "Are you sure to delete this element?",
+		removeSolicitud: "Are you sure to delete this request?",
 		removeAll: "Are you sure to delete all elements?",
 		removeOk: "Element removed successfully!",
 		cancel: "Are you sure to cancel element?",
@@ -94,6 +95,7 @@ export default {
 		//confirm cuestions
 		saveOk: "Datos actualizados correctamente",
 		remove: "¿Confirma que desea eliminar este registro?",
+		removeSolicitud: "¿Confirma que desea eliminar esta solicitud?",
 		removeAll: "¿Confirma que desea eliminar todos los elementos?",
 		removeOk: "Registro eliminado correctamente.",
 		cancel: "¿Confirma que desea cancelar este registro?",

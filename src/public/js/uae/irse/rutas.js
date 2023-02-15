@@ -267,6 +267,6 @@ function IrseRutas() {
 			select: function(ev, ui) {
 				return fnAcLoad(this, ui.item.nif, ui.item.nombre);
 			}
-		}).change(fnAcReset);
+		}).change(fnAcReset).on("search", fnAcReset);
 	});
 }

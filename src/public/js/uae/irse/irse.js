@@ -22,30 +22,22 @@ dom.ready(function() {
 			let text = ui.item.num + " - " + ui.item.desc;
 			return fnAcLoad(this, ui.item.ec + "," + ui.item.tipo, text);
 		}
-	}).change(fnAcReset);
-	/********** uxxiec autocomplete **********/
+	}).change(fnAcReset).on("search", fnAcReset);
 
+	operaciones = ab.parse(dom.getText("#op-json")) || [];
 	dom.click("a#add-uxxi", el => {
 		if (op) {
 			delete op.id; //force insert
 			operaciones.push(op); // save container
-			dom.table("#operaciones", operaciones, RESUME, STYLES);
+			dom.table("#op-table", operaciones, RESUME, STYLES);
 		}
 		dom.setValue("#uxxi", "").setFocus("#uxxi")
 	});
-	dom.onRenderTable("#operaciones", table => {
-		dom.setValue("#op-vinc", JSON.stringify(operaciones));
+	dom.table("#op-table", operaciones, RESUME, STYLES);
+	dom.onRenderTable("#op-table", table => {
+		dom.setValue("#operaciones", JSON.stringify(operaciones));
 		op = null; // reinit vinc.
 	});
-	window.onLoadUxxi = sol => {
-		loading();
-		dom.setText("#info-vinc", sol.cod + ": " + sol.memo);
-	}
-	window.loadUxxi = (xhr, status, args) => {
-		operaciones = ab.parse(args.data) || []; // JSON returned by server
-		dom.table("#operaciones", operaciones, RESUME, STYLES).viewTab(15);
-		unloading();
-	}
 });
 
 //Global IRSE components
@@ -56,7 +48,6 @@ const ir = new IrseRutas();
 const dietas = new IrseDietas();
 
 //PF needs confirmation in onclick attribute
-const fnRemove = () => i18n.confirm("msgDelSolicitud") && loading();
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
 const fnFirmar = () => i18n.confirm("msgFirmar") && loading();

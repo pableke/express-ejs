@@ -13,7 +13,7 @@ dom.ready(() => {
 		select: function(ev, ui) {
 			return fnAcLoad(this, ui.item.nif, ui.item.nif + " - " + ui.item.nombre);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 
 	$(".ac-pago").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
@@ -28,7 +28,7 @@ dom.ready(() => {
 		select: function(ev, ui) {
 			return fnAcLoad(this, ui.item.numJg, ui.item.numJg + ": " + ui.item.desc);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 
 	$(".ac-tramitador").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
@@ -44,7 +44,7 @@ dom.ready(() => {
 			let text = ui.item.utCod + " - " + ui.item.utDesc;
 			return fnAcLoad(this, ui.item.id, text);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 
 	$(".ac-organica").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
@@ -56,5 +56,5 @@ dom.ready(() => {
 		select: function(ev, ui) {
 			return fnAcLoad(this, ui.item.id, ui.item.o + " - " + ui.item.dOrg);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 });
