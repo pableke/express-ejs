@@ -26,7 +26,7 @@ dom.ready(function() {
 		select: function(ev, ui) {
 			return fnAcLoad(this, ui.item.id, ui.item.eco + " - " + ui.item.desc);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 
 	/********** uxxiec autocomplete **********/
 	let _uxxiData = ab.ss("uxxi", $("#uxxi-data").text()).read("uxxi"); //source data
@@ -41,7 +41,7 @@ dom.ready(function() {
 		select: function(ev, ui) {
 			return fnAcLoad(this, ui.item.ec + "," + ui.item.tipo, ui.item.num);
 		}
-	}).change(fnAcReset);
+	}).change(fnAcReset).on("search", fnAcReset);
 	/********** end autocompletes inputs **********/
 
 	$("a[href=unlink]").click(function() { return confirm("\277Desea desasociar esta operaci&oacute;n de UXXI-EC?'") && nav(this); });

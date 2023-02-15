@@ -183,11 +183,11 @@ function IrsePerfil() {
 				self.setColectivo(ui.item.ci).update(); //actualizo colectivo + tramite
 				return fnAcLoad(this, ui.item.nif, ui.item.nif + " - " + ui.item.nombre);
 			}
-		}).change(fnAcReset);
+		}).change(fnAcReset).on("search", fnAcReset);
 		/********** interesqado autocomplete **********/
 
 		/********** tramitador / organicas autocompletes **********/
-		$("#tramitador:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({
+		/*$("#tramitador:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({
 			minLength: 4,
 			focus: fnFalse, //no change focus on select
 			search: fnAcSearch, //lunch source
@@ -202,7 +202,12 @@ function IrsePerfil() {
 				let text = ui.item.utCod + " - " + ui.item.utDesc;
 				return fnAcLoad(this, ui.item.id, text);
 			}
-		}).change(fnAcReset);
+		}).change(fnAcReset).on("search", fnAcReset);*/
+
+		function fnResetOrganica() {
+			i18n.set("imp", null); dom.toggleHide(".msg-cd", !this.value);
+			fnAcReset();
+		}
 		$("#organica").attr("type", "search").keydown(fnAcChange).autocomplete({
 			delay: 500, //milliseconds between keystroke occurs and when a search is performed
 			focus: fnFalse, //no change focus on select
@@ -220,7 +225,7 @@ function IrsePerfil() {
 				}
 				return !dom.tr(".msg-cd", STYLES_CD);
 			}
-		}).change(function() { i18n.set("imp", null); dom.toggleHide(".msg-cd", !this.value); fnAcReset(); });
+		}).change(fnResetOrganica).on("search", fnResetOrganica);
 		/********** tramitador / organicas autocompletes **********/
 
 		organicas = ab.parse(dom.getText("#org-data")) || [];

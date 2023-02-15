@@ -14,11 +14,10 @@ const dpLatin = i18n.toDate;
 const dfLatin = i18n.isoDate;
 
 //gestion de informes y mensajes
-function handleMessages(xhr, status, args) { unloading(); dom.showAlerts(ab.parse(args.data)); }
-function handleReport(xhr, status, args) { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }
-function fnRechazar() { //envia el rechazo al servidor si hay motivo
-	return dom.closeAlerts().required("#rechazo", "Debe indicar un motivo para el rechazo de la solicitud.").isOk() && i18n.confirm("msgRechazar");
-}
+const fnRemove = () => i18n.confirm("removeSolicitud") && loading();
+const handleMessages = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)); }
+const handleReport = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }
+const fnRechazar = () => dom.closeAlerts().required("#rechazo", "Debe indicar un motivo para el rechazo de la solicitud.").isOk() && i18n.confirm("msgRechazar");
 
 //Autocomplete helper
 let _search = false; //call source indicator
@@ -28,7 +27,7 @@ function fnAcSearch() { return _search; } //lunch source
 function fnAcChange(ev) { _search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223); } //backspace or alfanum
 function fnAcFilter(data, columns, term) { return data && data.filter(row => sb.olike(row, columns, term)).slice(0, 8); } //filter max 8 results
 function fnAcRender(jqel, fnRender) { jqel.autocomplete("instance")._renderItem = (ul, item) => $("<li></li>").append("<div>" + sb.iwrap(fnRender(item), jqel.val()) + "</div>").appendTo(ul); }
-function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").val(id); }
+function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").first().val(id); }
 function fnAcReset() { this.value || fnAcLoad(this, "", ""); }
 function fnAutocomplete(el, columns, fnResponse, fnRender) {
 	loading();
@@ -47,7 +46,7 @@ dom.ready(function() {
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
 	const ibox = document.body.lastElementChild;
-	window.loading = window.MostrarProgreso = () => { dom.closeAlerts(); return $(ibox).show(); };
+	window.loading = window.MostrarProgreso = () => dom.closeAlerts() && $(ibox).show();
 	window.unloading = () => $(ibox).hide();
 
 	// Scroll body to top on click and toggle back-to-top arrow
@@ -81,6 +80,7 @@ dom.ready(function() {
 	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
 	dom.fk = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.fk);
 	dom.past = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.past);
+	dom.leToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.leToday);
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Show / Hide related info

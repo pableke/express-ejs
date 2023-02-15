@@ -123,7 +123,6 @@ function I18nBox() {
 	this.text200 = (name, value, msg, msgtip) => fnValid(name, valid.text200(value), msg, msgtip ?? "errMaxlength");
 	this.text300 = (name, value, msg, msgtip) => fnValid(name, valid.text300(value), msg, msgtip ?? "errMaxlength");
 
-	this.fk = (name, value, msg, msgtip) => fnValid(name, valid.fk(value), msg, msgtip ?? "errNumber");
 	this.intval = (name, value, msg, msgtip) => fnValid(name, valid.intval(value), msg, msgtip ?? "errRange");
 	this.intval3 = (name, value, msg, msgtip) => fnValid(name, valid.intval3(value), msg, msgtip ?? "errRange");
 	this.intval9 = (name, value, msg, msgtip) => fnValid(name, valid.intval9(value), msg, msgtip ?? "errRange");

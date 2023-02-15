@@ -1,6 +1,6 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
-//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-replace gulp-rename gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-rename gulp-minify-ejs
+//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-rename gulp-minify-ejs
 import fs from "fs"; //file system module
 import path from "path"; //file and directory paths
 import url from "url"; // Url handler
@@ -12,8 +12,7 @@ import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
 import cssInline from 'gulp-minify-inline';
 import strip from "gulp-strip-comments";
-//const replace from "gulp-replace");
-//const rename from "gulp-rename");
+import rename from "gulp-rename";
 
 // Settings
 const FOLDERS = [ "dist", "dist/controllers", "dist/dao", "dist/i18n", "dist/routes" ];
@@ -96,8 +95,9 @@ gulp.task("minify-js-uae-presto", () => {
 });
 gulp.task("minify-js-uae-xeco", () => {
 	return gulp.src(JS_UAE_XECO)
-				.pipe(concat("xeco-min.js"))
+				//.pipe(concat("xeco-min.js"))
 				.pipe(uglify())
+				.pipe(rename({ suffix: "-min" }))
 				.pipe(gulp.dest("src/public/js/uae"))
 				.pipe(gulp.dest("dist/public/js/uae"));
 });

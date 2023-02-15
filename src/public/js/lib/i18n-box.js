@@ -36,6 +36,7 @@ function I18nBox() {
 
 			//confirm cuestions
 			saveOk: "Element saved successfully!",
+			removeSolicitud: "Are you sure to delete this request?",
 			remove: "Are you sure to delete this element?",
 			removeAll: "Are you sure to delete all elements?",
 			removeOk: "Element removed successfully!",
@@ -101,6 +102,7 @@ function I18nBox() {
 			//confirm cuestions
 			saveOk: "Registro guardado correctamente",
 			remove: "¿Confirma que desea eliminar este registro?",
+			removeSolicitud: "¿Confirma que desea eliminar esta solicitud?",
 			removeAll: "¿Confirma que desea eliminar todos los elementos?",
 			removeOk: "Registro eliminado correctamente.",
 			cancel: "¿Confirma que desea cancelar este registro?",
@@ -251,7 +253,6 @@ function I18nBox() {
 	this.text300 = (name, value, msg, msgtip) => self.valid(name, valid.text300(value), msg, msgtip ?? "errMaxlength");
 	this.text = (name, value, msg, msgtip) => self.valid(name, valid.text(value), msg, msgtip ?? "errMaxlength");
 
-	this.fk = (name, value, msg, msgtip) => self.valid(name, valid.fk(value), msg, msgtip ?? "errNumber");
 	this.intval = (name, value, msg, msgtip) => self.valid(name, valid.intval(value), msg, msgtip ?? "errRange");
 	this.intval3 = (name, value, msg, msgtip) => self.valid(name, valid.intval3(value), msg, msgtip ?? "errRange");
 	this.iGt0 = (name, value, msg, msgtip) => self.valid(name, valid.gt0(_lang.toInt(value)), msg, msgtip ?? "errNumber");

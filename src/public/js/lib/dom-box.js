@@ -403,7 +403,7 @@ function DomBox(opts) {
 	this.events = (list, name, fn) => self.each(list, (el, i) => fnEvent(el, name, i, fn));
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", 0, fn);
 	this.trigger = function(el, name, detail) {
-		el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
+		fnQuery(el).dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
 		return self;
 	}
 
@@ -489,6 +489,7 @@ function DomBox(opts) {
 		self.delAttrInput = (selector, name) => self.delAttr(self.getInput(selector), name);
 		self.delAttrInputs = (selector, name) => self.apply(selector, inputs, input => input.removeAttribute(name));
 		self.getOptText = select => { select = self.getInput(select); return select && self.getText(select.options[select.selectedIndex]); }
+		self.swapAttr = (selector, a1, a2) => self.apply(selector, inputs, input => { input.setAttribute(a2, input.getAttribute(a1)); input.removeAttribute(a1); });
 		self.setInput = (selector, value, fnChange) => {
 			const el = self.getInput(selector);
 			if (el) {
@@ -511,9 +512,10 @@ function DomBox(opts) {
 		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onChangeForms = (selector, fn) => fnAddEvents(selector, forms, ON_CHANGE, fn);
 		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
+		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
-		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, fn).onChangeInputs(selector, fn);
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
