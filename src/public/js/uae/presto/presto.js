@@ -1,6 +1,6 @@
 
 dom.ready(function() {
-	i18n.addLangs(TC_I18N).setCurrent("es");
+	i18n.setCurrent("es");
 
 	const form = $("form#xeco");
 	const op2 = $("input#op2", form);
