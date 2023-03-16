@@ -22,8 +22,7 @@ dom.ready(function() {
 	// End loading div
 
 	// Inputs formater
-	dom.eachInput(".ui-bool", el => { el.value = i18n.fmtBool(el.value); })
-		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
+	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
 
 	// Initialize all textarea counter
@@ -200,7 +199,8 @@ dom.ready(function() {
 	}
 
 	// Show / Hide related info
-	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
+	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el))
+		.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
 	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.form)); // Ajax calls
 	//dom.api.post("/tests/sign", { usuario: "pablo", clave: "1234" }).then(token => window.sessionStorage.setItem("web", token)); // Read token
 	//dom.api.get("/tests/api/users", "web").then(console.log);

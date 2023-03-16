@@ -103,8 +103,7 @@ dom.ready(function() {
 	/********** partida que se incrementa **********/
 	let _ecos;
 	function fnAddPinc(item) {
-		pinc.temp = item;
-		pinc.temp.omask = item.mask;
+		pinc.temp = item; //partida seleccionada
 		$("#fainc", form).val(i18n.fmtBool(item.mask & 1));
 	}
 
@@ -147,11 +146,14 @@ dom.ready(function() {
 		.autofocus();
 
 	function fnUpdatePinc(imp) {
-		incrementar.push(pinc.temp);
-		fnAnticipo(pinc.temp);
-		pinc.temp.importe = imp;
-		pinc.temp.ej = pdec.ej;
-		pinc.temp = null;
+		const aux = Object.assign({}, pinc.temp);
+		aux.omask = aux.mask; //mascara de la organica
+		aux.mask = 0; //mascara de la partida
+		aux.importe = imp; //importe seleccionado
+		aux.ej = pdec.ej; //ejercicio de la partida
+		fnAnticipo(aux); //marca de anticipo
+		incrementar.push(aux);
+		pinc.temp = null; //listo para una nueva seleccion
 		dom.table("#partidas-inc", incrementar, pinc, STYLES);
 	}
 	dom.onclick("a#add-partida", el => {
@@ -201,7 +203,12 @@ dom.ready(function() {
 			dom.addError("#eco3d", "El importe de la partida que disminuye no coincide con el de la/las que aumentan!");
 		if (partidas.isValidableCd() && ((pdec.cd || 0) < pinc.importe)) //TCR o AFC
 			dom.addError("#eco3d", "Cr&eacute;dito m&aacute;ximo disponible excedido!");
-		ePartidas.val(JSON.stringify(incrementar)); //serializo las partidas a incrementar
-		return dom.isOk() && confirm("\277Confirma que desea firmar y enviar esta solicitud?") && linkto(el);
+		if (dom.isOk()) { //todas las validaciones estan ok
+			incrementar.sort((a, b) => (b.importe - a.importe)); //orden por importe desc.
+			incrementar[0].mask = incrementar[0].mask | 1; //marco la primera como principal
+			ePartidas.val(JSON.stringify(incrementar)); //serializo las partidas a incrementar
+			return confirm("\277Confirma que desea firmar y enviar esta solicitud?") && linkto(el);
+		}
+		return false;
 	});
 });

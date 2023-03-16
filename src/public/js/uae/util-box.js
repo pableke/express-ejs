@@ -14,6 +14,7 @@ const dpLatin = i18n.toDate;
 const dfLatin = i18n.isoDate;
 
 //gestion de informes y mensajes
+const fnFirmar = () => i18n.confirm("msgFirmar") && loading();
 const fnRemove = () => i18n.confirm("removeSolicitud") && loading();
 const handleMessages = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)); }
 const handleReport = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }
@@ -28,7 +29,17 @@ function fnAcChange(ev) { _search = (ev.keyCode == 8) || sb.between(ev.keyCode, 
 function fnAcFilter(data, columns, term) { return data && data.filter(row => sb.olike(row, columns, term)).slice(0, 8); } //filter max 8 results
 function fnAcRender(jqel, fnRender) { jqel.autocomplete("instance")._renderItem = (ul, item) => $("<li></li>").append("<div>" + sb.iwrap(fnRender(item), jqel.val()) + "</div>").appendTo(ul); }
 function fnAcLoad(el, id, txt) { return !$(el).val(txt).siblings("[type=hidden]").first().val(id); }
+function fnSelectItem(ev, ui) { return fnAcLoad(this, ui.item.value, ui.item.label); } 
 function fnAcReset() { this.value || fnAcLoad(this, "", ""); }
+function fnSourceItems(req, res) {
+	loading();
+	window.handleJson = function(xhr, status, args) {
+		res(ab.parse(args?.data) || []);
+		unloading();
+	}
+	fnAcRender(this.element, item => item.label);
+	this.element.siblings("[id^='find-']").click(); //ajax call
+}
 function fnAutocomplete(el, columns, fnResponse, fnRender) {
 	loading();
 	window.handleJson = function(xhr, status, args) {
@@ -46,14 +57,8 @@ dom.ready(function() {
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
 	const ibox = document.body.lastElementChild;
-	window.loading = window.MostrarProgreso = () => dom.closeAlerts() && $(ibox).show();
-	window.unloading = () => $(ibox).hide();
-
-	// Scroll body to top on click and toggle back-to-top arrow
-	//dom.append('<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>');
-	//const top = document.body.lastElementChild;
-	//window.onscroll = function() { dom.toggleHide(top, this.pageYOffset < 80); }
-	//dom.addClick(top, el => !dom.scroll().scroll(null, window.parent));
+	dom.loading = window.loading = window.MostrarProgreso = () => { $(ibox).show(); return dom.closeAlerts(); }
+	dom.working = dom.unloading = window.unloading = () => { $(ibox).hide(); return dom; }
 
 	// Inputs formated
 	dom.eachInput(".ui-bool", el => { el.value = i18n.fmtBool(el.value); })
@@ -61,9 +66,9 @@ dom.ready(function() {
 		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.setAttrInputs(".ui-date", "type", "date").setAttrInputs(".disabled,.ui-state-disabled", "readonly", true);
 	// Initialize all textarea counter
-	const ta = dom.getInputs("textarea[maxlength]");
+	const ta = dom.getInputs("textarea");
 	function fnCounter(el) {
-		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
+		let value = Math.abs(600 - sb.size(el.value));
 		dom.setText(dom.get(".counter", el.parentNode), value);
 	}
 	dom.keyup(ta, fnCounter).each(ta, fnCounter);
@@ -84,7 +89,17 @@ dom.ready(function() {
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Show / Hide related info
-	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
+	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el));
+	dom.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
+	dom.each(".check-icon", el => {
+		const check = dom.get("input", el);
+		const icon = dom.sibling(el, "i");
+		dom.toggle(icon, "active", check.checked);
+		dom.addClick(icon, () => {
+			check.checked = !check.checked;
+			dom.toggle(icon, "active");
+		});
+	});
 
 	const tabs = dom.getTabs(); // All tabs list
 	$("a.rechazar", tabs).click(function() { //muestra el tab de rechazo

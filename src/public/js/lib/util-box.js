@@ -95,41 +95,7 @@ dom.ready(function() {
 	}
 	// Extends dom-box actions
 
-	// Build tree menu as UL > Li > *
-	const menu = dom.get("ul.menu"); // Find unique menu
-	if (menu) { // menu exists?
-		const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
-		children.forEach(child => {
-			let padre = child.dataset.padre; // Has parent?
-			let mask = child.dataset.mask ?? 4; // Default mask = active
-			if (padre) { // Move child with his parent
-				let li = dom.get("li[id='" + padre + "']", menu);
-				if (li) {
-					let children = +li.dataset.children || 0;
-					if (!children) { // Is first child?
-						li.innerHTML += '<ul class="sub-menu"></ul>';
-						li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
-						dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
-					}
-					mask &= li.dataset.mask ?? 4; // Propage disabled
-					li.dataset.children = children + 1; // add child num
-					li.lastElementChild.appendChild(child); // move child
-				}
-			}
-			else // force reorder lebel 1
-				menu.appendChild(child);
-			dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
-		});
-		// Show / Hide sidebar and show menu
-		dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
-	}
-
-	// Onclose event tab/browser of client user
-	/*window.addEventListener("unload", ev => {
-		//dom.ajax("/session/destroy.html");
-	});*/
-
 	// Show / Hide related info
-	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el).toggle(dom.get("i.fas", el), el.dataset.icon));
-	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.href)); // Ajax calls
+	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el))
+		.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
 });

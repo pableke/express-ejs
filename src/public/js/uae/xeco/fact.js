@@ -1,8 +1,12 @@
 
+const loadDelegacion = (id, txt) => dom.setValue("#del-id", id).setValue("#del-name", txt);
 const loadDelegaciones = (xhr, status, args) => {
 	const delegaciones = ab.parse(args.data);
-	const tpl = '<option value="@value;">@label;</option>';
-	delegaciones && dom.setHtml("#id-delegacion", delegaciones.format(tpl)).setValue("#delegacion", delegaciones[0].value);
+	if (delegaciones) {
+		const tpl = '<option value="@value;">@label;</option>';
+		dom.setHtml("#delegacion", delegaciones.format(tpl));
+		loadDelegacion(delegaciones[0].value, delegaciones[0].label)
+	}
 	unloading(); // fin del calculo de delegaciones
 }
 
@@ -13,8 +17,8 @@ dom.ready(function() {
 		msgError: "errForm", 
 		factura: {
 			msgError: "errForm", 
-			tercero: i18n.required, delegacion: i18n.required, 
-			organica: i18n.required, memoria: i18n.required
+			tercero: i18n.required, "nif-tercero": i18n.required, delegacion: i18n.required, 
+			organica: i18n.required, "id-organica": i18n.required, memoria: i18n.required
 		},
 		lineas: { msgError: "errForm", desc: i18n.required, imp: i18n.gt0 }
 	};
@@ -47,21 +51,21 @@ dom.ready(function() {
 		lineas.forEach(linea => { RESUME.imp += linea.imp; }); // recalcula total
 		dom.setValue("#lineas", JSON.stringify(lineas)); // save data to send to server
 	});
-	if (FACT.uae && (FACT.tipo == 1)) {
-		dom.afterRenderTable("#conceptos", table => {
-			table.tFoot.querySelector("#iva").value = RESUME.iva;
-			fnCalcIva(table.tFoot.rows[1], RESUME.iva);
-		});
-	}
+	dom.afterRenderTable("#conceptos", table => {
+		table.tFoot.querySelector("#iva").value = RESUME.iva;
+		fnCalcIva(table.tFoot.rows[1], RESUME.iva);
+	});
 	dom.table("#conceptos", lineas, RESUME, STYLES)
 		.onChangeTable("#conceptos", table => fnCalcIva(RESUME.row, RESUME.element.value));
 
 	dom.swapAttr("#fMax", "min", "max")
 		.onChangeInputs("#subtipo", el => updateEconomica(el.value))
 		.onChangeInputs(".face-common", el => dom.eachInput(".face-common", input => { input.value = el.value; }))
-		.onChangeSelect("#delegacion", el => dom.setValue("#id-delegacion", el.value))
+		.onChangeInput("#delegacion", el => loadDelegacion(el.value, dom.getOptText(el)))
 		.onChangeSelect("#sujeto", el => dom.toggleHide(".grupo-exento", (el.value != 0)));
 	dom.onChangeSelect("#face", el => {
+		VALIDATORS.factura.og = (el.value == 1) ? i18n.required : null;
+		VALIDATORS.factura.plataforma = (el.value == 2) ? i18n.required : null;
 		dom.toggleHide("div.grupo-face", (el.value != 1))
 			.toggleHide("div.grupo-face-otras", (el.value != 2));
 	});
@@ -92,8 +96,8 @@ dom.ready(function() {
 	//Autocompletes tercero + organica + recibos
 	function fnResetTercero() {
 		if (this.value) return;
-		const tpl = '<option value="">Seleccione una delegación</option>';
-		dom.setHtml("#id-delegacion", tpl).setValue("#delegacion");
+		dom.setHtml("#delegacion", '<option value="">Seleccione una delegación</option>');
+		loadDelegacion("", "Seleccione una delegación");
 		fnAcLoad(this, "", "");
 	}
 	$(".ac-tercero").attr("type", "search").keydown(fnAcChange).autocomplete({
@@ -113,27 +117,20 @@ dom.ready(function() {
 						.trigger("#find-delegaciones", "click");
 		}
 	}).change(fnResetTercero).on("search", fnResetTercero);
-	$(".ac-organica").attr("type", "search").keydown(fnAcChange).autocomplete({
+	$("#organica").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
+		minLength: 4, //longitud minima para lanzar la busqueda
 		focus: fnFalse, //no change focus on select
 		search: fnAcSearch, //lunch source
-		source: function(req, res) {
-			fnAutocomplete(this.element, ["o", "dOrg"], res, item => (item.o + " - " + item.dOrg));
-		},
-		select: function(ev, ui) {
-			return fnAcLoad(this, ui.item.id, ui.item.o + " - " + ui.item.dOrg);
-		}
+		source: fnSourceItems, //show datalist
+		select: fnSelectItem //show item selected
 	}).change(fnAcReset).on("search", fnAcReset);
 	$(".ac-recibo").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
 		focus: fnFalse, //no change focus on select
 		search: fnAcSearch, //lunch source
-		source: function(req, res) {
-			fnAutocomplete(this.element, ["label"], res, item => item.label);
-		},
-		select: function(ev, ui) {
-			return fnAcLoad(this, ui.item.value, ui.item.label);
-		}
+		source: fnSourceItems, //show datalist
+		select: fnSelectItem //show item selected
 	}).change(fnAcReset).on("search", fnAcReset);
 
 	//Autocompletes expediente uxxiec
@@ -149,8 +146,7 @@ dom.ready(function() {
 		},
 		select: function(ev, ui) {
 			op = ui.item; // current operation
-			let text = ui.item.num + " - " + ui.item.desc;
-			return fnAcLoad(this, ui.item.ec + "," + ui.item.tipo, text);
+			return fnAcLoad(this, null, op.num + " - " + op.desc);
 		}
 	}).change(fnAcReset).on("search", fnAcReset);
 
