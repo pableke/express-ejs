@@ -194,7 +194,7 @@ function IrseRutas() {
 			rutas[0] = ruta; // Save new data (routes.length = 1)
 
 			self.resume(); // actualizo importes
-			dom.onChangeForm("#xeco", form => { self.resume().save(); }) // Any input change => save all rutas
+			dom.onChangeForm("#xeco-irse", form => { self.resume().save(); }) // Any input change => save all rutas
 				.toggleHide(".grupo-matricula", ruta.desp!=1)
 				.setInput("#origen", ruta.origen, el => { ruta.origen = ruta.destino = el.value; })
 				.setInput("#desp", ruta.desp, el => { ruta.desp = +el.value; })

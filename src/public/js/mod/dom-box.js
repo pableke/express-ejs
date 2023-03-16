@@ -148,6 +148,7 @@ function DomBox(opts) {
 	}
 	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
 	this.children = (el, selector) => el.parentNode.querySelectorAll(selector);
+	this.eachChild = (el, selector, fn) => self.apply(selector, el.children, fn);
 	this.clear = el => {
 		while (el.firstChild)
 			el.removeChild(el.firstChild);
@@ -243,9 +244,11 @@ function DomBox(opts) {
 	}
 
 	function fnSetError(el) {
+		const partner = self.sibling(el, INPUTS); // Partner element
 		const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
 		return self.showError(i18n.getError()).setHtml(tip, i18n.getMsg(el.name)).show(tip)
-					.addClass(el, CONFIG.classInputError).focus(el);
+					.addClass(el, CONFIG.classInputError).addClass(partner, CONFIG.classInputError)
+					.focus(fnVisible(el) ? el : partner);
 	}
 	this.setInputError = (el, msg, msgtip, fn) => {
 		el = self.getInput(el); // Get input
@@ -786,7 +789,7 @@ function DomBox(opts) {
 				.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 		}
 
-		// Auto check-all inputs groups
+		// Auto check inputs groups
 		self.eachInput(CHEK_GROUP_SELECTOR, el => {
 			const group = self.getInputs(CHEK_GROUP_SELECTOR + "-" + el.id);
 			const checkboxes = (el, list) => {
@@ -811,6 +814,13 @@ function DomBox(opts) {
 			self.click(el, aux => { self.check(group, el.checked); return checkboxes(el, group); })
 				.click(group, aux => { checkboxes(el, group); return fnCheckList(el, group, el.value); });
 			fnCheckList(el, group, el.value);
+		}).eachInput(".check-icon", el => {
+			const icon = self.sibling(el, "i");
+			self.toggle(icon, "active", el.checked);
+			self.addClick(icon, () => {
+				el.checked = !el.checked;
+				self.toggle(icon, "active");
+			});
 		});
 
 		// Clipboard function

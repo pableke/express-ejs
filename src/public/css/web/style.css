@@ -96,6 +96,10 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 .icon { margin: 1px 4px; }
 .fr { float: right; }
 
+.check-icon { display: none; }
+.ui-fav.active { color: #ffbc00; }
+.ui-fav:hover { color: #ffbc00; cursor: pointer; }
+
 /* Tabs classes */
 .tab-content { display: none; width: 100%; min-height: 70vh; max-height: 90vh; padding: 2px; }
 .tab-content.active { display: inherit; }

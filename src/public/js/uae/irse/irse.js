@@ -50,4 +50,3 @@ const dietas = new IrseDietas();
 //PF needs confirmation in onclick attribute
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
-const fnFirmar = () => i18n.confirm("msgFirmar") && loading();
