@@ -29,7 +29,7 @@ const JS_UAE_IRSE = [
 	"src/public/js/uae/irse/i18n.js", "src/public/js/uae/irse/perfil.js", "src/public/js/uae/irse/organicas.js", "src/public/js/uae/irse/imputacion.js", 
 	"src/public/js/uae/irse/rutas.js", "src/public/js/uae/irse/dietas.js", "src/public/js/uae/irse/irse.js"
 ];
-const JS_UAE_PRESTO = [ "src/public/js/uae/presto/**/*.js", "src/public/js/uae/presto/**/*.mjs" ];
+//const JS_UAE_PRESTO = [ "src/public/js/uae/presto/**/*.js", "src/public/js/uae/presto/**/*.mjs" ];
 const JS_UAE_XECO = [ "src/public/js/uae/xeco/**/*.js", "src/public/js/uae/xeco/**/*.mjs" ];
 
 // Task to minify all views (HTML's and EJS's)
@@ -86,13 +86,13 @@ gulp.task("minify-js-uae-irse", () => {
 				.pipe(gulp.dest("src/public/js/uae"))
 				.pipe(gulp.dest("dist/public/js/uae"));
 });
-gulp.task("minify-js-uae-presto", () => {
+/*gulp.task("minify-js-uae-presto", () => {
 	return gulp.src(JS_UAE_PRESTO)
 				.pipe(concat("presto-min.js"))
 				.pipe(uglify())
 				.pipe(gulp.dest("src/public/js/uae"))
 				.pipe(gulp.dest("dist/public/js/uae"));
-});
+});*/
 gulp.task("minify-js-uae-xeco", () => {
 	return gulp.src(JS_UAE_XECO)
 				//.pipe(concat("xeco-min.js"))
@@ -130,13 +130,13 @@ gulp.task("watch", () => {
 	gulp.watch(JS_WEB, gulp.series("minify-js-web"));
 	gulp.watch(JS_UAE, gulp.series("minify-js-uae"));
 	gulp.watch(JS_UAE_IRSE, gulp.series("minify-js-uae-irse"));
-	gulp.watch(JS_UAE_PRESTO, gulp.series("minify-js-uae-presto"));
+	//gulp.watch(JS_UAE_PRESTO, gulp.series("minify-js-uae-presto"));
 	gulp.watch(JS_UAE_XECO, gulp.series("minify-js-uae-xeco"));
 	// Other watchers ...
 });
 
 gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
-									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", "minify-js-uae-presto", "minify-js-uae-xeco",
+									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", /*"minify-js-uae-presto",*/ "minify-js-uae-xeco",
 									"copy-modules", "symlinks", 
 									"watch"));

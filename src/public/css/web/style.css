@@ -93,7 +93,7 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 .text-center { text-align: center; }
 .textr { text-align: right; }
 .text-err { color: red; }
-.icon { margin: 1px 4px; }
+.icon { margin: 4px 6px; }
 .fr { float: right; }
 
 .check-icon { display: none; }

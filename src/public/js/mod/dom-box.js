@@ -3,6 +3,7 @@ import ab from "./array-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
+import CONFIG from "./dom-config.js";
 
 /**
  * Vanilla JS DOM-Box module, require:
@@ -10,30 +11,17 @@ import i18n from "./i18n-box.js";
  * 
  * @module DomBox
  */
-function DomBox(opts) {
+function DomBox() {
 	const self = this; //self instance
 	const EMPTY = ""; //empty string
 	const DIV = document.createElement("div");
 	const TEXT = document.createElement("textarea");
-	const CONFIG = {
-		//maxFileSize: 6000000, //6MB
-		classHide: "hide", // CSS class name
-		classAlerts: "alerts", // parent container
-		classAlertText: "alert-text",
-		classAlertClose: "alert-close",
-		classInputError: "ui-error",
-		classTipError: "ui-errtip",
-		//classSortNone: "sort-none",
-		//classSortDesc: "sort-desc",
-		//classSortAsc: "sort-asc",
-		//classSortTable: "sort",
-		classCheckList: "check-list",
-		classCheckGroup: "check-group"
-	}
 
-	// Update congig
-	Object.assign(CONFIG, opts);
+	// Classes selectors
+	const FLOAT_SELECTOR = "." + CONFIG.classInputFloat;
+	const INTEGER_SELECTOR = "." + CONFIG.classInputInteger;
 	const TIP_ERR_SELECTOR = "." + CONFIG.classTipError;
+	const CHEK_ICON_SELECTOR = "." + CONFIG.classCheckIcon;
 	const CHEK_LIST_SELECTOR = "." + CONFIG.classCheckList;
 	const CHEK_GROUP_SELECTOR = "." + CONFIG.classCheckGroup;
 
@@ -109,11 +97,11 @@ function DomBox(opts) {
 	};
 
 	// Iterators and Filters
-	const fnEach = (list, fn) => fnSelf(ab.each(fnQueryAll(list), fn));
+	const fnEach = (list, fn) => fnSelf(ab.each(list, fn));
 	const fnReverse = (list, fn) => fnSelf(ab.reverse(list, fn));
 	this.each = function(list, fn) {
 		if (list) // Is DOMElement, selector or NodeList
-			(list.nodeType == 1) ? fn(list) : fnEach(list, fn);
+			(list.nodeType == 1) ? fn(list) : fnEach(fnQueryAll(list), fn);
 		return self;
 	}
 	this.reverse = (list, cb) => fnReverse(list, cb);
@@ -410,6 +398,7 @@ function DomBox(opts) {
 	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");
 
 	// Events
+	const CHANGE = "change";
 	const fnEvent = (el, name, i, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault(), opts));
 	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, 0, fn, opts) : self);
 
@@ -426,7 +415,7 @@ function DomBox(opts) {
 	this.setClick = (parent, selector, fn) => fnAddEvent(self.get(selector, parent), "click", fn);
 	this.onclick = this.onClick = self.click;
 
-	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, "change", i, fn));
+	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, CHANGE, i, fn));
 	this.onchange = this.onChange = self.change;
 
 	this.keyup = (list, fn) => self.each(list, (el, i) => fnEvent(el, "keyup", i, fn));
@@ -510,7 +499,7 @@ function DomBox(opts) {
 		});
 
 		self.onForm = (selector, name, fn) => fnAddEvent(self.getForm(selector), name, fn);
-		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), "change", fn);
+		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), CHANGE, fn);
 		self.beforeResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
 		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
@@ -521,9 +510,9 @@ function DomBox(opts) {
 		}
 
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
-		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), "change", fn);
-		self.onChangeInputs = (selector, fn) => self.change(self.getInputs(selector), fn);
-		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, fn).onChangeInputs(selector, fn);
+		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), CHANGE, fn);
+		self.onChangeInputs = (selector, fn) => self.apply(selector, inputs, (el, i) => fnEvent(el, CHANGE, i, fn));
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, CHANGE, i, fn); });
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
@@ -545,7 +534,7 @@ function DomBox(opts) {
 		self.onTable = (selector, name, fn) => fnAddEvent(self.getTable(selector), name, fn);
 		self.onFindRow = (selector, fn) => self.onTable(selector, "find", fn);
 		self.onRemoveRow = (selector, fn) => self.onTable(selector, "remove", fn);
-		self.onChangeTable = (selector, fn) => self.onTable(selector, "change", fn);
+		self.onChangeTable = (selector, fn) => self.onTable(selector, CHANGE, fn);
 		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
 		self.afterRenderTable = (selector, fn) => self.onTable(selector, "rendered", fn);
 		self.onSortTable = (selector, fn) => self.onTable(selector, "sort", fn);
@@ -749,7 +738,7 @@ function DomBox(opts) {
 		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
 		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
 		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
-		self.onChangeTab = (id, fn) => self.onTab(id, "change", fn);
+		self.onChangeTab = (id, fn) => self.onTab(id, CHANGE, fn);
 
 		function fnShowTab(i) { //show tab by index
 			self.closeAlerts(); // always close alerts
@@ -814,13 +803,24 @@ function DomBox(opts) {
 			self.click(el, aux => { self.check(group, el.checked); return checkboxes(el, group); })
 				.click(group, aux => { checkboxes(el, group); return fnCheckList(el, group, el.value); });
 			fnCheckList(el, group, el.value);
-		}).eachInput(".check-icon", el => {
+		}).eachInput(CHEK_ICON_SELECTOR, el => {
 			const icon = self.sibling(el, "i");
 			self.toggle(icon, "active", el.checked);
 			self.addClick(icon, () => {
 				el.checked = !el.checked;
 				self.toggle(icon, "active");
 			});
+		});
+
+		// Inputs formater
+		self.eachInput(INTEGER_SELECTOR, el => {
+			el.value = i18n.fmtInt(el.value);
+			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtInt(el.value); });
+			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
+		}).onChangeInputs(FLOAT_SELECTOR, el => {
+			el.value = i18n.fmtFloat(el.value);
+			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtFloat(el.value); });
+			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
 		});
 
 		// Clipboard function

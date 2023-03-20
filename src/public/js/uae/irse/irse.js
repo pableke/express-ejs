@@ -3,11 +3,10 @@ dom.ready(function() {
 	i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
 	dom.tr(".i18n-tr-h1"); //local traductor
 
-	/********** uxxiec autocomplete **********/
+	//Autocompletes expediente uxxiec
 	const RESUME = {};
 	const STYLES = { imp: i18n.isoFloat, fUxxi: i18n.fmtDate };
 	let op, operaciones; // vinc. container
-
 	$("#uxxi").attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
 		minLength: 3, //force filter => reduce matches
@@ -19,8 +18,7 @@ dom.ready(function() {
 		},
 		select: function(ev, ui) {
 			op = ui.item; // current operation
-			let text = ui.item.num + " - " + ui.item.desc;
-			return fnAcLoad(this, ui.item.ec + "," + ui.item.tipo, text);
+			return fnAcLoad(this, null, op.num + " - " + op.desc);
 		}
 	}).change(fnAcReset).on("search", fnAcReset);
 
