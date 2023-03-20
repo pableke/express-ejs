@@ -21,10 +21,6 @@ dom.ready(function() {
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
 
-	// Inputs formater
-	dom.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
-		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); });
-
 	// Initialize all textarea counter
 	const ta = dom.getInputs("textarea[maxlength]");
 	function fnCounter(el) {
@@ -42,10 +38,12 @@ dom.ready(function() {
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(selector, opts) {
+		const input = dom.getInput(selector); //Autocomplete inputs
+		const id = dom.sibling(input, "[type=hidden]"); //id associated
+
 		const fnFalse = () => false;
-		const fnGetIds = el => dom.get("[type=hidden]", el.parentNode);
-		const inputs = dom.getInputs(selector); //Autocomplete inputs
-		let _search = false; //call source indicator (reduce calls)
+		const fnClear = () => { dom.setValue(input).setValue(id); opts.remove(input); }
+		let _search = false; // call source indicator (reduce calls)
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -54,34 +52,32 @@ dom.ready(function() {
 		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
 		opts.open = opts.open || fnFalse; //triggered if the value has changed
 		opts.focus = opts.focus || fnFalse; //no change focus on select
-		opts.load = opts.load || fnFalse; //triggered when select an item
 		opts.sort = opts.sort || ((data) => data); //sort array data received
 		opts.remove = opts.remove || fnFalse; //triggered when no item selected
-		opts.render = opts.render || (() => "-"); //render on input
+		opts.render = opts.render || (() => null); //render on input
+		opts.load = opts.load || opts.render; //triggered when select an item
 		opts.search = (ev, ui) => _search; //lunch source
-		opts.select = function(ev, ui) { //triggered when select an item
-			opts.load(ui.item, this, fnGetIds(this)); //update inputs
-			return false; //preserve inputs values from load event
-		}
 		opts.source = function(req, res) {
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
-				let label = sb.iwrap(opts.render(item), req.term); //decore matches
+				let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
 				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
-			dom.ajax(opts.action + "?term=" + req.term, data => {
+			dom.ajax(opts.action /*+ "?term=" + req.term*/).then(data => {
 				res(opts.sort(data).slice(0, opts.maxResults));
 			});
 		}
-		// Triggered when the field is blurred, if the value has changed
-		opts.change = function(ev, ui) {
-			if (!ui.item) { //item selected?
-				dom.val("", this).val("", fnGetIds(this));
-				opts.remove(this);
-			}
+		opts.select = function(ev, ui) { //triggered when select an item
+			opts.load(ui.item, input, id); //update inputs values
+			return false; //preserve inputs values from load event
 		}
-		$(inputs).autocomplete(opts);
-		return dom.keydown(inputs, (el, ev) => { // Reduce server calls, only for backspace or alfanum
+		// Triggered when the field is blurred, if the value has changed
+		opts.change = (ev, ui) => { ui.item || fnClear(); }
+		dom.events(input, "search", fnClear);
+
+		$(input).autocomplete(opts);
+		return dom.keydown(input, (el, ev) => { // Reduce server calls, only for backspace or alfanum
 			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
+			return true; // preserve default event
 		});
 	}
 
@@ -170,7 +166,12 @@ dom.ready(function() {
 			.addClick("a[href='#next-item']", el => fnView(RESUME.index + 1))
 			.addClick("a[href='#last-item']", el => fnView(data.length))
 			.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, RESUME, STYLES))
-			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl));
+			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
+			.autocomplete("#name", {
+				action: ENDPOINT,
+				render: item => item.name,
+				load: (item, input, id) => { input.value = item.name; id.value = item.id; }
+			});
 		dom.addClick("button#clone", el => {
 			//return fnValidate(form) && !dom.send(form).then(msg => fnUpdate(2, msg));
 			if (!fnValidate(el.form))

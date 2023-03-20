@@ -76,10 +76,10 @@ function DomBox(opts) {
 	}
 
 	// Iterators and Filters
-	const fnEach = (list, fn) => fnSelf(ab.each(fnQueryAll(list), fn));
+	const fnEach = (list, fn) => fnSelf(ab.each(list, fn));
 	this.each = function(list, fn) {
 		if (list) // Is DOMElement, selector or NodeList
-			(list.nodeType == 1) ? fn(list) : fnEach(list, fn);
+			(list.nodeType == 1) ? fn(list) : fnEach(fnQueryAll(list), fn);
 		return self;
 	}
 	this.reverse = (list, cb) => { ab.reverse(list, cb); return self; }
@@ -524,7 +524,7 @@ function DomBox(opts) {
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
-		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, fn).onChangeInputs(selector, fn);
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, CHANGE, i, fn); });
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
