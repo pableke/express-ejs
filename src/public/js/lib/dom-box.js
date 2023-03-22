@@ -524,7 +524,7 @@ function DomBox(opts) {
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
-		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, CHANGE, i, fn); });
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, ON_CHANGE, i, fn); });
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
@@ -546,8 +546,8 @@ function DomBox(opts) {
 		self.onTable = (selector, name, fn) => fnAddEvent(self.getTable(selector), name, fn);
 		self.onFindRow = (selector, fn) => self.onTable(selector, "find", fn);
 		self.onRemoveRow = (selector, fn) => self.onTable(selector, "remove", fn);
-		self.onChangeTable = (selector, fn) => self.onTable(selector, "change", fn);
-		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, "change", fn);
+		self.onChangeTable = (selector, fn) => self.onTable(selector, ON_CHANGE, fn);
+		self.onChangeTables = (selector, fn) => fnAddEvents(selector, tables, ON_CHANGE, fn);
 		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
 		self.afterRenderTable = (selector, fn) => self.onTable(selector, "rendered", fn);
 		self.onRenderTables = (selector, fn) => fnAddEvents(selector, tables, "render", fn);
@@ -761,7 +761,7 @@ function DomBox(opts) {
 		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
 		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
 		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
-		self.onChangeTab = (id, fn) => self.onTab(id, "change", fn);
+		self.onChangeTab = (id, fn) => self.onTab(id, ON_CHANGE, fn);
 
 		function fnShowTab(i) { //show tab by index
 			self.closeAlerts(); // always close alerts

@@ -91,9 +91,8 @@ dom.ready(function() {
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el));
 	dom.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
-	dom.each(".check-icon", el => {
-		const check = dom.get("input", el);
-		const icon = dom.sibling(el, "i");
+	dom.each("a.ui-icon", icon => {
+		const check = dom.getInput(icon.getAttribute("href"));
 		dom.toggle(icon, "active", check.checked);
 		dom.addClick(icon, () => {
 			check.checked = !check.checked;

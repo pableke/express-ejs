@@ -41,8 +41,8 @@ dom.ready(function() {
 		const input = dom.getInput(selector); //Autocomplete inputs
 		const id = dom.sibling(input, "[type=hidden]"); //id associated
 
-		const fnFalse = () => false;
-		const fnClear = () => { dom.setValue(input).setValue(id); opts.remove(input); }
+		const fnNull = param => null;
+		const fnClear = param => { dom.setValue(input).setValue(id); opts.remove(input); }
 		let _search = false; // call source indicator (reduce calls)
 
 		opts = opts || {}; //default config
@@ -50,19 +50,19 @@ dom.ready(function() {
 		opts.minLength = opts.minLength || 3; //length to start
 		opts.maxResults = opts.maxResults || 10; //max showed rows (default = 10)
 		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
-		opts.open = opts.open || fnFalse; //triggered if the value has changed
-		opts.focus = opts.focus || fnFalse; //no change focus on select
+		opts.open = opts.open || fnNull; //triggered if the value has changed
+		opts.focus = opts.focus || fnNull; //no change focus on select
 		opts.sort = opts.sort || ((data) => data); //sort array data received
-		opts.remove = opts.remove || fnFalse; //triggered when no item selected
-		opts.render = opts.render || (() => null); //render on input
-		opts.load = opts.load || opts.render; //triggered when select an item
+		opts.remove = opts.remove || fnNull; //triggered when no item selected
+		opts.render = opts.render || fnNull; //render on input
+		opts.load = opts.load || fnNull; //triggered when select an item
 		opts.search = (ev, ui) => _search; //lunch source
 		opts.source = function(req, res) {
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
 				let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
 				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
-			dom.ajax(opts.action /*+ "?term=" + req.term*/).then(data => {
+			dom.ajax(opts.action + "?term=" + req.term).then(data => {
 				res(opts.sort(data).slice(0, opts.maxResults));
 			});
 		}
@@ -72,7 +72,7 @@ dom.ready(function() {
 		}
 		// Triggered when the field is blurred, if the value has changed
 		opts.change = (ev, ui) => { ui.item || fnClear(); }
-		dom.events(input, "search", fnClear);
+		dom.event(input, "search", fnClear);
 
 		$(input).autocomplete(opts);
 		return dom.keydown(input, (el, ev) => { // Reduce server calls, only for backspace or alfanum

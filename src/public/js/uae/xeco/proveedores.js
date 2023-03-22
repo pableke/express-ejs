@@ -5,11 +5,11 @@ dom.ready(() => {
 	const TPL_ECO = '<option value="@value;">@label;</option>';
 
 	const fnOrganica = (value, label) => dom.setValue("#org-id", value).setValue("#organica", label);
-	const fnTramit = (value, label, tpl) => dom.setHtml("#tramit", tpl).setValue("#tramit-value", value).setValue("#tramit-label", label);
+	const fnTramit = (value, label) => dom.setValue("#tramit-value", value).setValue("#tramit-label", label);
 	function fnResetOrganica() {
 		if (this.value) return;
-		fnTramit(null, ECO_TEXT, TPL_ECO_EMPTY);
-		dom.hide("#ut");
+		dom.hide("#ut").setHtml("#tramit", TPL_ECO_EMPTY);
+		fnTramit(null, ECO_TEXT);
 		fnOrganica();
 	}
 	$("#organica").attr("type", "search").keydown(fnAcChange).autocomplete({
@@ -27,8 +27,13 @@ dom.ready(() => {
 	window.loadUnidadesTramit = (xhr, status, args) => {
 		const uts = ab.parse(args.data);
 		const ut = uts && uts[0];
-		ut && fnTramit(ut.value, ut.label, uts.format(TPL_ECO));
+		if (ut) {
+			dom.setHtml("#tramit", uts.format(TPL_ECO));
+			fnTramit(ut.value, ut.label);
+		}
 		dom.toggleHide("#ut", ab.size(uts) < 2);
 		unloading(); // fin del calculo de las UT's
 	}
+
+	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)));
 });
