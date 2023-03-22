@@ -804,7 +804,7 @@ function DomBox() {
 				.click(group, aux => { checkboxes(el, group); return fnCheckList(el, group, el.value); });
 			fnCheckList(el, group, el.value);
 		}).eachInput(CHEK_ICON_SELECTOR, el => {
-			const icon = self.sibling(el, "i");
+			const icon = self.sibling(el, ".icon");
 			self.toggle(icon, "active", el.checked);
 			self.addClick(icon, () => {
 				el.checked = !el.checked;
@@ -817,7 +817,7 @@ function DomBox() {
 			el.value = i18n.fmtInt(el.value);
 			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtInt(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
-		}).onChangeInputs(FLOAT_SELECTOR, el => {
+		}).eachInput(FLOAT_SELECTOR, el => {
 			el.value = i18n.fmtFloat(el.value);
 			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtFloat(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
