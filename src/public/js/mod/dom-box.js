@@ -398,7 +398,7 @@ function DomBox() {
 	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");
 
 	// Events
-	const CHANGE = "change";
+	const ON_CHANGE = "change";
 	const fnEvent = (el, name, i, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(el, ev, i) || ev.preventDefault(), opts));
 	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, 0, fn, opts) : self);
 
@@ -415,7 +415,7 @@ function DomBox() {
 	this.setClick = (parent, selector, fn) => fnAddEvent(self.get(selector, parent), "click", fn);
 	this.onclick = this.onClick = self.click;
 
-	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, CHANGE, i, fn));
+	this.change = (list, fn) => self.each(list, (el, i) => fnEvent(el, ON_CHANGE, i, fn));
 	this.onchange = this.onChange = self.change;
 
 	this.keyup = (list, fn) => self.each(list, (el, i) => fnEvent(el, "keyup", i, fn));
@@ -499,20 +499,15 @@ function DomBox() {
 		});
 
 		self.onForm = (selector, name, fn) => fnAddEvent(self.getForm(selector), name, fn);
-		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), CHANGE, fn);
+		self.onChangeForm = (selector, fn) => fnAddEvent(self.getForm(selector), ON_CHANGE, fn);
 		self.beforeResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", fn);
 		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onSubmitForm = (selector, fn) => fnAddEvent(self.getForm(selector), "submit", fn);
-		self.onLoadForm = (form, fnInsert, fnUpdate) => {
-			form = self.getForm(form);
-			form.id?.value ? fnUpdate(form) : fnInsert(form);
-			return self;
-		}
 
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
-		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), CHANGE, fn);
-		self.onChangeInputs = (selector, fn) => self.apply(selector, inputs, (el, i) => fnEvent(el, CHANGE, i, fn));
-		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, CHANGE, i, fn); });
+		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
+		self.onChangeInputs = (selector, fn) => self.apply(selector, inputs, (el, i) => fnEvent(el, ON_CHANGE, i, fn));
+		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, ON_CHANGE, i, fn); });
 		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
 			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
 			let index = 0; // position
@@ -534,7 +529,7 @@ function DomBox() {
 		self.onTable = (selector, name, fn) => fnAddEvent(self.getTable(selector), name, fn);
 		self.onFindRow = (selector, fn) => self.onTable(selector, "find", fn);
 		self.onRemoveRow = (selector, fn) => self.onTable(selector, "remove", fn);
-		self.onChangeTable = (selector, fn) => self.onTable(selector, CHANGE, fn);
+		self.onChangeTable = (selector, fn) => self.onTable(selector, ON_CHANGE, fn);
 		self.onRenderTable = (selector, fn) => self.onTable(selector, "render", fn);
 		self.afterRenderTable = (selector, fn) => self.onTable(selector, "rendered", fn);
 		self.onSortTable = (selector, fn) => self.onTable(selector, "sort", fn);
@@ -738,7 +733,7 @@ function DomBox() {
 		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
 		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
 		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
-		self.onChangeTab = (id, fn) => self.onTab(id, CHANGE, fn);
+		self.onChangeTab = (id, fn) => self.onTab(id, ON_CHANGE, fn);
 
 		function fnShowTab(i) { //show tab by index
 			self.closeAlerts(); // always close alerts
@@ -815,11 +810,11 @@ function DomBox() {
 		// Inputs formater
 		self.eachInput(INTEGER_SELECTOR, el => {
 			el.value = i18n.fmtInt(el.value);
-			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtInt(el.value); });
+			fnEvent(el, ON_CHANGE, 0, el => { el.value = i18n.fmtInt(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
 		}).eachInput(FLOAT_SELECTOR, el => {
 			el.value = i18n.fmtFloat(el.value);
-			fnEvent(el, CHANGE, 0, el => { el.value = i18n.fmtFloat(el.value); });
+			fnEvent(el, ON_CHANGE, 0, el => { el.value = i18n.fmtFloat(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
 		});
 
