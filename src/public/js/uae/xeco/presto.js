@@ -41,9 +41,15 @@ dom.ready(function() {
 		partidas[0].imp = i18n.toFloat(imp) || 0; //importe obligatorio
 		dom.table("#partidas-tb", partidas, RESUME, STYLES);
 	}
-	const fnAutoloadInc = partida => {
-		partidas = [ partida ]; //tabla de fila/partida unica
-		fnAutoloadImp(); //render partidas
+	const fnAutoloadInc = (data, msg) => {
+		const partida = ab.parse(data);
+		if (partida) { //hay partida?
+			partidas = [ partida ]; //tabla de fila/partida unica
+			fnAutoloadImp(); //render partidas
+		}
+		else
+			dom.showError(msg);
+		unloading(); // fin del calculo de los AIP
 	}
 
 	window.loadEconomicasDec = (xhr, status, args) => {
@@ -60,22 +66,8 @@ dom.ready(function() {
 		else
 			dom.showError("Aplicación no encontrada en el sistema.");
 	}
-	window.loadAip = (xhr, status, args) => {
-		const aip = ab.parse(args.data);
-		if (aip)
-			fnAutoloadInc(aip);
-		else
-			dom.showError("Aplicación AIP no encontrada en el sistema.");
-		unloading(); // fin del calculo de los AIP
-	}
-	window.loadAnt = (xhr, status, args) => {
-		const ant = ab.parse(args.data);
-		if (ant)
-			fnAutoloadInc(ant);
-		else
-			dom.showError("No se ha encontrado el anticipo en el sistema.");
-		unloading(); // fin del calculo de los AIP
-	}
+	window.loadAip = (xhr, status, args) => fnAutoloadInc(args.data, "Aplicación AIP no encontrada en el sistema.");
+	window.loadAnt = (xhr, status, args) => fnAutoloadInc(args.data, "No se ha encontrado el anticipo en el sistema.");
 
 	function fnResetPartidaDec() {
 		if ((PRESTO.tipo != 8) && PRESTO.autoloadInc) //autoload y no AFC
