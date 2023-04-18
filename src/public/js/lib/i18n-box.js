@@ -73,6 +73,7 @@ function I18nBox() {
 			isoInt: nb.enIsoInt,
 			fmtInt: nb.enFmtInt,
 			toFloat: nb.enFloat,
+			isoFmt: nb.isoFloatToEnFmt,
 			isoFloat: nb.enIsoFloat,
 			fmtFloat: nb.enFmtFloat,
 			fmtBool: nb.enBool,
@@ -140,6 +141,7 @@ function I18nBox() {
 			isoInt: nb.esIsoInt,
 			fmtInt: nb.esFmtInt,
 			toFloat: nb.esFloat,
+			isoFmt: nb.isoFloatToEsFmt,
 			isoFloat: nb.esIsoFloat,
 			fmtFloat: nb.esFmtFloat,
 			fmtBool: nb.esBool,
@@ -188,6 +190,7 @@ function I18nBox() {
 	this.isoInt = num => _lang.isoInt(num);
 	this.fmtInt = str => _lang.fmtInt(str);
 
+	this.isoFmt = str => _lang.isoFmt(str);
 	this.toFloat = str => _lang.toFloat(str);
 	this.isoFloat1 = num => _lang.isoFloat(num, 1);
 	this.isoFloat = num => _lang.isoFloat(num);

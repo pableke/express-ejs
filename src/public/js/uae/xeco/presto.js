@@ -132,7 +132,7 @@ dom.ready(function() {
 
 	dom.onChangeInput("#ej-dec", el => { dom.setValue("#ej-inc", el.value); fnResetPartidaDec(); })
 		.onChangeInput("#ej-inc", fnResetPartidaInc)
-		.eachInput(".ui-float", el => { el.value = i18n.fmtFloat(el.value); });
+		.eachInput(".ui-float", el => { el.value = i18n.isoFmt(el.value); });
 	dom.onChangeInput("#eco-dec", el => {
 		dec = economicasDec[el.selectedIndex];
 		fnEconomicaDec(el.value, dom.getOptText(el), dec.imp);
@@ -183,36 +183,4 @@ dom.ready(function() {
 			return confirm("¿Confirma que desea firmar y enviar esta solicitud?");
 		}
 	}
-
-	//Autocompletes expediente uxxiec
-	let op, operaciones; // vinc. container
-	$("#uxxi").attr("type", "search").keydown(fnAcChange).autocomplete({
-		delay: 500, //milliseconds between keystroke occurs and when a search is performed
-		minLength: 3, //force filter => reduce matches
-		focus: fnFalse, //no change focus on select
-		search: fnAcSearch, //lunch source
-		source: function(req, res) {
-			const fn = item => (item.num + " - " + item.uxxi + "<br>" + item.desc);
-			fnAutocomplete(this.element,  ["num", "desc"], res, fn);
-		},
-		select: function(ev, ui) {
-			op = ui.item; // current operation
-			return fnAcLoad(this, null, op.num + " - " + op.desc);
-		}
-	}).change(fnAcReset).on("search", fnAcReset);
-
-	operaciones = ab.parse(dom.getText("#op-json")) || [];
-	dom.click("a#add-uxxi", el => {
-		if (op) {
-			delete op.id; //force insert
-			operaciones.push(op); // save container
-			dom.table("#op-table", operaciones, RESUME, STYLES);
-		}
-		dom.setValue("#uxxi", "").setFocus("#uxxi")
-	});
-	dom.table("#op-table", operaciones, RESUME, STYLES);
-	dom.onRenderTable("#op-table", table => {
-		dom.setValue("#operaciones", JSON.stringify(operaciones));
-		op = null; // reinit vinc.
-	});
 });

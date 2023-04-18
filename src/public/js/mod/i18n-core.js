@@ -51,6 +51,7 @@ function I18nBox() {
 	this.isoInt = num => _lang.isoInt(num);
 	this.fmtInt = str => _lang.fmtInt(str);
 
+	this.isoFmt = str => _lang.isoFmt(str);
 	this.toFloat = str => _lang.toFloat(str);
 	this.isoFloat1 = num => _lang.isoFloat(num, 1);
 	this.isoFloat = num => _lang.isoFloat(num);

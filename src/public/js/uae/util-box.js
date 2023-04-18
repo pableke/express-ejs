@@ -91,19 +91,48 @@ dom.ready(function() {
 	// Show / Hide related info
 	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el));
 	dom.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
-	dom.each("a.ui-icon", icon => {
-		const check = dom.getInput(icon.getAttribute("href"));
-		dom.toggle(icon, "active", check.checked);
-		dom.addClick(icon, () => {
-			check.checked = !check.checked;
-			dom.toggle(icon, "active");
+	dom.eachInput(".ac-xeco-item:not(.ui-state-disabled)", el => {
+		$(el).attr("type", "search").keydown(fnAcChange).change(fnAcReset).on("search", fnAcReset).autocomplete({
+			delay: 500, //milliseconds between keystroke occurs and when a search is performed
+			minLength: 4, //reduce matches
+			focus: fnFalse, //no change focus on select
+			search: fnAcSearch, //lunch source
+			source: fnSourceItems, //show datalist
+			select: fnSelectItem //show item selected
 		});
 	});
 
-	const tabs = dom.getTabs(); // All tabs list
-	$("a.rechazar", tabs).click(function() { //muestra el tab de rechazo
-		$("input#id-rechazo", tabs).val(this.id); //rechazo para el nuevo cv
-		$("a.btn-rechazar", tabs).attr("id", this.id); //rechazo para antiguo portal
-		return !dom.setFocus("#rechazo"); //foco en el textarea
+	//Autocompletes expediente uxxiec
+	const RESUME = {};
+	const STYLES = { imp: i18n.isoFloat, fUxxi: i18n.fmtDate };
+	let op, operaciones; // vinc. container
+	$("#uxxi").attr("type", "search").keydown(fnAcChange).autocomplete({
+		delay: 500, //milliseconds between keystroke occurs and when a search is performed
+		minLength: 3, //force filter => reduce matches
+		focus: fnFalse, //no change focus on select
+		search: fnAcSearch, //lunch source
+		source: function(req, res) {
+			const fn = item => (item.num + " - " + item.uxxi + "<br>" + item.desc);
+			fnAutocomplete(this.element,  ["num", "desc"], res, fn);
+		},
+		select: function(ev, ui) {
+			op = ui.item; // current operation
+			return fnAcLoad(this, null, op.num + " - " + op.desc);
+		}
+	}).change(fnAcReset).on("search", fnAcReset);
+
+	operaciones = ab.parse(dom.getText("#op-json")) || [];
+	dom.click("a#add-uxxi", el => {
+		if (op) {
+			delete op.id; //force insert
+			operaciones.push(op); // save container
+			dom.table("#op-table", operaciones, RESUME, STYLES);
+		}
+		dom.setValue("#uxxi", "").setFocus("#uxxi")
+	});
+	dom.table("#op-table", operaciones, RESUME, STYLES);
+	dom.onRenderTable("#op-table", table => {
+		dom.setValue("#operaciones", JSON.stringify(operaciones));
+		op = null; // reinit vinc.
 	});
 });

@@ -108,7 +108,9 @@ function NumberBox() {
 
 	this.fmtFloat = (str, s, d, n) => str && fnFloat(str, s, d, n, d); // String to String formated
 	this.enFmtFloat = (str, n) => self.fmtFloat(str, COMMA, DOT, n); // reformat EN String
+	this.isoFloatToEnFmt = self.enFmtFloat; // EN ISO-String to EN String formated
 	this.esFmtFloat = (str, n) => self.fmtFloat(str, DOT, COMMA, n); // reformat ES String
+	this.isoFloatToEsFmt = (str, n) => str && fnFloat(str, DOT, COMMA, n, DOT); // EN ISO-String to ES String formated
 	this.floatval = str => parseFloat(str) || 0; //float
 
 	// Booleans

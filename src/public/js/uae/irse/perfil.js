@@ -186,24 +186,6 @@ function IrsePerfil() {
 		}).change(fnAcReset).on("search", fnAcReset);
 		/********** interesqado autocomplete **********/
 
-		/********** tramitador / organicas autocompletes **********/
-		/*$("#tramitador:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({
-			minLength: 4,
-			focus: fnFalse, //no change focus on select
-			search: fnAcSearch, //lunch source
-			source: function(req, res) {
-				fnAutocomplete(this.element, ["nombre", "utCod", "utDesc"], res,
-					item => { return item.nombre + "<br>" + item.utCod + " - " + item.utDesc; }
-				);
-			},
-			select: function(ev, ui) {
-				dom.clearTable("#organicas", organicas, resume, STYLES)
-					.setValue("#organica", "").setValue("#presupuesto", "");
-				let text = ui.item.utCod + " - " + ui.item.utDesc;
-				return fnAcLoad(this, ui.item.id, text);
-			}
-		}).change(fnAcReset).on("search", fnAcReset);*/
-
 		function fnResetOrganica() {
 			i18n.set("imp", null); dom.toggleHide(".msg-cd", !this.value);
 			fnAcReset();

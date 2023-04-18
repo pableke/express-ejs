@@ -205,4 +205,9 @@ dom.ready(function() {
 	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.form)); // Ajax calls
 	//dom.api.post("/tests/sign", { usuario: "pablo", clave: "1234" }).then(token => window.sessionStorage.setItem("web", token)); // Read token
 	//dom.api.get("/tests/api/users", "web").then(console.log);
+
+	//TESTING area ....
+	console.log("TESTING area ....");
+	console.log(nb.enFmtFloat("120526.098"), i18n.isoFmt("20866.88"));
+	console.log("END TESTING area ....");
 });

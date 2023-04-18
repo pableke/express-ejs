@@ -252,21 +252,5 @@ function IrseRutas() {
 			.onChangeInput("#f1", el => dom.setValue("#f2", el.value)).setRangeDate("#f1", "#f2")
 			.onChangeInput("#desp", el => dom.toggleHide(".grupo-matricula", el.value!="1"))
 			.onChangeInput("#matricula", el => { el.value = sb.toUpperWord(el.value); });
-
-		/********** promotor, mesa, tribunal: autocomplete **********/
-		$(".ac-personal-upct:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({
-			delay: 500, //milliseconds between keystroke occurs and when a search is performed
-			minLength: 5, //reduce matches
-			focus: fnFalse, //no change focus on select
-			search: fnAcSearch, //lunch source
-			source: function(req, res) {
-				fnAutocomplete(this.element, ["nombre", "nif"], res,
-					item => { return item.nombre; }
-				);
-			},
-			select: function(ev, ui) {
-				return fnAcLoad(this, ui.item.nif, ui.item.nombre);
-			}
-		}).change(fnAcReset).on("search", fnAcReset);
 	});
 }

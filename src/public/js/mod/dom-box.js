@@ -813,7 +813,7 @@ function DomBox() {
 			fnEvent(el, ON_CHANGE, 0, el => { el.value = i18n.fmtInt(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
 		}).eachInput(FLOAT_SELECTOR, el => {
-			el.value = i18n.fmtFloat(el.value);
+			el.value = i18n.isoFmt(el.value);
 			fnEvent(el, ON_CHANGE, 0, el => { el.value = i18n.fmtFloat(el.value); });
 			//self.toggle(el, "texterr", sb.starts(el.value, "-"));
 		});
