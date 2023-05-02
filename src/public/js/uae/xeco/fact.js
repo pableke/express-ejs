@@ -22,13 +22,51 @@ dom.ready(function() {
 		},
 		lineas: { msgError: "errForm", desc: i18n.required, imp: i18n.gt0 }
 	};
+
+	let keyEco;
+	function fnFiscal(eco, sujeto, exento, m349, iban, iva) {
+		dom.setValue("#economica", eco).setValue("#sujeto", sujeto).setValue("#exento", exento)
+			.setValue("#m349", m349).setValue("#iban", iban).setValue("#iva", iva || 0)
+			.toggleHide(".grupo-exento", sujeto != 0);
+	}
+
+	const fnDefault = () => fnFiscal(null, 0, 0, 0);
+	const fnC1T04 = () => fnFiscal("323003", 0, 1, 0);
+	const fnC2T04 = () => fnFiscal("323003", 1, 0, 0);
+	const fnC2T14 = () => fnFiscal("131004", 0, 1, 0, 10);
+	const fnC2UET14 = () => fnFiscal("131004", 1, 0, 6, 10);
+	const fnC2ZZT14 = () => fnFiscal("131004", 1, 0, 0, 10);
+	const fnC1T03 = () => fnFiscal("323003", 0, 1, 0);
+	const fnC2T03 = () => fnFiscal("323003", 1, 0, 0, 6);
+	const fnC2T15 = () => fnFiscal("131200", 0, 1, 0, 10);
+	const fnC2TUE15 = () => fnFiscal("131200", 1, 0, 6, 10);
+	const fnC1T09 = () => fnFiscal("323003", 0, 1, 0);
+	const fnC2UET09 = () => fnFiscal("323003", 1, 0, 6);
+	const fnC2T16 = () => fnFiscal("139000", 0, 0, 0, 10, 21);
+	const fnC2UET16 = () => fnFiscal("139000", 1, 0, 6, 10);
+	const fnC2T17 = () => fnFiscal("139001", 0, 0, 0, 10, 21);
+	const fnC2UET17 = () => fnFiscal("139001", 1, 0, 6, 10);
+	const fnC2T18 = () => fnFiscal("139002", 0, 0, 0, 10, 21);
+	const fnC2UET18 = () => fnFiscal("139002", 1, 0, 6, 10);
 	const ECONOMICAS = {
-		1: "132500", 2: "155100", 3: "131200", 4: "131000", 5: "131600", 6: "154000",
-		7: "132600", 8: "13250200", 9: "131300", 10: "131501", 12: "174100" //13: "174109"
+		c1epes4: fnC1T04, c1noue4: fnC1T04, c1nozz4: fnC1T04, c2epes4: fnC1T04, c2noue4: fnC2T04, c2nozz4: fnC1T04, c3epes4: fnC1T04, c3noue4: fnC2T04, c3nozz4: fnC1T04,
+		c2epes14: fnC2T14, c2noue14: fnC2UET14, c2nozz14: fnC2ZZT14, c3epes14: fnC2T14, c3noue14: fnC2UET14, c3nozz14: fnC2ZZT14,
+		c1epes3: fnC1T03, c1noue3: fnC1T03, c1nozz3: fnC1T03, c2epes3: fnC1T03, c2noue3: fnC2T03, c2nozz3: fnC1T03, c3epes3: fnC1T03, c3noue3: fnC2T03, c3nozz3: fnC1T03,
+		c2epes15: fnC2T15, c2noue15: fnC2TUE15, c2nozz15: fnC2T15, c3epes15: fnC2T15, c3noue15: fnC2TUE15, c3nozz15: fnC2T15,
+		c1epes9: fnC1T09, c1noue9: fnC1T09, c1nozz9: fnC1T09, c2epes9: fnC1T09, c2noue9: fnC2UET09, c2nozz9: fnC1T09, c3epes9: fnC1T09, c3noue9: fnC2UET09, c3nozz9: fnC1T09,
+		c2epes16: fnC2T16, c2noue16: fnC2UET16, c2nozz16: fnC2T16, c3epes16: fnC2T16, c3noue16: fnC2UET16, c3nozz16: fnC2T16,
+		c2epes17: fnC2T17, c2noue17: fnC2UET17, c2nozz17: fnC2T17, c3epes17: fnC2T17, c3noue17: fnC2UET17, c3nozz17: fnC2T17,
+		c2epes18: fnC2T18, c2noue18: fnC2UET18, c2nozz18: fnC2T18, c3epes18: fnC2T18, c3noue18: fnC2UET18, c3nozz18: fnC2T18
 	};
+	const updateEconomica = subtipo => {
+		dom.toggleHide("#grupo-recibo", (subtipo != 9) && (subtipo != 4) && (subtipo != 3));
+		const fn = ECONOMICAS[keyEco + subtipo] || fnDefault;
+		//console.log("ECONOMICAS", keyEco + subtipo, fn);
+		fn();
+	}
+	updateEconomica(dom.getValue("#subtipo")); //auto-load economica
 
 	const lineas = ab.parse(dom.getText("#lineas-json")) || [];
-	const updateEconomica = eco => dom.setValue("#economica", ECONOMICAS[eco]);
 	const fnCalcIva = (row, value) => {
 		RESUME.iva = +value; // nuevo iva
 		const iva = RESUME.imp * (RESUME.iva / 100);
@@ -59,23 +97,16 @@ dom.ready(function() {
 		.onChangeTable("#conceptos", table => fnCalcIva(RESUME.row, RESUME.element.value));
 
 	dom.swapAttr("#fMax", "min", "max")
-		.onChangeInputs("#subtipo", el => updateEconomica(el.value))
-		.onChangeInputs(".face-common", el => dom.eachInput(".face-common", input => { input.value = el.value; }))
+		.onChangeInput("#subtipo", el => updateEconomica(el.value))
 		.onChangeInput("#delegacion", el => loadDelegacion(el.value, dom.getOptText(el)))
-		.onChangeSelect("#sujeto", el => dom.toggleHide(".grupo-exento", (el.value != 0)));
+		.onChangeInput("#sujeto", el => dom.toggleHide(".grupo-exento", (el.value != 0)))
+		.onChangeInputs(".face-common", el => dom.eachInput(".face-common", input => { input.value = el.value; }));
 	dom.onChangeSelect("#face", el => {
 		VALIDATORS.factura.og = (el.value == 1) ? i18n.required : null;
 		VALIDATORS.factura.plataforma = (el.value == 2) ? i18n.required : null;
 		dom.toggleHide("div.grupo-face", (el.value != 1))
 			.toggleHide("div.grupo-face-otras", (el.value != 2));
 	});
-	dom.onChangeSelect("#subtipo", el => {
-		dom.toggleHide("#grupo-recibo", (el.value != 9) && (el.value != 3))
-			.toggleHide(".grupo-deportes", (el.value != 10));
-	});
-
-	const fnInsert = form => updateEconomica(dom.getValue("#subtipo"));
-	dom.onLoadForm("#xeco-fact", fnInsert, () => {});
 
 	window.fnSend = () => {
 		if (!dom.validate("#xeco-fact", VALIDATORS.factura))
@@ -108,7 +139,11 @@ dom.ready(function() {
 		source: fnSourceItems, //show datalist
 		select: function(ev, ui) {
 			loading(); // muestro denuevo el cargando para la delegacion
-			console.log("ui.item", ui.item);
+			keyEco = "c" + ui.item.imp; //persona fisica=1, persona juridica=2, est. publico=3
+			keyEco += (ui.item.int & 256) ? "ep" : "no"; // Establecimiento permanente
+			// Residente en la peninsula=es, comunitario=ue, resto del mundo=zz
+			keyEco += (ui.item.int & 2048) ? "es" : ((ui.item.int & 2) ? "ue" : "zz");
+			updateEconomica(dom.getValue("#subtipo")); //auto-calculate economica
 			return !dom.setValue("#tercero", ui.item.label)
 						.setValue("#id-tercero", ui.item.value)
 						.trigger("#find-delegaciones", "click");

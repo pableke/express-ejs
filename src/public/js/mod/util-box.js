@@ -1,12 +1,11 @@
 
 import ab from "./array-box.js";
+import dt from "./date-box.js";
 import nb from "./number-box.js";
-import ob from "./object-box.js";
 import sb from "./string-box.js";
-import i18n from "./i18n-box.js";
-import forms from "./i18n-forms.js";
-import valid from "./validator-box.js";
+import api from "./api-box.js";
 import dom from "./dom-box.js";
+import i18n from "./i18n-box.js";
 
 //DOM is fully loaded
 dom.ready(function() {
@@ -20,21 +19,6 @@ dom.ready(function() {
 	dom.loading = () => dom.show(_loading).closeAlerts();
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
-
-	// Initialize all textarea counter
-	const ta = dom.getInputs("textarea[maxlength]");
-	function fnCounter(el) {
-		let value = Math.abs(el.getAttribute("maxlength") - sb.size(el.value));
-		dom.setText(dom.get(".counter", el.parentNode), value);
-	}
-	dom.keyup(ta, fnCounter).each(ta, fnCounter);
-
-	// Common validators for fields
-	dom.addError = dom.setError = dom.setInputError; // Synonym
-	dom.required = (el, msg) => dom.setError(el, msg, null, i18n.required);
-	dom.gt0 = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.gt0);
-	dom.leToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.leToday);
-	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(selector, opts) {
@@ -81,133 +65,83 @@ dom.ready(function() {
 		});
 	}
 
-	// Build tree menu as UL > Li > *
-	dom.each("ul.menu", menu => {
-		const children = dom.sort(menu.children, (a, b) => (+a.dataset.orden - +b.dataset.orden));
-		children.forEach(child => {
-			let padre = child.dataset.padre; // Has parent?
-			let mask = child.dataset.mask ?? 4; // Default mask = active
-			if (padre) { // Move child with his parent
-				let li = dom.get("li[id='" + padre + "']", menu);
-				if (li) {
-					let children = +li.dataset.children || 0;
-					if (!children) { // Is first child?
-						li.innerHTML += '<ul class="sub-menu"></ul>';
-						li.firstElementChild.innerHTML += '<b class="nav-tri"></b>';
-						dom.click(li.firstElementChild, el => !dom.toggle(li, "active")); //usfull on sidebar
-					}
-					mask &= li.dataset.mask ?? 4; // Propage disabled
-					li.dataset.children = children + 1; // add child num
-					li.lastElementChild.appendChild(child); // move child
-				}
-			}
-			else // force reorder lebel 1
-				menu.appendChild(child);
-			dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
+	// Testing....
+	const RESUME = {};
+	const ftest = dom.get("form#test");
+	const pruebas = dom.get("table#pruebas");
+	const fnList = data => { dom.table(pruebas, data, RESUME).autofocus("#filter"); }
+	let current;
+
+	dom.group(".check-all") // Set groups events
+		.tabs(".tab-content") // Tabs hendlres
+		.autofocus("form > input") // Focus on first form
+		.toggleInfo("[href='#toggle']") // Info events
+		.alerts(_loading.previousElementSibling)
+		.click("a[href='#clear-pruebas']", el => pruebas.reset())
+		.event(pruebas, "sort-email", ev => { ev.detail.sort = (a, b) => sb.cmp(a.email, b.email); })
+		.event(pruebas, "sort-imp", ev => { ev.detail.sort = (a, b) => nb.cmp(a.imp, b.imp); })
+		.event(pruebas, "before-render", ev => {
+			RESUME.c4 = RESUME.imp = 0;
+			dom.toggleHide("a[href='#clear-pruebas']", !ev.detail.size);
+		})
+		.event(pruebas, "on-render", ev => {
+			const data = ev.detail.data;
+			const view = ev.detail.view;
+
+			data.memo = data.memo ?? sb.rand();
+			data.c4 = data.c4 ?? nb.rand(0, 300);
+			data.imp = data.imp ?? nb.rand(100);
+			data.fecha = data.fecha || dt.rand().toISOString();
+			data.binary = data.binary ?? nb.randInt(0, 15);
+			data.values = data.values || [];
+
+			RESUME.c4 += data.c4; RESUME.imp += data.imp;
+			ab.copy(["id", "name", "email", "memo"], data, view);
+			view.c4 = i18n.isoFloat(data.c4);
+			view.imp = i18n.isoFloat(data.imp);
+			view.fecha = i18n.fmtDate(data.fecha);
+		})
+		.event(pruebas, "after-render", ev => {
+			ev.detail.c4 = i18n.isoFloat(RESUME.c4);
+			ev.detail.imp = i18n.isoFloat(RESUME.imp);
+		})
+		.event(pruebas, "find", ev => {
+			current = ev.detail.data;
+			const view = ab.copy(["id", "name", "email", "memo"], current, {});
+			view.c4 = i18n.isoFloat(current.c4);
+			view.imp = i18n.isoFloat(current.imp);
+			view.fecha = sb.isoDate(current.fecha);
+			dom.load(ftest, view)
+				.setCheckBin(ftest, "binary", current.binary)
+				.setCheckList(ftest, "values", current.values)
+				.viewTab(3);
+		})
+		.event(pruebas, "change-test", ev => {
+			RESUME.c4 -= ev.detail.data.c4;
+			ev.detail.data.c4 = i18n.toFloat(ev.detail.element.value);
+			RESUME.c4 += ev.detail.data.c4;
+		})
+		.event(pruebas, "remove", ev => {
+			dom.viewTab(2);
 		});
-		// Show / Hide sidebar and show menu
-		dom.onclick(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+
+	// Eventos de control para el formulario de datos
+	dom.addClick("a[href='#first-item']", el => pruebas.first())
+		.addClick("a[href='#prev-item']", el => pruebas.prev())
+		.addClick("a[href='#next-item']", el => pruebas.next())
+		.addClick("a[href='#last-item']", el => pruebas.last())
+		.addClick("a[href='#remove-item']", el => pruebas.remove());
+	dom.event(ftest, "submit", ev => {
+		const fd = new FormData(ftest); // User data
+		fd.forEach((value, key) => { current[key] = value; });
+		//current.c4 = i18n.toFloat(current.c4);
+		current.imp = i18n.toFloat(current.imp);
+		current.binary = dom.getCheckBin(ftest, "binary");
+		current.values = dom.getCheckList(ftest, "values");
+		pruebas.update();
+		dom.viewTab(2);
 	});
 
-	// TABS events and handlers
-	dom.onShowTab(1, tab => { // contact form
-		dom.onChangeInput("#correo", el => { el.value = sb.lower(el.value); })
-			.onSubmitForm("#contact", form => dom.validate(form, forms.contact) && !dom.send(form).then(msg => dom.setOk(form, msg))) // AJAX Forms
-	});
-	dom.onLoadTab(2, tab => { //table and form handlers
-		const fnMemo = (a, b) => sb.cmp(a.memo, b.memo);
-		const RESUME = { index: 0, start: 0, page: 0, pageSize: 5, sort: fnMemo };
-		const PARSERS = { imp: i18n.toFloat, imp1: i18n.toFloat, imp2: i18n.toFloat };
-		const STYLES = {
-			imp: i18n.isoFloat, fecha: i18n.fmtDate,
-			onRender: row => { RESUME.imp += (row.imp || 0); } // onRenderRow
-		};
-
-		var data; // Container
-		const fnCreate = row => !dom.createRow("#test", RESUME, STYLES, row).hide(".update-only");
-		const fnView = index => !dom.selectRow("#test", data, RESUME, STYLES, index).show(".update-only").viewTab(3);
-		const fnList = arr => { data = arr; dom.repaginate("#pruebas", data, RESUME, STYLES).setFocus("#filter-name"); }
-		const fnUpdate = (tab, msg) => dom.updateTable("#pruebas", data, RESUME, STYLES).viewTab(tab).showOk(msg || "saveOk");
-		const fnPost = (obj, tab, msg) => { data.push(obj); fnUpdate(tab, msg); };
-		const fnValidate = form => {
-			var aux = dom.validate(form);
-			return aux && Object.assign(RESUME.data, aux);
-		}
-
-		const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-		dom.api.get(ENDPOINT).then(fnList); //call to simulate read data from server
-
-		// Eventos de las tablas de consulta
-		dom.onRenderTable("#pruebas", (table, ev) => {
-			RESUME.imp = 0; // Init. resume: onRenderTable before onRenderRow
-			dom.toggleHide("a[href='#clear-pruebas']", !data.length);
-		});
-		dom.onFindRow("#pruebas", (table, ev) => fnView(ev.detail.index))
-			.onRemoveRow("#pruebas", (table, ev) => dom.viewTab(2).showOk("removeOk"))
-			.setClick(tab, "a[href='#clear-pruebas']", el => i18n.confirm("removeAll") && !dom.clearTable("#pruebas", data, RESUME, STYLES))
-			.onChangeTable("#pruebas", (table, ev) => console.log("change", ev.detail))
-			//.onPaginationTable("#pruebas", (table, ev) => dom.table(table, data, RESUME, STYLES))
-			.onTable("#pruebas", "sort-name", table => { delete RESUME.sort; })
-			.onTable("#pruebas", "sort-memo", table => { RESUME.sort = fnMemo; }) // default sort as string
-			.onTable("#pruebas", "sort-imp", table => { RESUME.sort = (a, b) => nb.cmp(a.imp, b.imp); })
-			.onTable("#pruebas", "sort-fecha", table => { delete RESUME.sort; }) // default sort as string (isoDate)
-			.onSortTable("#pruebas", table => dom.table(table, data, RESUME, STYLES))
-			.onChangeInput("#page-size", el => { RESUME.pageSize = +el.value; fnList(data) });
-
-		// Eventos de control para el filtro de la tabla
-		dom.setRangeDate("#f1", "#f2") // Filter range date
-			.onClick("a.create-data", () => fnCreate({}))
-			.afterResetForm("#filter", form => dom.send(form).then(fnList))
-			.onSubmitForm("#filter", form => !dom.send(form).then(fnList));
-
-		// Eventos de control para el formulario de datos
-		dom.addClick("a[href='#first-item']", el => fnView(0))
-			.addClick("a[href='#prev-item']", el => fnView(RESUME.index - 1))
-			.addClick("a[href='#next-item']", el => fnView(RESUME.index + 1))
-			.addClick("a[href='#last-item']", el => fnView(data.length))
-			.addClick("a[href='#remove-item']", el => !dom.removeRow("#pruebas", data, RESUME, STYLES))
-			.parse("#entidades", tpl => sb.entries(valid.getEntidades(), tpl))
-			.autocomplete("#name", {
-				action: ENDPOINT,
-				render: item => item.name,
-				load: (item, input, id) => { input.value = item.name; id.value = item.id; }
-			});
-		dom.addClick("button#clone", el => {
-			//return fnValidate(form) && !dom.send(form).then(msg => fnUpdate(2, msg));
-			if (!fnValidate(el.form))
-				return; // errores de validacion
-			RESUME.data.id 
-					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => { fnCreate(ob.flush(user, ["id"])); fnUpdate(3); })
-					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 3));
-		}).onSubmitForm("#test", form => {
-			return fnValidate(form) && !dom.send(form).then(msg => fnUpdate(2, msg));
-			/*if (!fnValidate(form))
-				return; // errores de validacion
-			RESUME.data.id 
-					? dom.api.put(ENDPOINT + "/" + RESUME.data.id, RESUME.data).then(user => fnUpdate(2))
-					: dom.api.post(ENDPOINT, RESUME.data).then(user => fnPost(user, 2));*/
-		});
-	});
-
-	// Onclose event tab/browser of client user
-	window.addEventListener("unload", ev => dom.ajax("/destroy.html"));
-	if (window.grecaptcha) { // Google recptcha
-		grecaptcha.ready(function() { // Is ready for token
-			grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" })
-				.then(token => dom.setInputValue("#token", token))
-				.catch(dom.showError);
-		});
-	}
-
-	// Show / Hide related info
-	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el))
-		.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
-	//dom.onclick("a.ajax", el => !dom.ajax(el.href)).onclick("button.ajax", el => !dom.send(el.form)); // Ajax calls
-	//dom.api.post("/tests/sign", { usuario: "pablo", clave: "1234" }).then(token => window.sessionStorage.setItem("web", token)); // Read token
-	//dom.api.get("/tests/api/users", "web").then(console.log);
-
-	//TESTING area ....
-	console.log("TESTING area ....");
-	console.log(nb.enFmtFloat("120526.098"), i18n.isoFmt("20866.88"));
-	console.log("END TESTING area ....");
+	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
+	dom.ajax(ENDPOINT).then(fnList); //call to simulate read data from server
 });

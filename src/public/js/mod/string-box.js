@@ -43,24 +43,6 @@ function StringBox() {
 	String.prototype.remove = function(i, n) {
 		return this.substring(0, i) + this.substring(i + n);
 	}
-	String.prototype.format = function(fn) {
-		return this.replace(/@(\w+);/g, fn);
-	}
-	String.prototype.render = function(data, opts) {
-		opts = opts || {}; //default settings
-		const empty = opts.empty || EMPTY;
-		const fnVal = opts.getValue || self.val;
-		const fnFinish = opts.onFinish || ((matches, output) => (matches ? output : EMPTY));
-
-		let matches = 0; //counter
-		let output = this.format((m, k) => {
-			const fn = opts[k]; //field format function
-			let value = fn ? fn(data[k], data) : fnVal(data, k);
-			matches += isset(value) ? 1 : 0; //replaced?
-			return value ?? empty; //string formated
-		});
-		return fnFinish(matches, output);
-	}
 
 	// Module functions
 	this.isset = isset;
@@ -143,6 +125,8 @@ function StringBox() {
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 
+	const fnCmp = (a, b) => ((a < b) ? -1 : ((a > b) ? 1 : 0));
+	this.cmp = (a, b) => fnCmp(a ?? EMPTY, b ?? EMPTY); //compare strings
 	this.cmpBy = (a, b, name) => self.cmp(a[name], b[name]); // compare objects prop.
 	this.eq = (str1, str2) => (fnLower(str1) == fnLower(str2)); // insensitive equal
 	this.ilike = (str1, str2) => (iiOf(str1, str2) > -1); // insensitive like
@@ -152,26 +136,31 @@ function StringBox() {
 	this.multicmp = names => names.map(name => ((a, b) => self.cmp(a[name], b[name]))); // map => cmp functions
 	this.between = (value, min, max) => value && fnBetween(value, min || value, max || value); // Value must exists
 	this.in = (value, min, max) => value ? fnBetween(value, min || value, max || value) : true; // Open range filter
-	this.cmp = function(a, b) {
-		if (isset(a) && isset(b))
-			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
-		return isset(a) ? -1 : 1; //nulls last
-	}
 
+	// Formaters, renders and parsers
 	this.val = (obj, name) => obj[name]; // Default access prop (ES)
 	this.enVal = (obj, name) => obj[name + "_en"] || obj[name]; // EN access prop
-	this.format = (data, tpl, opts) => tpl.render(data, opts);
-	this.render = (data, tpl, opts) => tpl.render(data, opts);
-	this.entries = function(data, tpl, opts) {
-		opts = opts || {}; //default settings
-		const fnVal = opts.getValue || self.val;
+	this.format = function(tpl, data) {
+		return tpl.replace(/@(\w+);/g, (m, k) => data[k] ?? EMPTY);
+	}
+	this.render = function(tpl, list, fnRender) {
+		fnRender = fnRender || fnVoid;
+		const size = fnSize(list);
+		const status = { size };
 
-		let output = EMPTY; //result buffer
-		for (const k in data) {
-			const fn = opts[k]; //field format function
-			const value = fn ? fn(data[k], data) : fnVal(data, k);
-			output += tpl.replace("@key;", k).replace("@value;", value);
+		let output = EMPTY; // Initialize result
+		for (let i = 0; i < size; i++) {
+			status.index = i;
+			status.count = i + 1;
+			fnRender(list[i], status);
+			output += self.format(tpl, status);
 		}
+		return output;
+	}
+	this.entries = function(tpl, data) {
+		let output = EMPTY; //result buffer
+		for (const k in data)
+			output += tpl.replace("@key;", k).replace("@value;", data[k]);
 		return output;
 	}
 }

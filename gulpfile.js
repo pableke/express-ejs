@@ -59,7 +59,7 @@ gulp.task("minify-css", () => {
 });
 
 // Tasks to minify JS's
-gulp.task("minify-js", done => {
+gulp.task("minify-js-mod", done => {
 	var stream = gulp.src(JS_MOD).pipe(uglify()).pipe(gulp.dest("dist/public/js/mod"));
 	stream.on("end", () => {
 		gulp.src("dist/public/js/mod").pipe(gulp.symlink("node_modules/app"));
@@ -126,7 +126,7 @@ gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(MODULES, gulp.series("copy-modules"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
-	gulp.watch(JS_MOD, gulp.series("minify-js"));
+	gulp.watch(JS_MOD, gulp.series("minify-js-mod"));
 	gulp.watch(JS_WEB, gulp.series("minify-js-web"));
 	gulp.watch(JS_UAE, gulp.series("minify-js-uae"));
 	gulp.watch(JS_UAE_IRSE, gulp.series("minify-js-uae-irse"));
@@ -137,6 +137,6 @@ gulp.task("watch", () => {
 
 gulp.task("default", gulp.parallel("minify-html", 
 									"minify-css", 
-									"minify-js", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", /*"minify-js-uae-presto",*/ "minify-js-uae-xeco",
+									"minify-js-mod", "minify-js-web", "minify-js-uae", "minify-js-uae-irse", /*"minify-js-uae-presto",*/ "minify-js-uae-xeco",
 									"copy-modules", "symlinks", 
 									"watch"));

@@ -15,6 +15,7 @@ const dfLatin = i18n.isoDate;
 
 //gestion de informes y mensajes
 const fnFirmar = () => i18n.confirm("msgFirmar") && loading();
+const fnIntegrar = () => i18n.confirm("msgIntegrar") && loading();
 const fnRemove = () => i18n.confirm("removeSolicitud") && loading();
 const handleMessages = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)); }
 const handleReport = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }

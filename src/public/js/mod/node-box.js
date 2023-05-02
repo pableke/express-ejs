@@ -10,7 +10,6 @@ import ejs from "ejs"; //tpl engine
 import ab from "./array-box.js";
 import dt from "./date-box.js";
 import nb from "./number-box.js";
-import ob from "./object-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
 import valid from "./validator-box.js";
@@ -210,7 +209,6 @@ function NodeBox() {
 	this.ab = ab;
 	this.dt = dt;
 	this.nb = nb;
-	this.ob = ob;
 	this.sb = sb;
 	this.valid = valid;
 	this.i18n = i18n;

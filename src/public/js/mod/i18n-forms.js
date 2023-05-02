@@ -1,5 +1,5 @@
 
-import i18n from "./i18n-core.js";
+import i18n from "./i18n-box.js";
 
 export default {
 	msgError: "errForm",
