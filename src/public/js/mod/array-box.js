@@ -21,35 +21,6 @@ function ArrayBox() {
 		this[b] = aux;
 		return this;
 	}
-	Array.prototype.stringify = function(separator, i, j) {
-		i = i || 0; // Redefine join min/max limits
-		j = (j < 0) ? (this.length + j) : (j || this.length);
-		separator = separator ?? ","; // default = ","
-		let output = (i < j) ? ("" + this[i++]) : "";
-		while (i < j) // Iterate over array
-			output += separator + this[i++];
-		return output;
-	}
-	Array.prototype.format = function(tpl, opts) {
-		opts = opts || {}; //default settings
-		const empty = opts.empty || "";
-		const fnVal = opts.getValue || ((obj, name) => obj[name]);
-		const onRender = opts.onRender || (() => {});
-		const status = { size: this.length };
-
-		let output = ""; // Initialize result
-		this.forEach((obj, i) => {
-			onRender(obj, i);
-			status.index = i;
-			status.count = i + 1;
-			output += tpl.format((m, k) => {
-				const fn = opts[k]; //field format function
-				const value = fn ? fn(obj[k], obj, i) : (fnVal(obj, k) ?? status[k]);
-				return value ?? empty; //string formated
-			});
-		})
-		return output;
-	}
 
 	// Module functions
 	this.size = fnSize;
@@ -140,10 +111,22 @@ function ArrayBox() {
 		return data;
 	}
 	this.merge = this.toObject;
-
-	// Serialization
-	this.stringify = (data, separator, i, j) => data.stringify(separator, i, j);
-	this.format = (data, tpl, opts) => data.format(tpl, opts);
+	this.copy = function(keys, data, result) {
+		keys.forEach(k => { result[k] = data[k]; });
+		return result;
+	}
+	this.assign = this.copy;
+	this.flush = function(keys, data) {
+		//const result = Object.assign({}, data);
+		keys.forEach(k => { delete data[k]; });
+		return self;
+	}
+	this.clean = this.flush;
+	this.clear = function(obj) {
+		for (let k in obj)
+			delete obj[k];
+		return self;
+	}
 
 	// Client helpers
 	this.parse = (data, reviver) => data ? JSON.parse(data, reviver) : null;

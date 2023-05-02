@@ -515,11 +515,6 @@ function DomBox(opts) {
 		self.afterResetForm = (selector, fn) => fnAddEvent(self.getForm(selector), "reset", (form, ev) => setTimeout(() => fn(form, ev), 1));
 		self.onChangeForms = (selector, fn) => fnAddEvents(selector, forms, ON_CHANGE, fn);
 		self.onSubmitForms = (selector, fn) => fnAddEvents(selector, forms, "submit", fn);
-		self.onLoadForm = (form, fnInsert, fnUpdate) => {
-			form = self.getForm(form);
-			form.id?.value ? fnUpdate(form) : fnInsert(form);
-			return self;
-		}
 
 		self.onBlurInput = (selector, fn) => fnAddEvent(self.getInput(selector), "blur", fn);
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);

@@ -45,7 +45,7 @@ function DateBox() {
 	this.addDate = function(date, val) { date && date.setDate(date.getDate() + val); return self; }
 	this.addHours = function(date, val) { date && date.setHours(date.getHours() + val); return self; }
 	this.addMs = function(date, val) { date && date.setMilliseconds(date.getMilliseconds() + val); return self; }
-	this.toISODateString = (date) => (date || sysdate).toISOString().substring(0, 10); //ej: 2021-05-01
+	this.isoDate = date => date ? date.toISOString().substring(0, 10) : null; //ej: 2021-05-01
 	this.trunc = function(date) { date && date.setHours(0, 0, 0, 0); return self; }
 	this.endDay = function(date) { date && date.setHours(23, 59, 59, 999); return self; }
 	this.randTime = (d1, d2) => Math.floor(Math.random() * self.diffDate(d2, d1) + d1.getTime());
