@@ -54,8 +54,7 @@ app.use((req, res, next) => {
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = util.i18n.loadLang(lang).get("lang"); // Set language id
-	//res.locals.i18n = util.i18n.getCurrent();
+	req.session.lang = res.locals.lang = util.i18n.load(lang).get("lang"); // Set language id
 
 	// Load specific user menus or public menus on view
 	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);

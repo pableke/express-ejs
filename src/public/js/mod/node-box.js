@@ -20,7 +20,7 @@ function NodeBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
-	this.lang = (res, mod) => { res.locals.i18n = i18n.loadModule(mod).getCurrent(); return self; }
+	this.lang = (res, mod) => { res.locals.i18n = langs[mod][res.locals.lang]; return self; }
 
 	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
 	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
@@ -213,10 +213,6 @@ function NodeBox() {
 	this.valid = valid;
 	this.i18n = i18n;
 }
-
-i18n.addLang("en", langs.en).addLang("es", langs.es);
-i18n.setModule("test", "en", langs.test_en).setModule("test", "es", langs.test_es);
-i18n.setModule("web", "en", langs.web_en).setModule("web", "es", langs.web_es);
 
 export default new NodeBox();
 

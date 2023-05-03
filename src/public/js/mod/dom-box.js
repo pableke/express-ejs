@@ -212,7 +212,7 @@ function Dom() {
 		else
 			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).catch(data => self.setErrors(data, form));
+		return self.fetch(opts).catch(data => self.setErrors(form, data));
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
@@ -235,31 +235,53 @@ function Dom() {
 				el.value = data[el.name];
 		});
 	}
-	this.group = selector => {
-		return self.each(selector, check => {
-			const group = self.getAll(".check-" + check.id);
-			self.click(check, aux => self.setChecked(group, check.checked))
-				.click(group, aux => { check.checked = (self.findIndex(":not(:checked)", group) < 0); return true; });
-		});
-	}
-	this.setCheckBin = (form, name, value) => {
-		return self.apply(".check-" + name, form.elements, check => { check.checked = (value & check.value); })
-					.apply("#" + name, form.elements, el => { el.checked = (value == el.value); })
-	}
-	this.getCheckBin = (form, name) => {
-		let result = 0;
-		self.apply(".check-" + name, form.elements, check => { result |= (check.checked ? +check.value : 0); });
-		return result;
-	}
-	this.setCheckList = (form, name, values) => {
+	this.checklist = (form, name, values) => {
 		const group = self.getAll(".check-" + name, form);
-		return self.each(group, check => { check.checked = values.indexOf(check.value) > -1; })
-					.apply("#" + name, form.elements, el => { el.checked = (ab.size(values) == group.length); });
+		const check = self.find("#" + name, form.elements);
+
+		function fnCheck() {
+			const result = []; // Id's container
+			self.each(group, el => { el.checked && result.push(el.value); });
+			check.checked = (result.length == group.length);
+			check.value = result.join(",");
+			return self;
+		}
+
+		if (!check.dataset.procesed) {
+			self.click(group, fnCheck)
+				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
+			check.dataset.procesed = true;
+		}
+		self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
+		return fnCheck();
 	}
-	this.getCheckList = (form, name) => {
-		let result = []; // Id's container
-		self.apply(".check-" + name, form.elements, check => { check.checked && result.push(check.value); });
-		return result;
+	this.checkbin = (form, name, value) => {
+		const group = self.getAll(".check-" + name, form);
+		const check = self.find("#" + name, form.elements);
+		var all = 0;
+
+		function fnCheck() {
+			let result = 0; // mask
+			self.each(group, el => { result |= (el.checked ? +el.value : 0); });
+			check.checked = (all == result);
+			check.value = result;
+			return self;
+		}
+
+		if (!check.dataset.procesed) {
+			self.click(group, fnCheck)
+				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
+			check.dataset.procesed = true;
+		}
+		self.each(group, el => { el.checked = (value & el.value); all |= +el.value; });
+		return fnCheck();
+	}
+
+	this.validate = (form, data) => {
+		const aux = {}; // Data container from view
+		const fn = i18n.getValidator(form.getAttribute("id"));
+		self.closeAlerts().apply(FIELDS, form.elements, el => { aux[el.name] = el.value; });
+		return fn(aux, data) || !self.setErrors(form, i18n.getMsgs());
 	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, nb.mask(mask, i))); //toggle class by mask
@@ -322,8 +344,6 @@ function Dom() {
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
 
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
-	this.addClick = (el, fn) => fnAddEvent(fnQuery(el), "click", fn);
-	this.setClick = (parent, selector, fn) => fnAddEvent(self.get(selector, parent), "click", fn);
 	this.onclick = this.onClick = self.click;
 
 	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
@@ -407,8 +427,10 @@ function Dom() {
 		const closeAlert = el => self.fadeOut(el.parentNode);
 		const setAlert = (el, txt) => txt ? showAlert(el).setInnerHtml(el, i18n.tr(txt)) : self;
 
-		self.isOk = self.isError = fnSelf;
+		self.isOk = i18n.isOk;
+		self.isError = i18n.isError;
 		self.loading = self.working = fnSelf;
+
 		self.showOk = msg => setAlert(texts[0], msg); //green
 		self.showInfo = msg => setAlert(texts[1], msg); //blue
 		self.showWarn = msg => setAlert(texts[2], msg); //yellow
@@ -416,6 +438,7 @@ function Dom() {
 		self.showAlerts = function(msgs) { //show posible multiple messages types
 			return msgs ? self.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : self;
 		}
+
 		self.closeAlerts = function() { // Hide all alerts
 			return self.each(texts, closeAlert).each(INPUTS, el => {
 				const tip = self.sibling(el, TIP_ERR_SELECTOR); // tip error
@@ -423,24 +446,20 @@ function Dom() {
 			});
 		}
 
-		self.setErrors = (messages, form) => {
-			self.closeAlerts(); //close previous errros
+		self.setErrors = (form, messages) => {
 			if (isstr(messages)) // simple message text
 				return self.showError(messages);
-			if (messages) {
-				self.applyReverse(FIELDS, form.elements, el => { // Reverse iterator
-					const msg = messages[el.name]; // message to show
-					if (msg) {
-						const partner = self.sibling(el, INPUTS); // Partner element
-						const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
-						self.setInnerHtml(tip, msg).show(tip)
-							.addClass(el, opts.classInputError).addClass(partner, opts.classInputError)
-							.focus(fnVisible(el) ? el : partner);
-					}
-				});
-				self.showError(messages.msgError);
-			}
-			return self;
+			self.reverse(form.elements, el => { // Reverse iterator
+				const msg = messages[el.name]; // message to show
+				if (msg) {
+					const partner = self.sibling(el, INPUTS); // Partner element
+					const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
+					self.setInnerHtml(tip, msg).show(tip)
+						.addClass(el, opts.classInputError).addClass(partner, opts.classInputError)
+						.focus(fnVisible(el) ? el : partner);
+				}
+			});
+			return self.showError(messages.msgError);
 		}
 
 		// Show posible server messages and close click event
