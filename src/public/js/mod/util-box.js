@@ -12,7 +12,7 @@ dom.ready(function() {
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
-	dom.addClick(_top, el => !dom.scroll());
+	dom.click(_top, el => !dom.scroll());
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
@@ -72,11 +72,11 @@ dom.ready(function() {
 	const fnList = data => { dom.table(pruebas, data, RESUME).autofocus("#filter"); }
 	let current;
 
-	dom.group(".check-all") // Set groups events
-		.tabs(".tab-content") // Tabs hendlres
+	dom.tabs(".tab-content") // Tabs hendlres
 		.autofocus("form > input") // Focus on first form
 		.toggleInfo("[href='#toggle']") // Info events
 		.alerts(_loading.previousElementSibling)
+		.click(".create-data", el => { current = {}; })
 		.click("a[href='#clear-pruebas']", el => pruebas.reset())
 		.event(pruebas, "sort-email", ev => { ev.detail.sort = (a, b) => sb.cmp(a.email, b.email); })
 		.event(pruebas, "sort-imp", ev => { ev.detail.sort = (a, b) => nb.cmp(a.imp, b.imp); })
@@ -112,8 +112,8 @@ dom.ready(function() {
 			view.imp = i18n.isoFloat(current.imp);
 			view.fecha = sb.isoDate(current.fecha);
 			dom.load(ftest, view)
-				.setCheckBin(ftest, "binary", current.binary)
-				.setCheckList(ftest, "values", current.values)
+				.checkbin(ftest, "binary", current.binary)
+				.checklist(ftest, "values", current.values)
 				.viewTab(3);
 		})
 		.event(pruebas, "change-test", ev => {
@@ -126,18 +126,14 @@ dom.ready(function() {
 		});
 
 	// Eventos de control para el formulario de datos
-	dom.addClick("a[href='#first-item']", el => pruebas.first())
-		.addClick("a[href='#prev-item']", el => pruebas.prev())
-		.addClick("a[href='#next-item']", el => pruebas.next())
-		.addClick("a[href='#last-item']", el => pruebas.last())
-		.addClick("a[href='#remove-item']", el => pruebas.remove());
+	dom.click("a[href='#first-item']", el => pruebas.first())
+		.click("a[href='#prev-item']", el => pruebas.prev())
+		.click("a[href='#next-item']", el => pruebas.next())
+		.click("a[href='#last-item']", el => pruebas.last())
+		.click("a[href='#remove-item']", el => pruebas.remove());
 	dom.event(ftest, "submit", ev => {
-		const fd = new FormData(ftest); // User data
-		fd.forEach((value, key) => { current[key] = value; });
-		//current.c4 = i18n.toFloat(current.c4);
-		current.imp = i18n.toFloat(current.imp);
-		current.binary = dom.getCheckBin(ftest, "binary");
-		current.values = dom.getCheckList(ftest, "values");
+		if (!dom.validate(ftest, current))
+			return false;
 		pruebas.update();
 		dom.viewTab(2);
 	});

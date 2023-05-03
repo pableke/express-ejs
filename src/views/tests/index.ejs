@@ -72,7 +72,7 @@
 				<input type="text" id="nombre" name="nombre" value="<%=body.nombre%>" maxlength="200" tabindex="1" 
 					class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
 				<i class="input-item input-icon fas fa-signature"></i>
-				<div class="ui-errtip"><%=msgs.get("nombre")%></div>
+				<div class="ui-errtip"><%=msgs.nombre%></div>
 			</div>
 
 			<div class="ui-group ui-block">
@@ -80,7 +80,7 @@
 				<input type="text" id="correo" name="correo" value="<%=body.correo%>" maxlength="200" tabindex="2" 
 					class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
 				<i class="input-item input-icon far fa-envelope"></i>
-				<div class="ui-errtip"><%=msgs.get("correo")%></div>
+				<div class="ui-errtip"><%=msgs.correo%></div>
 			</div>
 
 			<div class="ui-group ui-block">
@@ -88,7 +88,7 @@
 				<input type="text" id="asunto" name="asunto" value="<%=body.asunto%>" maxlength="200" tabindex="7" 
 					class="input-item ui-control ui-text" placeholder="Type a resume" />
 				<i class="input-item input-icon fas fa-at"></i>
-				<div class="ui-errtip"><%=msgs.get("asunto")%></div>
+				<div class="ui-errtip"><%=msgs.asunto%></div>
 			</div>
 
 			<div class="ui-group ui-block">
@@ -96,7 +96,7 @@
 				<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"><%=body.info%></textarea>
 				<span class="msg-error"></span>
 				<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
-				<div class="ui-errtip"><%=msgs.get("info")%></div>
+				<div class="ui-errtip"><%=msgs.info%></div>
 			</div>
 
 			<hr/>
