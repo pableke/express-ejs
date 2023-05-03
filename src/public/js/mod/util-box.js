@@ -70,16 +70,22 @@ dom.ready(function() {
 	const ftest = dom.get("form#test");
 	const pruebas = dom.get("table#pruebas");
 	const fnList = data => { dom.table(pruebas, data, RESUME).autofocus("#filter"); }
-	let current;
+	let current; // pointer tu current row
 
 	dom.tabs(".tab-content") // Tabs hendlres
 		.autofocus("form > input") // Focus on first form
 		.toggleInfo("[href='#toggle']") // Info events
 		.alerts(_loading.previousElementSibling)
-		.click(".create-data", el => { current = {}; })
 		.click("a[href='#clear-pruebas']", el => pruebas.reset())
 		.event(pruebas, "sort-email", ev => { ev.detail.sort = (a, b) => sb.cmp(a.email, b.email); })
 		.event(pruebas, "sort-imp", ev => { ev.detail.sort = (a, b) => nb.cmp(a.imp, b.imp); })
+		.event(pruebas, "remove", ev => dom.viewTab(2))
+		.click(".create-data", el => {
+			current = {};
+			dom.load(ftest)
+				.checkbin(ftest, "binary").checklist(ftest, "values")
+				.viewTab(3);
+		})
 		.event(pruebas, "before-render", ev => {
 			RESUME.c4 = RESUME.imp = 0;
 			dom.toggleHide("a[href='#clear-pruebas']", !ev.detail.size);
@@ -96,7 +102,7 @@ dom.ready(function() {
 			data.values = data.values || [];
 
 			RESUME.c4 += data.c4; RESUME.imp += data.imp;
-			ab.copy(["id", "name", "email", "memo"], data, view);
+			ab.copy(["name", "email", "memo"], data, view);
 			view.c4 = i18n.isoFloat(data.c4);
 			view.imp = i18n.isoFloat(data.imp);
 			view.fecha = i18n.fmtDate(data.fecha);
@@ -107,7 +113,7 @@ dom.ready(function() {
 		})
 		.event(pruebas, "find", ev => {
 			current = ev.detail.data;
-			const view = ab.copy(["id", "name", "email", "memo"], current, {});
+			const view = ab.copy(["name", "email", "memo"], current, {});
 			view.c4 = i18n.isoFloat(current.c4);
 			view.imp = i18n.isoFloat(current.imp);
 			view.fecha = sb.isoDate(current.fecha);
@@ -120,9 +126,6 @@ dom.ready(function() {
 			RESUME.c4 -= ev.detail.data.c4;
 			ev.detail.data.c4 = i18n.toFloat(ev.detail.element.value);
 			RESUME.c4 += ev.detail.data.c4;
-		})
-		.event(pruebas, "remove", ev => {
-			dom.viewTab(2);
 		});
 
 	// Eventos de control para el formulario de datos
@@ -131,11 +134,19 @@ dom.ready(function() {
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())
 		.click("a[href='#remove-item']", el => pruebas.remove());
-	dom.event(ftest, "submit", ev => {
-		if (!dom.validate(ftest, current))
-			return false;
-		pruebas.update();
-		dom.viewTab(2);
+	dom.click("button#clone", el => {
+		if (dom.validate(ftest, current)) {
+			// save current on server ....
+			current = Object.assign({}, current);
+			delete current.id;
+		}
+	})
+	.afterReset(ftest, ev => dom.closeAlerts())
+	.submit(ftest, ev => {
+		if (dom.validate(ftest, current)) {
+			pruebas.update();
+			dom.viewTab(2);
+		}
 	});
 
 	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";

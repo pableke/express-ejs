@@ -219,6 +219,7 @@ function Dom() {
 	this.setChecked = (list, value) => self.each(list, input => { input.checked = value; });
 	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
 	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
+
 	this.focus = el => { el && el.focus(); return self; }
 	this.setFocus = el => self.autofocus(self.inputs(el));
 	this.autofocus = function(inputs) {
@@ -227,13 +228,22 @@ function Dom() {
 		return self.focus(ab.find(inputs, fnFocus)); // Set focus on first visible input
 	}
 
+	function fnSetValue(el, value) {
+		if ((el.type === "checkbox") || (el.type === "radio"))
+			el.checked = (el.value == value);
+		else
+			el.value = value;
+	}
 	this.load = (form, data) => {
-		return self.apply(FIELDS, form.elements, el => {
-			if ((el.type === "checkbox") || (el.type === "radio"))
-				el.checked = (el.value == data[el.name]);
-			else
-				el.value = data[el.name];
-		});
+		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name]))
+					: self.apply(FIELDS, form.elements, el => fnSetValue(el, EMPTY));
+	}
+	this.setValues = (form, data) => {
+		for (let key in data) {
+			const input = self.find("[name='" + key + "']", form.elements);
+			input && fnSetValue(input, data[key]);
+		}
+		return self;
 	}
 	this.checklist = (form, name, values) => {
 		const group = self.getAll(".check-" + name, form);
@@ -252,7 +262,10 @@ function Dom() {
 				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
 			check.dataset.procesed = true;
 		}
-		self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
+		if (values)
+			self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
+		else
+			self.setChecked(group, false);
 		return fnCheck();
 	}
 	this.checkbin = (form, name, value) => {
@@ -355,8 +368,9 @@ function Dom() {
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
 	this.onkeydown = this.onKeydown = self.keydown;
 
-	this.submit = (list, fn) => self.each(list, el => fnEvent(el, "submit", fn));
-	this.onsubmit = this.onSubmit = self.submit;
+	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
+	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
+	this.afterReset = (form, fn) => fnAddEvent(form, "reset", ev => setTimeout(() => fn(ev), 1));
 
 	this.tabs = function(tabs) {
 		tabs = fnQueryAll(tabs); // Get all tabs
@@ -440,6 +454,7 @@ function Dom() {
 		}
 
 		self.closeAlerts = function() { // Hide all alerts
+			i18n.reset(); // Clear previos messages
 			return self.each(texts, closeAlert).each(INPUTS, el => {
 				const tip = self.sibling(el, TIP_ERR_SELECTOR); // tip error
 				self.setInnerHtml(tip, EMPTY).hide(tip).removeClass(el, opts.classInputError);
