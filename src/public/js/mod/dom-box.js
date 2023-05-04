@@ -32,7 +32,7 @@ function Dom() {
 	}
 
 	this.apply = (selector, list, fn) => fnSelf(ab.each(list, (el, i) => el.matches(selector) && fn(el, i)));
-	this.applyReverse = (selector, list, fn) => fnSelf(ab.reverse(list, (el, i) => el.matches(selector) && fn(el, i)));
+	//this.applyReverse = (selector, list, fn) => fnSelf(ab.reverse(list, (el, i) => el.matches(selector) && fn(el, i)));
 	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
 	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
 	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
@@ -99,7 +99,8 @@ function Dom() {
 	this.render = (selector, data, fnRender) => self.each(selector, el => fnSetHtml(el, sb.render(fnTpl(el), data, fnRender)));
 
 	this.table = function(table, data, opts) {
-		const links = self.getAll(".sort", table.tHead); // All orderable columns
+		if (!table || !data)
+			return self; // guard statement
 		const detail = { size: data.length, index: 0 }; // Event detail
 		const tbody = table.tBodies[0]; // Data rows
 
@@ -150,22 +151,6 @@ function Dom() {
 			fnTfoot();
 		}
 
-		self.click(links, (ev, link) => { // Sort event click
-			detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-			detail.column = link.getAttribute("href").substring(1); // Column name
-			detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
-
-			// Update all sort icons
-			self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
-				.addClass(links, "sort-none") // Reset all orderable columns
-				.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
-
-			// Fire specific column sort event and after common sort event
-			self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
-			ab.sort(data, detail.dir, detail.sort); // Sort data by function
-			fnRender(); // Build table rows
-		});
-
 		fnRender(); // Render table and add extra events
 		table.update = fnRender; // Mutate table object 
 		table.insert = function(row) { data.push(row); fnRender(); }
@@ -190,12 +175,35 @@ function Dom() {
 				fnRender(); // Build table rows
 			}
 		}
-		return self;
+
+		const links = self.getAll(".sort", table.tHead); // All orderable columns
+		return self.click(links, (ev, link) => { // Sort event click
+			detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+			detail.column = link.getAttribute("href").substring(1); // Column name
+			detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
+
+			// Update all sort icons
+			self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
+				.addClass(links, "sort-none") // Reset all orderable columns
+				.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
+
+			// Fire specific column sort event and after common sort event
+			self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
+			ab.sort(data, detail.dir, detail.sort); // Sort data by function
+			fnRender(); // Build table rows
+		});
 	}
 
 	// Forms and inputs
 	const INPUTS = "input,select,textarea";
 	const FIELDS = "input[name],select[name],textarea[name]";
+	const fnSetValue = (el, value) => {
+		if ((el.type === "checkbox") || (el.type === "radio"))
+			el.checked = (el.value == value);
+		else
+			el.value = value;
+		return self;
+	}
 
 	this.fetch = function(opts) {
 		self.loading(); //show loading..., set error handler and close loading...
@@ -206,21 +214,43 @@ function Dom() {
 		opts = opts || {};
 		const fd = new FormData(form);
 		opts.action = form.action;
-		opts.method = method || form.method; //method-override
+		opts.method = opts.method || form.method; //method-override
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
 		else
 			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).catch(data => self.setErrors(form, data));
+		return self.fetch(opts).catch(data => { self.setErrors(form, data); });
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
 	this.setChecked = (list, value) => self.each(list, input => { input.checked = value; });
 	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
 	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
+	this.setValue = (input, value) => input ? fnSetValue(input, value || EMPTY) : self;
+	this.putValue = (selector, value) => self.setValue(fnQuery(selector), value);
+	this.getInput = (form, selector) => self.find(selector, form.elements);
+	this.setInputVal = (form, name, value) => self.setValue(self.getInput(form, "[name='" + name + "']"), value);
+	this.setValues = (form, data) => {
+		for (let key in data) // update key names only
+			self.setInputVal(form, key, data[key]);
+		return self;
+	}
 
-	this.focus = el => { el && el.focus(); return self; }
+	this.getAttr = (input, name) => input ? input.getAttribute(name) : null;
+	this.setAttr = (input, name, value) => input ? fnSelf(input.setAttribute(name, value)) : self;
+	this.putAttr = (selector, name, value) => self.setAttr(fnQuery(selector), name, value);
+	this.getInputAttr = (form, name) => self.getAttr(self.getInput(form, "[" + name + "]"), name);
+	this.setInputAttr = (form, name, value) => self.setAttr(self.getInput(form, "[" + name + "]"), name, value);
+	this.setRangeDate = (form, f1, f2) => {
+		f1 = self.getInput(form, f1);
+		f2 = self.getInput(form, f2);
+		fnEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
+		return fnEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
+	}
+
+	this.focus = el => fnSelf(el && el.focus());
+	this.putFocus = el => self.focus(fnQuery(el));
 	this.setFocus = el => self.autofocus(self.inputs(el));
 	this.autofocus = function(inputs) {
 		inputs = fnQueryAll(inputs); // get posible inputs
@@ -228,22 +258,9 @@ function Dom() {
 		return self.focus(ab.find(inputs, fnFocus)); // Set focus on first visible input
 	}
 
-	function fnSetValue(el, value) {
-		if ((el.type === "checkbox") || (el.type === "radio"))
-			el.checked = (el.value == value);
-		else
-			el.value = value;
-	}
 	this.load = (form, data) => {
 		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name]))
 					: self.apply(FIELDS, form.elements, el => fnSetValue(el, EMPTY));
-	}
-	this.setValues = (form, data) => {
-		for (let key in data) {
-			const input = self.find("[name='" + key + "']", form.elements);
-			input && fnSetValue(input, data[key]);
-		}
-		return self;
 	}
 	this.checklist = (form, name, values) => {
 		const group = self.getAll(".check-" + name, form);
@@ -260,7 +277,7 @@ function Dom() {
 		if (!check.dataset.procesed) {
 			self.click(group, fnCheck)
 				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
-			check.dataset.procesed = true;
+			check.dataset.procesed = true; // Only one click listener
 		}
 		if (values)
 			self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
@@ -284,7 +301,7 @@ function Dom() {
 		if (!check.dataset.procesed) {
 			self.click(group, fnCheck)
 				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
-			check.dataset.procesed = true;
+			check.dataset.procesed = true; // Only one click listener
 		}
 		self.each(group, el => { el.checked = (value & el.value); all |= +el.value; });
 		return fnCheck();
@@ -292,7 +309,7 @@ function Dom() {
 
 	this.validate = (form, data) => {
 		const aux = {}; // Data container from view
-		const fn = i18n.getValidator(form.getAttribute("id"));
+		const fn = i18n.getValidator(form.getAttribute("id")); // Specific validate / parser
 		self.closeAlerts().apply(FIELDS, form.elements, el => { aux[el.name] = el.value; });
 		return fn(aux, data) || !self.setErrors(form, i18n.getMsgs());
 	}
@@ -434,7 +451,6 @@ function Dom() {
 		opts.classAlertClose = opts.classAlertClose || "alert-close";
 		opts.classTipError = opts.classTipError || "ui-errtip";
 		opts.classInputError = opts.classInputError || "ui-error";
-		const TIP_ERR_SELECTOR = "." + opts.classTipError;
 
 		const texts = self.getAll("." + opts.classAlertText, alerts);
 		const showAlert = el => self.fadeIn(el.parentNode);
@@ -453,22 +469,27 @@ function Dom() {
 			return msgs ? self.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : self;
 		}
 
+		const fnGetTiperr = el => self.sibling(el, "." + opts.classTipError); // tip error
+		const fnClearError = el => {
+			const tip = fnGetTiperr(el);
+			self.setInnerHtml(tip, EMPTY).hide(tip).removeClass(el, opts.classInputError);
+		}
 		self.closeAlerts = function() { // Hide all alerts
 			i18n.reset(); // Clear previos messages
-			return self.each(texts, closeAlert).each(INPUTS, el => {
-				const tip = self.sibling(el, TIP_ERR_SELECTOR); // tip error
-				self.setInnerHtml(tip, EMPTY).hide(tip).removeClass(el, opts.classInputError);
-			});
+			return self.each(texts, closeAlert).each(INPUTS, fnClearError);
 		}
-
+		self.setOk = (form, msg) => {
+			i18n.reset(); // Clear previos messages
+			return self.eachChild(alerts, fnHide).each(form.elements, fnClearError).showOk(msg);
+		}
 		self.setErrors = (form, messages) => {
 			if (isstr(messages)) // simple message text
 				return self.showError(messages);
 			self.reverse(form.elements, el => { // Reverse iterator
 				const msg = messages[el.name]; // message to show
 				if (msg) {
+					const tip = fnGetTiperr(el);
 					const partner = self.sibling(el, INPUTS); // Partner element
-					const tip = self.sibling(el, TIP_ERR_SELECTOR); // Show tip error
 					self.setInnerHtml(tip, msg).show(tip)
 						.addClass(el, opts.classInputError).addClass(partner, opts.classInputError)
 						.focus(fnVisible(el) ? el : partner);
@@ -479,7 +500,8 @@ function Dom() {
 
 		// Show posible server messages and close click event
 		const close = self.getAll("." + opts.classAlertClose, alerts);
-		return self.each(texts, el => { el.firstChild && showAlert(el); }).click(close, (ev, el) => closeAlert(el));
+		return self.each(texts, el => { el.firstChild && showAlert(el); })
+					.click(close, (ev, el) => closeAlert(el));
 	}
 }
 

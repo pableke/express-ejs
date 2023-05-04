@@ -31,16 +31,14 @@ dom.ready(function() {
 	}
 
 	const fnDefault = () => fnFiscal(null, 0, 0, 0);
-	const fnC1T04 = () => fnFiscal("323003", 0, 1, 0);
+	const fn323003_010 = () => fnFiscal("323003", 0, 1, 0);
 	const fnC2T04 = () => fnFiscal("323003", 1, 0, 0);
 	const fnC2T14 = () => fnFiscal("131004", 0, 1, 0, 10);
 	const fnC2UET14 = () => fnFiscal("131004", 1, 0, 6, 10);
 	const fnC2ZZT14 = () => fnFiscal("131004", 1, 0, 0, 10);
-	const fnC1T03 = () => fnFiscal("323003", 0, 1, 0);
 	const fnC2T03 = () => fnFiscal("323003", 1, 0, 0, 6);
 	const fnC2T15 = () => fnFiscal("131200", 0, 1, 0, 10);
 	const fnC2TUE15 = () => fnFiscal("131200", 1, 0, 6, 10);
-	const fnC1T09 = () => fnFiscal("323003", 0, 1, 0);
 	const fnC2UET09 = () => fnFiscal("323003", 1, 0, 6);
 	const fnC2T16 = () => fnFiscal("139000", 0, 0, 0, 10, 21);
 	const fnC2UET16 = () => fnFiscal("139000", 1, 0, 6, 10);
@@ -49,11 +47,11 @@ dom.ready(function() {
 	const fnC2T18 = () => fnFiscal("139002", 0, 0, 0, 10, 21);
 	const fnC2UET18 = () => fnFiscal("139002", 1, 0, 6, 10);
 	const ECONOMICAS = {
-		c1epes4: fnC1T04, c1noes4: fnC1T04, c1noue4: fnC1T04, c1nozz4: fnC1T04, c2epes4: fnC1T04, c2noes4: fnC1T04, c2noue4: fnC2T04, c2nozz4: fnC1T04, c3epes4: fnC1T04, c3noes4: fnC1T04, c3noue4: fnC2T04, c3nozz4: fnC1T04,
+		c1epes4: fn323003_010, c1noes4: fn323003_010, c1noue4: fn323003_010, c1nozz4: fn323003_010, c2epes4: fn323003_010, c2noes4: fn323003_010, c2noue4: fnC2T04, c2nozz4: fn323003_010, c3epes4: fn323003_010, c3noes4: fn323003_010, c3noue4: fnC2T04, c3nozz4: fn323003_010,
 		c2epes14: fnC2T14, c2noes14: fnC2T14, c2noue14: fnC2UET14, c2nozz14: fnC2ZZT14, c3epes14: fnC2T14, c3noes14: fnC2T14, c3noue14: fnC2UET14, c3nozz14: fnC2ZZT14,
-		c1epes3: fnC1T03, c1noes3: fnC1T03, c1noue3: fnC1T03, c1nozz3: fnC1T03, c2epes3: fnC1T03, c2noes3: fnC1T03, c2noue3: fnC2T03, c2nozz3: fnC1T03, c3epes3: fnC1T03, c3noes3: fnC1T03, c3noue3: fnC2T03, c3nozz3: fnC1T03,
+		c1epes3: fn323003_010, c1noes3: fn323003_010, c1noue3: fn323003_010, c1nozz3: fn323003_010, c2epes3: fn323003_010, c2noes3: fn323003_010, c2noue3: fnC2T03, c2nozz3: fn323003_010, c3epes3: fn323003_010, c3noes3: fn323003_010, c3noue3: fnC2T03, c3nozz3: fn323003_010,
 		c2epes15: fnC2T15, c2noes15: fnC2T15, c2noue15: fnC2TUE15, c2nozz15: fnC2T15, c3epes15: fnC2T15, c3noes15: fnC2T15, c3noue15: fnC2TUE15, c3nozz15: fnC2T15,
-		c1epes9: fnC1T09, c1noes9: fnC1T09, c1noue9: fnC1T09, c1nozz9: fnC1T09, c2epes9: fnC1T09, c2noes9: fnC1T09, c2noue9: fnC2UET09, c2nozz9: fnC1T09, c3epes9: fnC1T09, c3noes9: fnC1T09, c3noue9: fnC2UET09, c3nozz9: fnC1T09,
+		c1epes9: fn323003_010, c1noes9: fn323003_010, c1noue9: fn323003_010, c1nozz9: fn323003_010, c2epes9: fn323003_010, c2noes9: fn323003_010, c2noue9: fnC2UET09, c2nozz9: fn323003_010, c3epes9: fn323003_010, c3noes9: fn323003_010, c3noue9: fnC2UET09, c3nozz9: fn323003_010,
 		c2epes16: fnC2T16, c2noes16: fnC2T16, c2noue16: fnC2UET16, c2nozz16: fnC2T16, c3epes16: fnC2T16, c3noes16: fnC2T16, c3noue16: fnC2UET16, c3nozz16: fnC2T16,
 		c2epes17: fnC2T17, c2noes17: fnC2T17, c2noue17: fnC2UET17, c2nozz17: fnC2T17, c3epes17: fnC2T17, c3noes17: fnC2T17, c3noue17: fnC2UET17, c3nozz17: fnC2T17,
 		c2epes18: fnC2T18, c2noes18: fnC2T18, c2noue18: fnC2UET18, c2nozz18: fnC2T18, c3epes18: fnC2T18, c3noes18: fnC2T18, c3noue18: fnC2UET18, c3nozz18: fnC2T18
