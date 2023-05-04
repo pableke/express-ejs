@@ -22,7 +22,7 @@ dom.ready(function() {
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(selector, opts) {
-		const input = dom.getInput(selector); //Autocomplete inputs
+		const input = dom.get(selector); //Autocomplete inputs
 		const id = dom.sibling(input, "[type=hidden]"); //id associated
 
 		const fnNull = param => null;
@@ -68,8 +68,9 @@ dom.ready(function() {
 	// Testing....
 	const RESUME = {};
 	const ftest = dom.get("form#test");
+	const filter = dom.get("form#filter");
 	const pruebas = dom.get("table#pruebas");
-	const fnList = data => { dom.table(pruebas, data, RESUME).autofocus("#filter"); }
+	const fnList = data => dom.table(pruebas, data, RESUME).autofocus("#filter");
 	let current; // pointer tu current row
 
 	dom.tabs(".tab-content") // Tabs hendlres
@@ -79,61 +80,76 @@ dom.ready(function() {
 		.click("a[href='#clear-pruebas']", el => pruebas.reset())
 		.event(pruebas, "sort-email", ev => { ev.detail.sort = (a, b) => sb.cmp(a.email, b.email); })
 		.event(pruebas, "sort-imp", ev => { ev.detail.sort = (a, b) => nb.cmp(a.imp, b.imp); })
-		.event(pruebas, "remove", ev => dom.viewTab(2))
-		.click(".create-data", el => {
-			current = {};
-			dom.load(ftest)
-				.checkbin(ftest, "binary").checklist(ftest, "values")
-				.viewTab(3);
-		})
-		.event(pruebas, "before-render", ev => {
-			RESUME.c4 = RESUME.imp = 0;
-			dom.toggleHide("a[href='#clear-pruebas']", !ev.detail.size);
-		})
-		.event(pruebas, "on-render", ev => {
-			const data = ev.detail.data;
-			const view = ev.detail.view;
+		.event(pruebas, "remove", ev => dom.viewTab(2));
 
-			data.memo = data.memo ?? sb.rand();
-			data.c4 = data.c4 ?? nb.rand(0, 300);
-			data.imp = data.imp ?? nb.rand(100);
-			data.fecha = data.fecha || dt.rand().toISOString();
-			data.binary = data.binary ?? nb.randInt(0, 15);
-			data.values = data.values || [];
+	dom.click(".create-data", el => {
+		current = {};
+		dom.load(ftest)
+			.checkbin(ftest, "binary").checklist(ftest, "values")
+			.viewTab(3);
+	})
+	.event(pruebas, "before-render", ev => {
+		RESUME.c4 = RESUME.imp = 0;
+		dom.toggleHide("a[href='#clear-pruebas']", !ev.detail.size);
+	})
+	.event(pruebas, "on-render", ev => {
+		const data = ev.detail.data;
+		const view = ev.detail.view;
 
-			RESUME.c4 += data.c4; RESUME.imp += data.imp;
-			ab.copy(["name", "email", "memo"], data, view);
-			view.c4 = i18n.isoFloat(data.c4);
-			view.imp = i18n.isoFloat(data.imp);
-			view.fecha = i18n.fmtDate(data.fecha);
-		})
-		.event(pruebas, "after-render", ev => {
-			ev.detail.c4 = i18n.isoFloat(RESUME.c4);
-			ev.detail.imp = i18n.isoFloat(RESUME.imp);
-		})
-		.event(pruebas, "find", ev => {
-			current = ev.detail.data;
-			const view = ab.copy(["name", "email", "memo"], current, {});
-			view.c4 = i18n.isoFloat(current.c4);
-			view.imp = i18n.isoFloat(current.imp);
-			view.fecha = sb.isoDate(current.fecha);
-			dom.load(ftest, view)
-				.checkbin(ftest, "binary", current.binary)
-				.checklist(ftest, "values", current.values)
-				.viewTab(3);
-		})
-		.event(pruebas, "change-test", ev => {
-			RESUME.c4 -= ev.detail.data.c4;
-			ev.detail.data.c4 = i18n.toFloat(ev.detail.element.value);
-			RESUME.c4 += ev.detail.data.c4;
-		});
+		data.memo = data.memo ?? sb.rand();
+		data.c4 = data.c4 ?? nb.rand(0, 300);
+		data.imp = data.imp ?? nb.rand(100);
+		data.fecha = data.fecha || dt.rand().toISOString();
+		data.binary = data.binary ?? nb.randInt(0, 15);
+		data.values = data.values || [];
+
+		RESUME.c4 += data.c4; RESUME.imp += data.imp;
+		ab.copy(["name", "email", "memo"], data, view);
+		view.c4 = i18n.isoFloat(data.c4);
+		view.imp = i18n.isoFloat(data.imp);
+		view.fecha = i18n.fmtDate(data.fecha);
+	})
+	.event(pruebas, "after-render", ev => {
+		ev.detail.c4 = i18n.isoFloat(RESUME.c4);
+		ev.detail.imp = i18n.isoFloat(RESUME.imp);
+	})
+	.event(pruebas, "find", ev => {
+		current = ev.detail.data;
+		const view = ab.copy(["name", "email", "memo"], current, {});
+		view.c4 = i18n.isoFloat(current.c4);
+		view.imp = i18n.isoFloat(current.imp);
+		view.fecha = sb.isoDate(current.fecha);
+		dom.load(ftest, view)
+			.checkbin(ftest, "binary", current.binary)
+			.checklist(ftest, "values", current.values)
+			.viewTab(3);
+	})
+	.event(pruebas, "change-test", ev => {
+		RESUME.c4 -= ev.detail.data.c4;
+		ev.detail.data.c4 = i18n.toFloat(ev.detail.element.value);
+		RESUME.c4 += ev.detail.data.c4;
+	});
+
+	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
+	dom.ajax(ENDPOINT).then(fnList); //call to simulate read data from server
+
+	// Eventos de control para el filtro de la tabla
+	dom.setRangeDate(filter, "#f1", "#f2") // Filter range date
+		.afterReset(filter, ev => dom.send(filter).then(fnList))
+		.submit(filter, ev => !dom.send(filter).then(fnList));
 
 	// Eventos de control para el formulario de datos
 	dom.click("a[href='#first-item']", el => pruebas.first())
 		.click("a[href='#prev-item']", el => pruebas.prev())
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())
-		.click("a[href='#remove-item']", el => pruebas.remove());
+		.click("a[href='#remove-item']", el => pruebas.remove())
+		.autocomplete("#name", {
+			action: ENDPOINT,
+			render: item => item.name,
+			load: (item, input, id) => { input.value = item.name; id.value = item.id; }
+		});
+
 	dom.click("button#clone", el => {
 		if (dom.validate(ftest, current)) {
 			// save current on server ....
@@ -148,7 +164,4 @@ dom.ready(function() {
 			dom.viewTab(2);
 		}
 	});
-
-	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-	dom.ajax(ENDPOINT).then(fnList); //call to simulate read data from server
 });
