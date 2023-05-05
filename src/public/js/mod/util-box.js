@@ -85,7 +85,7 @@ dom.ready(function() {
 	dom.click(".create-data", el => {
 		current = {};
 		dom.load(ftest)
-			.checkbin(ftest, "binary").checklist(ftest, "values")
+			.checkbin(ftest, "binary").checklist(ftest, "values").checkbin(ftest, "icons")
 			.viewTab(3);
 	})
 	.event(pruebas, "before-render", ev => {
@@ -102,6 +102,7 @@ dom.ready(function() {
 		data.fecha = data.fecha || dt.rand().toISOString();
 		data.binary = data.binary ?? nb.randInt(0, 15);
 		data.values = data.values || [];
+		data.icons = data.icons ?? nb.randInt(0, 3);
 
 		RESUME.c4 += data.c4; RESUME.imp += data.imp;
 		ab.copy(["name", "email", "memo"], data, view);
@@ -122,6 +123,7 @@ dom.ready(function() {
 		dom.load(ftest, view)
 			.checkbin(ftest, "binary", current.binary)
 			.checklist(ftest, "values", current.values)
+			.checkbin(ftest, "icons", current.icons)
 			.viewTab(3);
 	})
 	.event(pruebas, "change-test", ev => {
@@ -135,8 +137,8 @@ dom.ready(function() {
 
 	// Eventos de control para el filtro de la tabla
 	dom.setRangeDate(filter, "#f1", "#f2") // Filter range date
-		.afterReset(filter, ev => dom.send(filter).then(fnList))
-		.submit(filter, ev => !dom.send(filter).then(fnList));
+		.afterReset(filter, ev => dom.autofocus(filter.elements).send(filter).then(fnList))
+		.submit(filter, ev => !dom.autofocus(filter.elements).send(filter).then(fnList));
 
 	// Eventos de control para el formulario de datos
 	dom.click("a[href='#first-item']", el => pruebas.first())
@@ -157,7 +159,7 @@ dom.ready(function() {
 			delete current.id;
 		}
 	})
-	.afterReset(ftest, ev => dom.closeAlerts())
+	.afterReset(ftest, ev => dom.closeAlerts().autofocus(ftest.elements))
 	.submit(ftest, ev => {
 		if (dom.validate(ftest, current)) {
 			pruebas.update();

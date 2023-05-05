@@ -18,6 +18,7 @@ forms.test = (view, data) => {
 	data.imp = i18n.toFloat(view.imp);
 	data.binary = +view.binary; // Integer mask
 	data.values = sb.array(view.values); // Optional field
+	data.icons = +view.icons; // Integer mask
 	return true;
 }
 
