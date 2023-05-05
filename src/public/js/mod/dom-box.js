@@ -16,7 +16,8 @@ function Dom() {
 	const fnQuery = selector => isstr(selector) ? document.querySelector(selector) : selector;
 	const fnQueryAll = selector => isstr(selector) ? document.querySelectorAll(selector) : selector;
 
-	this.get = (selector, el) => (el || document).querySelector(selector);
+	this.qs = (el, selector) => el.querySelector(selector);
+	this.get = (selector, el) => self.qs(el || document, selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
 
@@ -58,6 +59,7 @@ function Dom() {
 	const fnHide = el => el.classList.add(HIDE);
 	const fnShow = el => el.classList.remove(HIDE);
 	const isHide = el => el.classList.contains(HIDE);
+	const fnToggle = (el, name, force) => el.classList.toggle(name, force);
 	const fnVisible = el => (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
 
 	this.visible = el => el && fnVisible(el);
@@ -65,7 +67,7 @@ function Dom() {
 	this.hide = list => self.each(list, fnHide);
 	this.addClass = (list, name) => self.each(list, el => el.classList.add(name));
 	this.removeClass = (list, name) => self.each(list, el => el.classList.remove(name));
-	this.toggle = (list, name, force) => self.each(list, el => el.classList.toggle(name, force));
+	this.toggle = (list, name, force) => self.each(list, el => fnToggle(el, name, force));
 	this.toggleHide = (list, force) => self.toggle(list, HIDE, force);
 	this.hasClass = (el, name) => el && el.classList.contains(name);
 
@@ -73,14 +75,14 @@ function Dom() {
 		return self.click(selector, (ev, el) => {
 			const info = self.getAll(".info-" + el.id);
 			const names = sb.split(el.dataset.toggle, /\s+/);
-			self.eachChild(el, "i", child => ab.each(names, name => child.classList.toggle(name)))
+			self.eachChild(el, "i", child => ab.each(names, name => fnToggle(child, name)))
 				.toggleHide(info).setFocus(info[0]);
 		});
 	}
 
 	// Format and parse contents
 	const TEMPLATES = {}; //container
-	function fnContents(el, value) { el.classList.toggle(HIDE, !value); return self; }
+	function fnContents(el, value) { fnToggle(el, HIDE, !value); return self; }
 	function fnSetText(el, value) { el.innerText = value; return fnContents(el, value); }
 	function fnSetHtml(el, value) { el.innerHTML = value; return fnContents(el, value); }
 	function fnTpl(el) {
@@ -253,9 +255,8 @@ function Dom() {
 	this.putFocus = el => self.focus(fnQuery(el));
 	this.setFocus = el => self.autofocus(self.inputs(el));
 	this.autofocus = function(inputs) {
-		inputs = fnQueryAll(inputs); // get posible inputs
-		const fnFocus = input => (fnVisible(input) && input.matches("[tabindex]:not([type=hidden],[readonly],[disabled])"));
-		return self.focus(ab.find(inputs, fnFocus)); // Set focus on first visible input
+		const fnFocus = el => (fnVisible(el) && el.matches("[tabindex]:not([type=hidden],[readonly],[disabled])"));
+		return self.focus(ab.find(fnQueryAll(inputs || INPUTS), fnFocus)); // Set focus on first visible input
 	}
 
 	this.load = (form, data) => {
@@ -292,7 +293,11 @@ function Dom() {
 
 		function fnCheck() {
 			let result = 0; // mask
-			self.each(group, el => { result |= (el.checked ? +el.value : 0); });
+			self.each(group, el => {
+				result |= (el.checked ? +el.value : 0);
+				const icon = self.next(el, "label[for='" + el.id + "']"); //font-awesome
+				icon && fnToggle(icon, "active", el.checked); //toggle icon style
+			});
 			check.checked = (all == result);
 			check.value = result;
 			return self;
@@ -314,7 +319,7 @@ function Dom() {
 		return fn(aux, data) || !self.setErrors(form, i18n.getMsgs());
 	}
 
-	this.mask = (list, mask, name) => self.each(list, (el, i) => el.classList.toggle(name, nb.mask(mask, i))); //toggle class by mask
+	this.mask = (list, mask, name) => self.each(list, (el, i) => fnToggle(el, name, nb.mask(mask, i))); //toggle class by mask
 	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
 	this.getSelectHtml = select => select && self.getInnerHtml(select.options[select.selectedIndex]);
 	this.select = function(list, mask) {
@@ -371,27 +376,24 @@ function Dom() {
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, el => fnEvent(el, name, fn));
 	this.trigger = (el, name, detail) => fnSelf(el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name)));
+
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
-
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
-	this.onclick = this.onClick = self.click;
-
 	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
-	this.onchange = this.onChange = self.change;
-
 	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
-	this.onkeyup = this.onKeyup = self.keyup;
-
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
-	this.onkeydown = this.onKeydown = self.keydown;
 
 	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
 	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
 	this.afterReset = (form, fn) => fnAddEvent(form, "reset", ev => setTimeout(() => fn(ev), 1));
 
-	this.tabs = function(tabs) {
-		tabs = fnQueryAll(tabs); // Get all tabs
-		let _tabIndex = self.findIndex(".active", tabs); //current index tab
+	this.tabs = function(tabs, opts) {
+		opts = opts || {};
+		opts.classTab = opts.classTab || "tab-content";
+		opts.classActive = opts.classActive || "active";
+
+		tabs = fnQueryAll(tabs || ("." + opts.classTab)); // Get all tabs
+		let _tabIndex = self.findIndex("." + opts.classActive, tabs); //current index tab
 		let _tabSize = tabs.length - 1; // max tabs size
 		let _tabMask = ~0; // all 11111....
 
@@ -416,10 +418,10 @@ function Dom() {
 				const progressbar = self.get("#progressbar");
 				if (progressbar) { // progressbar is optional
 					const step = "step-" + i; //go to a specific step on progressbar
-					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
+					self.each(progressbar.children, li => self.toggle(li, opts.classActive, li.id <= step));
 				}
 				_tabIndex = i; // set current index
-				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
+				self.removeClass(tabs, opts.classActive).addClass(tab, opts.classActive) // set active tab
 					.setFocus(tab); // Auto set focus and scroll
 			}
 			return self;
@@ -437,10 +439,10 @@ function Dom() {
 		}
 
 		if (_tabSize > 0) { // Has view tabs?
-			self.onclick("a[href='#prev-tab']", () => !self.prevTab())
-				.onclick("a[href='#next-tab']", () => !self.nextTab())
-				.onclick("a[href='#last-tab']", () => !self.lastTab())
-				.onclick("a[href^='#tab-']", (ev, el) => !self.viewTab(sb.lastId(el.href)));
+			self.click("a[href='#prev-tab']", () => !self.prevTab())
+				.click("a[href='#next-tab']", () => !self.nextTab())
+				.click("a[href='#last-tab']", () => !self.lastTab())
+				.click("a[href^='#tab-']", (ev, el) => !self.viewTab(sb.lastId(el.href)));
 		}
 		return self;
 	}
