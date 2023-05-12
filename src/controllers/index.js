@@ -72,15 +72,20 @@ export const auth = function(req, res, next) {
 	next(); //next middleware
 }
 
+const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
+const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 export const sign = function(req, res, next) {
 	try {
 		const user = { id: 9 };
 		req.session.ssId = user.id;
 		const { usuario, clave } = req.body;
 		//const user = dao.web.myjson.users.getUser(usuario, clave, i18n);
-		if (!user)
-			return next("User not found");
-		res.send(jwt.sign({ id: user.id }, process.env.JWT_KEY));
+		if ((usuario == "admin") &&  (clave == "1234")) {
+			const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS);
+			res.cookie("token", token, COOKIE_OPTS).send(token);
+		}
+		else
+			next("User not found");
 	} catch (ex) {
 		next(ex);
 	}
@@ -88,9 +93,8 @@ export const sign = function(req, res, next) {
 export const verify = function(req, res, next) {
 	util.setBody(res, TPL_LOGIN); //if error => go login
 	try {
-		const token = req.headers["authorization"];
-		if (token && token.startsWith("Bearer")) {
-			jwt.verify(token.substr(7), process.env.JWT_KEY, (err, user) => {
+		if (req.cookies.token) {
+			jwt.verify(req.cookies.token, config.JWT_KEY, (err, user) => {
 				return (err || !user) ? next(err || "err401") : next();
 			});
 		}

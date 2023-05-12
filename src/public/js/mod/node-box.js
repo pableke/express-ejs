@@ -26,14 +26,14 @@ function NodeBox() {
 	}
 
 	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
+	const fnSendText = (res, status, msg) => fnSend(res, "text/html", status, res.locals.i18n[msg] || msg);
 	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
-	const fnSendText = (res, status, value) => fnSend(res, "text/html", status, value);
 
 	this.json = (res, data) => fnSendJson(res, 200, data);
 	this.text = (res, txt) => fnSendText(res, 200, txt);
 	this.msg = (res, msg) => fnSendText(res, 200, i18n.tr(msg));
 	this.msgs = res => fnSendJson(res, 200, i18n.getMsgs());
-	this.msgError = (res, msg, status) => fnSendText(res, status, i18n.tr(msg));
+	this.msgError = (res, msg, status) => fnSendText(res, status, msg);
 	this.msgErr404 = (res, msg) => self.msgError(res, msg, 404);
 	this.msgErr500 = (res, msg) => self.msgError(res, msg, 500);
 	this.errors = res => fnSendJson(res, 500, i18n.getMsgs());

@@ -171,4 +171,7 @@ dom.ready(function() {
 			});
 		}
 	});
+
+	// TESTING...
+	api.post("http://localhost:3000/tests/api/sign", { usuario: "admin", clave: "1234" }).then(console.log).catch(dom.showError);
 });

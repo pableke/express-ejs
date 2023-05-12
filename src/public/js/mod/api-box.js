@@ -1,12 +1,6 @@
 
 const api = {};
 
-function fnFetchJSON(action, token, method, data) {
-	const opts = { action, token, method, body: JSON.stringify(data) };
-	opts.headers = { "Content-Type":"application/json; charset=utf-8" };
-	return api.fetch(opts);
-}
-
 api.fetch = opts => {
 	opts.headers = opts.headers || {};
 	opts.headers["x-requested-with"] = "XMLHttpRequest";
@@ -17,6 +11,12 @@ api.fetch = opts => {
 		const promise = type.includes("application/json") ? res.json() : res.text();
 		return res.ok ? promise : promise.then(data => Promise.reject(data));
 	});
+}
+
+function fnFetchJSON(action, token, method, data) {
+	const opts = { action, token, method, body: JSON.stringify(data) };
+	opts.headers = { "Content-Type":"application/json; charset=utf-8" };
+	return api.fetch(opts);
 }
 
 api.get = (action, token) => api.fetch({ action, token });
