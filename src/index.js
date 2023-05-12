@@ -6,6 +6,7 @@
 
 import express from "express"; //infraestructura web
 import session from "express-session"; //session handler
+import cookieParser from "cookie-parser"; //cookie handler
 import * as uuid from "uuid"; //generate random ids
 
 import dao from "app/dao/factory.js"; // DAO factory
@@ -32,6 +33,7 @@ app.locals.body = {}; // Set data on response
 app.use("/public", express.static(config.DIR_PUBLIC)); // static files
 app.use(express.urlencoded({ limit: "90mb", extended: false })); // to support URL-encoded bodies
 app.use(express.json({ limit: "90mb" }));
+app.use(cookieParser());
 
 app.set("trust proxy", 1) // trust first proxy
 app.use(session({ //session config
@@ -44,7 +46,7 @@ app.use(session({ //session config
 	cookie: {
 		secure: false, //require https
 		sameSite: true, //blocks CORS requests on cookies. This will affect the workflow on API calls and mobile applications
-		maxAge: 60*60*1000 //1h
+		maxAge: config.SESSION_EXPIRES //1h
 	}
 }));
 
