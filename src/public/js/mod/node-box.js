@@ -7,12 +7,12 @@ import xls from "excel4node"; //JSON to Excel
 import nodemailer from "nodemailer"; //send emails
 import ejs from "ejs"; //tpl engine
 
+import api from "./api-box.js";
 import ab from "./array-box.js";
 import dt from "./date-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 import i18n from "./i18n-box.js";
-import valid from "./validator-box.js";
 import langs from "app/i18n/langs.js";
 import config from "app/dist/config.js";
 
@@ -20,7 +20,10 @@ function NodeBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
-	this.lang = (res, mod) => { res.locals.i18n = langs[mod][res.locals.lang]; return self; }
+	this.lang = (res, mod, next) => {
+		res.locals.i18n = langs[mod][res.locals.lang];
+		next();
+	}
 
 	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
 	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
@@ -29,10 +32,11 @@ function NodeBox() {
 	this.json = (res, data) => fnSendJson(res, 200, data);
 	this.text = (res, txt) => fnSendText(res, 200, txt);
 	this.msg = (res, msg) => fnSendText(res, 200, i18n.tr(msg));
+	this.msgs = res => fnSendJson(res, 200, i18n.getMsgs());
 	this.msgError = (res, msg, status) => fnSendText(res, status, i18n.tr(msg));
 	this.msgErr404 = (res, msg) => self.msgError(res, msg, 404);
 	this.msgErr500 = (res, msg) => self.msgError(res, msg, 500);
-	this.msgs = res => (i18n.getNumMsgs() > 1) ? fnSendJson(res, 500, i18n.toMsgs()) : fnSendText(res, 500, i18n.getError());
+	this.errors = res => fnSendJson(res, 500, i18n.getMsgs());
 
 	const fnRender = (res, status, tpl) => {
 		tpl && self.setBody(res, tpl); // update body view
@@ -205,47 +209,35 @@ function NodeBox() {
 		return self;
 	}
 	/******************* send xlsx from json *******************/
-
-	this.ab = ab;
-	this.dt = dt;
-	this.nb = nb;
-	this.sb = sb;
-	this.valid = valid;
-	this.i18n = i18n;
 }
+
+/******************* Extends server modules *******************/
+api.send = function(opts) {
+	opts.headers = opts.headers || {};
+	const fd = new FormData(); // Data container
+
+	for (let key in opts.fields)
+		fd.append(key, opts.fields[key]);
+
+	if (opts.files) { // Has files
+		for (let key in opts.files) {
+			const files = opts.files[key];
+			if (Array.isArray(files)) // is multifile
+				files.forEach(path => fd.append(key, fs.createReadStream(path)));
+			else
+				fd.append(key, fs.createReadStream(files));
+		}
+		//opts.headers["Content-Type"] = "multipart/form-data";
+		opts.body = fd;
+	}
+	else {
+		//opts.headers["Content-Type"] = "application/x-www-form-urlencoded";
+		opts.body = new URLSearchParams(fd);
+	}
+
+	opts.method = "post";
+	return api.fetch(opts);
+}
+/******************* Extends server modules *******************/
 
 export default new NodeBox();
-
-/*exports.post = function(req, res, next) {
-	let rawData = ""; // Buffer
-	req.on("data", function(chunk) {
-		rawData += chunk;
-		if (rawData.length > UPLOADS.maxFieldsSize) {
-			req.connection.destroy(); //FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-			next("err413"); //Error 413 request too large
-		}
-	});
-	req.on("end", function() {
-		req.body = (req.headers["content-type"] == "application/json") ? JSON.parse(rawData) : qs.parse(rawData);
-		next();
-	});
-}*/
-
-/******************* send report template *******************
-const jsreport = require("jsreport-core")();
-jsreport.use(require("jsreport-chrome-pdf")());
-jsreport.use(require("jsreport-ejs")());
-jsreport.init(); // init. once
-
-exports.pdf = function(res, file) {
-	file = this.getView(file);
-	return jsreport.render({
-		template: {
-			engine: "ejs",
-			recipe: "chrome-pdf",
-			content: fs.readFileSync(file, "utf-8")
-		},
-		data: res.locals
-	}).then(out => out.stream.pipe(res));
-}
-/******************* send report template *******************/

@@ -121,12 +121,12 @@ function Dom() {
 			detail.element = el; // Element to trigger event
 			fnMove(self.indexOf(row)); // Real index
 		}
-		function fnTfoot() { // Render tFoot only
+		function fnFooter() { // Render tFoot only
 			self.trigger(table, "after-render", detail).format(table.tFoot, detail);
 			self.change(table.tFoot.children, (ev, tr) => {
 				fnEvent(tr, ev.target); // Set event indicators
 				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
-				fnTfoot(); // Build footer only
+				fnFooter(); // Build footer only
 			});
 		}
 		function fnRender() { // Render tBody and tFoot
@@ -141,7 +141,7 @@ function Dom() {
 			self.change(tbody.children, (ev, tr) => {
 				fnEvent(tr, ev.target); // Set event indicators
 				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
-				fnTfoot(); // Build footer only
+				fnFooter(); // Build footer only
 			}).click(remove, (ev, link) => {
 				fnEvent(link.closest("tr"), link);
 				table.remove();
@@ -150,7 +150,7 @@ function Dom() {
 				const name = link.getAttribute("href");
 				self.trigger(table, name.substring(1), detail);
 			});
-			fnTfoot();
+			fnFooter();
 		}
 
 		fnRender(); // Render table and add extra events
@@ -198,7 +198,7 @@ function Dom() {
 
 	// Forms and inputs
 	const INPUTS = "input,select,textarea";
-	const FIELDS = "input[name],select[name],textarea[name]";
+	const FIELDS = "input[name]:not([type=file]),select[name],textarea[name]";
 	const fnSetValue = (el, value) => {
 		if ((el.type === "checkbox") || (el.type === "radio"))
 			el.checked = (el.value == value);
@@ -208,30 +208,35 @@ function Dom() {
 	}
 
 	this.fetch = function(opts) {
-		self.loading(); //show loading..., set error handler and close loading...
+		self.loading(); //show loading..., and close loading...
 		return api.fetch(opts).finally(self.working);
 	}
 	this.ajax = action => self.fetch({ action }).catch(self.showError);
+	//this.ajax = (action, opts) => self.fetch(Object.assign({ action }, opts)).catch(self.showError);
 	this.send = function(form, opts) {
-		opts = opts || {};
-		const fd = new FormData(form);
-		opts.action = form.action;
+		const fd = new FormData(form); // Data container
+		const config = { action: form.action, fields: [] };
+
+		opts = Object.assign(config, opts);
 		opts.method = opts.method || form.method; //method-override
+		opts.fields.forEach(name => fd.set(name, self.getInputVal(form, name)));
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
 		else
 			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
-		opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).catch(data => { self.setErrors(form, data); });
+		//opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
+		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; }); //Implicit try…catch
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
 	this.setChecked = (list, value) => self.each(list, input => { input.checked = value; });
 	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
 	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
+	this.getValue = input => input && input.value;
 	this.setValue = (input, value) => input ? fnSetValue(input, value || EMPTY) : self;
 	this.putValue = (selector, value) => self.setValue(fnQuery(selector), value);
 	this.getInput = (form, selector) => self.find(selector, form.elements);
+	this.getInputVal = (form, name) => self.getValue(self.getInput(form, "[name='" + name + "']"));
 	this.setInputVal = (form, name, value) => self.setValue(self.getInput(form, "[name='" + name + "']"), value);
 	this.setValues = (form, data) => {
 		for (let key in data) // update key names only
@@ -249,6 +254,20 @@ function Dom() {
 		f2 = self.getInput(form, f2);
 		fnEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
 		return fnEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
+	}
+	this.onFileChange = (from, name, fn) => {
+		const reader = new FileReader();
+		const el = self.getInput(form, name);
+		const fnRead = file => file && reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
+
+		return fnAddEvent(el, ON_CHANGE, ev => {
+			let index = 0; // position
+			reader.onload = ev => { // event on load file
+				fn(el.files[index], ev.target.result, index);
+				fnRead(el.files[++index]);
+			}
+			fnRead(el.files[index]);
+		});
 	}
 
 	this.focus = el => fnSelf(el && el.focus());

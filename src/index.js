@@ -9,6 +9,7 @@ import session from "express-session"; //session handler
 import * as uuid from "uuid"; //generate random ids
 
 import dao from "app/dao/factory.js"; // DAO factory
+import i18n from "app/mod/i18n-box.js"; // Util helpers
 import util from "app/mod/node-box.js"; // Util helpers
 import routes from "./routes/routes.js"; // All routes
 import config from "app/dist/config.js"; // Configurations
@@ -24,7 +25,7 @@ app.set("view engine", "ejs");
 app.set("views", config.DIR_VIEWS);
 
 app.locals._tplBody = "web/index"; // Default body
-app.locals.msgs = util.i18n.getMsgs(); // Set messages
+app.locals.msgs = i18n.getMsgs(); // Set messages
 app.locals.body = {}; // Set data on response
 
 // Express configurations
@@ -50,11 +51,11 @@ app.use(session({ //session config
 // Routes
 app.use((req, res, next) => {
 	// Initialize response function helpers
-	res.on("finish", () => util.i18n.reset()); // Close response event
+	res.on("finish", () => i18n.reset()); // Close response event
 
 	// Search for language in request, session and headers by region: es-ES
 	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = util.i18n.load(lang).get("lang"); // Set language id
+	req.session.lang = res.locals.lang = i18n.load(lang).get("lang"); // Set language id
 
 	// Load specific user menus or public menus on view
 	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);

@@ -15,7 +15,7 @@ import strip from "gulp-strip-comments";
 import rename from "gulp-rename";
 
 // Settings
-const FOLDERS = [ "dist", "dist/controllers", "dist/dao", "dist/i18n", "dist/routes" ];
+const FOLDERS = [ "dist", "dist/controllers", "dist/dao", "dist/i18n", "dist/routes", "dist/public/files", "dist/public/files/uploads/", "dist/public/files/thumbs/" ];
 const MODULES = [ "src/*.js", "src/controllers/**/*.js", "src/dao/**/*.js", "src/i18n/**/*.js", "src/routes/**/*.js" ];
 const HTML_PATH = [ "src/views/**/*.html", "src/views/**/*.ejs" ];
 const CSS_FILES = [ "src/public/css/web/**/*.css" ];

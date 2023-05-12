@@ -12,7 +12,7 @@ api.fetch = opts => {
 	opts.headers["x-requested-with"] = "XMLHttpRequest";
 	if (opts.token)
 		opts.headers.authorization = "Bearer " + opts.token;
-	return window.fetch(opts.action, opts).then(res => {
+	return globalThis.fetch(opts.action, opts).then(res => {
 		const type = res.headers.get("content-type") || "";
 		const promise = type.includes("application/json") ? res.json() : res.text();
 		return res.ok ? promise : promise.then(data => Promise.reject(data));

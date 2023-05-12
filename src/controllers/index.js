@@ -138,6 +138,5 @@ export const multipart = function(req, res, next) { //validate all form post
 	form.once("error", err => next(err));
 	form.once("end", () => next());
 	form.parse(req);
-	return self;
 }
 /******************* upload multipart files *******************/
