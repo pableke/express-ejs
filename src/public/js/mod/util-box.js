@@ -21,8 +21,8 @@ dom.ready(function() {
 	// End loading div
 
 	// Extends dom-box actions (require jquery)
-	dom.autocomplete = function(selector, opts) {
-		const input = dom.get(selector); //Autocomplete inputs
+	dom.autocomplete = function(form, selector, opts) {
+		const input = dom.getInput(form, selector); //Autocomplete input
 		const id = dom.sibling(input, "[type=hidden]"); //id associated
 
 		const fnNull = param => null;
@@ -59,8 +59,8 @@ dom.ready(function() {
 		dom.event(input, "search", fnClear);
 
 		$(input).autocomplete(opts);
-		return dom.keydown(input, (el, ev) => { // Reduce server calls, only for backspace or alfanum
-			_search = (ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223);
+		return dom.keydown(input, (el, ev) => { // Reduce server calls, only for backspace, alfanum or not is searching
+			_search = !_search && ((ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223));
 			return true; // preserve default event
 		});
 	}
@@ -70,7 +70,6 @@ dom.ready(function() {
 	const ftest = dom.get("form#test");
 	const filter = dom.get("form#filter");
 	const pruebas = dom.get("table#pruebas");
-	const fnList = data => dom.table(pruebas, data, RESUME).autofocus("#filter");
 	let current; // pointer tu current row
 
 	dom.tabs(".tab-content") // Tabs hendlres
@@ -84,7 +83,7 @@ dom.ready(function() {
 
 	dom.click(".create-data", el => {
 		current = {};
-		dom.load(ftest)
+		dom.hide(".update-only").load(ftest)
 			.checkbin(ftest, "binary").checklist(ftest, "values").checkbin(ftest, "icons")
 			.viewTab(3);
 	})
@@ -116,11 +115,11 @@ dom.ready(function() {
 	})
 	.event(pruebas, "find", ev => {
 		current = ev.detail.data;
-		const view = ab.copy(["name", "email", "memo"], current, {});
+		const view = ab.copy(["id", "name", "email", "memo"], current, {});
 		view.c4 = i18n.isoFloat(current.c4);
 		view.imp = i18n.isoFloat(current.imp);
 		view.fecha = sb.isoDate(current.fecha);
-		dom.load(ftest, view)
+		dom.show(".update-only").load(ftest, view)
 			.checkbin(ftest, "binary", current.binary)
 			.checklist(ftest, "values", current.values)
 			.checkbin(ftest, "icons", current.icons)
@@ -133,12 +132,13 @@ dom.ready(function() {
 	});
 
 	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
+	const fnList = data => dom.table(pruebas, data, RESUME).autofocus(filter.elements);
 	dom.ajax(ENDPOINT).then(fnList); //call to simulate read data from server
 
 	// Eventos de control para el filtro de la tabla
 	dom.setRangeDate(filter, "#f1", "#f2") // Filter range date
-		.afterReset(filter, ev => dom.autofocus(filter.elements).send(filter).then(fnList))
-		.submit(filter, ev => !dom.autofocus(filter.elements).send(filter).then(fnList));
+		.afterReset(filter, ev => dom.send(filter).then(fnList))
+		.submit(filter, ev => !dom.send(filter).then(fnList));
 
 	// Eventos de control para el formulario de datos
 	dom.click("a[href='#first-item']", el => pruebas.first())
@@ -146,24 +146,29 @@ dom.ready(function() {
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())
 		.click("a[href='#remove-item']", el => pruebas.remove())
-		.autocomplete("#name", {
+		.autocomplete(ftest, "#ac-name", {
 			action: ENDPOINT,
 			render: item => item.name,
 			load: (item, input, id) => { input.value = item.name; id.value = item.id; }
 		});
 
-	dom.click("button#clone", el => {
+	const OPTS = { fields: ["binary", "values", "icons"] };
+	dom.click("button#clone", el => { // clone current on server
 		if (dom.validate(ftest, current)) {
-			// save current on server ....
-			current = Object.assign({}, current);
-			delete current.id;
+			dom.send(ftest, OPTS).then(msg => {
+				current = Object.assign({}, current);
+				delete current.id;
+				dom.showOk(msg);
+			});
 		}
 	})
 	.afterReset(ftest, ev => dom.closeAlerts().autofocus(ftest.elements))
-	.submit(ftest, ev => {
+	.submit(ftest, ev => { // save current on server
 		if (dom.validate(ftest, current)) {
-			pruebas.update();
-			dom.viewTab(2);
+			dom.send(ftest, OPTS).then(msg => {
+				pruebas.update();
+				dom.viewTab(2).showOk(msg);
+			});
 		}
 	});
 });

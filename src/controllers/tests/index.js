@@ -1,37 +1,32 @@
 
+import api from "app/mod/api-box.js";
+import nb from "app/mod/number-box.js";
+import sb from "app/mod/string-box.js";
+import i18n from "app/mod/i18n-box.js";
 import util from "app/mod/node-box.js";
-import forms from "app/mod/i18n-forms.js";
-import db from "./tests.db.js";
 
-export const index = (req, res) => {
-	util.render(res, "tests/index");
-}
+const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
 
-export const lang = (req, res, next) => {
-	util.lang(res, "test");
-	next();
-}
+const FILTER = {};
+const fields = ["name", "memo"]; // Strings ilike filter
+const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
+
+export const lang = (req, res, next) => util.lang(res, "test", next);
+export const index = (req, res) => util.render(res, "tests/index");
 
 export const filter = (req, res) => {
-	const FILTER = util.ob.parse(req.query, forms.ftest);
+	i18n.forms.filter(req.query, FILTER);
 	console.log("filter", req.query, FILTER);
-	const fields = ["name", "memo"]; // Strings ilike filter
-	const fnFilter = row => (util.sb.multilike(row, FILTER, fields) && util.nb.in(row.imp, FILTER.imp1, FILTER.imp2) && util.sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
-	util.json(res, db.filter(fnFilter));
+	api.get(ENDPOINT).then(data => util.json(res, data.filter(fnFilter)));
 }
 
 export const save = (req, res) => {
-	const data = util.i18n.validate(req.body);
-	console.log("save", req.body, data);
-	if (util.i18n.isError())
-		return util.err(res);
+	const DATA = {}; // Parsed data container
+	if (!i18n.forms.test(req.body, DATA))
+		return util.errors(res);
+	console.log("save", req.body, DATA);
 	//save data un DB .....
 	util.msg(res, "saveOk");
-}
-
-export const saveAndList = (req, res) => {
-	console.log("req", req.body);
-	util.render(res, "tests/index");
 }
 
 export const email = (req, res, next) => {

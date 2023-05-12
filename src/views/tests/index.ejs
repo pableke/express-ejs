@@ -114,12 +114,12 @@
 	<form id="filter" action="/tests/filter.html">
 		<div class="navbar">
 			<div class="ui-group ui-block">
-				<label for="filter-name" class="required">Nombre:</label>
-				<input type="text" id="filter-name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
+				<label for="name" class="required">Nombre:</label>
+				<input type="text" id="name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
 			</div>
 			<div class="ui-group ui-block">
-				<label for="filter-memo" class="required">Memoria:</label>
-				<input type="text" id="filter-memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="2"/>
+				<label for="memo" class="required">Memoria:</label>
+				<input type="text" id="memo" name="memo" value="" class="ui-item ui-control ui-text" tabindex="2"/>
 			</div>
 			<div class="ui-group ui-block">
 				<label for="imp1" class="required">Importe:</label>
@@ -199,15 +199,15 @@
 		<hr/>
 	</div>
 
-	<form id="test" action="/tests/save.html" method="post">
+	<form id="test" action="/tests/save.html" method="post" enctype="multipart/form-data">
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" id="id" name="id" value="" class="hide" />
 
 		<div class="navbar">
 			<div class="ui-group ui-block">
-				<label for="name" class="required">Nombre:</label>
-				<input type="search" id="name" name="name" value="" class="ui-item ui-control ui-text" tabindex="1" />
-				<input type="hidden" id="id-name" name="id-name" />
+				<label for="ac-name" class="required">Nombre:</label>
+				<input type="search" id="ac-name" value="" class="ui-item ui-control ui-text" tabindex="1" />
+				<input type="hidden" id="name" name="name" />
 			</div>
 			<div class="ui-group ui-block">
 				<label for="imp" class="required">Importe:</label>
@@ -238,9 +238,14 @@
 				<input id="none" type="checkbox" value="2" class="check-icon check-icons" /><label for="none" class="fas fa-times-circle ui-none icon xl-icon"></label>
 				<input id="icons" type="checkbox" name="icons" value="3" class="hide">
 			</div>
+			<div class="ui-group ui-block">
+				<label for="adjuntos">Ajuntos:</label>
+				<input type="file" id="adjuntos" name="adjuntos" multiple tabindex="5" />
+				<div class="ui-errtip"></div>
+			</div>
 			<div class="ui-group ui-row">
 				<label for="memo" class="required">Memoria:</label>
-				<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="5"></textarea>
+				<textarea id="memo" name="memo" class="ui-item ui-control ui-ta" tabindex="6"></textarea>
 			</div>
 		</div>
 
