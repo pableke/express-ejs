@@ -9,7 +9,7 @@ i18n.getValidator = id => forms[id];
 
 forms.filter = data => {
 	i18n.reset() // All data optional
-		.setData("name", data.name)
+		.setData("name", data.name).setData("memo", data.memo)
 		.setFloat("imp1", data.imp1).setFloat("imp2", data.imp2)
 		.setData("f1", data.f1).setData("f2", data.f2);
 	return i18n.getData();
