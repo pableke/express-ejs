@@ -7,26 +7,23 @@ import util from "app/mod/node-box.js";
 
 const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
 
-const FILTER = {};
-const fields = ["name", "memo"]; // Strings ilike filter
-const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
-
 export const lang = (req, res, next) => util.lang(res, "test", next);
 export const index = (req, res) => util.render(res, "tests/index");
 
 export const filter = (req, res) => {
-	i18n.forms.filter(req.query, FILTER);
-	console.log("filter", req.query, FILTER);
+	const FILTER = i18n.forms.filter(req.query);
+	const fields = ["name", "memo"]; // Strings ilike filter
+	const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
 	api.get(ENDPOINT).then(data => util.json(res, data.filter(fnFilter)));
 }
 
 export const save = (req, res) => {
-	const DATA = {}; // Parsed data container
-	if (!i18n.forms.test(req.body, DATA))
+	const data = i18n.forms.test(req.body);
+	if (!data)
 		return util.errors(res);
-	console.log("save", req.body, DATA);
+	console.log("save", req.body, data);
 	//save data un DB .....
-	util.msg(res, "saveOk");
+	res.send("" + (data.id || nb.randInt(1, 1e9)));
 }
 
 export const email = (req, res, next) => {

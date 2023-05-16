@@ -206,8 +206,9 @@
 		<div class="navbar">
 			<div class="ui-group ui-block">
 				<label for="ac-name" class="required">Nombre:</label>
-				<input type="search" id="ac-name" value="" class="ui-item ui-control ui-text" tabindex="1" />
-				<input type="hidden" id="name" name="name" />
+				<input type="search" id="ac-name" name="ac-name" value="" class="ui-item ui-control ui-text" tabindex="1" />
+				<input type="hidden" id="nif" name="nif" />
+				<div class="ui-errtip"></div>
 			</div>
 			<div class="ui-group ui-block">
 				<label for="imp" class="required">Importe:</label>
@@ -224,19 +225,19 @@
 				<label for="check2" class="inline">check2:</label><input id="check2" type="checkbox" value="2" class="check-binary ui-check">
 				<label for="check3" class="inline">check3:</label><input id="check3" type="checkbox" value="4" class="check-binary ui-check">
 				<label for="check4" class="inline">check4:</label><input id="check4" type="checkbox" value="8" class="check-binary ui-check">
-				<label for="binary" class="inline">All:</label><input id="binary" type="checkbox" name="binary" value="15" class="ui-check">
+				<label for="binary" class="inline">All:</label><input id="binary" type="checkbox" name="binary" value="15" class="ui-check ui-calculated">
 			</div>
 			<div class="ui-group ui-row"> <!-- check-list checked subgroup by id -->
 				<label for="check-list1" class="inline">check1:</label><input id="check-list1" type="checkbox" value="1" class="check-values ui-check">
 				<label for="check-list2" class="inline">check2:</label><input id="check-list2" type="checkbox" value="2" class="check-values ui-check">
 				<label for="check-list3" class="inline">check3:</label><input id="check-list3" type="checkbox" value="3" class="check-values ui-check">
 				<label for="check-list4" class="inline">check4:</label><input id="check-list4" type="checkbox" value="4" class="check-values ui-check">
-				<label for="values" class="inline">All:</label><input id="values" type="checkbox" name="values" value="on" class="ui-check">
+				<label for="values" class="inline">All:</label><input id="values" type="checkbox" name="values" value="on" class="ui-check ui-calculated">
 			</div>
 			<div>
 				<input id="fav" type="checkbox" value="1" class="check-icon check-icons" /><label for="fav" class="fas fa-star ui-fav icon xl-icon"></label>
 				<input id="none" type="checkbox" value="2" class="check-icon check-icons" /><label for="none" class="fas fa-times-circle ui-none icon xl-icon"></label>
-				<input id="icons" type="checkbox" name="icons" value="3" class="hide">
+				<input id="icons" type="checkbox" name="icons" value="3" class="hide ui-calculated">
 			</div>
 			<div class="ui-group ui-block">
 				<label for="adjuntos">Ajuntos:</label>

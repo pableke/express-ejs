@@ -26,14 +26,23 @@ function NodeBox() {
 	}
 
 	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
-	const fnSendText = (res, status, msg) => fnSend(res, "text/html", status, res.locals.i18n[msg] || msg);
+	const fnSendMsg = (res, status, msg) => fnSend(res, "text/html", status, res.locals.i18n[msg] || msg);
+	const fnSendHtml = (res, status, html) => fnSend(res, "text/html", status, html);
 	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
 
 	this.json = (res, data) => fnSendJson(res, 200, data);
-	this.text = (res, txt) => fnSendText(res, 200, txt);
-	this.msg = (res, msg) => fnSendText(res, 200, i18n.tr(msg));
+	this.text = (res, txt) => fnSendMsg(res, 200, txt);
+	this.html = (res, contents) => fnSendHtml(res, 200, ejs.render(contents, res.locals));
+	this.view = function(res, tpl) {
+		fs.readFile(self.getView(tpl), "utf-8", (err, data) => {
+			err ? self.msgErr500(res, "" + err) : self.html(res, data);
+		});
+		return self;
+	}
+
+	this.msg = (res, msg) => fnSendMsg(res, 200, i18n.tr(msg));
 	this.msgs = res => fnSendJson(res, 200, i18n.getMsgs());
-	this.msgError = (res, msg, status) => fnSendText(res, status, msg);
+	this.msgError = (res, msg, status) => fnSendMsg(res, status, msg);
 	this.msgErr404 = (res, msg) => self.msgError(res, msg, 404);
 	this.msgErr500 = (res, msg) => self.msgError(res, msg, 500);
 	this.errors = res => fnSendJson(res, 500, i18n.getMsgs());
@@ -60,16 +69,6 @@ function NodeBox() {
 			"Content-Disposition": "attachment; filename=" + filename
 		});
 		fs.createReadStream(filepath).pipe(res);
-		return self;
-	}
-	this.html = function(res, contents) {
-		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
-		return self;
-	}
-	this.view = function(res, tpl) {
-		fs.readFile(self.getView(tpl), "utf-8", (err, data) => {
-			err ? self.msgErr500(res, "" + err) : self.html(res, data);
-		});
 		return self;
 	}
 

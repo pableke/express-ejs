@@ -28,7 +28,8 @@ function NumberBox() {
 	this.dec = (val, min) => self.min(val - 1, min); //dec value into a range
 	this.inc = (val, max) => self.max(val + 1, max); //inc value into a range
 	this.mask = (val, i) => ((val >> i) & 1); // check bit at i position
-	this.flag = (val, i) => ((val & i) == i); // is flag up?
+	this.bitor = (val, flags) => ((val & flags) > 0); // some flags up?
+	this.bitand = (val, flags) => ((val & flags) == flags); // all flags up?
 
 	this.round = function(num, d) {
 		d = isset(d) ? d : 2; //default 2 decimals
