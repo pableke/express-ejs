@@ -19,7 +19,7 @@ export const filter = (req, res) => {
 
 export const save = (req, res) => {
 	const data = i18n.forms.test(req.body);
-	if (!data)
+	if (i18n.isError())
 		return util.errors(res);
 	console.log("save", req.body, data);
 	//save data un DB .....

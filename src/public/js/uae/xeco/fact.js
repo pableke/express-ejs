@@ -58,7 +58,7 @@ dom.ready(function() {
 	const fn133001 = () => fnFiscal("133001", 0, 0, 0, 10, 4);
 	const fnC2UET22 = () => fnFiscal("133001", 0, 5, 2, 10);
 	const fnC2ZZT22 = () => fnFiscal("133001", 0, 2, 0, 10);
-	const fnC2UET23 = () => fnFiscal("133001", 0, 0, 6, 10);
+	const fnC2UET23 = () => fnFiscal("133001", 1, 0, 6, 10);
 	const fnC2ZZT23 = () => fnFiscal("133001", 1, 0, 0, 10);
 	const fnC1T6 = () => fnFiscal("154000", 0, 0, 0, 10, 21);
 	const fnC2T2 = () => fnFiscal("155100", 0, 0, 0, 4, 21);

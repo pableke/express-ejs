@@ -154,9 +154,6 @@ function Dom() {
 		}
 
 		fnRender(); // Render table and add extra events
-		if (table.update) // Events/handlers pre-loaded?
-			return self; // not add listeners again
-
 		table.update = fnRender; // Mutate table object 
 		table.insert = function(row) { data.push(row); fnRender(); }
 		table.save = function(row, id) {
@@ -191,21 +188,24 @@ function Dom() {
 			}
 		}
 
-		const links = self.getAll(".sort", table.tHead); // All orderable columns
-		return self.click(links, (ev, link) => { // Sort event click
-			detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-			detail.column = link.getAttribute("href").substring(1); // Column name
-			detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
+		// Orderable columns system
+		const links = self.getAll(".sort", table.tHead);
+		return self.each(links, link => { // Each sort icon
+			link.onclick = ev => { // Replace sort events => not duplicate them
+				detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+				detail.column = link.getAttribute("href").substring(1); // Column name
+				detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
 
-			// Update all sort icons
-			self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
-				.addClass(links, "sort-none") // Reset all orderable columns
-				.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
+				// Update all sort icons
+				self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
+					.addClass(links, "sort-none") // Reset all orderable columns
+					.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
 
-			// Fire specific column sort event and after common sort event
-			self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
-			ab.sort(data, detail.dir, detail.sort); // Sort data by function
-			fnRender(); // Build table rows
+				// Fire specific column sort event and after common sort event
+				self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
+				ab.sort(data, detail.dir, detail.sort); // Sort data by function
+				fnRender(); // Build table rows
+			}
 		});
 	}
 
@@ -224,9 +224,9 @@ function Dom() {
 		self.loading(); //show loading..., and close loading...
 		return api.fetch(opts).finally(self.working);
 	}
-	// Promises has implicit try …. catch, throw => run next catch, avoid intermediate then
+	// Promises has implicit try ... catch, throw => run next catch, avoid intermediate then
 	this.ajax = (action, opts) => {
-		const aux = Object.assign({ action }, opts);
+		const aux = Object.assign({ action }, opts); // Extra options
 		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
 	}
 	this.send = function(form, opts) {
@@ -356,7 +356,7 @@ function Dom() {
 
 		// validator, parser and clone resutls
 		const data = Object.assign({}, opts.validate(aux));
-		if (i18n.isError()) {
+		if (i18n.isError()) { // Validate input data
 			self.setErrors(form, i18n.getMsgs());
 			return Promise.reject(); // Reject promise
 		}
@@ -426,6 +426,7 @@ function Dom() {
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, el => fnEvent(el, name, fn));
 	this.trigger = (el, name, detail) => fnSelf(el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name)));
+	this.unbind = (list, name, fn) => self.each(list, el => el.removeEventListener(name, fn));
 
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
