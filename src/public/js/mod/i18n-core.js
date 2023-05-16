@@ -1,12 +1,14 @@
 
 import ab from "./array-box.js";
 import dt from "./date-box.js";
+import nb from "./number-box.js";
 import sb from "./string-box.js";
 import valid from "./validator-box.js";
 import langs from "./i18n-langs.js";
 
 function I18nBox() {
 	const self = this; //self instance
+	const DATA = {}; // Parsed data container
 	const MSGS = {}; // Messages container
 	const KEY_ERROR = "msgError"; // Error name message
 	let errors = 0; // Errors counter
@@ -55,6 +57,18 @@ function I18nBox() {
 	this.val = (obj, name) => _lang.val(obj, name);
 
 	// Validators: data and messages
+	this.getData = () => DATA;
+	this.setData = (name, value) => {
+		DATA[name] = value;
+		return self;
+	}
+	// Parse optional fields
+	this.setIntval = (name, value) => self.setData(name, nb.intval(value));
+	this.setInteger = (name, value) => self.setData(name, _lang.toInt(value));
+	this.setFloat = (name, value) => self.setData(name, _lang.toFloat(value));
+	this.setArray = (name, value) => self.setData(name, valid.array(value));
+	this.setText = (name, value) => self.setData(name, valid.text500(value));
+
 	this.getMsgs = () => MSGS;
 	this.getMsg = name => MSGS[name];
 	this.setMsg = (name, msg) => {
@@ -76,12 +90,12 @@ function I18nBox() {
 	this.isError = () => (errors > 0);
 	this.reset = () => {
 		errors = 0;
-		ab.clear(MSGS);
+		ab.clear(DATA).clear(MSGS);
 		return self;
 	}
 
 	// Validators
-	const fnValid = (name, value, msg) => sb.isset(value) ? self : self.setError(msg, name);
+	const fnValid = (name, value, msg) => sb.isset(value) ? self.setData(name, value) : self.setError(msg, name);
 	this.required = (name, value, msg) => fnValid(name, valid.required(value), "errRequired");
 	this.required10 = (name, value, msg) => fnValid(name, valid.required10(value), "errRequired");
 	this.required50 = (name, value, msg) => fnValid(name, valid.required50(value), "errRequired");
@@ -111,14 +125,13 @@ function I18nBox() {
 	this.word = (name, value, msg) => fnValid(name, valid.word(value), msg ?? "errRegex");
 	this.words = (name, value, msg) => fnValid(name, valid.words(value), msg ?? "errRegex");
 	this.array = (name, value, msg) => fnValid(name, valid.array(value), msg ?? "errRegex");
-	this.list = (name, value, msg) => fnValid(name, valid.list(value), msg ?? "errRegex");
 	this.digits = (name, value, msg) => fnValid(name, valid.digits(value), msg ?? "errNumber");
 	this.login = (name, value, msg) => fnValid(name, valid.login(value), msg ?? "errRegex");
 	this.password = (name, value, msg) => fnValid(name, valid.password(value), msg ?? "errRegex");
 	this.email = (name, value, msg) => fnValid(name, valid.email(value), msg ?? "errCorreo");
 	this.code = (name, value, msg) => fnValid(name, valid.code(value), msg ?? "errRegex");
 
-	this.isDate = (name, value, msg) => fnValid(name, valid.date(value), msg ?? "errDate");
+	this.date = (name, value, msg) => fnValid(name, valid.date(value), msg ?? "errDate");
 	this.past = (name, value, msg) => fnValid(name, valid.past(value), msg ?? "errDateLe");
 	this.leToday = (name, value, msg) => fnValid(name, valid.leToday(value), msg ?? "errDateGe");
 	this.future = (name, value, msg) => fnValid(name, valid.future(value), msg ?? "errDateGt");

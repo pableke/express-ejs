@@ -27,7 +27,7 @@ dom.ready(function() {
 
 		const fnNull = param => null;
 		const fnClear = param => { dom.setValue(input).setValue(id); opts.remove(input); }
-		let _search = false; // call source indicator (reduce calls)
+		let _search = true; // call source indicator (reduce calls)
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -40,14 +40,20 @@ dom.ready(function() {
 		opts.remove = opts.remove || fnNull; //triggered when no item selected
 		opts.render = opts.render || fnNull; //render on input
 		opts.load = opts.load || fnNull; //triggered when select an item
-		opts.search = (ev, ui) => _search; //lunch source
+		opts.search = (ev, ui) => { //lunch source
+			_search || ev.preventDefault();
+			_search = true; // Allow next source
+		}
 		opts.source = function(req, res) {
+			_search = false; // Avoid searchs
 			this.element.autocomplete("instance")._renderItem = function(ul, item) {
 				let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
 				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 			}
 			dom.ajax(opts.action + "?term=" + req.term).then(data => {
 				res(opts.sort(data).slice(0, opts.maxResults));
+			}).finally(() => {
+				_search = true; // Allow next searchs
 			});
 		}
 		opts.select = function(ev, ui) { //triggered when select an item
@@ -59,8 +65,8 @@ dom.ready(function() {
 		dom.event(input, "search", fnClear);
 
 		$(input).autocomplete(opts);
-		return dom.keydown(input, (el, ev) => { // Reduce server calls, only for backspace, alfanum or not is searching
-			_search = !_search && ((ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223));
+		return dom.keydown(input, ev => { // Reduce server calls, only for backspace, alfanum or not is searching
+			_search = _search && ((ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223));
 			return true; // preserve default event
 		});
 	}
@@ -70,7 +76,6 @@ dom.ready(function() {
 	const ftest = dom.get("form#test");
 	const filter = dom.get("form#filter");
 	const pruebas = dom.get("table#pruebas");
-	let current; // pointer tu current row
 
 	dom.tabs(".tab-content") // Tabs hendlres
 		.autofocus("form > input") // Focus on first form
@@ -82,7 +87,6 @@ dom.ready(function() {
 		.event(pruebas, "remove", ev => dom.viewTab(2));
 
 	dom.click(".create-data", el => {
-		current = {};
 		dom.hide(".update-only").load(ftest)
 			.checkbin(ftest, "binary").checklist(ftest, "values").checkbin(ftest, "icons")
 			.viewTab(3);
@@ -95,7 +99,8 @@ dom.ready(function() {
 		const data = ev.detail.data;
 		const view = ev.detail.view;
 
-		data.memo = data.memo ?? sb.rand();
+		data.nif = data.nif ?? sb.rand(9);
+		data.memo = data.memo ?? (sb.rand(nb.randInt(9, 15)) + " " + sb.rand(nb.randInt(5, 12)) + " " + sb.rand(nb.randInt(3, 9)));
 		data.c4 = data.c4 ?? nb.rand(0, 300);
 		data.imp = data.imp ?? nb.rand(100);
 		data.fecha = data.fecha || dt.rand().toISOString();
@@ -114,8 +119,9 @@ dom.ready(function() {
 		ev.detail.imp = i18n.isoFloat(RESUME.imp);
 	})
 	.event(pruebas, "find", ev => {
-		current = ev.detail.data;
-		const view = ab.copy(["id", "name", "email", "memo"], current, {});
+		const current = ev.detail.data;
+		const view = ab.copy(["id", "nif", "name", "email", "memo"], current, {});
+		view["ac-name"] = current.nif + " - " + current.name;
 		view.c4 = i18n.isoFloat(current.c4);
 		view.imp = i18n.isoFloat(current.imp);
 		view.fecha = sb.isoDate(current.fecha);
@@ -146,32 +152,38 @@ dom.ready(function() {
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())
 		.click("a[href='#remove-item']", el => pruebas.remove())
+		.onFileChange(ftest, "#adjuntos", console.log)
 		.autocomplete(ftest, "#ac-name", {
 			action: ENDPOINT,
-			render: item => item.name,
-			load: (item, input, id) => { input.value = item.name; id.value = item.id; }
+			render: item => {
+				item.nif = item.nif ?? sb.rand(9);
+				return item.nif + " - " + item.name;
+			},
+			load: (item, ac, nif) => {
+				item.nif = item.nif ?? sb.rand(9);
+				ac.value = item.nif + " - " + item.name;
+				nif.value = item.nif;
+			}
 		});
 
-	const OPTS = { fields: ["binary", "values", "icons"] };
-	dom.click("button#clone", el => { // clone current on server
-		if (dom.validate(ftest, current)) {
-			dom.send(ftest, OPTS).then(msg => {
-				current = Object.assign({}, current);
-				delete current.id;
-				dom.showOk(msg);
-			});
-		}
-	})
-	.afterReset(ftest, ev => dom.closeAlerts().autofocus(ftest.elements))
-	.submit(ftest, ev => { // save current on server
-		if (dom.validate(ftest, current)) {
-			dom.send(ftest, OPTS).then(msg => {
-				pruebas.update();
-				dom.viewTab(2).showOk(msg);
-			});
-		}
-	});
+	const FORM_TEST = {
+		validate: i18n.forms.test,
+		update: (data, id) => pruebas.save(data),
+		insert: (data, id) => pruebas.save(data, id),
+		end: data => dom.viewTab(2).showOk("saveOk")
+	};
+	const FORM_TEST_CLONE = {
+		validate: i18n.forms.test,
+		update: (data, id) => pruebas.save(data),
+		insert: (data, id) => pruebas.save(data, id),
+		end: data => dom.hide(".update-only").setInputVal(ftest, "id").showOk("saveOk")
+	};
+	dom.click("button#clone", el => !dom.validate(ftest, FORM_TEST_CLONE)) // clone current on server
+		.afterReset(ftest, ev => dom.closeAlerts().autofocus(ftest.elements)) // Reset form action
+		.submit(ftest, ev => !dom.validate(ftest, FORM_TEST)); // save current on server
 
 	// TESTING...
-	api.post("http://localhost:3000/tests/api/sign", { usuario: "admin", clave: "1234" }).then(console.log).catch(dom.showError);
+	const login = { usuario: "admin", clave: "1234" };
+	api.post("http://localhost:3000/tests/api/sign", login)
+		.then(console.log).catch(dom.showError);
 });

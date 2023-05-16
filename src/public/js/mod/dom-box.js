@@ -101,9 +101,9 @@ function Dom() {
 	this.render = (selector, data, fnRender) => self.each(selector, el => fnSetHtml(el, sb.render(fnTpl(el), data, fnRender)));
 
 	this.table = function(table, data, opts) {
-		if (!table || !data)
+		if (!table) // table exists?
 			return self; // guard statement
-		const detail = { size: data.length, index: 0 }; // Event detail
+		const detail = { size: 0, index: 0 }; // Event detail
 		const tbody = table.tBodies[0]; // Data rows
 
 		function fnDetail(i, data, view) {
@@ -113,7 +113,7 @@ function Dom() {
 			return detail;
 		}
 		function fnMove(i) {
-			i = nb.range(i, 0, data.length - 1);
+			i = nb.range(i, 0, detail.size - 1);
 			return fnDetail(i, data[i]);
 		}
 		function fnEvent(row, el) {
@@ -130,10 +130,10 @@ function Dom() {
 			});
 		}
 		function fnRender() { // Render tBody and tFoot
-			detail.size = data.length;
+			detail.size = ab.size(data);
 			self.trigger(table, "before-render", detail)
 				.render(tbody, data, (row, view) => self.trigger(table, "on-render", fnDetail(view.index, row, view)))
-				.toggleHide(tbody, !data.length).toggleHide(table.tBodies[1], data.length);
+				.toggleHide(tbody, !detail.size).toggleHide(table.tBodies[1], detail.size);
 
 			// Listeners for change, find and remove events
 			const action = self.getAll("a[href^='#find']", tbody);
@@ -154,12 +154,25 @@ function Dom() {
 		}
 
 		fnRender(); // Render table and add extra events
+		if (table.update) // Events/handlers pre-loaded?
+			return self; // not add listeners again
+
 		table.update = fnRender; // Mutate table object 
 		table.insert = function(row) { data.push(row); fnRender(); }
+		table.save = function(row, id) {
+			if (id) { // Inserting....
+				row.id = id;
+				data.push(row);
+			}
+			else // Updating....
+				Object.assign(detail.data, row);
+			fnRender();
+		}
+
 		table.first = function() { self.trigger(table, "find", fnMove(0)); }
 		table.prev = function() { self.trigger(table, "find", fnMove(detail.index - 1)); }
 		table.next = function() { self.trigger(table, "find", fnMove(detail.index + 1)); }
-		table.last = function() { self.trigger(table, "find", fnMove(data.length)); }
+		table.last = function() { self.trigger(table, "find", fnMove(detail.size)); }
 
 		table.remove = function() {
 			// Confirm, close prev. alerts and trigger remove event
@@ -211,21 +224,27 @@ function Dom() {
 		self.loading(); //show loading..., and close loading...
 		return api.fetch(opts).finally(self.working);
 	}
-	this.ajax = action => self.fetch({ action }).catch(self.showError);
-	//this.ajax = (action, opts) => self.fetch(Object.assign({ action }, opts)).catch(self.showError);
+	// Promises has implicit try …. catch, throw => run next catch, avoid intermediate then
+	this.ajax = (action, opts) => {
+		const aux = Object.assign({ action }, opts);
+		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
+	}
 	this.send = function(form, opts) {
-		const fd = new FormData(form); // Data container
-		const config = { action: form.action, fields: [] };
-
-		opts = Object.assign(config, opts);
+		opts = opts || {};
+		opts.action = form.action;
 		opts.method = opts.method || form.method; //method-override
-		opts.fields.forEach(name => fd.set(name, self.getInputVal(form, name)));
+		opts.classExcluded = opts.classExcluded || "ui-excluded";
+		opts.classCalculated = opts.classCalculated || "ui-calculated";
+
+		const fd = new FormData(form); // Data container
+		self.apply("." + opts.classExcluded, form.elements, el => fd.delete(el.name))
+			.apply("." + opts.classCalculated, form.elements, el => fd.set(el.name, el.value));
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
 		else
 			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		//opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
-		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; }); //Implicit try…catch
+		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; });
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
@@ -255,7 +274,7 @@ function Dom() {
 		fnEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
 		return fnEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
 	}
-	this.onFileChange = (from, name, fn) => {
+	this.onFileChange = (form, name, fn) => {
 		const reader = new FileReader();
 		const el = self.getInput(form, name);
 		const fnRead = file => file && reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
@@ -331,11 +350,23 @@ function Dom() {
 		return fnCheck();
 	}
 
-	this.validate = (form, data) => {
+	this.validate = (form, opts) => {
 		const aux = {}; // Data container from view
-		const fn = i18n.getValidator(form.getAttribute("id")); // Specific validate / parser
 		self.closeAlerts().apply(FIELDS, form.elements, el => { aux[el.name] = el.value; });
-		return fn(aux, data) || !self.setErrors(form, i18n.getMsgs());
+
+		// validator, parser and clone resutls
+		const data = Object.assign({}, opts.validate(aux));
+		if (i18n.isError()) {
+			self.setErrors(form, i18n.getMsgs());
+			return Promise.reject(); // Reject promise
+		}
+
+		const pk = form.elements[0].value; // first input = pk
+		const fnSave = (opts.insert && !pk) ? opts.insert : opts.update;
+		return self.send(form, opts).then(srv => {
+			fnSave(data, srv); // Lunch insert or update
+			opts.end && opts.end(data, srv); // Common end
+		});
 	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => fnToggle(el, name, nb.mask(mask, i))); //toggle class by mask

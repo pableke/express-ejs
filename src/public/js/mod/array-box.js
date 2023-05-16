@@ -73,8 +73,8 @@ function ArrayBox() {
 	this.distinct = (arr, name) => name ? arr.filter((o1, i) => (arr.findIndex(o2 => (o1[name] === o2[name])) == i)) : arr;
 	this.eq = (a1, a2) => a1 && a2 && a1.every((item, i) => (a2[i] == item));
 
+	this.pop = arr => arr && arr.pop();
 	this.push = (arr, obj) => { arr && arr.push(obj); return self; }
-	this.pop = arr => { arr && arr.pop(); return self; }
 	this.remove = (arr, fn) => { arr && arr.remove(fn); return self; }
 	this.reset = arr => { arr && arr.splice(0); return self; }
 	this.get = (arr, i) => arr ? arr[i] : null;

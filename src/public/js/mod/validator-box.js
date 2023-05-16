@@ -45,7 +45,9 @@ function ValidatorBox() {
 	const fnRange = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
 	const between = (str, min, max) => nb.between(sb.size(str), min, max) ? str : null; // for String and Arrays
 	const fnSplit = (re, value) => sb.test(value, re) ? value.split(",") : null; // validate and split input
-	const numbers = arr => nb.between(sb.size(arr), 1, 100) ? arr.map(nb.intval) : null; // for Array numbers
+
+	this.unescape = str => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
+	this.escape = str => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
 
 	// Validators
 	this.intval = num => { num = parseInt(num); return isNaN(aux) ? null : aux; }
@@ -69,25 +71,25 @@ function ValidatorBox() {
 	this.size200 = str => self.size(str, 0, 200);
 	this.size300 = str => self.size(str, 0, 300);
 
-	this.unescape = str => str ? str.replace(/&#(\d+);/g, (key, num) => String.fromCharCode(num)) : null;
-	this.escape = str => str ? str.trim().replace(ESCAPE_HTML, (matched) => ESCAPE_MAP[matched]) : null;
-
 	this.text = (str, min, max) => between(self.escape(str), min, max);
 	this.text10 = str => self.text(str, 0, 10);
 	this.text50 = str => self.text(str, 0, 50);
 	this.text100 = str => self.text(str, 0, 100);
 	this.text200 = str => self.text(str, 0, 200);
 	this.text300 = str => self.text(str, 0, 300);
+	this.text500 = str => self.text(str, 0, 500);
 
 	this.regex = (re, value) => sb.test(sb.trim(value), re);
 	this.date = value => self.regex(RE_DATE, value);
 	this.time = value => self.regex(RE_TIME, value);
 	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
 	this.word = value => self.regex(/\w+/, self.size50(value));
-	this.words = value => between(Array.isArray(value) ? value : fnSplit(RE_WORDS, sb.clean(value)), 1, 100);
-	this.line = value => value ? self.words(value) : []; // optional words
-	this.array = value => numbers(Array.isArray(value) ? value : fnSplit(RE_ARRAY, sb.clean(value)));
-	this.list = value => value ? self.array(value) : []; // optional array
+	this.words = value => between(fnSplit(RE_WORDS, sb.clean(value)), 1, 100);
+	this.array = value => {
+		const arr = fnSplit(RE_ARRAY, sb.clean(value));
+		return nb.between(arr, 1, 100) ? arr.map(nb.intval) : null;
+	}
+
 	this.digits = value => self.regex(RE_DIGITS, self.size50(value));
 	this.login = value => self.regex(RE_LOGIN, self.size200(value));
 	this.password = value => self.regex(RE_LOGIN, self.size200(value));
