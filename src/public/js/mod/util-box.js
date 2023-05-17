@@ -71,6 +71,34 @@ dom.ready(function() {
 		});
 	}
 
+	// Build tree menu as UL > Li > *
+	dom.each("ul.menu", menu => {
+		const children = [...menu.children].sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
+		children.forEach(child => {
+			let padre = child.dataset.padre; // Has parent?
+			let mask = child.dataset.mask ?? 4; // Default mask = active
+			if (padre) { // Move child with his parent
+				let li = dom.get("li[id='" + padre + "']", menu);
+				if (li) {
+					let children = +li.dataset.children || 0;
+					if (!children) { // Is first child?
+						li.innerHTML += '<ul class="sub-menu"></ul>';
+						dom.addClass(li.firstElementChild, "nav-tri")
+							.click(li.firstElementChild, ev => !dom.toggle(li, "active")); //usfull on sidebar
+					}
+					mask &= li.dataset.mask ?? 4; // Propage disabled
+					li.dataset.children = children + 1; // add child num
+					li.lastElementChild.appendChild(child); // move child
+				}
+			}
+			else // force reorder lebel 1
+				menu.appendChild(child);
+			dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
+		});
+		// Show / Hide sidebar and show menu
+		dom.click(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+	});
+
 	// Testing....
 	const RESUME = {};
 	const ftest = dom.get("form#test");
