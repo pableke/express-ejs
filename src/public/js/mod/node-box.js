@@ -222,9 +222,9 @@ api.send = function(opts) {
 		for (let key in opts.files) {
 			const files = opts.files[key];
 			if (Array.isArray(files)) // is multifile
-				files.forEach(path => fd.append(key, fs.createReadStream(path)));
+				files.forEach(file => fd.append(key, fs.createReadStream(file), path.basename(file)));
 			else
-				fd.append(key, fs.createReadStream(files));
+				fd.append(key, fs.createReadStream(files), path.basename(files));
 		}
 		//opts.headers["Content-Type"] = "multipart/form-data";
 		opts.body = fd;

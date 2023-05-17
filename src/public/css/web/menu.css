@@ -16,7 +16,7 @@ ul.menu ul { position: absolute; left: 0; display: none; background-color: #f8f9
 ul.menu li { position: relative; float: left; list-style: none; z-index: 3; }
 ul.menu li:hover { color: #000; background-color: #2c3e50; }
 ul.menu li:hover > a { color: #fff; }
-ul.menu li:hover > a > .nav-tri:after { content: "\25BE"; }
+ul.menu li:hover > a.nav-tri:after { content: "\25BE"; }
 /* Next deep level in tree */
 ul.menu ul li { width: 100%; } /* Sublines expand over all ul parent space */
 /* Display the next dropdown */
@@ -25,8 +25,7 @@ ul.menu li:hover > ul { display: block; border-left: 2px solid #2c3e50; z-index:
 ul.menu ul ul { top: 1%; left: 99%; }
 /* All nav-links elements: inherit from li (a same state as it's li) */
 ul.menu a { display: block; padding: .5rem .8rem; white-space: nowrap; text-decoration: none; color: #000; }
-ul.menu .nav-tri { display: inline-block; margin-left: 9px; }
-ul.menu .nav-tri:after { content: "\25B6"; }
+ul.menu .nav-tri:after { content: "\25B6"; margin-left: 4px; }
 .nav-icon { display: inline-block; margin-right: 8px; }
 /* Menu dropdown */
 
@@ -78,19 +77,27 @@ ul.inline li+li:before { padding: 8px; color: black; content: "\007C"; }
 	}
 	ul.menu:hover { left: 0; }
 	ul.menu.active { left: 0; }
-	ul.menu ul { position: relative; display: none; margin-bottom: 1rem; background-color: #f8f9fa; border: 2px solid #2c3e50; }
+	ul.menu ul {
+		position: relative;
+		display: none;
+		margin-bottom: 1rem;
+		background-color: #f8f9fa;
+		border: 2px solid #2c3e50;	
+	}
+
 	/* This hides all dropdowns */
-	ul.menu li { display: block; float: none; width: 100%; }
+	ul.menu li { display: block; width: 100%; margin-bottom: 3px; border-radius: 8px; }
 	ul.menu li.active { color: #fff; background-color: #2c3e50; }
-	ul.menu li.active > a { color: #fff; }
-	ul.menu li.active > a > .nav-tri:after { content: "\25BE" !important; } /* More important than hover */
+	ul.menu li:hover a, ul.menu li.active a { color: #fff; }
+	ul.menu > li:hover > a.nav-tri:after, ul.menu > li.active > a.nav-tri:after { content: "\25BE"; } /* More important than hover */
 	/* Next deep level in tree */
 	ul.menu ul li { width: 100%; } /* Sublines expand over all ul parent space */
 	/* Display the next dropdown */
 	ul.menu li.active > ul { display: block; }
 	/* Displays second level dropdowns to the right of the first level dropdown */
-	ul.menu ul ul { top: 0; left: 0; }
-	ul.menu .nav-tri { float: right; }
+	ul.menu li:hover > ul ul, ul.menu li.active > ul ul { display: none; }
+	ul.menu li:hover > ul .nav-tri:after, ul.menu ul .nav-tri:after { content: ""; }
+	ul.menu .nav-tri:after { float: right; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
