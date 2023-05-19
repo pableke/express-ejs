@@ -84,13 +84,18 @@ dom.ready(function() {
 		c1epes6: fnC1T6, c1noes6: fnC1T6, c1noue6: fnC1T6, c1nozz6: fnC1T6, c2epes6: fnC1T6, c2noes6: fnC1T6, c2noue6: fnC1T6, c2nozz6: fnC1T6, c3epes6: fnC1T6, c3noes6: fnC1T6, c3noue6: fnC1T6, c3nozz6: fnC1T6,
 		c2epes2: fnC2T2, c2noes2: fnC2T2, c2noue2: fnC2UET2, c2nozz2: fnC2T2, c3epes2: fnC2T2, c3noes2: fnC2T2, c3noue2: fnC2UET2, c3nozz2: fnC2T2
 	}
+	const fnRecibo = subtipo => dom.toggleHide("#grupo-recibo", (subtipo != 9) && (subtipo != 4) && (subtipo != 3));
 	const updateEconomica = subtipo => {
-		dom.toggleHide("#grupo-recibo", (subtipo != 9) && (subtipo != 4) && (subtipo != 3));
+		fnRecibo(subtipo);
 		const fn = ECONOMICAS[keyEco + subtipo] || fnDefault;
 		//console.log("ECONOMICAS", keyEco + subtipo, fn);
 		fn();
 	}
-	updateEconomica(dom.getValue("#subtipo")); //auto-load economica
+	const sub = dom.getValue("#subtipo");
+	if (FACT.id) // is saved?
+		fnRecibo(sub); // updating...
+	else //auto-load economica solo al insertar
+		updateEconomica(sub); // inserting...
 
 	const lineas = ab.parse(dom.getText("#lineas-json")) || [];
 	const fnCalcIva = (row, value) => {

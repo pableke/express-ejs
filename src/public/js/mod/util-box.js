@@ -170,7 +170,7 @@ dom.ready(function() {
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())
 		.click("a[href='#remove-item']", el => pruebas.remove())
-		.onFileChange(ftest, "#adjuntos", console.log)
+		.onChangeFile(ftest, "#adjuntos", console.log)
 		.autocomplete(ftest, "#ac-name", {
 			action: ENDPOINT,
 			render: item => {

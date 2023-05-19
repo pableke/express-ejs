@@ -274,7 +274,9 @@ function Dom() {
 		fnEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
 		return fnEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
 	}
-	this.onFileChange = (form, name, fn) => {
+	this.onChangeInputs = (form, name, fn) => self.apply(name, form.elements, el => fnEvent(el, ON_CHANGE, fn));
+	this.onChangeSelect = (form, name, fn) => self.apply(name, form.elements, el => { fn(el); fnEvent(el, ON_CHANGE, fn); });
+	this.onChangeFile = (form, name, fn) => {
 		const reader = new FileReader();
 		const el = self.getInput(form, name);
 		const fnRead = file => file && reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
