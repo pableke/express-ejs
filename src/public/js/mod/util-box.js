@@ -12,7 +12,7 @@ dom.ready(function() {
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
-	dom.click(_top, el => !dom.scroll());
+	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
 
 	// Loading div
 	const _loading = _top.previousElementSibling;
@@ -73,14 +73,14 @@ dom.ready(function() {
 
 	// Build tree menu as UL > Li > *
 	dom.each("ul.menu", menu => {
-		const children = [...menu.children].sort((a, b) => (+a.dataset.orden - +b.dataset.orden));
-		children.forEach(child => {
+		const fnSort = (a, b) => nb.cmp(a.dataset.orden, b.dataset.orden);
+		Array.from(menu.children).sort(fnSort).forEach(child => {
 			let padre = child.dataset.padre; // Has parent?
 			let mask = child.dataset.mask ?? 4; // Default mask = active
 			if (padre) { // Move child with his parent
-				let li = dom.get("li[id='" + padre + "']", menu);
+				const li = dom.get("li[id='" + padre + "']", menu);
 				if (li) {
-					let children = +li.dataset.children || 0;
+					const children = +li.dataset.children || 0;
 					if (!children) { // Is first child?
 						li.innerHTML += '<ul class="sub-menu"></ul>';
 						dom.addClass(li.firstElementChild, "nav-tri")
@@ -95,8 +95,7 @@ dom.ready(function() {
 				menu.appendChild(child);
 			dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
 		});
-		// Show / Hide sidebar and show menu
-		dom.click(".sidebar-toggle", el => !dom.toggle(menu, "active")).show(menu);
+		dom.show(menu);
 	});
 
 	// Testing....
@@ -137,10 +136,7 @@ dom.ready(function() {
 		data.icons = data.icons ?? nb.randInt(0, 3);
 
 		RESUME.c4 += data.c4; RESUME.imp += data.imp;
-		ab.copy(["name", "email", "memo"], data, view);
-		view.c4 = i18n.isoFloat(data.c4);
-		view.imp = i18n.isoFloat(data.imp);
-		view.fecha = i18n.fmtDate(data.fecha);
+		i18n.forms.test.render(data, view);
 	})
 	.event(pruebas, "after-render", ev => {
 		ev.detail.c4 = i18n.isoFloat(RESUME.c4);
@@ -148,11 +144,7 @@ dom.ready(function() {
 	})
 	.event(pruebas, "find", ev => {
 		const current = ev.detail.data;
-		const view = ab.copy(["id", "nif", "name", "email", "memo"], current, {});
-		view["ac-name"] = current.nif + " - " + current.name;
-		view.c4 = i18n.isoFloat(current.c4);
-		view.imp = i18n.isoFloat(current.imp);
-		view.fecha = sb.isoDate(current.fecha);
+		const view = i18n.forms.test.render(current, {});
 		dom.show(".update-only").load(ftest, view)
 			.checkbin(ftest, "binary", current.binary)
 			.checklist(ftest, "values", current.values)
@@ -195,13 +187,13 @@ dom.ready(function() {
 		});
 
 	const FORM_TEST = {
-		validate: i18n.forms.test,
+		validate: i18n.forms.test.parser,
 		update: (data, id) => pruebas.save(data),
 		insert: (data, id) => pruebas.save(data, id),
 		end: data => dom.viewTab(2).showOk("saveOk")
 	};
 	const FORM_TEST_CLONE = {
-		validate: i18n.forms.test,
+		validate: i18n.forms.test.parser,
 		update: (data, id) => pruebas.save(data),
 		insert: (data, id) => pruebas.save(data, id),
 		end: data => dom.hide(".update-only").setInputVal(ftest, "id").showOk("saveOk")

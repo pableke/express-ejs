@@ -67,7 +67,9 @@ function I18nBox() {
 	this.setInteger = (name, value) => self.setData(name, _lang.toInt(value));
 	this.setFloat = (name, value) => self.setData(name, _lang.toFloat(value));
 	this.setArray = (name, value) => self.setData(name, valid.array(value));
-	this.setText = (name, value) => self.setData(name, valid.text500(value));
+	this.setText500 = (name, value) => self.setData(name, valid.text500(value));
+	this.setText1000 = (name, value) => self.setData(name, valid.text1000(value));
+	this.setText2000 = (name, value) => self.setData(name, valid.text2000(value));
 
 	this.getMsgs = () => MSGS;
 	this.getMsg = name => MSGS[name];
@@ -114,6 +116,9 @@ function I18nBox() {
 	this.text100 = (name, value, msg) => fnValid(name, valid.text100(value), msg ?? "errMaxlength");
 	this.text200 = (name, value, msg) => fnValid(name, valid.text200(value), msg ?? "errMaxlength");
 	this.text300 = (name, value, msg) => fnValid(name, valid.text300(value), msg ?? "errMaxlength");
+	this.text500 = (name, value, msg) => fnValid(name, valid.text500(value), msg ?? "errMaxlength");
+	this.text1000 = (name, value, msg) => fnValid(name, valid.text1000(value), msg ?? "errMaxlength");
+	this.text2000 = (name, value, msg) => fnValid(name, valid.text2000(value), msg ?? "errMaxlength");
 
 	this.intval = (name, value, msg) => fnValid(name, valid.intval(value), msg ?? "errRange");
 	this.intval3 = (name, value, msg) => fnValid(name, valid.intval3(value), msg ?? "errRange");

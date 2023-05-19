@@ -57,7 +57,7 @@ function ValidatorBox() {
 	this.range = (num, min, max) => fnRange(num, min, max);
 	this.gt0 = num => fnRange(num, .0001, 1e9); // Float
 
-	this.size = (str, min, max) => between(sb.trim(str), min, max);
+	this.size = (str, min, max) => between(self.escape(str), min, max);
 	this.required = value => self.size(value, 1, 1000);
 	this.required10 = value => self.size(value, 1, 10);
 	this.required50 = value => self.size(value, 1, 50);
@@ -70,6 +70,7 @@ function ValidatorBox() {
 	this.size100 = str => self.size(str, 0, 100);
 	this.size200 = str => self.size(str, 0, 200);
 	this.size300 = str => self.size(str, 0, 300);
+	this.size500 = str => self.size(str, 0, 500);
 
 	this.text = (str, min, max) => between(self.escape(str), min, max);
 	this.text10 = str => self.text(str, 0, 10);
@@ -78,6 +79,8 @@ function ValidatorBox() {
 	this.text200 = str => self.text(str, 0, 200);
 	this.text300 = str => self.text(str, 0, 300);
 	this.text500 = str => self.text(str, 0, 500);
+	this.text1000 = str => self.text(str, 0, 1000);
+	this.text2000 = str => self.text(str, 0, 1000);
 
 	this.regex = (re, value) => sb.test(sb.trim(value), re);
 	this.date = value => self.regex(RE_DATE, value);
@@ -85,9 +88,10 @@ function ValidatorBox() {
 	this.isoDateTime = value => self.regex(RE_DATE_TIME, value);
 	this.word = value => self.regex(/\w+/, self.size50(value));
 	this.words = value => between(fnSplit(RE_WORDS, sb.clean(value)), 1, 100);
-	this.array = value => {
+	this.array = value => between(fnSplit(RE_ARRAY, sb.clean(value)), 1, 100);
+	this.numbers = value => {
 		const arr = fnSplit(RE_ARRAY, sb.clean(value));
-		return nb.between(arr, 1, 100) ? arr.map(nb.intval) : null;
+		return between(arr, 1, 100) ? arr.map(nb.intval) : null;
 	}
 
 	this.digits = value => self.regex(RE_DIGITS, self.size50(value));

@@ -73,10 +73,10 @@ function Dom() {
 
 	this.toggleInfo = selector => {
 		return self.click(selector, (ev, el) => {
-			const info = self.getAll(".info-" + el.id);
 			const names = sb.split(el.dataset.toggle, /\s+/);
+			const target = self.getAll(el.dataset.target || (".info-" + el.id));
 			self.eachChild(el, "i", child => ab.each(names, name => fnToggle(child, name)))
-				.toggleHide(info).setFocus(info[0]);
+				.toggle(target, el.dataset.css || HIDE).setFocus(target[0]);
 		});
 	}
 
@@ -357,8 +357,8 @@ function Dom() {
 		// validator, parser and clone resutls
 		const data = Object.assign({}, opts.validate(aux));
 		if (i18n.isError()) { // Validate input data
-			self.setErrors(form, i18n.getMsgs());
-			return Promise.reject(); // Reject promise
+			self.setErrors(form, i18n.getMsgs()); // Show errors on view
+			return Promise.reject(i18n.getMsgs()); // Call a reject promise
 		}
 
 		const pk = form.elements[0].value; // first input = pk
