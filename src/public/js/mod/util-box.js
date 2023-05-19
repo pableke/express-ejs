@@ -27,7 +27,7 @@ dom.ready(function() {
 
 		const fnNull = param => null;
 		const fnClear = param => { dom.setValue(input).setValue(id); opts.remove(input); }
-		let _search = true; // call source indicator (reduce calls)
+		let _search, _searching; // call source indicator (reduce calls)
 
 		opts = opts || {}; //default config
 		opts.action = opts.action || "#"; //request
@@ -38,23 +38,21 @@ dom.ready(function() {
 		opts.focus = opts.focus || fnNull; //no change focus on select
 		opts.sort = opts.sort || ((data) => data); //sort array data received
 		opts.remove = opts.remove || fnNull; //triggered when no item selected
-		opts.render = opts.render || fnNull; //render on input
-		opts.load = opts.load || fnNull; //triggered when select an item
-		opts.search = (ev, ui) => { //lunch source
-			_search || ev.preventDefault();
-			_search = true; // Allow next source
-		}
+		//opts.render = opts.render || fnNull; //render on input (mandatory)
+		//opts.load = opts.load || fnNull; //triggered when select an item (mandatory)
 		opts.source = function(req, res) {
-			_search = false; // Avoid searchs
-			this.element.autocomplete("instance")._renderItem = function(ul, item) {
-				let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
-				return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
+			if (_search && !_searching) {
+				_searching = true; // Avoid new searchs
+				this.element.autocomplete("instance")._renderItem = function(ul, item) {
+					let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
+					return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
+				}
+				dom.ajax(opts.action + "?term=" + req.term).then(data => {
+					res(opts.sort(data).slice(0, opts.maxResults));
+				}).finally(() => {
+					_searching = false; // Allow next searchs
+				});
 			}
-			dom.ajax(opts.action + "?term=" + req.term).then(data => {
-				res(opts.sort(data).slice(0, opts.maxResults));
-			}).finally(() => {
-				_search = true; // Allow next searchs
-			});
 		}
 		opts.select = function(ev, ui) { //triggered when select an item
 			opts.load(ui.item, input, id); //update inputs values
@@ -66,7 +64,7 @@ dom.ready(function() {
 
 		$(input).autocomplete(opts);
 		return dom.keydown(input, ev => { // Reduce server calls, only for backspace, alfanum or not is searching
-			_search = _search && ((ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223));
+			_search = ((ev.keyCode == 8) || sb.between(ev.keyCode, 46, 111) || sb.between(ev.keyCode, 160, 223));
 			return true; // preserve default event
 		});
 	}
