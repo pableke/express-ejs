@@ -28,19 +28,15 @@
 <body>
 	<header></header>
 	<nav>
-		<ul class="menu-phone">
-			<li><a href="#" class="d-phone sidebar-toggle" title="Show/hide left menu"><i class="fas fa-bars nav-icon"></i>Left Menu</a></li>
-		</ul>
 		<ul class="menu hide">
-			<li data-orden="0"><a href="#" class="d-phone sidebar-toggle" title="Show/hide left menu"><i class="fas fa-arrow-left nav-icon"></i>Left Menu</a></li>
 			<li id="16" data-padre="4"><a href="#" title="Sub Nav Link 11">Sub Nav Link 11</a></li>
 			<li id="17" data-padre="4"><a href="#" title="Sub Nav Link 12">Sub Nav Link 12</a></li>
-			<li id="1"><a href="index.html" title="Nav Link 1"><i class="fas fa-home nav-icon"></i>Inicio</a></li>
-			<li id="2"><a href="#" title="Nav Link 1"><i class="fas fa-euro-sign nav-icon"></i>Ingresos</a>
+			<li id="2" data-orden="2"><a href="#" title="Nav Link 1"><i class="fas fa-euro-sign nav-icon"></i>Ingresos</a>
 			<li id="3" data-padre="2"><a href="#" title="Sub Nav Link 1">Sub Nav Link 1</a></li>
 			<li id="4" data-padre="2"><a href="#" title="Sub Nav Link 2">Sub Nav Link 2</a></li>
 			<li id="5" data-padre="2" data-mask="0"><a href="#" title="Sub Nav Link 3">Sub Nav Link 3</a></li>
 			<li id="6" data-padre="2"><a href="#" title="Sub Nav Link 4">Sub Nav Link 4</a></li>
+			<li id="1" data-orden="1"><a href="index.html" title="Nav Link 1"><i class="fas fa-home nav-icon"></i>Inicio</a></li>
 			<li id="7" data-padre="2"><a href="#" title="Sub Nav Link 5">Sub Nav Link 5</a></li>
 			<li id="8" data-mask="0"><a href="#" title="Nav Link 1">Nav Link 3</a></li>
 			<li id="11" data-padre="8"><a href="#" title="Sub Nav Link 6">Sub Nav Link 6</a></li>
@@ -51,6 +47,12 @@
 			<li id="14" data-padre="12"><a href="#" title="Sub Nav Link 9">Sub Nav Link 9</a></li>
 			<li id="15" data-padre="12"><a href="#" title="Sub Nav Link 10">Sub Nav Link 10</a></li>
 			<%-menus%>
+		</ul>
+		<ul class="menu-phone">
+			<li><a href="#toggle" data-target="ul.menu" data-css="active" data-toggle="fa-bars fa-arrow-left"><i class="fas fa-bars"></i></a></li>
+			<li><a href="#" title="Link phone 1">Link phone 1</a></li>
+			<li><a href="#" title="Link phone 2">Link phone 2</a></li>
+			<li><a href="#" title="Link phone 3">Link phone 3</a></li>
 		</ul>
 	</nav>
 

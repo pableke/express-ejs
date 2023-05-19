@@ -23,7 +23,7 @@ dom.ready(function() {
 		lineas: { msgError: "errForm", desc: i18n.required, imp: i18n.gt0 }
 	};
 
-	let keyEco;
+	let keyEco = "cp";
 	function fnFiscal(eco, sujeto, exento, m349, iban, iva) {
 		dom.setValue("#economica", eco).setValue("#sujeto", sujeto).setValue("#exento", exento)
 			.setValue("#m349", m349).setValue("#iban", iban).val("#iva", iva || 0)
@@ -31,6 +31,7 @@ dom.ready(function() {
 	}
 
 	const fnDefault = () => fnFiscal(null, 0, 0, 0);
+	const fnCP13 = () => fnFiscal(null, 0, 0, 0, 10);
 	const fn323003_010 = () => fnFiscal("323003", 0, 1, 0);
 	const fn323003_106 = () => fnFiscal("323003", 1, 0, 6);
 	const fnC2T14 = () => fnFiscal("131004", 0, 1, 0, 10);
@@ -64,6 +65,7 @@ dom.ready(function() {
 	const fnC2T2 = () => fnFiscal("155100", 0, 0, 0, 4, 21);
 	const fnC2UET2 = () => fnFiscal("155100", 1, 0, 6, 4);
 	const ECONOMICAS = {
+		cp13: fnCP13, // Cartas de pago
 		c1epes4: fn323003_010, c1noes4: fn323003_010, c1noue4: fn323003_010, c1nozz4: fn323003_010, c2epes4: fn323003_010, c2noes4: fn323003_010, c2noue4: fn323003_106, c2nozz4: fn323003_010, c3epes4: fn323003_010, c3noes4: fn323003_010, c3noue4: fn323003_106, c3nozz4: fn323003_010,
 		c2epes14: fnC2T14, c2noes14: fnC2T14, c2noue14: fnC2UET14, c2nozz14: fnC2ZZT14, c3epes14: fnC2T14, c3noes14: fnC2T14, c3noue14: fnC2UET14, c3nozz14: fnC2ZZT14,
 		c1epes3: fn323003_010, c1noes3: fn323003_010, c1noue3: fn323003_010, c1nozz3: fn323003_010, c2epes3: fn323003_010, c2noes3: fn323003_010, c2noue3: fn323003_106, c2nozz3: fn323003_010, c3epes3: fn323003_010, c3noes3: fn323003_010, c3noue3: fn323003_106, c3nozz3: fn323003_010,
@@ -163,11 +165,15 @@ dom.ready(function() {
 		source: fnSourceItems, //show datalist
 		select: function(ev, ui) {
 			loading(); // muestro denuevo el cargando para la delegacion
-			keyEco = "c" + ui.item.imp; //persona fisica=1, persona juridica=2, est. publico=3
-			keyEco += (ui.item.int & 256) ? "ep" : "no"; // Establecimiento permanente
-			let ep_es = (ui.item.int & 128) || (ui.item.int & 256); //Establecimiento permanente o Residente
-			// Residente en la peninsula=es, ceuta-melillacanarias=np, comunitario=ue, resto del mundo=zz
-			keyEco += ep_es ? ((ui.item.int & 2048) ? "es" : "np") : ((ui.item.int & 2) ? "ue" : "zz");
+			if (FACT.tipo == 1) { // tipo de solicitud = factura
+				keyEco = "c" + ui.item.imp; //persona fisica=1, persona juridica=2, est. publico=3
+				keyEco += (ui.item.int & 256) ? "ep" : "no"; // Establecimiento permanente
+				let ep_es = (ui.item.int & 128) || (ui.item.int & 256); //Establecimiento permanente o Residente
+				// Residente en la peninsula=es, ceuta-melillacanarias=np, comunitario=ue, resto del mundo=zz
+				keyEco += ep_es ? ((ui.item.int & 2048) ? "es" : "np") : ((ui.item.int & 2) ? "ue" : "zz");
+			}
+			else // tipo de solicitud = carta de pago
+				keyEco = "cp";
 			updateEconomica(dom.getValue("#subtipo")); //auto-calculate economica
 			return !dom.setValue("#tercero", ui.item.label)
 						.setValue("#id-tercero", ui.item.value)

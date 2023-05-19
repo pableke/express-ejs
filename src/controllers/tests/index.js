@@ -11,14 +11,14 @@ export const lang = (req, res, next) => util.lang(res, "test", next);
 export const index = (req, res) => util.render(res, "tests/index");
 
 export const filter = (req, res) => {
-	const FILTER = i18n.forms.filter(req.query);
+	const FILTER = i18n.forms.test.filter(req.query);
 	const fields = ["name", "memo"]; // Strings ilike filter
 	const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
 	api.get(ENDPOINT).then(data => util.json(res, data.filter(fnFilter)));
 }
 
 export const save = (req, res) => {
-	const data = i18n.forms.test(req.body);
+	const data = i18n.forms.test.parser(req.body);
 	if (i18n.isError())
 		return util.errors(res);
 	console.log("save", req.body, data);
