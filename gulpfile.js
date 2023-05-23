@@ -23,7 +23,7 @@ const RM_OPTS = { recursive: true, force: true };
 function symdir(source, dest, name) {
 	const name1 = path.basename(source);
 	fs.rmSync(path.join(dest, name), RM_OPTS);
-	gulp.src(source).pipe(gulp.symlink(dest)).on("end", () => {
+	return gulp.src(source).pipe(gulp.symlink(dest)).on("end", () => {
 		fs.renameSync(path.join(dest, name1), path.join(dest, name));
 	});
 }
@@ -69,8 +69,9 @@ gulp.task("minify-html", done => {
 // Tasks to minify CSS's
 gulp.task("minify-css", done => {
 	const config = { level: {1: { specialComments: 0 }} };
-	const stream = gulp.src(CSS_FILES).pipe(cssmin(config)).pipe(gulp.dest("dist"));
-	stream.on("end", done);
+	gulp.src(CSS_FILES).pipe(cssmin(config)).pipe(gulp.dest("dist")).on("end", () => {
+		fnConcat("dist/modules/**/*.css", "dist/public", "styles-min.css").on("end", done);
+	});
 });
 // Tasks to minify JS's
 gulp.task("minify-js", done => {
@@ -83,14 +84,12 @@ gulp.task("module-web", done => {
 	gulp.src("dist/modules/web").pipe(gulp.symlink("node_modules/app"));
 	symdir("dist/modules/web/public/js", "node_modules/app", "lib");
 	symdir("dist/modules/web/public", "dist/public", "web");
-	symdir("dist/modules/web/views", "dist/views", "web");
-	fnConcat("dist/modules/web/public/css/*.css", "dist/modules/web/public", "styles.min.css").on("end", done);
+	symdir("dist/modules/web/views", "dist/views", "web").on("end", done);
 });
 // Tasks for module TEST
 gulp.task("module-test", done => {
 	gulp.src("dist/modules/test").pipe(gulp.symlink("node_modules/app"));
-	symdir("dist/modules/test/views", "dist/views", "test");
-	done();
+	symdir("dist/modules/test/views", "dist/views", "test").on("end", done);
 });
 // Tasks for module UAE
 gulp.task("module-uae", done => {
@@ -102,20 +101,20 @@ gulp.task("module-uae", done => {
 		"dist/modules/uae/public/js/lib/i18n-box.js",  "dist/modules/uae/public/js/lib/number-box.js", "dist/modules/uae/public/js/lib/string-box.js", 
 		"dist/modules/uae/public/js/lib/validator-box.js", "dist/modules/uae/public/js/lib/util-box.js"
 	];
-	fnConcat(JS_UAE, "dist/modules/uae/public/js", "uae-min.js");
+	fnConcat(JS_UAE, "dist/public", "uae-min.js");
 
 	const JS_UAE_IRSE = [
 		"dist/modules/uae/public/js/irse/i18n.js", "dist/modules/uae/public/js/irse/perfil.js", "dist/modules/uae/public/js/irse/organicas.js", 
 		"dist/modules/uae/public/js/irse/imputacion.js", "dist/modules/uae/public/js/irse/rutas.js", "dist/modules/uae/public/js/irse/dietas.js", 
 		"dist/modules/uae/public/js/irse/irse.js"
 	];
-	fnConcat(JS_UAE_IRSE, "dist/modules/uae/public/js", "irse-min.js").on("end", done);
+	fnConcat(JS_UAE_IRSE, "dist/public", "irse-min.js").on("end", done);
 });
 
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
-	gulp.watch(CSS_FILES, gulp.series("minify-css", "module-web"));
-	gulp.watch(JS_FILES, gulp.series("minify-js", "module-web", "module-test", "module-uae", "server"));
+	gulp.watch(CSS_FILES, gulp.series("minify-css"));
+	gulp.watch(JS_FILES, gulp.series("minify-js", "server"));
 	// Other watchers ...
 });
 

@@ -141,7 +141,7 @@ label.inline {
 	.input-group-block, .input-group-row, .input-group-flex { display: inline-block; width: 96%; }
 	.input-group-inline { grid-template-columns: auto; }
 	.input-icon { display: none !important; } /*priority over font-awesome*/
-	.alerts { top: 9px; right: 0; width: 99%; }
+	.alerts { top: 28px; right: 0; width: 99%; }
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
