@@ -81,18 +81,6 @@ function StringBox() {
 	this.array = str => self.split(str, ",");
 	this.lastId = str => +self.match(str, /\d+$/).pop();
 	this.chunk = (str, size) => self.match(str, new RegExp(".{1," + size + "}", "g"));
-	this.slices = function(str, sizes) {
-		const result = []; //parts container
-		const k = fnSize(str); //maxlength
-		var j = 0; //string position
-		for (let i = 0; (j < k) && (i < sizes.length); i++) {
-			let n = sizes[i];
-			result.push(str.substr(j, n));
-			j += n;
-		}
-		(j < k) && result.push(str.substr(j));
-		return result;
-	}
 
 	// Date iso string handlers (ej: "2022-05-11T12:05:01")
 	const fnEnDate = str => str.substring(0, 10); //yyyy-mm-dd
