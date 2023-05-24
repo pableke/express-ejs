@@ -466,8 +466,9 @@ function Dom() {
 			if (i == _tabIndex) // is current tab
 				return self; // nothing to do
 			const tab = tabs[i]; // get next tab
+			const name = (i < _tabIndex) ? "prev-tab" : "next-tab"; // Event name
 			// Trigger prev or next tab event and after show tab event (show-tab) and change tab if all ok
-			if (self.trigger(tabs[_tabIndex], (i < _tabIndex) ? "prev-tab" : "next-tab").isOk() && self.trigger(tab, "show-tab").isOk()) {
+			if (self.trigger(tabs[_tabIndex], name).isOk() && self.trigger(tab, "show-tab").isOk()) {
 				const progressbar = self.get("#progressbar");
 				if (progressbar) { // progressbar is optional
 					const step = "step-" + i; //go to a specific step on progressbar

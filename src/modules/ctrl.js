@@ -96,8 +96,8 @@ export const verify = function(req, res, next) {
 /******************* upload multipart files *******************/
 const UPLOADS = {
 	keepExtensions: true,
-	uploadDir: path.join(config.DIR_FILES, "uploads"),
-	thumbDir: path.join(config.DIR_FILES, "thumbs"),
+	uploadDir: config.DIR_UPLOADS,
+	thumbDir: config.DIR_THUMBS,
 	maxFieldsSize: 30 * 1024 * 1024, //30mb
 	maxFileSize: 60 * 1024 * 1024, //60mb
 	maxFields: 1000,
