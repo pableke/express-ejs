@@ -144,6 +144,7 @@ function NodeBox() {
 		return new Promise(function(resolve, reject) {
 			const tpl = self.getView("email.ejs");
 			ejs.renderFile(tpl, mail.data, (err, result) => {
+				console.log(tpl, err);
 				if (err)
 					return reject(err);
 				mail.html = result;

@@ -30,28 +30,24 @@ export const email = (req, res, next) => {
 	util.sendMail({
 		to: "pableke@gmail.com",
 		subject: req.body.asunto,
-		body: "tests/emails/test.ejs",
+		body: "test/emails/test.ejs",
 		data: res.locals //data
 	}).then(info => util.msg(res, "msgCorreo"))
 		.catch(err => next("errSendMail"));
 }
 
-const users = [ // JSON DB for tests
-	{ name: "askjld", imp: 23.87, fCreacion: new Date() },
-	{ name: "fila 2", imp:2.9  },
-	{ name: "fila 3", imp:24566.95675, fCreacion: "2022-01-01T10:22:53" }
-];
-
 export const xls = function(req, res) {
-	util.xls(res, {
-		filename: "tests.xlsx",
-		author: "Pablo Rosique Vidal",
-		headers: { name: "Nombre", imp: "Importe", fCreacion: "Fecha" },
-		styles: {
-			imp: { numberFormat: "#,##0.00" },
-			fCreacion: { dateFormat: "dd/mm/yyyy" }
-		},
-		data: users
+	api.get(ENDPOINT).then(users => {
+		util.xls(res, {
+			filename: "test.xlsx",
+			author: "Pablo Rosique Vidal",
+			headers: { name: "Nombre", email: "E-Mail", website: "WEB" },
+			styles: {
+				imp: { numberFormat: "#,##0.00" },
+				fecha: { dateFormat: "dd/mm/yyyy" }
+			},
+			data: users
+		});
 	});
 }
 
