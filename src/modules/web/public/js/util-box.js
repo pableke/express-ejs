@@ -156,7 +156,7 @@ dom.ready(function() {
 	});
 
 	const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-	const fnList = data => dom.table(pruebas, data, RESUME).autofocus(filter.elements);
+	const fnList = data => dom.table(pruebas, data, RESUME).autofocus(filter?.elements);
 	dom.ajax(ENDPOINT).then(fnList); //call to simulate read data from server
 
 	// Eventos de control para el filtro de la tabla
@@ -202,6 +202,7 @@ dom.ready(function() {
 
 	// TESTING...
 	const login = { usuario: "admin", clave: "1234" };
-	api.post("http://localhost:3000/tests/api/sign", login).then(console.log).catch(dom.showError);
+	api.post("http://localhost:3000/test/api/sign", login).then(console.log).catch(dom.showError);
 	console.log(ab.chunk([3, 5, 1, 9], "dsfakjksdjfaslp"));
+	dom.link("a#email", console.log);
 });

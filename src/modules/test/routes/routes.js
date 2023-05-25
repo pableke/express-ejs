@@ -13,8 +13,10 @@ router.get("/filter", tests.filter).get("/filter.html", tests.filter)
 router.post("/save", ctrl.verify, ctrl.multipart, tests.save)
 		.post("/save.html", ctrl.verify, ctrl.multipart, tests.save);
 
-router.get("/mail.html", tests.email).get("/email.html", tests.email);
-router.get("/xls.html", tests.xls).get("/xlsx.html", tests.xls).get("/excel.html", tests.xls);
+router.get("/mail", tests.email).get("/email", tests.email)
+		.get("/mail.html", tests.email).get("/email.html", tests.email);
+router.get("/xls", tests.xls).get("/xlsx", tests.xls).get("/excel", tests.xls)
+		.get("/xls.html", tests.xls).get("/xlsx.html", tests.xls).get("/excel.html", tests.xls);
 router.get("/zip.html", tests.zip).get("/pdf.html", tests.pdf);
 
 // TESTS - API

@@ -39,14 +39,14 @@ function Dom() {
 	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
 
 	this.prev = (el, selector) => {
-		for (el = el.previousElementSibling; el; el = el.previousElementSibling) {
+		for (el = el?.previousElementSibling; el; el = el.previousElementSibling) {
 			if (el.matches(selector))
 				return el;
 		}
 		return el;
 	}
 	this.next = (el, selector) => {
-		for (el = el.nextElementSibling; el; el = el.nextElementSibling) {
+		for (el = el?.nextElementSibling; el; el = el.nextElementSibling) {
 			if (el.matches(selector))
 				return el;
 		}
@@ -156,6 +156,7 @@ function Dom() {
 		fnRender(); // Render table and add extra events
 		table.update = fnRender; // Mutate table object 
 		table.insert = function(row) { data.push(row); fnRender(); }
+		table.append = function(rows) { ab.append(data, rows); fnRender(); }
 		table.save = function(row, id) {
 			if (id) { // Inserting....
 				row.id = id;
@@ -254,7 +255,7 @@ function Dom() {
 	this.getValue = input => input && input.value;
 	this.setValue = (input, value) => input ? fnSetValue(input, value || EMPTY) : self;
 	this.putValue = (selector, value) => self.setValue(fnQuery(selector), value);
-	this.getInput = (form, selector) => self.find(selector, form.elements);
+	this.getInput = (form, selector) => form && self.find(selector, form.elements);
 	this.getInputVal = (form, name) => self.getValue(self.getInput(form, "[name='" + name + "']"));
 	this.setInputVal = (form, name, value) => self.setValue(self.getInput(form, "[name='" + name + "']"), value);
 	this.setValues = (form, data) => {
@@ -271,8 +272,8 @@ function Dom() {
 	this.setRangeDate = (form, f1, f2) => {
 		f1 = self.getInput(form, f1);
 		f2 = self.getInput(form, f2);
-		fnEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
-		return fnEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
+		fnAddEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
+		return fnAddEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
 	}
 	this.onChangeInputs = (form, name, fn) => self.apply(name, form.elements, el => fnEvent(el, ON_CHANGE, fn));
 	this.onChangeSelect = (form, name, fn) => self.apply(name, form.elements, el => { fn(el); fnEvent(el, ON_CHANGE, fn); });
@@ -435,6 +436,10 @@ function Dom() {
 	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
 	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
+
+	const fnConfirm = (el, fn) => confirm(i18n.tr(el.dataset.confirm)) && fn(el);
+	this.confirm = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, fn)));
+	this.link = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, el => !api.get(el.href).then(fn).catch(self.showError))));
 
 	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
 	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
