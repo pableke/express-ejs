@@ -80,10 +80,7 @@ function ArrayBox() {
 	this.get = (arr, i) => arr ? arr[i] : null;
 	this.last = arr => self.get(arr, fnSize(arr) - 1);
 	this.clone = arr => arr ? arr.slice() : [];
-	this.append = (arr1, arr2) => {
-		arr2.forEach(value => arr1.push(value));
-		return self;
-	}
+	this.append = (arr1, arr2) => self.each(arr2, value => arr1.push(value));
 	this.chunk = function(sizes, str) {
 		var index = 0; // indicator
 		const result = []; //parts container
