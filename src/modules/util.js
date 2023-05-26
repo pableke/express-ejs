@@ -12,7 +12,7 @@ import sb from "./web/public/js/string-box.js";
 import i18n from "./web/public/js/i18n-box.js";
 import config from "app/dist/config.js";
 
-function NodeBox() {
+function UtilBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals.body._tplBody = tpl; return self; }
@@ -68,6 +68,12 @@ function NodeBox() {
 	this.sendZip = (res, file) => self.sendFile(res, file, "application/zip");
 	this.sendPdf = (res, file) => self.sendFile(res, file, "application/pdf");
 	this.sendXls = (res, file) => self.sendFile(res, file, "application/vnd.ms-excel");
+
+	this.getFiles = names => {
+		const files = [];
+		names.forEach(name => new File(fs.createReadStream(self.getFile(name)), name));
+		return files;
+	}
 	/******************* send file to client *******************/
 
 	/******************* ZIP multiple files *******************/
@@ -200,33 +206,4 @@ function NodeBox() {
 	/******************* send xlsx from json *******************/
 }
 
-/******************* Extends server modules *******************/
-api.send = function(opts) {
-	opts.headers = opts.headers || {};
-	const fd = new FormData(); // Data container
-
-	for (let key in opts.fields)
-		fd.append(key, opts.fields[key]);
-
-	if (opts.files) { // Has files
-		for (let key in opts.files) {
-			const files = opts.files[key];
-			if (Array.isArray(files)) // is multifile
-				files.forEach(file => fd.append(key, fs.createReadStream(file), path.basename(file)));
-			else
-				fd.append(key, fs.createReadStream(files), path.basename(files));
-		}
-		//opts.headers["Content-Type"] = "multipart/form-data";
-		opts.body = fd;
-	}
-	else {
-		//opts.headers["Content-Type"] = "application/x-www-form-urlencoded";
-		opts.body = new URLSearchParams(fd);
-	}
-
-	opts.method = "post";
-	return api.fetch(opts);
-}
-/******************* Extends server modules *******************/
-
-export default new NodeBox();
+export default new UtilBox();

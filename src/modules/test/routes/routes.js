@@ -20,7 +20,7 @@ router.get("/xls", test.xls).get("/xlsx", test.xls).get("/excel", test.xls)
 		.get("/xls.html", test.xls).get("/xlsx.html", test.xls).get("/excel.html", test.xls);
 router.get("/zip.html", test.zip).get("/pdf.html", test.pdf);
 
-// TESTS - API
-router.post("/api/sign", ctrl.sign);
+// TESTS - API + FILES
+router.post("/api/sign", ctrl.sign).post("/api/files", ctrl.multipart, test.files);
 
 export default router;

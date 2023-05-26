@@ -165,7 +165,8 @@ dom.ready(function() {
 		.submit(filter, ev => !dom.send(filter).then(fnList));
 
 	// Eventos de control para el formulario de datos
-	dom.click("a[href='#first-item']", el => pruebas.first())
+	dom.request(ftest, "a#uploads")
+		.click("a[href='#first-item']", el => pruebas.first())
 		.click("a[href='#prev-item']", el => pruebas.prev())
 		.click("a[href='#next-item']", el => pruebas.next())
 		.click("a[href='#last-item']", el => pruebas.last())

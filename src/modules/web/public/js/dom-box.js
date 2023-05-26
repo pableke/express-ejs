@@ -20,6 +20,9 @@ function Dom() {
 	this.get = (selector, el) => self.qs(el || document, selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
+
+	this.isOk = i18n.isOk;
+	this.isError = i18n.isError;
 	this.loading = this.working = fnSelf;
 
 	this.each = function(list, fn) {
@@ -230,9 +233,8 @@ function Dom() {
 		const aux = Object.assign({ action }, opts); // Extra options
 		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
 	}
-	this.send = function(form, opts) {
-		opts = opts || {};
-		opts.action = form.action;
+	function fnSend(form, action, opts) {
+		opts.action = action;
 		opts.method = opts.method || form.method; //method-override
 		opts.classExcluded = opts.classExcluded || "ui-excluded";
 		opts.classCalculated = opts.classCalculated || "ui-calculated";
@@ -246,6 +248,12 @@ function Dom() {
 			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
 		//opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
 		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; });
+	}
+	this.send = (form, opts) => fnSend(form, form.action, opts || {});
+	this.request = (form, selector) => {
+		const link = self.get(selector, form);
+		const fn = ev => !fnSend(form, link.href, {}).then(msg => self.setOk(form, msg));
+		return fnAddEvent(link, "click", fn); // Register listener
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
@@ -304,6 +312,11 @@ function Dom() {
 		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name]))
 					: self.apply(FIELDS, form.elements, el => fnSetValue(el, EMPTY));
 	}
+	this.toObject = (form, data) => {
+		data = data || {}; // Fields container
+		self.apply(FIELDS, form.elements, el => { data[el.name] = el.value; });
+		return data;
+	}
 	this.checklist = (form, name, values) => {
 		const group = self.getAll(".check-" + name, form);
 		const check = self.find("#" + name, form.elements);
@@ -354,10 +367,8 @@ function Dom() {
 	}
 
 	this.validate = (form, opts) => {
-		const aux = {}; // Data container from view
-		self.closeAlerts().apply(FIELDS, form.elements, el => { aux[el.name] = el.value; });
-
 		// validator, parser and clone resutls
+		const aux = self.closeAlerts().toObject(form);
 		const data = Object.assign({}, opts.validate(aux));
 		if (i18n.isError()) { // Validate input data
 			self.setErrors(form, i18n.getMsgs()); // Show errors on view
@@ -423,7 +434,7 @@ function Dom() {
 
 	// Events
 	const ON_CHANGE = "change";
-	const fnEvent = (el, name, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(ev, ev.currentTarget) || ev.preventDefault(), opts));
+	const fnEvent = (el, name, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(ev, el) || ev.preventDefault(), opts));
 	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, fn, opts) : self);
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
@@ -520,9 +531,6 @@ function Dom() {
 		const closeAlert = el => self.fadeOut(el.parentNode);
 		const setAlert = (el, txt) => txt ? showAlert(el).setInnerHtml(el, i18n.tr(txt)) : self;
 
-		self.isOk = i18n.isOk;
-		self.isError = i18n.isError;
-
 		self.showOk = msg => setAlert(texts[0], msg); //green
 		self.showInfo = msg => setAlert(texts[1], msg); //blue
 		self.showWarn = msg => setAlert(texts[2], msg); //yellow
@@ -542,7 +550,7 @@ function Dom() {
 		}
 		self.setOk = (form, msg) => {
 			i18n.reset(); // Clear previos messages
-			return self.eachChild(alerts, fnHide).each(form.elements, fnClearError).showOk(msg);
+			return self.each(alerts.children, fnHide).each(form.elements, fnClearError).showOk(msg);
 		}
 		self.setErrors = (form, messages) => {
 			if (isstr(messages)) // simple message text

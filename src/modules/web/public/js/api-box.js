@@ -19,10 +19,24 @@ function fnFetchJSON(action, token, method, data) {
 	return api.fetch(opts);
 }
 
-api.get = (action, token) => api.fetch({ action, token });
 api.post = (action, data, token) => fnFetchJSON(action, token, "POST", data);
 api.put = (action, data, token) => fnFetchJSON(action, token, "PUT", data);
 api.patch = (action, data, token) => fnFetchJSON(action, token, "PATCH", data);
 api.delete = (action, token) => api.fetch({ action, token, method: "DELETE" });
+
+api.get = (action, data, token) => {
+	const opts = { action, token };
+	if (data) {
+		const qs = new URLSearchParams(data);
+		opts.action += "?" + qs.toString();
+	}
+	return api.fetch(opts);
+}
+api.send = function(action, fd) {
+	const opts = { action };
+	opts.method = "post";
+	opts.body = fd;
+	return api.fetch(opts);
+}
 
 export default api;
