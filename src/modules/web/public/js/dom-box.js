@@ -20,6 +20,7 @@ function Dom() {
 	this.get = (selector, el) => self.qs(el || document, selector);
 	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
 	this.closest = (selector, el) => el && el.closest(selector);
+	this.loading = this.working = fnSelf;
 
 	this.each = function(list, fn) {
 		if (list) // Is DOMElement, selector or NodeList
@@ -83,7 +84,6 @@ function Dom() {
 	// Format and parse contents
 	const TEMPLATES = {}; //container
 	function fnContents(el, value) { fnToggle(el, HIDE, !value); return self; }
-	function fnSetText(el, value) { el.innerText = value; return fnContents(el, value); }
 	function fnSetHtml(el, value) { el.innerHTML = value; return fnContents(el, value); }
 	function fnTpl(el) {
 		el.id = el.id || ("_" + sb.rand()); // force unique id for element
@@ -437,9 +437,11 @@ function Dom() {
 	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
 
+	const fnLink = (el, fn) => self.ajax(el.href).then(fn);
 	const fnConfirm = (el, fn) => confirm(i18n.tr(el.dataset.confirm)) && fn(el);
 	this.confirm = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, fn)));
-	this.link = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, el => !api.get(el.href).then(fn).catch(self.showError))));
+	this.link = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, el => !fnLink(el, fn))));
+	this.call = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => !fnLink(el, fn)));
 
 	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
 	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
@@ -520,7 +522,6 @@ function Dom() {
 
 		self.isOk = i18n.isOk;
 		self.isError = i18n.isError;
-		self.loading = self.working = fnSelf;
 
 		self.showOk = msg => setAlert(texts[0], msg); //green
 		self.showInfo = msg => setAlert(texts[1], msg); //blue

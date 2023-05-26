@@ -2,22 +2,23 @@
 import express from "express";
 const router = express.Router();
 
-import * as tests from "app/test/ctrl/index.js";
+import i18n from "app/modules/i18n.js";
 import * as ctrl from "app/modules/ctrl.js";
+import * as test from "app/test/ctrl/index.js";
 
-router.use(tests.lang); // first middleware to be executed before rest of routes
-router.get("/", tests.index).get("/index", tests.index).get("/home", tests.index).get("/inicio", tests.index)
-		.get("/index.html", tests.index).get("/home.html", tests.index).get("/inicio.html", tests.index);
-router.get("/filter", tests.filter).get("/filter.html", tests.filter)
-		.post("/search", tests.filter).post("/search.html", tests.filter);
-router.post("/save", ctrl.verify, ctrl.multipart, tests.save)
-		.post("/save.html", ctrl.verify, ctrl.multipart, tests.save);
+router.use(i18n.test);
+router.get("/", test.index).get("/index", test.index).get("/home", test.index).get("/inicio", test.index)
+		.get("/index.html", test.index).get("/home.html", test.index).get("/inicio.html", test.index);
+router.get("/filter", test.filter).get("/filter.html", test.filter)
+		.post("/search", test.filter).post("/search.html", test.filter);
+router.post("/save", ctrl.verify, ctrl.multipart, test.save)
+		.post("/save.html", ctrl.verify, ctrl.multipart, test.save);
 
-router.get("/mail", tests.email).get("/email", tests.email)
-		.get("/mail.html", tests.email).get("/email.html", tests.email);
-router.get("/xls", tests.xls).get("/xlsx", tests.xls).get("/excel", tests.xls)
-		.get("/xls.html", tests.xls).get("/xlsx.html", tests.xls).get("/excel.html", tests.xls);
-router.get("/zip.html", tests.zip).get("/pdf.html", tests.pdf);
+router.get("/mail", test.email).get("/email", test.email)
+		.get("/mail.html", test.email).get("/email.html", test.email);
+router.get("/xls", test.xls).get("/xlsx", test.xls).get("/excel", test.xls)
+		.get("/xls.html", test.xls).get("/xlsx.html", test.xls).get("/excel.html", test.xls);
+router.get("/zip.html", test.zip).get("/pdf.html", test.pdf);
 
 // TESTS - API
 router.post("/api/sign", ctrl.sign);

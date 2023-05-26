@@ -8,22 +8,14 @@ import nodemailer from "nodemailer"; //send emails
 import ejs from "ejs"; //tpl engine
 
 import api from "./web/public/js/api-box.js";
-import ab from "./web/public/js/array-box.js";
-import dt from "./web/public/js/date-box.js";
-import nb from "./web/public/js/number-box.js";
 import sb from "./web/public/js/string-box.js";
 import i18n from "./web/public/js/i18n-box.js";
 import config from "app/dist/config.js";
-import langs from "./i18n.js";
 
 function NodeBox() {
 	const self = this; //self instance
 
-	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
-	this.lang = (res, mod, next) => {
-		res.locals.i18n = langs[mod][res.locals.lang];
-		next();
-	}
+	this.setBody = (res, tpl) => { res.locals.body._tplBody = tpl; return self; }
 
 	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
 	const fnSendMsg = (res, status, msg) => fnSend(res, "text/html", status, res.locals.i18n[msg] || msg);
@@ -121,7 +113,7 @@ function NodeBox() {
 	const MESSAGE = {
 		from: "info@gmail.com", // sender address
 		to: "pablo.rosique@upct.es", // list of receivers
-		body: "tests/emails/test.ejs", // default template
+		body: "test/emails/test.ejs", // default template
 		subject: "Mailer no reply", // Subject line
 		text: "Email submitted", // plain text body
 		html: "<html><body>Email submitted</body></html>" // html contents
@@ -142,16 +134,13 @@ function NodeBox() {
 
 		// Return promise to send email
 		return new Promise(function(resolve, reject) {
-			const tpl = self.getView("email.ejs");
+			const tpl = self.getView("email.ejs"); // Global email tpl
+			mail.data.body._tplEmail = mail.body; // current body
 			ejs.renderFile(tpl, mail.data, (err, result) => {
-				console.log(tpl, err);
 				if (err)
 					return reject(err);
 				mail.html = result;
-				const _body = mail.data._tplBody; // previous body
-				mail.data._tplBody = self.getView(mail.body); // current body
 				transporter.sendMail(mail, (err, info) => err ? reject(err) : resolve(info));
-				mail.data._tplBody = _body;
 			});
 		});
 	}

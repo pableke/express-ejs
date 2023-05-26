@@ -7,7 +7,6 @@ import util from "app/modules/util.js";
 
 const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
 
-export const lang = (req, res, next) => util.lang(res, "test", next);
 export const index = (req, res) => util.render(res, "test/index");
 
 export const filter = (req, res) => {

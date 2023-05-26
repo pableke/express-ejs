@@ -204,5 +204,5 @@ dom.ready(function() {
 	const login = { usuario: "admin", clave: "1234" };
 	api.post("http://localhost:3000/test/api/sign", login).then(console.log).catch(dom.showError);
 	console.log(ab.chunk([3, 5, 1, 9], "dsfakjksdjfaslp"));
-	dom.link("a#email", console.log);
+	dom.link("a#email", dom.showOk);
 });
