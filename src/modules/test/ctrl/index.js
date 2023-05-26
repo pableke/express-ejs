@@ -25,6 +25,11 @@ export const save = (req, res) => {
 	res.send("" + (data.id || nb.randInt(1, 1e9)));
 }
 
+export const files = (req, res) => {
+	console.log('req.body', req.body);
+	res.send("ok");
+}
+
 export const email = (req, res, next) => {
 	util.sendMail({
 		to: "pableke@gmail.com",
