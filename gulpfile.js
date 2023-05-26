@@ -1,9 +1,8 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-rename gulp-minify-ejs
-//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-inline gulp-rename gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-rename gulp-minify-ejs
+//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-rename gulp-minify-ejs
 import fs from "fs"; //file system module
 import path from "path"; //file and directory paths
-import url from "url"; // Url handler
 import { spawn } from "child_process";
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
@@ -11,7 +10,6 @@ import minifyejs from "gulp-minify-ejs";
 import uglify from 'gulp-uglify';
 import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
-import cssInline from 'gulp-minify-inline';
 import strip from "gulp-strip-comments";
 import rename from "gulp-rename";
 
@@ -59,12 +57,14 @@ gulp.task("modules", done => {
 
 // Task to minify all views (HTML's and EJS's)
 gulp.task("minify-html", done => {
-	const config = {
+	const options = {
+		caseSensitive: true,
+		sortClassName: true,
 		collapseWhitespace: true,
-		removeComments: false, //removeComments => remove CDATA
+		removeComments: true, //removeComments => remove CDATA
 		removeRedundantAttributes: true //remove attr with default value
 	};
-	return gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(config)).pipe(cssInline()).pipe(minifyejs()).pipe(gulp.dest("dist"));
+	return gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs()).pipe(gulp.dest("dist"));
 });
 // Tasks to minify CSS's
 gulp.task("minify-css", done => {

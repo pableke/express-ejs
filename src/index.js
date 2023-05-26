@@ -10,9 +10,9 @@ import cookieParser from "cookie-parser"; //cookie handler
 import * as uuid from "uuid"; //generate random ids
 
 //import dao from "app/dao/factory.js"; // DAO factory
-import i18n from "app/lib/i18n-box.js"; // Util helpers
 import util from "./modules/util.js"; // Util helpers
 import routes from "./modules/routes.js"; // All routes
+import i18n from "./modules/i18n.js"; //Languages
 import config from "./config.js"; // Configurations
 
 /*const HTTPS = { //credentials
@@ -24,10 +24,6 @@ const app = express(); // Instance
 // Template engines for views
 app.set("view engine", "ejs");
 app.set("views", config.DIR_VIEWS);
-
-app.locals._tplBody = "web/index"; // Default body
-app.locals.msgs = i18n.getMsgs(); // Set messages
-app.locals.body = {}; // Set data on response
 
 // Express configurations
 app.use("/public", express.static(config.DIR_PUBLIC)); // static files
@@ -51,17 +47,10 @@ app.use(session({ //session config
 }));
 
 // Routes
-app.use((req, res, next) => {
-	// Initialize response function helpers
-	res.on("finish", () => i18n.reset()); // Close response event
-
-	// Search for language in request, session and headers by region: es-ES
-	let lang = req.query.lang || req.session.lang || req.headers["accept-language"].substr(0, 5);
-	req.session.lang = res.locals.lang = i18n.load(lang).get("lang"); // Set language id
-
-	// Load specific user menus or public menus on view
+app.use((req, res, next) => { // Load specific language
+	res.locals.body = { _tplBody: "web/index" }; // Set data on response
 	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);
-	next(); //go next middleware
+	i18n.load(req, res, next); // Go next middleware
 });
 app.use(routes); // Use all routes
 app.use((err, req, res, next) => { //global handler error
