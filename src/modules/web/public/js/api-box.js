@@ -35,7 +35,7 @@ api.get = (action, data, token) => {
 api.send = function(action, fd) {
 	const opts = { action };
 	opts.method = "post";
-	opts.body = fd;
+	opts.body = fd; //enctype = multipart/form-data
 	return api.fetch(opts);
 }
 

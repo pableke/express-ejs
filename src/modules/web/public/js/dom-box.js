@@ -233,8 +233,8 @@ function Dom() {
 		const aux = Object.assign({ action }, opts); // Extra options
 		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
 	}
-	function fnSend(form, action, opts) {
-		opts.action = action;
+	this.send = (form, opts) => {
+		opts.action = opts.action || form.action; //action-override
 		opts.method = opts.method || form.method; //method-override
 		opts.classExcluded = opts.classExcluded || "ui-excluded";
 		opts.classCalculated = opts.classCalculated || "ui-calculated";
@@ -249,11 +249,9 @@ function Dom() {
 		//opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
 		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; });
 	}
-	this.send = (form, opts) => fnSend(form, form.action, opts || {});
-	this.request = (form, selector) => {
-		const link = self.get(selector, form);
-		const fn = ev => !fnSend(form, link.href, {}).then(msg => self.setOk(form, msg));
-		return fnAddEvent(link, "click", fn); // Register listener
+	this.request = (form, selector, fn) => {
+		const link = self.get(selector, form); // Action link
+		return fnAddEvent(link, "click", ev => !self.send(form, { action: link.href }).then(fn));
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
