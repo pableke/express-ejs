@@ -6,10 +6,10 @@ export const login = (req, res, next) => {
 	dao.sqlite.users.login(login, clave).then(user => res.json(user)).catch(next);
 }
 
-export const list = (req, res, next) => {
+export const list = (req, res) => {
 	dao.sqlite.users.filter(req.query).then(users => res.json(users));
 }
-export const view = (req, res, next) => {
+export const view = (req, res) => {
 	dao.sqlite.users.getById(req.query.id).then(users => res.json(users));
 }
 
