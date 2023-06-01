@@ -7,12 +7,14 @@ env.config(); // Initialize process.env
 
 const SRC = url.fileURLToPath(new URL(".", import.meta.url));
 const FILES = url.fileURLToPath(new URL("./public/files", import.meta.url));
+const MODULES = url.fileURLToPath(new URL("./modules", import.meta.url));
 
 export default {
 	PORT: process.env.PORT || 3000,
 
 	DIR_SRC: SRC,
 	DIR_FILES: FILES,
+	DIR_MODULES: MODULES,
 	DIR_UPLOADS: path.join(FILES, "uploads"),
 	DIR_THUMBS: path.join(FILES, "thumbs"),
 	DIR_PUBLIC: path.join(SRC, "public"),
@@ -27,6 +29,8 @@ export default {
 
 	GMAIL_USER: process.env.GMAIL_USER,
 	GMAIL_PASS: process.env.GMAIL_PASS,
+
+	SQLITE_PATH: path.join(MODULES, "test/dao/sqlite", "test.db"),
 
 	MYSQL_HOST: process.env.MYSQL_HOST || "localhost",
 	MYSQL_NAME: process.env.MYSQL_NAME,
