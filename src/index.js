@@ -14,6 +14,7 @@ import util from "./modules/util.js"; // Util helpers
 import routes from "./modules/routes.js"; // All routes
 import i18n from "./modules/i18n.js"; //Languages
 import config from "./config.js"; // Configurations
+import dao from "./modules/dao.js"; // Configurations
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -73,7 +74,7 @@ app.use("*", (req, res) => { //error 404 page not found
 const server = app.listen(config.PORT, err => {
 	if (err) // If error => stop
 		return console.log(err);
-	//dao.open(); //open db's factories
+	dao.open(); //open db's factories
 	console.log("> Server listening on http://localhost:" + config.PORT);
 });
 
@@ -83,7 +84,7 @@ function fnExit(signal) { //exit handler
 	console.log("> Received [" + signal + "].");
 	console.log("--------------------");
 
-	//dao.close();
+	dao.close();
 	server.close();
 
 	console.log("> Http server closed.");

@@ -1,14 +1,15 @@
 
+import sqlite from "./sqlite/factory.js";
+
 export default {
-	//myjson, mysql, // BD's
+	sqlite,
 
 	open: function() {
+		sqlite.open();
 		console.log("> DAO Tests Factory open.");
-		return this;
 	},
-
 	close: function() {
+		sqlite.close();
 		console.log("> DAO Tests Factory closed.");
-		return this;
 	}
 };

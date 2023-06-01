@@ -98,8 +98,8 @@ dom.ready(function() {
 
 	// Testing....
 	const RESUME = {};
-	const ftest = dom.get("form#test");
-	const filter = dom.get("form#filter");
+	const ftest = dom.getForm("#test");
+	const filter = dom.getForm("#filter");
 	const pruebas = dom.get("table#pruebas");
 
 	dom.tabs(".tab-content") // Tabs hendlres
@@ -203,7 +203,7 @@ dom.ready(function() {
 
 	// TESTING...
 	const login = { usuario: "admin", clave: "1234" };
-	api.post("http://localhost:3000/test/api/sign", login).then(console.log).catch(dom.showError);
+	api.ajax.post("http://localhost:3000/test/api/sign", login).then(console.log).catch(dom.showError);
 	console.log(ab.chunk([3, 5, 1, 9], "dsfakjksdjfaslp"));
 	dom.link("a#email", dom.showOk);
 });

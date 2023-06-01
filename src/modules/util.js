@@ -68,13 +68,27 @@ function UtilBox() {
 	this.sendZip = (res, file) => self.sendFile(res, file, "application/zip");
 	this.sendPdf = (res, file) => self.sendFile(res, file, "application/pdf");
 	this.sendXls = (res, file) => self.sendFile(res, file, "application/vnd.ms-excel");
-
-	this.getFiles = names => {
-		const files = [];
-		names.forEach(name => new File(fs.createReadStream(self.getFile(name)), name));
-		return files;
-	}
 	/******************* send file to client *******************/
+
+	this.toFormData = (fields, files, basedir) => {
+		basedir = basedir || config.DIR_FILES;
+		const fd = new FormData(); // Data container
+		for (const key in fields) // Field values
+			fd.append(key, fields[key]);
+		for (const key in files) { // Field files
+			const names = files[key]; //file/es
+			if (Array.isArray(names))
+				names.forEach(filename => {
+					const pathname = path.join(basedir, filename);
+					fd.append(key, fs.createReadStream(pathname), filename);
+				});
+			else {
+				const pathname = path.join(basedir, names);
+				fd.append(key, fs.createReadStream(pathname), names);
+			}
+		}
+		return fd;
+	}
 
 	/******************* ZIP multiple files *******************/
 	// Options: "-r" recursive, "-j": ignore directory info, "-": redirect to stdout

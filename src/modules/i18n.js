@@ -1,5 +1,6 @@
 
-import i18n from "app/lib/i18n-box.js"
+import sb from "app/lib/string-box.js";
+import i18n from "app/lib/i18n-box.js";
 
 import web_en from "./web/i18n/en.js";
 import web_es from "./web/i18n/es.js";
@@ -27,8 +28,8 @@ function I18nBox() {
 		res.on("finish", () => i18n.reset()); // Close response event
 
 		// Load specific module language
-		const lang = req.query.lang || req.session.lang || req.headers["accept-language"].substring(0, 5);
-		res.locals.i18n = langs[lang] || langs[lang && lang.substr(0, 2)] || langs.es; // Selected language
+		const lang = req.query.lang || req.session.lang || sb.substr(req.headers["accept-language"], 0, 5);
+		res.locals.i18n = langs[lang] || langs[sb.substr(lang, 0, 2)] || langs.es; // Selected language
 		req.session.lang = res.locals.i18n.lang; // Save current lang
 		res.locals.msgs = i18n.getMsgs(); // Set messages
 		next(); // Go next middleware

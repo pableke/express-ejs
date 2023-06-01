@@ -226,7 +226,7 @@ function Dom() {
 
 	this.fetch = function(opts) {
 		self.loading(); //show loading..., and close loading...
-		return api.fetch(opts).finally(self.working);
+		return api.ajax.fetch(opts).finally(self.working);
 	}
 	// Promises has implicit try ... catch, throw => run next catch, avoid intermediate then
 	this.ajax = (action, opts) => {
@@ -234,6 +234,7 @@ function Dom() {
 		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
 	}
 	this.send = (form, opts) => {
+		opts = opts || {}; // Settings
 		opts.action = opts.action || form.action; //action-override
 		opts.method = opts.method || form.method; //method-override
 		opts.classExcluded = opts.classExcluded || "ui-excluded";
@@ -255,6 +256,7 @@ function Dom() {
 	}
 
 	this.inputs = el => self.getAll(INPUTS, el);
+	this.getForm = selector => self.find(selector, document.forms);
 	this.setChecked = (list, value) => self.each(list, input => { input.checked = value; });
 	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
 	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
@@ -373,7 +375,7 @@ function Dom() {
 			return Promise.reject(i18n.getMsgs()); // Call a reject promise
 		}
 
-		const pk = form.elements[0].value; // first input = pk
+		const pk = data[opts.pkName || "id"]; // Get pk value
 		const fnSave = (opts.insert && !pk) ? opts.insert : opts.update;
 		return self.send(form, opts).then(srv => {
 			fnSave(data, srv); // Lunch insert or update
