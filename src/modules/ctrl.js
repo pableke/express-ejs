@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"; // JSON web token
 import config from "../config.js";
 import util from "./util.js";
 import i18n from "app/lib/i18n-box.js";
+import dao from "app/test/dao/factory.js";
 
 const TPL_LOGIN = "web/forms/login";
 const TPL_ADMIN = "web/list/index";
@@ -75,15 +76,12 @@ export const auth = function(req, res, next) {
 const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
 const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 export const sign = function(req, res, next) {
-	const user = { id: 9 };
-	req.session.ssId = user.id;
-	const { usuario, clave } = req.body;
-	//const user = dao.web.myjson.users.getUser(usuario, clave, i18n);
-	if ((usuario == "admin") && (clave == "1234")) {
+    const { login, clave } = req.body;
+	dao.sqlite.users.login(login, clave).then(user => {
 		const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS);
-		return res.cookie("token", token, COOKIE_OPTS).send(token);
-	}
-	next("User not found");
+		res.cookie("token", token, COOKIE_OPTS).send(token);
+		req.session.ssId = user.id;
+	}).catch(next);
 }
 export const verify = function(req, res, next) {
 	const token = req.cookies.token || "no-token";

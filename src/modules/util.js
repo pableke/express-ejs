@@ -16,38 +16,29 @@ function UtilBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals.body._tplBody = tpl; return self; }
+	this.msg = (res, msg) => res.send(i18n.tr(msg));
+	this.msgs = res => res.json(i18n.getMsgs());
+	this.err404 = (res, msg) => res.status(404).send(i18n.tr(msg));
+	this.err500 = (res, msg) => res.status(500).send(i18n.tr(msg));
+	this.errors = res => res.status(500).json(i18n.getMsgs());
 
-	const fnSend = (res, type, status, value) => { res.setHeader("content-type", type).status(status).send(value); return self; }
-	const fnSendMsg = (res, status, msg) => fnSend(res, "text/html", status, res.locals.i18n[msg] || msg);
-	const fnSendHtml = (res, status, html) => fnSend(res, "text/html", status, html);
-	const fnSendJson = (res, status, data) => { res.status(status).json(data); return self; }
-
-	this.json = (res, data) => fnSendJson(res, 200, data);
-	this.text = (res, txt) => fnSendMsg(res, 200, txt);
-	this.html = (res, contents) => fnSendHtml(res, 200, ejs.render(contents, res.locals));
+	this.html = (res, contents) => {
+		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
+	}
 	this.view = function(res, tpl) {
 		fs.readFile(self.getView(tpl), "utf-8", (err, data) => {
-			err ? self.msgErr500(res, "" + err) : self.html(res, data);
+			err ? self.err500(res, "" + err) : self.html(res, data);
 		});
-		return self;
 	}
-
-	this.msg = (res, msg) => fnSendMsg(res, 200, i18n.tr(msg));
-	this.msgs = res => fnSendJson(res, 200, i18n.getMsgs());
-	this.msgError = (res, msg, status) => fnSendMsg(res, status, msg);
-	this.msgErr404 = (res, msg) => self.msgError(res, msg, 404);
-	this.msgErr500 = (res, msg) => self.msgError(res, msg, 500);
-	this.errors = res => fnSendJson(res, 500, i18n.getMsgs());
 
 	const fnRender = (res, status, tpl) => {
 		tpl && self.setBody(res, tpl); // update body view
 		res.status(status).render("index"); // render view
-		return self;
 	}
 	this.render = (res, tpl) => fnRender(res, 200, tpl);
-	this.build = (res, msg, tpl) => { i18n.setOk(msg); return fnRender(res, 200, tpl); }
-	this.err500 = (res, msg, tpl) => { i18n.setError(msg); return fnRender(res, 500, tpl); }
-	this.err404 = (res, tpl) => fnRender(res, 404, tpl);
+	this.ok = (res, msg, tpl) => { i18n.setOk(msg); fnRender(res, 200, tpl); }
+	this.info = (res, msg, tpl) => { i18n.setInfo(msg); fnRender(res, 200, tpl); }
+	this.error = (res, msg, tpl) => { i18n.setError(msg); fnRender(res, 500, tpl); }
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);
@@ -61,7 +52,6 @@ function UtilBox() {
 			"Content-Disposition": "attachment; filename=" + filename
 		});
 		fs.createReadStream(filepath).pipe(res);
-		return self;
 	}
 
 	this.sendHtml = (res, file) => self.view(res, file);
@@ -106,7 +96,6 @@ function UtilBox() {
 			"Content-disposition": "attachment; filename=" + filename
 		});
 		zip.stdout.pipe(res);
-		return self;
 	}
 	/******************* ZIP multiple files *******************/
 

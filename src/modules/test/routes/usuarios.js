@@ -3,7 +3,7 @@ import express from "express";
 const router = express.Router();
 
 import * as ctrl from "app/modules/ctrl.js";
-import * as user from "app/test/ctrl/users.js";
+import * as user from "app/test/ctrl/usuarios.js";
 
 router.post("/login", user.login).post("/login.html", user.login);
 

@@ -1,9 +1,9 @@
 
-import dao from "../dao/factory.js";
+import dao from "app/test/dao/factory.js";
 
 export const login = (req, res, next) => {
     const { login, clave } = req.body;
-	dao.sqlite.users.login(login, clave).then(user => res.json(user)).catch(next);
+	dao.sqlite.users.getByLogin(login, clave).then(user => res.json(user)).catch(next);
 }
 
 export const list = (req, res) => {
