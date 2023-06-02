@@ -5,7 +5,7 @@ const router = express.Router();
 import i18n from "app/modules/i18n.js";
 import * as ctrl from "app/modules/ctrl.js";
 import * as test from "app/test/ctrl/index.js";
-import users from "./users.js";
+import users from "./usuarios.js";
 
 router.use(i18n.test);
 router.get("/", test.index).get("/index", test.index).get("/home", test.index).get("/inicio", test.index)
@@ -23,6 +23,7 @@ router.get("/zip.html", test.zip).get("/pdf.html", test.pdf);
 
 // TESTS - API + FILES
 router.post("/api/sign", ctrl.sign).post("/api/files", ctrl.multipart, test.files);
+router.get("/hash", test.hash);
 
 router.use("/user", users);
 

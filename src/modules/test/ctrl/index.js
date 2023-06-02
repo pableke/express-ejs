@@ -1,4 +1,5 @@
 
+import bcrypt from "bcrypt";
 import api from "app/lib/api-box.js";
 import nb from "app/lib/number-box.js";
 import sb from "app/lib/string-box.js";
@@ -28,6 +29,10 @@ export const save = (req, res) => {
 export const files = (req, res) => {
 	console.log('req.body', req.body);
 	res.send("ok");
+}
+
+export const hash = function(req, res) {
+	res.send(bcrypt.hashSync(req.query.clave, 10));
 }
 
 export const email = (req, res, next) => {

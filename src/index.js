@@ -56,18 +56,18 @@ app.use((req, res, next) => { // Load specific language
 app.use(routes); // Use all routes
 app.use((err, req, res, next) => { //global handler error
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
-		util.msgErr500(res, "" + err); // return string error
+		util.err500(res, "" + err); // return string error
 	else // Is non ajax request => render template body
-		util.err500(res, "" + err); // error view
+		util.error(res, "" + err); // error view
 
 	// Show log error for console
 	console.error("> Log:", req.url, err);
 });
 app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
-		util.msgErr404(res, "err404"); //ajax response
+		util.err404(res, "err404"); //ajax response
 	else
-		util.err404(res, "errors/404"); //show 404 page
+		util.error(res, null, "errors/404"); //show 404 page
 });
 
 // Start servers (db's and http)

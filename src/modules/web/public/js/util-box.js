@@ -202,7 +202,7 @@ dom.ready(function() {
 		.submit(ftest, ev => !dom.validate(ftest, FORM_TEST)); // save current on server
 
 	// TESTING...
-	const login = { usuario: "admin", clave: "1234" };
+	const login = { login: "23024374V", clave: "123456" };
 	api.ajax.post("http://localhost:3000/test/api/sign", login).then(console.log).catch(dom.showError);
 	console.log(ab.chunk([3, 5, 1, 9], "dsfakjksdjfaslp"));
 	dom.link("a#email", dom.showOk);
