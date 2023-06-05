@@ -7,16 +7,15 @@ import jwt from "jsonwebtoken"; // JSON web token
 import config from "../config.js";
 import util from "./util.js";
 import i18n from "app/lib/i18n-box.js";
-import dao from "app/test/dao/factory.js";
+import dao from "app/web/dao/factory.js";
 
-const TPL_LOGIN = "web/forms/login";
-const TPL_ADMIN = "web/list/index";
+const TPL_LOGIN = "web/login";
+const TPL_ADMIN = "web/admin";
 
 export const view = function(req, res) {
 	util.render(res, TPL_LOGIN);
 }
 function fnLogout(req) {
-	delete req.session.user; //remove user
 	delete req.session.menus; //remove menus
 	//remove session: regenerated next request
 	req.session.destroy(); //specific destroy
@@ -24,11 +23,11 @@ function fnLogout(req) {
 }
 export const logout = function(req, res) {
 	fnLogout(req); //click logout user
-	util.build(res, "msgLogout", TPL_LOGIN);
+	util.send(res, "msgLogout", TPL_LOGIN);
 }
 export const destroy = function(req, res) {
 	fnLogout(req); //onclose even client
-	util.text(res, "ok"); //response ok
+	res.send("ok"); //response ok
 }
 
 export const home = function(req, res) {
@@ -38,26 +37,24 @@ export const home = function(req, res) {
 
 export const check = function(req, res, next) {
 	util.setBody(res, TPL_LOGIN); // default view login
-	let { usuario, clave } = req.body; // read post data
-	if (!util.i18n.vañidate(i18n.forms.login)) // check errors
-		return next(util.i18n.getError());
+	if (!i18n.forms.login(req.body)) // check errors
+		return next(i18n.getError());
 
-	try {
-		let user = dao.web.myjson.users.getUser(usuario, clave);
-		let menus = dao.web.myjson.um.getAllMenus(user.id); //specific user menus
-		let tpl = dao.web.myjson.menus.format(menus, { getValue: util.i18n.val }); //build template
-		res.locals.menus = req.session.menus = tpl; //set on view and session
-		req.session.user = user; //store user data in session
+	const { usuario, clave } = req.body; // read post data
+	dao.sqlite.usuarios.login(usuario, clave).then(user => {
+		req.session.ssId = user.id; // Important! autosave on res.send!
+		dao.sqlite.menus.serialize(user.id).then(tpl => { //specific user menus
+			res.locals.menus = req.session.menus = tpl; //set on view and session
 
-		// access allowed => go private area
-		if (req.session.redirTo) //session helper
-			res.redirect(req.session.redirTo);
-		else
-			util.build(res, "msgLogin", TPL_ADMIN);
-		delete req.session.redirTo;
-	} catch (ex) {
-		next(ex);
-	}
+			// access allowed => go private area
+			if (req.session.redirTo) { //session helper
+				const url = req.session.redirTo;
+				delete req.session.redirTo;
+				return res.redirect(url);
+			}
+			util.send(res, "msgLogin", TPL_ADMIN);
+		}).catch(next);
+	}).catch(next);
 }
 export const auth = function(req, res, next) {
 	util.setBody(res, TPL_LOGIN); //if error => go login
@@ -77,18 +74,21 @@ const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
 const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 export const sign = function(req, res, next) {
     const { login, clave } = req.body;
-	dao.sqlite.users.login(login, clave).then(user => {
-		const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS);
-		res.cookie("token", token, COOKIE_OPTS).send(token);
-		req.session.ssId = user.id;
+	dao.sqlite.usuarios.login(login, clave).then(user => {
+		req.session.ssId = user.id; // Important! autosave on res.send!
+		const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS); // get token
+		res.cookie("token", token, COOKIE_OPTS).send(token); // send token and save session
 	}).catch(next);
 }
 export const verify = function(req, res, next) {
-	const token = req.cookies.token || "no-token";
-	jwt.verify(token, config.JWT_KEY, (err, user) => {
+	try {
 		util.setBody(res, TPL_LOGIN); //if error => go login
-		(err || !user) ? next(err || "err401") : next();
-	});
+		jwt.verify(req.cookies.token, config.JWT_KEY, (err, user) => {
+			(err || !user) ? next(err || "err401") : next();
+		});
+	} catch (ex) {
+		next(err);
+	}
 }
 
 /******************* upload multipart files *******************/

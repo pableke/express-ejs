@@ -1,7 +1,7 @@
 
 import test from "node:test";
 import assert from "node:assert";
-import i18n from "app/mod/i18n-box.js";
+import i18n from "app/lib/i18n-box.js";
 
 const ERR_REQUIRED = "errRequired";
 

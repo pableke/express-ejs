@@ -1,6 +1,6 @@
 
 import mysql from "mysql"; // MySql connector
-import config from "../../../config.js"
+import config from "app/dist/config.js"; // Configurations
 
 const pool = mysql.createPool({
 	host: config.MYSQL_HOST,
@@ -23,19 +23,17 @@ export default {
 	open: function() {
 		pool.getConnection((err, connection) => {
 			if (err)
-				console.error(err);
-			else
-				connection.release();
+				return console.error(err);
+			connection.release();
+			console.log("> MySql DAO open.");
 		});
-		return this;
 	},
-
 	close: function() {
 		pool.end(function(err) {
 			if (err)
 				return console.error(err);
 			// close all connections
+			console.log("> MySql DAO closed.")
 		});
-		return this;
 	}
 };

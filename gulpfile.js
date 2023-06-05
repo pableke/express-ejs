@@ -82,33 +82,34 @@ gulp.task("minify-js", done => {
 // Tasks for module WEB
 gulp.task("module-web", done => {
 	gulp.src("dist/modules/web").pipe(gulp.symlink("node_modules/app"));
-	symdir("dist/modules/web/public/js", "node_modules/app", "lib");
-	symdir("dist/modules/web/public", "dist/public", "web");
+	gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
+	symdir("dist/modules/web/public/js", "dist/public/js", "web");
 	symdir("dist/modules/web/views", "dist/views", "web").on("end", done);
 });
 // Tasks for module TEST
 gulp.task("module-test", done => {
 	gulp.src("dist/modules/test").pipe(gulp.symlink("node_modules/app"));
+	symdir("dist/modules/test/public/js", "dist/public/js", "test");
 	symdir("dist/modules/test/views", "dist/views", "test").on("end", done);
 });
 // Tasks for module UAE
 gulp.task("module-uae", done => {
 	gulp.src("dist/modules/uae").pipe(gulp.symlink("node_modules/app"));
-	symdir("dist/modules/uae/public", "dist/public", "uae");
+	symdir("dist/modules/uae/public/js", "dist/public/js", "uae");
 
 	const JS_UAE = [
 		"dist/modules/uae/public/js/lib/array-box.js", "dist/modules/uae/public/js/lib/date-box.js", "dist/modules/uae/public/js/lib/dom-box.js", 
 		"dist/modules/uae/public/js/lib/i18n-box.js",  "dist/modules/uae/public/js/lib/number-box.js", "dist/modules/uae/public/js/lib/string-box.js", 
 		"dist/modules/uae/public/js/lib/validator-box.js", "dist/modules/uae/public/js/lib/util-box.js"
 	];
-	fnConcat(JS_UAE, "dist/public", "uae-min.js");
+	fnConcat(JS_UAE, "dist/public/js/uae", "uae-min.js");
 
 	const JS_UAE_IRSE = [
 		"dist/modules/uae/public/js/irse/i18n.js", "dist/modules/uae/public/js/irse/perfil.js", "dist/modules/uae/public/js/irse/organicas.js", 
 		"dist/modules/uae/public/js/irse/imputacion.js", "dist/modules/uae/public/js/irse/rutas.js", "dist/modules/uae/public/js/irse/dietas.js", 
 		"dist/modules/uae/public/js/irse/irse.js"
 	];
-	fnConcat(JS_UAE_IRSE, "dist/public", "irse-min.js").on("end", done);
+	fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", done);
 });
 
 gulp.task("watch", () => {

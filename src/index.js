@@ -14,7 +14,7 @@ import util from "./modules/util.js"; // Util helpers
 import routes from "./modules/routes.js"; // All routes
 import i18n from "./modules/i18n.js"; //Languages
 import config from "./config.js"; // Configurations
-import dao from "./modules/dao.js"; // Configurations
+import dao from "./modules/dao.js"; // DAO connections
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -47,13 +47,8 @@ app.use(session({ //session config
 	}
 }));
 
-// Routes
-app.use((req, res, next) => { // Load specific language
-	res.locals.body = { _tplBody: "web/index" }; // Set data on response
-	res.locals.menus = [];//req.session.menus || dao.web.myjson.menus.getPublic(lang);
-	i18n.load(req, res, next); // Go next middleware
-});
-app.use(routes); // Use all routes
+// Language + Routes
+app.use(i18n.load, routes);
 app.use((err, req, res, next) => { //global handler error
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		util.err500(res, "" + err); // return string error
@@ -68,6 +63,9 @@ app.use("*", (req, res) => { //error 404 page not found
 		util.err404(res, "err404"); //ajax response
 	else
 		util.error(res, null, "errors/404"); //show 404 page
+
+	// Show log error for console
+	console.error("> Log:", "Error 404", req.url);
 });
 
 // Start servers (db's and http)

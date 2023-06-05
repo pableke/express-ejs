@@ -7,9 +7,8 @@ import xls from "excel4node"; //JSON to Excel
 import nodemailer from "nodemailer"; //send emails
 import ejs from "ejs"; //tpl engine
 
-import api from "./web/public/js/api-box.js";
-import sb from "./web/public/js/string-box.js";
-import i18n from "./web/public/js/i18n-box.js";
+import sb from "app/lib/string-box.js";
+import i18n from "app/lib/i18n-box.js";
 import config from "app/dist/config.js";
 
 function UtilBox() {
@@ -36,7 +35,7 @@ function UtilBox() {
 		res.status(status).render("index"); // render view
 	}
 	this.render = (res, tpl) => fnRender(res, 200, tpl);
-	this.ok = (res, msg, tpl) => { i18n.setOk(msg); fnRender(res, 200, tpl); }
+	this.send = (res, msg, tpl) => { i18n.setOk(msg); fnRender(res, 200, tpl); }
 	this.info = (res, msg, tpl) => { i18n.setInfo(msg); fnRender(res, 200, tpl); }
 	this.error = (res, msg, tpl) => { i18n.setError(msg); fnRender(res, 500, tpl); }
 

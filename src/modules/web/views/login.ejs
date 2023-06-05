@@ -1,0 +1,30 @@
+
+<div class="form-glass">
+	<h2>Formulario de acceso</h2>
+
+	<form id="login" method="post" action="/login">
+		<div class="navbar">
+			<div class="ui-group ui-block">
+				<label for="usuario" class="required">Usuario:</label>
+				<input type="text" id="usuario" name="usuario" value="" class="ui-item ui-control ui-text" tabindex="1" />
+				<i class="input-item input-icon fas fa-key"></i>
+				<div class="ui-errtip"></div>
+			</div>
+		</div>
+		<div class="navbar">
+			<div class="ui-group ui-block">
+				<label for="clave" class="required">Clave:</label>
+				<input type="password" id="clave" name="clave" value="" class="ui-item ui-control ui-text" tabindex="2" placeholder="********" />
+				<i class="input-item input-icon fas fa-ellipsis-h"></i>
+				<div class="ui-errtip"></div>
+			</div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i>Limpiar</button>
+		</div>
+	</form>
+</div>
+
+<script type="module" src="/public/js/web/login.js"></script>
