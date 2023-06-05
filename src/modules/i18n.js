@@ -1,6 +1,7 @@
 
 import sb from "app/lib/string-box.js";
 import i18n from "app/lib/i18n-box.js";
+import dao from "./dao.js";
 
 import web_en from "./web/i18n/en.js";
 import web_es from "./web/i18n/es.js";
@@ -31,7 +32,9 @@ function I18nBox() {
 		const lang = req.query.lang || req.session.lang || sb.substr(req.headers["accept-language"], 0, 5);
 		res.locals.i18n = langs[lang] || langs[sb.substr(lang, 0, 2)] || langs.es; // Selected language
 		req.session.lang = res.locals.i18n.lang; // Save current lang
-		res.locals.msgs = i18n.getMsgs(); // Set messages
+		res.locals.menus = req.session.menus || dao.web.sqlite.menus.getPublic(lang);
+		res.locals.msgs = i18n.load(lang).getMsgs(); // Set messages
+		res.locals.body = { _tplBody: "web/index" }; // Set data on response
 		next(); // Go next middleware
 	}
 

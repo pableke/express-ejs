@@ -1,0 +1,580 @@
+
+import ab from "./array-box.js";
+import sb from "./string-box.js";
+import nb from "./number-box.js";
+import api from "./api-box.js";
+import i18n from "./i18n-box.js";
+
+function DomBox() {
+	const self = this; //self instance
+	const EMPTY = ""; //empty string
+	const HIDE = "hide"; //hide class
+
+	const fnSelf = () => self; //function void
+	const isElement = node => (node.nodeType == 1);
+	const isstr = val => (typeof(val) === "string") || (val instanceof String);
+	const fnQuery = selector => isstr(selector) ? document.querySelector(selector) : selector;
+	const fnQueryAll = selector => isstr(selector) ? document.querySelectorAll(selector) : selector;
+
+	this.qs = (el, selector) => el.querySelector(selector);
+	this.get = (selector, el) => self.qs(el || document, selector);
+	this.getAll = (selector, el) => (el || document).querySelectorAll(selector);
+	this.closest = (selector, el) => el && el.closest(selector);
+
+	this.isOk = i18n.isOk;
+	this.isError = i18n.isError;
+	this.loading = this.working = fnSelf;
+
+	this.each = function(list, fn) {
+		if (list) // Is DOMElement, selector or NodeList
+			isElement(list) ? fn(list) : ab.each(fnQueryAll(list), fn);
+		return self;
+	}
+	this.reverse = function(list, fn) {
+		if (list) // Is DOMElement, selector or NodeList
+			isElement(list) ? fn(list) : ab.reverse(fnQueryAll(list), fn);
+		return self;
+	}
+
+	this.apply = (selector, list, fn) => fnSelf(ab.each(list, (el, i) => el.matches(selector) && fn(el, i)));
+	//this.applyReverse = (selector, list, fn) => fnSelf(ab.reverse(list, (el, i) => el.matches(selector) && fn(el, i)));
+	this.indexOf = (el, list) => ab.findIndex(list || el.parentNode.children, elem => (el == elem));
+	this.findIndex = (selector, list) => ab.findIndex(list, el => el.matches(selector));
+	this.find = (selector, list) => ab.find(list, el => el.matches(selector));
+
+	this.prev = (el, selector) => {
+		for (el = el?.previousElementSibling; el; el = el.previousElementSibling) {
+			if (el.matches(selector))
+				return el;
+		}
+		return el;
+	}
+	this.next = (el, selector) => {
+		for (el = el?.nextElementSibling; el; el = el.nextElementSibling) {
+			if (el.matches(selector))
+				return el;
+		}
+		return el;
+	}
+	this.sibling = (el, selector) => self.prev(el, selector) || self.next(el, selector);
+	this.eachChild = (el, selector, fn) => self.apply(selector, el.children, fn);
+
+	// Styles
+	const fnHide = el => el.classList.add(HIDE);
+	const fnShow = el => el.classList.remove(HIDE);
+	const isHide = el => el.classList.contains(HIDE);
+	const fnToggle = (el, name, force) => el.classList.toggle(name, force);
+	const fnVisible = el => (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+
+	this.visible = el => el && fnVisible(el);
+	this.show = list => self.each(list, fnShow);
+	this.hide = list => self.each(list, fnHide);
+	this.addClass = (list, name) => self.each(list, el => el.classList.add(name));
+	this.removeClass = (list, name) => self.each(list, el => el.classList.remove(name));
+	this.toggle = (list, name, force) => self.each(list, el => fnToggle(el, name, force));
+	this.toggleHide = (list, force) => self.toggle(list, HIDE, force);
+	this.hasClass = (el, name) => el && el.classList.contains(name);
+
+	this.toggleInfo = selector => {
+		return self.click(selector, (ev, el) => {
+			const names = sb.split(el.dataset.toggle, /\s+/);
+			const target = self.getAll(el.dataset.target || (".info-" + el.id));
+			self.eachChild(el, "i", child => ab.each(names, name => fnToggle(child, name)))
+				.toggle(target, el.dataset.css || HIDE).setFocus(target[0]);
+		});
+	}
+
+	// Format and parse contents
+	const TEMPLATES = {}; //container
+	function fnContents(el, value) { fnToggle(el, HIDE, !value); return self; }
+	function fnSetHtml(el, value) { el.innerHTML = value; return fnContents(el, value); }
+	function fnTpl(el) {
+		el.id = el.id || ("_" + sb.rand()); // force unique id for element
+		const key = el.dataset.tpl || el.id; // tpl asociated
+		TEMPLATES[key] = TEMPLATES[key] || el.innerHTML; // save tpl
+		return TEMPLATES[key];
+	}
+
+	this.getInnerHtml = el => el && el.innerHTML; //text
+	this.getHtml = el => self.getInnerHtml(fnQuery(el)); //find element
+	this.setInnerHtml = (el, value) => (el ? fnSetHtml(el, value) : self);
+	this.setHtml = (el, value) => self.setInnerHtml(fnQuery(el), value); //find element
+	this.html = (list, value) => self.each(list, el => fnSetHtml(el, value));
+	this.format = (selector, data) => self.each(selector, el => fnSetHtml(el, sb.format(fnTpl(el), data)));
+	this.render = (selector, data, fnRender) => self.each(selector, el => fnSetHtml(el, sb.render(fnTpl(el), data, fnRender)));
+
+	this.table = function(table, data, opts) {
+		if (!table) // table exists?
+			return self; // guard statement
+		const detail = { size: 0, index: 0 }; // Event detail
+		const tbody = table.tBodies[0]; // Data rows
+
+		function fnDetail(i, data, view) {
+			detail.index = i; // Real index
+			detail.data = data; // Current data row
+			detail.view = view; // Rendered data container
+			return detail;
+		}
+		function fnMove(i) {
+			i = nb.range(i, 0, detail.size - 1);
+			return fnDetail(i, data[i]);
+		}
+		function fnEvent(row, el) {
+			detail.row = row; // TR parent row
+			detail.element = el; // Element to trigger event
+			fnMove(self.indexOf(row)); // Real index
+		}
+		function fnFooter() { // Render tFoot only
+			self.trigger(table, "after-render", detail).format(table.tFoot, detail);
+			self.change(table.tFoot.children, (ev, tr) => {
+				fnEvent(tr, ev.target); // Set event indicators
+				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
+				fnFooter(); // Build footer only
+			});
+		}
+		function fnRender() { // Render tBody and tFoot
+			detail.size = ab.size(data);
+			self.trigger(table, "before-render", detail)
+				.render(tbody, data, (row, view) => self.trigger(table, "on-render", fnDetail(view.index, row, view)))
+				.toggleHide(tbody, !detail.size).toggleHide(table.tBodies[1], detail.size);
+
+			// Listeners for change, find and remove events
+			const action = self.getAll("a[href^='#find']", tbody);
+			const remove = self.getAll("a[href='#remove']", tbody);
+			self.change(tbody.children, (ev, tr) => {
+				fnEvent(tr, ev.target); // Set event indicators
+				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
+				fnFooter(); // Build footer only
+			}).click(remove, (ev, link) => {
+				fnEvent(link.closest("tr"), link);
+				table.remove();
+			}).click(action, (ev, link) => {
+				fnEvent(link.closest("tr"), link);
+				const name = link.getAttribute("href");
+				self.trigger(table, name.substring(1), detail);
+			});
+			fnFooter();
+		}
+
+		fnRender(); // Render table and add extra events
+		table.update = fnRender; // Mutate table object 
+		table.insert = function(row) { data.push(row); fnRender(); }
+		table.append = function(rows) { ab.append(data, rows); fnRender(); }
+		table.save = function(row, id) {
+			if (id) { // Inserting....
+				row.id = id;
+				data.push(row);
+			}
+			else // Updating....
+				Object.assign(detail.data, row);
+			fnRender();
+		}
+
+		table.first = function() { self.trigger(table, "find", fnMove(0)); }
+		table.prev = function() { self.trigger(table, "find", fnMove(detail.index - 1)); }
+		table.next = function() { self.trigger(table, "find", fnMove(detail.index + 1)); }
+		table.last = function() { self.trigger(table, "find", fnMove(detail.size)); }
+
+		table.remove = function() {
+			// Confirm, close prev. alerts and trigger remove event
+			let ok = i18n.confirm(opts?.remove || "remove");
+			if (ok && self.closeAlerts().trigger(table, "remove", detail).isOk()) {
+				data.splice(detail.index, 1); // Remove data row
+				fnRender(); // Build table rows
+			}
+		}
+		table.reset = function() {
+			// Confirm, close prev. alerts and trigger reset event
+			let ok = i18n.confirm(opts?.removeAll || "removeAll");
+			if (ok && self.closeAlerts().trigger(table, "reset").isOk()) {
+				data.splice(0); // Remove data row
+				fnRender(); // Build table rows
+			}
+		}
+
+		// Orderable columns system
+		const links = self.getAll(".sort", table.tHead);
+		return self.each(links, link => { // Each sort icon
+			link.onclick = ev => { // Replace sort events => not duplicate them
+				detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+				detail.column = link.getAttribute("href").substring(1); // Column name
+				detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
+
+				// Update all sort icons
+				self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
+					.addClass(links, "sort-none") // Reset all orderable columns
+					.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
+
+				// Fire specific column sort event and after common sort event
+				self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
+				ab.sort(data, detail.dir, detail.sort); // Sort data by function
+				fnRender(); // Build table rows
+			}
+		});
+	}
+
+	// Forms and inputs
+	const INPUTS = "input,select,textarea";
+	const FIELDS = "input[name]:not([type=file]),select[name],textarea[name]";
+	const fnSetValue = (el, value) => {
+		if ((el.type === "checkbox") || (el.type === "radio"))
+			el.checked = (el.value == value);
+		else
+			el.value = value;
+		return self;
+	}
+
+	this.fetch = function(opts) {
+		self.loading(); //show loading..., and close loading...
+		return api.ajax.fetch(opts).finally(self.working);
+	}
+	// Promises has implicit try ... catch, throw => run next catch, avoid intermediate then
+	this.ajax = (action, opts) => {
+		const aux = Object.assign({ action }, opts); // Extra options
+		return self.fetch(aux).catch(msg => { self.showError(msg); throw msg; });
+	}
+	this.send = (form, opts) => {
+		opts = opts || {}; // Settings
+		opts.action = opts.action || form.action; //action-override
+		opts.method = opts.method || form.method; //method-override
+		opts.classExcluded = opts.classExcluded || "ui-excluded";
+		opts.classCalculated = opts.classCalculated || "ui-calculated";
+
+		const fd = new FormData(form); // Data container
+		self.apply("." + opts.classExcluded, form.elements, el => fd.delete(el.name))
+			.apply("." + opts.classCalculated, form.elements, el => fd.set(el.name, el.value));
+		if (opts.method == "get") // Form get => prams in url
+			opts.action += "?" + (new URLSearchParams(fd)).toString();
+		else
+			opts.body = (form.enctype == "multipart/form-data") ? fd : new URLSearchParams(fd);
+		//opts.headers = { "Content-Type": form.enctype || "application/x-www-form-urlencoded" };
+		return self.fetch(opts).catch(data => { self.setErrors(form, data); throw data; });
+	}
+	this.request = (form, selector, fn) => {
+		const link = self.get(selector, form); // Action link
+		return fnAddEvent(link, "click", ev => !self.send(form, { action: link.href }).then(fn));
+	}
+
+	this.inputs = el => self.getAll(INPUTS, el);
+	this.getForm = selector => self.find(selector, document.forms);
+	this.setChecked = (list, value) => self.each(list, input => { input.checked = value; });
+	this.setReadonly = (list, value) => self.each(list, input => { input.readOnly = value; });
+	this.setDisabled = (list, value) => self.each(list, input => { input.disabled = value; });
+	this.getValue = input => input && input.value;
+	this.setValue = (input, value) => input ? fnSetValue(input, value || EMPTY) : self;
+	this.putValue = (selector, value) => self.setValue(fnQuery(selector), value);
+	this.getInput = (form, selector) => form && self.find(selector, form.elements);
+	this.getInputVal = (form, name) => self.getValue(self.getInput(form, "[name='" + name + "']"));
+	this.setInputVal = (form, name, value) => self.setValue(self.getInput(form, "[name='" + name + "']"), value);
+	this.setValues = (form, data) => {
+		for (let key in data) // update key names only
+			self.setInputVal(form, key, data[key]);
+		return self;
+	}
+
+	this.getAttr = (input, name) => input ? input.getAttribute(name) : null;
+	this.setAttr = (input, name, value) => input ? fnSelf(input.setAttribute(name, value)) : self;
+	this.putAttr = (selector, name, value) => self.setAttr(fnQuery(selector), name, value);
+	this.getInputAttr = (form, name) => self.getAttr(self.getInput(form, "[" + name + "]"), name);
+	this.setInputAttr = (form, name, value) => self.setAttr(self.getInput(form, "[" + name + "]"), name, value);
+	this.setRangeDate = (form, f1, f2) => {
+		f1 = self.getInput(form, f1);
+		f2 = self.getInput(form, f2);
+		fnAddEvent(f1, "blur", ev => f2.setAttribute("min", f1.value));
+		return fnAddEvent(f2, "blur", ev => f1.setAttribute("max", f2.value));
+	}
+	this.onChangeInputs = (form, name, fn) => self.apply(name, form.elements, el => fnEvent(el, ON_CHANGE, fn));
+	this.onChangeSelect = (form, name, fn) => self.apply(name, form.elements, el => { fn(el); fnEvent(el, ON_CHANGE, fn); });
+	this.onChangeFields = (name, fn) => self.each(document.forms, form => self.onChangeInputs(form, name, fn));
+	this.onChangeFile = (form, name, fn) => {
+		const reader = new FileReader();
+		const el = self.getInput(form, name);
+		const fnRead = file => file && reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
+
+		return fnAddEvent(el, ON_CHANGE, ev => {
+			let index = 0; // position
+			reader.onload = ev => { // event on load file
+				fn(el.files[index], ev.target.result, index);
+				fnRead(el.files[++index]);
+			}
+			fnRead(el.files[index]);
+		});
+	}
+
+	this.focus = el => fnSelf(el && el.focus());
+	this.putFocus = el => self.focus(fnQuery(el));
+	this.setFocus = el => self.autofocus(self.inputs(el));
+	this.autofocus = function(inputs) {
+		const fnFocus = el => (fnVisible(el) && el.matches("[tabindex]:not([type=hidden],[readonly],[disabled])"));
+		return self.focus(ab.find(fnQueryAll(inputs || INPUTS), fnFocus)); // Set focus on first visible input
+	}
+
+	this.load = (form, data) => {
+		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name]))
+					: self.apply(FIELDS, form.elements, el => fnSetValue(el, EMPTY));
+	}
+	this.toObject = (form, data) => {
+		data = data || {}; // Fields container
+		self.apply(FIELDS, form.elements, el => { data[el.name] = el.value; });
+		return data;
+	}
+	this.checklist = (form, name, values) => {
+		const group = self.getAll(".check-" + name, form);
+		const check = self.find("#" + name, form.elements);
+
+		function fnCheck() {
+			const result = []; // Id's container
+			self.each(group, el => { el.checked && result.push(el.value); });
+			check.checked = (result.length == group.length);
+			check.value = result.join(",");
+			return self;
+		}
+
+		if (!check.dataset.procesed) {
+			self.click(group, fnCheck)
+				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
+			check.dataset.procesed = true; // Only one click listener
+		}
+		if (values)
+			self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
+		else
+			self.setChecked(group, false);
+		return fnCheck();
+	}
+	this.checkbin = (form, name, value) => {
+		const group = self.getAll(".check-" + name, form);
+		const check = self.find("#" + name, form.elements);
+		var all = 0;
+
+		function fnCheck() {
+			let result = 0; // mask
+			self.each(group, el => {
+				result |= (el.checked ? +el.value : 0);
+				const icon = self.next(el, "label[for='" + el.id + "']"); //font-awesome
+				icon && fnToggle(icon, "active", el.checked); //toggle icon style
+			});
+			check.checked = (all == result);
+			check.value = result;
+			return self;
+		}
+
+		if (!check.dataset.procesed) {
+			self.click(group, fnCheck)
+				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
+			check.dataset.procesed = true; // Only one click listener
+		}
+		self.each(group, el => { el.checked = (value & el.value); all |= +el.value; });
+		return fnCheck();
+	}
+
+	this.isValid = (form, fnValidate) => {
+		const data = fnValidate(self.closeAlerts().toObject(form));
+		return i18n.isOk() ? data : !self.setErrors(form, i18n.getMsgs());
+	}
+	this.validate = (form, opts) => {
+		const aux = self.isValid(form, opts.validate);
+		if (i18n.isError()) // Validate input data
+			return Promise.reject(i18n.getMsgs()); // Call a reject promise
+
+		const data = Object.assign({}, aux); // clone resutls
+		const pk = data[opts.pkName || "id"]; // Get pk value
+		const fnSave = (opts.insert && !pk) ? opts.insert : opts.update;
+		return self.send(form, opts).then(srv => {
+			fnSave(data, srv); // Lunch insert or update
+			opts.end && opts.end(data, srv); // Common end
+		});
+	}
+
+	this.mask = (list, mask, name) => self.each(list, (el, i) => fnToggle(el, name, nb.mask(mask, i))); //toggle class by mask
+	this.view = (list, mask) => self.mask(list, ~mask, HIDE); //toggle hide class by mask
+	this.getSelectHtml = select => select && self.getInnerHtml(select.options[select.selectedIndex]);
+	this.select = function(list, mask) {
+		return self.each(list, el => { //iterate over all selects
+			const option = el.options[el.selectedIndex]; //get current option
+			if (self.view(el.options, mask).hasClass(option, HIDE)) //option hidden => force change
+				el.selectedIndex = self.findIndex(":not(.hide)", el.options);
+		});
+	}
+
+	// Animations
+	function fnAnimateClass(el, name, opts) {
+		opts.once = true; // fired once
+		opts.onstart(el); // before animation
+		el.addEventListener("animationend", ev => {
+			el.classList.remove(name);
+			opts.onfinish(el, ev);
+		}, opts);
+		el.classList.add(name);
+	}
+	this.animate = function(list, keyframes, opts) {
+		opts = Object.assign({ duration: 1000, onfinish: fnSelf }, opts);
+		return self.each(list, el => el.animate(keyframes, opts).onfinish(opts.onfinish));
+	}
+	this.animateClass = function(list, name, opts) {
+		opts = Object.assign({ onstart: fnSelf, onfinish: fnSelf }, opts);
+		return self.each(list, el => fnAnimateClass(el, name, opts));
+	}
+	this.animateIn = function(list, name) {
+		const opts = { onstart: fnShow, onfinish: fnSelf };
+		return self.each(list, el => fnAnimateClass(el, name, opts));
+	}
+	this.animateOut = function(list, name) {
+		const opts = { onstart: fnSelf, onfinish: fnHide };
+		return self.each(list, el => { isHide(el) || fnAnimateClass(el, name, opts); });
+	}
+	this.animateToggle = function(list, nameIn, nameOut) {
+		const optsIn = { onstart: fnShow, onfinish: fnSelf };
+		const optsOut = { onstart: fnSelf, onfinish: fnHide };
+		return self.each(list, el => (isHide(el) ? fnAnimateClass(el, nameIn, optsIn) : fnAnimateClass(el, nameOut, optsOut)));
+	}
+	this.fadeIn = list => self.animateIn(list, "fadeIn");
+	this.fadeOut = list => self.animateOut(list, "fadeOut");
+	this.fadeToggle = list => self.animateToggle(list, "fadeIn", "fadeOut");
+	this.slideIn = list => self.animateIn(list, "slideIn");
+	this.slideOut = list => self.animateOut(list, "slideOut");
+	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");
+
+	// Events
+	const ON_CHANGE = "change";
+	const fnEvent = (el, name, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(ev, el) || ev.preventDefault(), opts));
+	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, fn, opts) : self);
+
+	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
+	this.events = (list, name, fn) => self.each(list, el => fnEvent(el, name, fn));
+	this.trigger = (el, name, detail) => fnSelf(el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name)));
+	this.unbind = (list, name, fn) => self.each(list, el => el.removeEventListener(name, fn));
+
+	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
+	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
+	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
+	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
+	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
+
+	const fnLink = (el, fn) => self.ajax(el.href).then(fn);
+	const fnConfirm = (el, fn) => confirm(i18n.tr(el.dataset.confirm)) && fn(el);
+	this.confirm = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, fn)));
+	this.link = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, el => !fnLink(el, fn))));
+	this.call = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => !fnLink(el, fn)));
+
+	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
+	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
+	this.afterReset = (form, fn) => fnAddEvent(form, "reset", ev => setTimeout(() => fn(ev), 1));
+
+	this.tabs = function(tabs, opts) {
+		opts = opts || {};
+		opts.classTab = opts.classTab || "tab-content";
+		opts.classActive = opts.classActive || "active";
+
+		tabs = fnQueryAll(tabs || ("." + opts.classTab)); // Get all tabs
+		let _tabIndex = self.findIndex("." + opts.classActive, tabs); //current index tab
+		let _tabSize = tabs.length - 1; // max tabs size
+		let _tabMask = ~0; // all 11111....
+
+		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
+		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
+
+		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
+		self.onPrevTab = (id, fn) => self.onTab(id, "prev-tab", fn);
+		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
+		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
+		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
+		self.onChangeTab = (id, fn) => self.onTab(id, ON_CHANGE, fn);
+
+		function fnShowTab(i) { //show tab by index
+			self.closeAlerts(); // always close alerts
+			i = nb.range(i, 0, _tabSize); // Force range
+			if (i == _tabIndex) // is current tab
+				return self; // nothing to do
+			const tab = tabs[i]; // get next tab
+			const name = (i < _tabIndex) ? "prev-tab" : "next-tab"; // Event name
+			// Trigger prev or next tab event and after show tab event (show-tab) and change tab if all ok
+			if (self.trigger(tabs[_tabIndex], name).isOk() && self.trigger(tab, "show-tab").isOk()) {
+				const progressbar = self.get("#progressbar");
+				if (progressbar) { // progressbar is optional
+					const step = "step-" + i; //go to a specific step on progressbar
+					self.each(progressbar.children, li => self.toggle(li, opts.classActive, li.id <= step));
+				}
+				_tabIndex = i; // set current index
+				self.removeClass(tabs, opts.classActive).addClass(tab, opts.classActive) // set active tab
+					.setFocus(tab); // Auto set focus and scroll
+			}
+			return self;
+		}
+
+		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
+		self.lastTab = () => fnShowTab(_tabSize);
+		self.prevTab = () => { // Ignore 0's mask tab
+			for (var i = _tabIndex - 1; !nb.mask(_tabMask, i) && (i > 0); i--);
+			return fnShowTab(i); // Show calculated prev tab
+		}
+		self.nextTab = () => { // Ignore 0's mask tab
+			for (var i = _tabIndex + 1; !nb.mask(_tabMask, i) && (i < _tabSize); i++);
+			return fnShowTab(i); // Show calculated next tab
+		}
+
+		if (_tabSize > 0) { // Has view tabs?
+			self.click("a[href='#prev-tab']", () => !self.prevTab())
+				.click("a[href='#next-tab']", () => !self.nextTab())
+				.click("a[href='#last-tab']", () => !self.lastTab())
+				.click("a[href^='#tab-']", (ev, el) => !self.viewTab(sb.lastId(el.href)));
+		}
+		return self;
+	}
+
+	this.alerts = function(alerts, opts) {
+		opts = opts || {};
+		opts.classAlertText = opts.classAlertText || "alert-text";
+		opts.classAlertClose = opts.classAlertClose || "alert-close";
+		opts.classTipError = opts.classTipError || "ui-errtip";
+		opts.classInputError = opts.classInputError || "ui-error";
+
+		const texts = self.getAll("." + opts.classAlertText, alerts);
+		const showAlert = el => self.fadeIn(el.parentNode);
+		const closeAlert = el => self.fadeOut(el.parentNode);
+		const setAlert = (el, txt) => txt ? showAlert(el).setInnerHtml(el, i18n.tr(txt)) : self;
+
+		self.showOk = msg => setAlert(texts[0], msg); //green
+		self.showInfo = msg => setAlert(texts[1], msg); //blue
+		self.showWarn = msg => setAlert(texts[2], msg); //yellow
+		self.showError = msg => setAlert(texts[3], msg); //red
+		self.showAlerts = function(msgs) { //show posible multiple messages types
+			return msgs ? self.showOk(msgs.msgOk).showInfo(msgs.msgInfo).showWarn(msgs.msgWarn).showError(msgs.msgError) : self;
+		}
+
+		const fnGetTiperr = el => self.sibling(el, "." + opts.classTipError); // tip error
+		const fnClearError = el => {
+			const tip = fnGetTiperr(el);
+			self.setInnerHtml(tip, EMPTY).hide(tip).removeClass(el, opts.classInputError);
+		}
+		self.closeAlerts = function() { // Hide all alerts
+			i18n.reset(); // Clear previos messages
+			return self.each(texts, closeAlert).each(INPUTS, fnClearError);
+		}
+		self.setOk = (form, msg) => {
+			i18n.reset(); // Clear previos messages
+			return self.each(alerts.children, fnHide).each(form.elements, fnClearError).showOk(msg);
+		}
+		self.setErrors = (form, messages) => {
+			if (isstr(messages)) // simple message text
+				return self.showError(messages);
+			self.reverse(form.elements, el => { // Reverse iterator
+				const msg = messages[el.name]; // message to show
+				if (msg) {
+					const tip = fnGetTiperr(el);
+					const partner = self.sibling(el, INPUTS); // Partner element
+					self.setInnerHtml(tip, msg).show(tip)
+						.addClass(el, opts.classInputError).addClass(partner, opts.classInputError)
+						.focus(fnVisible(el) ? el : partner);
+				}
+			});
+			return self.showError(messages.msgError);
+		}
+
+		// Show posible server messages and close click event
+		const close = self.getAll("." + opts.classAlertClose, alerts);
+		return self.each(texts, el => { el.firstChild && showAlert(el); })
+					.click(close, (ev, el) => closeAlert(el));
+	}
+}
+
+export default new DomBox();

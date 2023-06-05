@@ -30,7 +30,7 @@ export default {
 	GMAIL_USER: process.env.GMAIL_USER,
 	GMAIL_PASS: process.env.GMAIL_PASS,
 
-	SQLITE_PATH: path.join(MODULES, "test/dao/sqlite", "test.db"),
+	SQLITE_PATH: path.join(MODULES, "web/dao/sqlite", "web.db"),
 
 	MYSQL_HOST: process.env.MYSQL_HOST || "localhost",
 	MYSQL_NAME: process.env.MYSQL_NAME,
