@@ -41,7 +41,7 @@ function ValidatorBox() {
 	const RE_DINER_CLUB = /^(?:3(?:0[0-5]|[68][0-9])[0-9]{11})$/;
 	const RE_JCB = /^(?:(?:2131|1800|35\d{3})\d{11})$/;
 
-	const minify = sb.toUpperWord;
+	const minify = sb.toCode;
 	const fnRange = (num, min, max) => nb.between(+num, min, max) ? num : null; // NaN comparator always false
 	const between = (str, min, max) => nb.between(sb.size(str), min, max) ? str : null; // for String and Arrays
 	const fnSplit = (re, value) => sb.test(value, re) ? value.split(",") : null; // validate and split input

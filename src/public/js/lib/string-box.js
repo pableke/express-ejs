@@ -110,7 +110,7 @@ function StringBox() {
 	this.clean = str => str ? str.replace(/\s+/g, EMPTY) : str;
 	this.minify = str => str ? str.trim().replace(/\s+/g, " ") : str;
 	this.toWord = str => str ? fnWord(str) : str;
-	this.toUpperWord = str => str ? fnWord(str).toUpperCase() : str;
+	this.toCode = str => str ? fnWord(str).toUpperCase() : str;
 	this.lines = str => self.split(str, /[\n\r]+/);
 	this.words = str => self.split(str, /\s+/);
 

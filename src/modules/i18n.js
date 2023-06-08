@@ -33,7 +33,7 @@ function I18nBox() {
 		res.locals.i18n = langs[lang] || langs[sb.substr(lang, 0, 2)] || langs.es; // Selected language
 		req.session.lang = res.locals.i18n.lang; // Save current lang
 		res.locals.menus = req.session.menus || dao.web.sqlite.menus.getPublic(lang);
-		res.locals.msgs = i18n.load(lang).getMsgs(); // Set messages
+		res.locals.msgs = i18n.setLang(lang).getMsgs(); // Set messages
 		res.locals.body = { _tplBody: "web/index" }; // Set data on response
 		next(); // Go next middleware
 	}

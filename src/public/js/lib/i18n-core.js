@@ -16,10 +16,12 @@ function I18nBox() {
 
 	this.getLangs = () => langs;
 	this.getLang = () => _lang;
-	this.load = lang => {
-		_lang = langs[lang] || langs[sb.substr(lang, 0, 2)] || _lang;
+	this.setLang = lang => {
+		_lang = langs[lang] || langs[sb.substr(lang, 0, 2)] || _lang; // especific language
 		return self;
 	}
+	this.getNavLang = () => navigator.language || navigator.userLanguage; // default browser language
+	this.load = lang => self.setLang(lang || document.documentElement.getAttribute("lang") || self.getNavLang());
 
 	this.get = name => _lang[name];
 	this.tr = name => _lang[name] || name;

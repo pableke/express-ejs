@@ -2,8 +2,8 @@
 import express from "express";
 const router = express.Router();
 
-import * as menus from "app/web/ctrl/menus.js";
+import * as admin from "app/web/ctrl/admin.js";
 
-router.get("/all", menus.all);
+router.get("/", admin.index);
 
 export default router;

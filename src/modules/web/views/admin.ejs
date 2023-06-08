@@ -1,6 +1,12 @@
 
-<div class="container">
+<div id="tab-0" class="tab-content active">
+	<% actions.forEach(function(action) { %>
+		<a href="<%=action.enlace%>"><img src="/public/img/png/<%=action.icono%>"/><%=action.nombre%></a>
+	<% }); %>
 	<a href="/logout.html"><img src="/public/img/png/exit.png"/></a>
+</div>
+
+<div id="tab-1" class="tab-content active">
 </div>
 
 <script type="module" src="/public/js/web/admin.js"></script>
