@@ -6,6 +6,7 @@ import i18n from "./lib/i18n-box.js";
 
 //DOM is fully loaded
 dom.ready(function() {
+	i18n.load(); // Set default language
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
 	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
@@ -44,8 +45,8 @@ dom.ready(function() {
 	dom.show(menu);
 
 	dom.tabs(".tab-content") // Tabs hendlres
-		.autofocus("form > input") // Focus on first input
 		.toggleInfo("[href='#toggle']") // Info links
+		.autofocus(document.forms[0]?.elements) // Focus on first input
 		.alerts(_loading.previousElementSibling);
 
 	dom.onChangeFields(".ui-bool", (ev, el) => { el.value = i18n.fmtBool(el.value); })

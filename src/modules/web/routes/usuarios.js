@@ -2,7 +2,7 @@
 import express from "express";
 const router = express.Router();
 
-import * as user from "app/test/ctrl/usuarios.js";
+import * as user from "app/web/ctrl/usuarios.js";
 
 router.get("/list", user.list).get("/list.html", user.list);
 router.get("/view", user.view).get("/view.html", user.view);

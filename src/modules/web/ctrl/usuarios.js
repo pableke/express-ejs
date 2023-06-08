@@ -1,15 +1,35 @@
 
+import i18n from "app/lib/i18n-box.js";
 import dao from "app/web/dao/factory.js";
+import util from "app/modules/util.js";
 
 export const list = (req, res) => {
 	dao.sqlite.usuarios.filter(req.query).then(users => res.json(users));
 }
 export const view = (req, res) => {
-	dao.sqlite.usuarios.getById(req.query.id).then(users => res.json(users));
+	dao.sqlite.usuarios.getById(req.query.id).then(user => res.json(user));
+}
+
+export const reactivate = (req, res, next) => {
+	dao.sqlite.usuarios.getById(req.query.id).then(user => {
+		if (!user)
+			return next("userNotFound");
+		res.locals.user = user;
+		util.sendMail({
+			to: user.email,
+			subject: "Reactivación de su cuenta",
+			body: "web/emails/reactivate.ejs",
+			data: res.locals //data
+		}).then(info => util.msg(res, "msgCorreo")).catch(next);
+	}).catch(next);
 }
 
 export const insert = (req, res, next) => {
-	dao.sqlite.usuarios.insert(req.body).then(id => res.json("" + id)).catch(next);
+	if (!i18n.forms.user(req.body))
+		return util.errors(res);
+	dao.sqlite.usuarios.insert(i18n.getData())
+					.then(id => res.json("" + id))
+					.catch(next);
 }
 export const update = (req, res, next) => {
 	dao.sqlite.usuarios.insert(req.body).then(changes => res.send("" + changes)).catch(next);

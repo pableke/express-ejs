@@ -62,7 +62,7 @@ app.use("*", (req, res) => { //error 404 page not found
 	if (req.xhr) // equivalent to (req.headers["x-requested-with"] == "XMLHttpRequest")
 		util.err404(res, "err404"); //ajax response
 	else
-		util.error(res, null, "errors/404"); //show 404 page
+		util.render(res, "errors/404"); //show 404 page
 
 	// Show log error for console
 	console.error("> Log:", "Error 404", req.url);

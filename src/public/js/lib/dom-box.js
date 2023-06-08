@@ -441,8 +441,12 @@ function DomBox() {
 
 	this.event = (el, name, fn) => fnAddEvent(fnQuery(el), name, fn);
 	this.events = (list, name, fn) => self.each(list, el => fnEvent(el, name, fn));
-	this.trigger = (el, name, detail) => fnSelf(el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name)));
 	this.unbind = (list, name, fn) => self.each(list, el => el.removeEventListener(name, fn));
+	this.fire = (el, name, detail) => self.trigger(fnQuery(el), name, detail);
+	this.trigger = (el, name, detail) => {
+		el && el.dispatchEvent(detail ? new CustomEvent(name, { detail }) : new Event(name));
+		return self;
+	}
 
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));

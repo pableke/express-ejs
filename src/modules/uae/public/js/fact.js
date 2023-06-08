@@ -40,11 +40,11 @@ dom.ready(function() {
 	const fnC2ZZT14 = () => fnFiscal("131004", 1, 0, 0, 10);
 	const fnC2T15 = () => fnFiscal("131200", 0, 1, 0, 10);
 	const fnC2TUE15 = () => fnFiscal("131200", 1, 0, 6, 10);
-	const fnC2T16 = () => fnFiscal("139000", 0, 0, 0, 10, 21);
+	const fnC2T16 = () => fnFiscal("139000", 1, 0, 0, 10, 21);
 	const fnC2UET16 = () => fnFiscal("139000", 1, 0, 6, 10);
-	const fnC2T17 = () => fnFiscal("139001", 0, 0, 0, 10, 21);
+	const fnC2T17 = () => fnFiscal("139001", 1, 0, 0, 10, 21);
 	const fnC2UET17 = () => fnFiscal("139001", 1, 0, 6, 10);
-	const fnC2T18 = () => fnFiscal("139002", 0, 0, 0, 10, 21);
+	const fnC2T18 = () => fnFiscal("139002", 1, 0, 0, 10, 21);
 	const fnC2UET18 = () => fnFiscal("139002", 1, 0, 6, 10);
 	const fnC1T5 = () => fnFiscal("131600", 0, 0, 0, 10, 21);
 	const fnC1UET5 = () => fnFiscal("131600", 1, 0, 6, 10);

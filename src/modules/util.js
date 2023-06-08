@@ -20,24 +20,26 @@ function UtilBox() {
 	this.err404 = (res, msg) => res.status(404).send(i18n.tr(msg));
 	this.err500 = (res, msg) => res.status(500).send(i18n.tr(msg));
 	this.errors = res => res.status(500).json(i18n.getMsgs());
+	this.tabs = (res, tab) => {
+		res.locals.cssTab0 = res.locals.cssTab1 = res.locals.cssTab2 = res.locals.cssTab3 = null;
+		res.locals.cssTab4 = res.locals.cssTab5 = res.locals.cssTab6 = res.locals.cssTab7 = null;
+		res.locals["cssTab" + tab] = "active";
+		return self;
+	}
 
-	this.html = (res, contents) => {
+	/*this.html = (res, contents) => {
 		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
 	}
 	this.view = function(res, tpl) {
 		fs.readFile(self.getView(tpl), "utf-8", (err, data) => {
 			err ? self.err500(res, "" + err) : self.html(res, data);
 		});
-	}
+	}*/
 
-	const fnRender = (res, status, tpl) => {
-		tpl && self.setBody(res, tpl); // update body view
-		res.status(status).render("index"); // render view
-	}
-	this.render = (res, tpl) => fnRender(res, 200, tpl);
-	this.send = (res, msg, tpl) => { i18n.setOk(msg); fnRender(res, 200, tpl); }
-	this.info = (res, msg, tpl) => { i18n.setInfo(msg); fnRender(res, 200, tpl); }
-	this.error = (res, msg, tpl) => { i18n.setError(msg); fnRender(res, 500, tpl); }
+	this.render = (res, tpl) => { self.setBody(res, tpl); res.render("index"); }
+	this.send = (res, msg) => { i18n.setOk(msg); res.render("index"); }
+	this.info = (res, msg) => { i18n.setInfo(msg); res.render("index"); }
+	this.error = (res, msg) => { i18n.setError(msg); res.render("index"); }
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);
