@@ -1,4 +1,4 @@
 
 export default {
-    lang: "en"
+	module: "web",
 }

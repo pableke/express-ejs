@@ -10,6 +10,7 @@ import i18n from "app/lib/i18n-box.js";
 import dao from "app/web/dao/factory.js";
 
 const TPL_LOGIN = "web/login";
+const forms = i18n.getForms();
 
 export const view = function(req, res) {
 	util.render(res, TPL_LOGIN);
@@ -31,7 +32,7 @@ export const destroy = function(req, res) {
 
 export const check = function(req, res, next) {
 	util.setBody(res, TPL_LOGIN); // default view login
-	if (!i18n.forms.login(req.body)) // check errors
+	if (!forms.login(req.body)) // check errors
 		return next(i18n.getError());
 
 	const { usuario, clave } = req.body; // read post data
@@ -66,7 +67,8 @@ export const auth = function(req, res, next) {
 const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
 const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 export const sign = function(req, res, next) {
-    const { login, clave } = req.body;
+	util.setBody(res, TPL_LOGIN); // default view login
+    const { login, clave } = req.body; // Inputs
 	dao.sqlite.usuarios.login(login, clave).then(user => {
 		req.session.ssId = user.id; // Important! autosave on res.send!
 		const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS); // get token
@@ -74,6 +76,7 @@ export const sign = function(req, res, next) {
 	}).catch(next);
 }
 export const verify = function(req, res, next) {
+	util.setBody(res, TPL_LOGIN); // default view login
 	try {
 		jwt.verify(req.cookies.token, config.JWT_KEY, (err, user) => {
 			(err || !user) ? next(err || "err401") : next();

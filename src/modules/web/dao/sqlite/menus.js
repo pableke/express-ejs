@@ -2,8 +2,7 @@
 import sb from "app/lib/string-box.js";
 import i18n from "app/lib/i18n-box.js";
 
-const MENUS = {};
-const tpl = '<li id="@id;" data-padre="@padre;" data-orden="@orden;"><a href="@enlace;" title="@titulo;">@icono;@nombre;</a></li>';
+const tpl = '<li id="@id;" data-padre="@padre;" data-orden="@orden;"><a href="@enlace;" title="@titulo_i18n;">@icono;@nombre_i18n;</a></li>';
 
 export default class Menus {
     constructor(db) {
@@ -13,14 +12,14 @@ export default class Menus {
     init() {
         const sql = "select * from menus where (tipo = 1) and (mask & 1) = 1"; // menus publicos
         this.db.all(sql, [], (err, menus) => {
-            const langs = i18n.getLangs(); // Get all langs
-            MENUS.en = err ? null : sb.render(tpl, menus, langs.en.menu);
-            MENUS.es = err ? null : sb.render(tpl, menus, langs.es.menu);
+            const langs = i18n.getLangs(); // Language container
+            langs.en.menus = err ? null : sb.render(tpl, menus, langs.en.menu);
+            langs.es.menus = err ? null : sb.render(tpl, menus, langs.es.menu);
         });
     }
 
-    getPublic(lang) {
-        return MENUS[lang] || MENUS.es;
+    getPublic() {
+        return i18n.get("menus");
     }
     getMenus(user) {
         const sql = "select * from v_menus where usuario_id is null or usuario_id = ?";

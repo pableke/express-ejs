@@ -3,13 +3,15 @@ import nb from "./lib/number-box.js";
 import sb from "./lib/string-box.js";
 import dom from "./lib/dom-box.js";
 import i18n from "./lib/i18n-box.js";
+import langs from "./i18n/langs.js";
 
 //DOM is fully loaded
 dom.ready(function() {
-	i18n.load(); // Set default language
+	i18n.setLangs(langs).load();
+
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
-	window.onscroll = function() { dom.toggle(_top, "hide", this.pageYOffset < 80); }
+	window.onscroll = function() { dom.toggle(_top, "hide", this.scrollY < 80); }
 	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
 
 	// Loading div

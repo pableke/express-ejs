@@ -131,7 +131,7 @@ function StringBox() {
 		return tpl.replace(/@(\w+);/g, (m, k) => data[k] ?? EMPTY);
 	}
 	this.render = function(tpl, list, fnRender) {
-		fnRender = fnRender || fnVoid;
+		fnRender = fnRender || (() => {});
 		const size = fnSize(list);
 		const status = { size };
 

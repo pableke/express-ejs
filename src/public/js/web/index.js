@@ -4,9 +4,12 @@ import nb from "../lib/number-box.js";
 import sb from "../lib/string-box.js";
 import dom from "../lib/dom-box.js";
 import i18n from "../lib/i18n-box.js";
+import langs from "./i18n/langs.js";
 
 //DOM is fully loaded
 dom.ready(function() {
+	i18n.setLangs(langs).load();
+
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(form, selector, opts) {
 		const input = dom.getInput(form, selector); //Autocomplete input
@@ -57,7 +60,6 @@ dom.ready(function() {
 	}
 
 	dom.onLoadTab(2, (ev, tab) => {
-		// Testing....
 		const RESUME = {};
 		const ftest = dom.getForm("#test");
 		const filter = dom.getForm("#filter");
@@ -143,13 +145,13 @@ dom.ready(function() {
 			});
 
 		const FORM_TEST = {
-			validate: i18n.forms.test,
+			validate: i18n.getForm("test"),
 			update: (data, id) => pruebas.save(data),
 			insert: (data, id) => pruebas.save(data, id),
 			end: data => dom.viewTab(2).showOk("saveOk")
 		};
 		const FORM_TEST_CLONE = {
-			validate: i18n.forms.test,
+			validate: i18n.getForm("test"),
 			update: (data, id) => pruebas.save(data),
 			insert: (data, id) => pruebas.save(data, id),
 			end: data => dom.hide(".update-only").setInputVal(ftest, "id").showOk("saveOk")

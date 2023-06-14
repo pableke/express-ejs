@@ -369,7 +369,7 @@ function DomBox() {
 
 	this.isValid = (form, fnValidate) => {
 		const data = fnValidate(self.closeAlerts().toObject(form));
-		return i18n.isOk() ? data : !self.setErrors(form, i18n.getMsgs());
+		return data || !self.setErrors(form, i18n.getMsgs());
 	}
 	this.validate = (form, opts) => {
 		const aux = self.isValid(form, opts.validate);
@@ -455,10 +455,10 @@ function DomBox() {
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
 
 	const fnLink = (el, fn) => self.ajax(el.href).then(fn);
-	const fnConfirm = (el, fn) => confirm(i18n.tr(el.dataset.confirm)) && fn(el);
-	this.confirm = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, fn)));
-	this.link = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => fnConfirm(el, el => !fnLink(el, fn))));
-	this.call = (list, fn) => self.each(list, el => fnEvent(el, "click", (ev, el) => !fnLink(el, fn)));
+	const fnConfirm = (el, fn) => i18n.confirm(el.dataset.confirm) && fn(el);
+	this.confirm = (list, fn) => self.click(list, (ev, el) => fnConfirm(el, fn));
+	this.link = (list, fn) => self.click(list, (ev, el) => fnConfirm(el, el => !fnLink(el, fn)));
+	this.call = (list, fn) => self.click(list, (ev, el) => !fnLink(el, fn));
 
 	this.submit = (form, fn) => fnAddEvent(form, "submit", fn);
 	this.beforeReset = (form, fn) => fnAddEvent(form, "reset", fn);
