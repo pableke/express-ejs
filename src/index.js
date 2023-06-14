@@ -10,10 +10,10 @@ import cookieParser from "cookie-parser"; //cookie handler
 import * as uuid from "uuid"; //generate random ids
 
 //import dao from "app/dao/factory.js"; // DAO factory
+import config from "./config.js"; // Configurations
+import i18n from "./modules/i18n.js"; //Languages
 import util from "./modules/util.js"; // Util helpers
 import routes from "./modules/routes.js"; // All routes
-import i18n from "./modules/i18n.js"; //Languages
-import config from "./config.js"; // Configurations
 import dao from "./modules/dao.js"; // DAO connections
 
 /*const HTTPS = { //credentials

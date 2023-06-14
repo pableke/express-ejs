@@ -13,20 +13,19 @@ import cssmin from "gulp-clean-css";
 import strip from "gulp-strip-comments";
 import rename from "gulp-rename";
 
-const CSS_FILES = "src/**/*.css";
+const CSS_FILES = "src/public/**/*.css";
 const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];
 const HTML_PATH = [ "src/**/*.html", "src/**/*.ejs" ];
 const RM_OPTS = { recursive: true, force: true };
 
+const fnError = err => err && console.error(err);
+const fnConcat = (source, dest, name) => gulp.src(source).pipe(concat(name)).pipe(gulp.dest(dest));
 function symdir(source, dest, name) {
 	const name1 = path.basename(source);
 	fs.rmSync(path.join(dest, name), RM_OPTS);
 	return gulp.src(source).pipe(gulp.symlink(dest)).on("end", () => {
-		fs.renameSync(path.join(dest, name1), path.join(dest, name));
+		fs.renameSync(path.join(dest, name1), path.join(dest, name), fnError);
 	});
-}
-function fnConcat(source, dest, name) {
-	return gulp.src(source).pipe(concat(name)).pipe(gulp.dest(dest));
 }
 
 // Server task
@@ -47,12 +46,14 @@ gulp.task("modules", done => {
 		"dist", "dist/modules", "dist/public", "dist/views", 
 		"dist/public/files", "dist/public/files/uploads/", "dist/public/files/thumbs/"
 	];
-	fs.rmSync("dist/views", RM_OPTS);
 	FOLDERS.forEach(dir => (fs.existsSync(dir) || fs.mkdirSync(dir)));
-
-	gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("dist/modules").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("src/**/*").pipe(gulp.dest("dist/")).on("end", done);
+	gulp.src("src/**/*").pipe(gulp.dest("dist/")).on("end", () => {
+		gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/modules").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/public/js").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
+		done();
+	});
 });
 
 // Task to minify all views (HTML's and EJS's)
@@ -70,7 +71,7 @@ gulp.task("minify-html", done => {
 gulp.task("minify-css", done => {
 	const config = { level: {1: { specialComments: 0 }} };
 	gulp.src(CSS_FILES).pipe(cssmin(config)).pipe(gulp.dest("dist")).on("end", () => {
-		fnConcat("dist/modules/**/*.css", "dist/public", "styles-min.css").on("end", done);
+		fnConcat("dist/public/**/*.css", "dist/public/css", "styles-min.css").on("end", done);
 	});
 });
 // Tasks to minify JS's
@@ -82,14 +83,11 @@ gulp.task("minify-js", done => {
 // Tasks for module WEB
 gulp.task("module-web", done => {
 	gulp.src("dist/modules/web").pipe(gulp.symlink("node_modules/app"));
-	gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
-	symdir("dist/modules/web/public/js", "dist/public/js", "web");
 	symdir("dist/modules/web/views", "dist/views", "web").on("end", done);
 });
 // Tasks for module TEST
 gulp.task("module-test", done => {
 	gulp.src("dist/modules/test").pipe(gulp.symlink("node_modules/app"));
-	symdir("dist/modules/test/public/js", "dist/public/js", "test");
 	symdir("dist/modules/test/views", "dist/views", "test").on("end", done);
 });
 // Tasks for module UAE
