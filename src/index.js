@@ -9,12 +9,10 @@ import session from "express-session"; //session handler
 import cookieParser from "cookie-parser"; //cookie handler
 import * as uuid from "uuid"; //generate random ids
 
-//import dao from "app/dao/factory.js"; // DAO factory
 import config from "./config.js"; // Configurations
-import i18n from "./modules/i18n.js"; //Languages
-import util from "./modules/util.js"; // Util helpers
-import routes from "./modules/routes.js"; // All routes
-import dao from "./modules/dao.js"; // DAO connections
+import util from "./util.js"; // Util helpers
+import dao from "./dao/factory.js"; // DAO connections
+import routes from "./routes/routes.js"; // All routes
 
 /*const HTTPS = { //credentials
 	key: fs.readFileSync(path.join(__dirname, "../certs/key.pem")).toString(),
@@ -47,8 +45,8 @@ app.use(session({ //session config
 	}
 }));
 
-// Language + Routes
-app.use(i18n.load, routes);
+// Routes
+app.use(routes);
 app.use((err, req, res, next) => { //global handler error
 	if (req.xhr) // Is ajax request => (req.headers["x-requested-with"] == "XMLHttpRequest")
 		util.err500(res, "" + err); // return string error
