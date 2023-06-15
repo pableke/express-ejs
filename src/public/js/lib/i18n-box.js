@@ -153,4 +153,4 @@ function I18nBox() {
 	this.creditCardNumber = (name, value, msg) => fnValid(name, valid.creditCardNumber(value), msg ?? "errRegex");
 }
 
-export default new I18nBox();
+export default  new I18nBox();

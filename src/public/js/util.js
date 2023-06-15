@@ -2,12 +2,11 @@
 import nb from "./lib/number-box.js";
 import sb from "./lib/string-box.js";
 import dom from "./lib/dom-box.js";
-import i18n from "./lib/i18n-box.js";
-import langs from "./i18n/langs.js";
+import i18n from "./i18n/langs.js";
 
 //DOM is fully loaded
 dom.ready(function() {
-	i18n.setLangs(langs).load();
+	i18n.load(); // Set language
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = document.body.lastElementChild;
