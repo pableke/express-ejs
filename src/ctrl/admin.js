@@ -1,7 +1,7 @@
 
-import util from "../util.js";
-import i18n from "../i18n/langs.js";
-import dao from "../dao/factory.js";
+import util from "app/ctrl/util.js";
+import i18n from "app/i18n/langs.js";
+import dao from "app/dao/factory.js";
 
 export const index = (req, res, next) => {
 	i18n.setOk(req.query.m);

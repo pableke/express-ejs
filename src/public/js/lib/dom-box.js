@@ -106,52 +106,55 @@ function DomBox() {
 	this.table = function(table, data, opts) {
 		if (!table) // table exists?
 			return self; // guard statement
+
+		opts = opts || {};
+		opts.remove = opts.remove || "remove";
+		opts.removeAll = opts.removeAll || "removeAll";
+		opts.beforeRender = opts.beforeRender || fnSelf;
+		opts.afterRender = opts.afterRender || fnSelf;
+		opts.reset = opts.reset || fnSelf;
+
 		const detail = { size: 0, index: 0 }; // Event detail
 		const tbody = table.tBodies[0]; // Data rows
 
-		function fnDetail(i, data, view) {
-			detail.index = i; // Real index
-			detail.data = data; // Current data row
-			detail.view = view; // Rendered data container
-			return detail;
-		}
 		function fnMove(i) {
 			i = nb.range(i, 0, detail.size - 1);
-			return fnDetail(i, data[i]);
+			detail.index = i; // Real index
+			detail.data = data[i]; // Current data row
+			return detail;
 		}
 		function fnEvent(row, el) {
 			detail.row = row; // TR parent row
 			detail.element = el; // Element to trigger event
-			fnMove(self.indexOf(row)); // Real index
+			return fnMove(self.indexOf(row)); // Real index
+		}
+		function fnChange(ev, tr) {
+			const fn = opts["change-" + ev.target.name];
+			fn(fnEvent(tr, ev.target), data);
+			fnFooter(); // Build footer only
 		}
 		function fnFooter() { // Render tFoot only
-			self.trigger(table, "after-render", detail).format(table.tFoot, detail);
-			self.change(table.tFoot.children, (ev, tr) => {
-				fnEvent(tr, ev.target); // Set event indicators
-				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
-				fnFooter(); // Build footer only
-			});
+			opts.afterRender(detail, data);
+			self.format(table.tFoot, detail)
+				.change(table.tFoot.children, fnChange);
 		}
 		function fnRender() { // Render tBody and tFoot
 			detail.size = ab.size(data);
-			self.trigger(table, "before-render", detail)
-				.render(tbody, data, (row, view) => self.trigger(table, "on-render", fnDetail(view.index, row, view)))
+			opts.beforeRender(detail);
+			self.render(tbody, data, opts.onRender)
 				.toggleHide(tbody, !detail.size).toggleHide(table.tBodies[1], detail.size);
 
 			// Listeners for change, find and remove events
 			const action = self.getAll("a[href^='#find']", tbody);
 			const remove = self.getAll("a[href='#remove']", tbody);
-			self.change(tbody.children, (ev, tr) => {
-				fnEvent(tr, ev.target); // Set event indicators
-				self.trigger(table, "change-" + ev.target.name, detail); // Specific change event
-				fnFooter(); // Build footer only
-			}).click(remove, (ev, link) => {
+			self.change(tbody.children, fnChange);
+			self.click(remove, (ev, link) => {
 				fnEvent(link.closest("tr"), link);
 				table.remove();
 			}).click(action, (ev, link) => {
-				fnEvent(link.closest("tr"), link);
 				const name = link.getAttribute("href");
-				self.trigger(table, name.substring(1), detail);
+				const fnFind = opts[name.substring(1)];
+				fnFind(fnEvent(link.closest("tr"), link));
 			});
 			fnFooter();
 		}
@@ -170,23 +173,21 @@ function DomBox() {
 			fnRender();
 		}
 
-		table.first = function() { self.trigger(table, "find", fnMove(0)); }
-		table.prev = function() { self.trigger(table, "find", fnMove(detail.index - 1)); }
-		table.next = function() { self.trigger(table, "find", fnMove(detail.index + 1)); }
-		table.last = function() { self.trigger(table, "find", fnMove(detail.size)); }
+		table.first = function() { opts.find(fnMove(0)); }
+		table.prev = function() { opts.find(fnMove(detail.index - 1)); }
+		table.next = function() { opts.find(fnMove(detail.index + 1)); }
+		table.last = function() { opts.find(fnMove(detail.size)); }
 
 		table.remove = function() {
-			// Confirm, close prev. alerts and trigger remove event
-			let ok = i18n.confirm(opts?.remove || "remove");
-			if (ok && self.closeAlerts().trigger(table, "remove", detail).isOk()) {
+			self.closeAlerts(); // close prev. alerts
+			if (i18n.confirm(opts.remove) && opts.remove(detail)) {
 				data.splice(detail.index, 1); // Remove data row
 				fnRender(); // Build table rows
 			}
 		}
 		table.reset = function() {
-			// Confirm, close prev. alerts and trigger reset event
-			let ok = i18n.confirm(opts?.removeAll || "removeAll");
-			if (ok && self.closeAlerts().trigger(table, "reset").isOk()) {
+			self.closeAlerts(); // close prev. alerts
+			if (i18n.confirm(opts.removeAll) && opts.reset(data)) {
 				data.splice(0); // Remove data row
 				fnRender(); // Build table rows
 			}
@@ -196,18 +197,14 @@ function DomBox() {
 		const links = self.getAll(".sort", table.tHead);
 		return self.each(links, link => { // Each sort icon
 			link.onclick = ev => { // Replace sort events => not duplicate them
-				detail.dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				detail.column = link.getAttribute("href").substring(1); // Column name
-				detail.sort = ((a, b) => sb.cmpBy(a, b, detail.column)); // Default sort function
-
+				const dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+				const column = link.getAttribute("href").substring(1); // Column name
+				const fnSort = opts["sort-" + column] || ((a, b) => sb.cmpBy(a, b, column)); // Sort function
 				// Update all sort icons
 				self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
 					.addClass(links, "sort-none") // Reset all orderable columns
-					.removeClass(link, "sort-none").addClass(link, "sort-" + detail.dir); // Column to order table
-
-				// Fire specific column sort event and after common sort event
-				self.trigger(table, "sort-" + detail.column, detail).trigger(table, "sort");
-				ab.sort(data, detail.dir, detail.sort); // Sort data by function
+					.removeClass(link, "sort-none").addClass(link, "sort-" + dir); // Column to order table
+				ab.sort(data, dir, fnSort); // Sort data by function
 				fnRender(); // Build table rows
 			}
 		});
