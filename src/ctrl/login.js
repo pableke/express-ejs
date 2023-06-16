@@ -13,6 +13,7 @@ function Login() {
 		util.render(res, TPL_LOGIN);
 	}
 	function fnLogout(req) {
+		delete req.session.ssId; //remove user id
 		delete req.session.menus; //remove menus
 		//remove session: regenerated next request
 		req.session.destroy(); //specific destroy
@@ -26,7 +27,7 @@ function Login() {
 		fnLogout(req); //onclose even client
 		res.send("ok"); //response ok
 	}
-	
+
 	this.check = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN); // default view login
 		if (!forms.login(req.body)) // check errors
@@ -54,7 +55,7 @@ function Login() {
 		util.setBody(res, TPL_LOGIN); //if error => go login
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
-		if ((!req.session.ssId) || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
+		if (!req.session.ssId || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
 			req.session.redirTo = !req.xhr && (req.method == "GET") && req.originalUrl; // Update session helper
 			return next(req.session.ssId ? "endSession" : "err401");
 		}
@@ -65,6 +66,9 @@ function Login() {
 	const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 	this.sign = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN); // default view login
+		if (!forms.login(req.body)) // check errors
+			return next(i18n.getError());
+
 		const { login, clave } = req.body; // Inputs
 		dao.sqlite.usuarios.login(login, clave).then(user => {
 			req.session.ssId = user.id; // Important! autosave on res.send!

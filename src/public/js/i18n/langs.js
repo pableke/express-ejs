@@ -5,21 +5,21 @@ import ab from "../lib/array-box.js";
 import sb from "../lib/string-box.js";
 import i18n from "../lib/i18n-box.js";
 
+// Menu model
 i18n.setForm("fmenu", data => {
     return i18n.getData();
 });
-
 i18n.setForm("menu", data => {
     return i18n.isOk() ? i18n.getData() : !i18n.setError("errForm");
 });
 
+// Login model
 i18n.setForm("login", data => {
     i18n.reset()
         .user("usuario", data.usuario, "errUsuario")
         .login("clave", data.clave, "errClave");
     return i18n.isOk() ? i18n.getData() : !i18n.setError("errUserNotFound");
 });
-
 i18n.setForm("contact", data => {
     i18n.reset()
         .required("usuario", data.usuario).email("correo", data.correo)
@@ -27,6 +27,7 @@ i18n.setForm("contact", data => {
     return i18n.isOk() ? i18n.getData() : !i18n.setError("errSendContact");
 });
 
+// Test Model
 i18n.setForm("ftest", data => {
     i18n.reset() // All data optional
         .setData("name", data.name).setData("memo", data.memo)
@@ -34,7 +35,6 @@ i18n.setForm("ftest", data => {
         .setData("f1", data.f1).setData("f2", data.f2);
     return i18n.getData();
 });
-
 i18n.setForm("test", data => {
     // calculated data from autocomplete
     const ac = sb.split(data["ac-name"], " - ");
