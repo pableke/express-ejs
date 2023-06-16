@@ -42,6 +42,6 @@ dom.ready(() => {
 	file.parentNode.style.padding = "3px";
 	dom.click("[href='#tab-1']", el => {
 		dom.setValue("#org-id", el.dataset.organica).setValue("#tramit-value", el.dataset.grupo);
-		file.click();
+		//file.click();
 	});
 });
