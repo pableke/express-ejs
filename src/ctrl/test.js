@@ -1,24 +1,25 @@
 
 import bcrypt from "bcrypt";
+import util from "app/ctrl/util.js";
 import api from "app/lib/api-box.js";
 import nb from "app/lib/number-box.js";
 import sb from "app/lib/string-box.js";
-import i18n from "app/lib/i18n-box.js";
-import util from "app/modules/util.js";
+import i18n from "app/i18n/langs.js";
 
 const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
+const forms = i18n.getForms();
 
-export const index = (req, res) => util.render(res, "test/index");
+export const index = (req, res) => util.tabs(res, 0).render(res, "web/index");
 
 export const filter = (req, res) => {
-	const FILTER = i18n.forms.ftest(req.query);
+	const FILTER = forms.ftest(req.query);
 	const fields = ["name", "memo"]; // Strings ilike filter
 	const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
 	api.ajax.get(ENDPOINT).then(data => res.json(data.filter(fnFilter)));
 }
 
 export const save = (req, res) => {
-	const data = i18n.forms.test(req.body);
+	const data = forms.test(req.body);
 	if (i18n.isError())
 		return util.errors(res);
 	console.log("save", req.body, data);

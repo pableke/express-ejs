@@ -1,7 +1,7 @@
 
-import util from "../util.js";
-import i18n from "../i18n/langs.js";
-import dao from "../dao/factory.js";
+import util from "app/ctrl/util.js";
+import i18n from "app/i18n/langs.js";
+import dao from "app/dao/factory.js";
 
 export const list = (req, res) => {
 	dao.sqlite.usuarios.filter(req.query).then(users => res.json(users));
