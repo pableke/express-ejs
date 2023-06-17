@@ -53,6 +53,7 @@ gulp.task("modules", done => {
 		gulp.src("dist/ctrl").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/i18n").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/public/js/model").pipe(gulp.symlink("node_modules/app"));
 		done();
 	});
 });

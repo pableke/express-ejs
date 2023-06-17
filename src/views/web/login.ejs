@@ -1,0 +1,82 @@
+
+<div id="tab-0" class="form-glass tab-content <%=cssTab0%>">
+	<h2>Formulario de acceso</h2>
+
+	<form id="login" method="post" action="/login">
+		<div class="navbar">
+			<div class="ui-group ui-block">
+				<label for="usuario" class="required">Usuario:</label>
+				<input type="text" id="usuario" name="usuario" class="ui-item ui-control ui-text" tabindex="1" />
+				<i class="input-item input-icon fas fa-key"></i>
+				<div class="ui-errtip"></div>
+			</div>
+		</div>
+		<div class="navbar">
+			<div class="ui-group ui-block">
+				<label for="clave" class="required">Clave:</label>
+				<input type="password" id="clave" name="clave" class="ui-item ui-control ui-text" tabindex="2" placeholder="********" />
+				<i class="input-item input-icon fas fa-ellipsis-h"></i>
+				<div class="ui-errtip"></div>
+			</div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i>Limpiar</button>
+	</form>
+</div>
+
+<div id="tab-1" class="form-glass tab-content <%=cssTab1%>">
+	<h1><%=i18n.lblFormRegistro%></h1>
+	<hr/>
+
+	<form id="user" action="/signup.html" method="post" class="ajax">
+		<div class="input-group">
+			<label for="nm" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nm" name="nm" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.nm%></span>
+		</div>
+		<div class="input-group">
+			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
+			<input type="text" id="ap1" name="ap1" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titApellido1%>" placeholder="<%=i18n.phApellido1%>" />
+			<i class="input-item input-icon fas fa-file-signature"></i>
+			<span class="msg-error"><%=msgs.ap1%></span>
+		</div>
+		<div class="input-group">
+			<label for="ap2"><%=i18n.lblApellido2%>:</label>
+			<input type="text" id="ap2" name="ap2" size="35" maxlength="200" class="input-item input-control" tabindex="3" title="<%=i18n.titApellido2%>" placeholder="<%=i18n.phApellido2%>" />
+			<i class="input-item input-icon fas fa-file-signature"></i>
+			<span class="msg-error"><%=msgs.ap2%></span>
+		</div>
+		<div class="input-group">
+			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
+			<input type="text" id="nif" name="nif" size="35" maxlength="20" class="input-item input-control" tabindex="4" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
+			<i class="input-item input-icon far fa-address-card"></i>
+			<div class="msg-error"><%=msgs.nif%></div>
+		</div>
+		<div class="input-group">
+			<label for="correo" class="required"><%=i18n.lblCorreo%></label>
+			<input type="text" id="correo" name="correo" size="40" maxlength="200" tabindex="5" class="input-item input-control clearable" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.phCorreo%>" />
+			<i class="input-item input-icon far fa-envelope"></i>
+			<div class="msg-error"><%=msgs.correo%></div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary ajax-submit captcha" tabindex="100" title="@titAcceder;"><%=i18n.lblEnviar%> &raquo;</button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
+</div>
+
+<div class="wrapper">
+	<ul class="inline">
+		<li><a href="/">home</a></li>
+		<li><a href="/login.html">Login</a></li>
+		<li><a href="/signup.html">Sign Up</a></li>
+		<li><a href="/reactive.html">Reactive</a></li>
+		<li><a href="/contact.html">Contact</a></li>
+	</ul>
+</div>
+
+<script type="module" src="/public/js/login.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ"></script>

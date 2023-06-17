@@ -13,7 +13,7 @@ import config from "app/dist/config.js";
 function UtilBox() {
 	const self = this; //self instance
 
-	this.setBody = (res, tpl) => { res.locals.body._tplBody = tpl; return self; }
+	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
 	this.msg = (res, msg) => res.send(i18n.tr(msg));
 	this.msgs = res => res.json(i18n.getMsgs());
 	this.err404 = (res, msg) => res.status(404).send(i18n.tr(msg));
@@ -132,7 +132,7 @@ function UtilBox() {
 			{ filename: "license.txt", path: "https://raw.github.com/nodemailer/nodemailer/master/LICENSE" }, // use URL as an attachment
 			{ filename: "text2.txt", content: "aGVsbG8gd29ybGQh", encoding: "base64" } // encoded string as an attachment
 		]*/
-	};
+	}
 
 	this.sendMail = function(mail) {
 		mail = mail || MESSAGE;
@@ -144,7 +144,7 @@ function UtilBox() {
 		// Return promise to send email
 		return new Promise(function(resolve, reject) {
 			const tpl = self.getView("email.ejs"); // Global email tpl
-			mail.data.body._tplEmail = mail.body; // current body
+			mail.data._tplEmail = mail.body; // current body
 			ejs.renderFile(tpl, mail.data, (err, result) => {
 				if (err)
 					return reject(err);

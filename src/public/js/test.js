@@ -12,6 +12,7 @@ dom.ready(function() {
 		const filter = dom.getForm("#filter");
 		const pruebas = dom.get("table#pruebas");
 		const fnRender = i18n.get("test");
+		const form = i18n.getForm("test");
 
 		const RESUME = {};
 		const TABLE_PRUEBAS = {
@@ -96,13 +97,13 @@ dom.ready(function() {
 			});
 
 		const FORM_TEST = {
-			validate: i18n.getForm("test"),
+			validate: form.validate,
 			update: (data, id) => pruebas.save(data),
 			insert: (data, id) => pruebas.save(data, id),
 			end: data => dom.viewTab(2).showOk("saveOk")
 		};
 		const FORM_TEST_CLONE = {
-			validate: i18n.getForm("test"),
+			validate: form.validate,
 			update: (data, id) => pruebas.save(data),
 			insert: (data, id) => pruebas.save(data, id),
 			end: data => dom.hide(".update-only").setInputVal(ftest, "id").showOk("saveOk")

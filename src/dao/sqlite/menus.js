@@ -1,6 +1,6 @@
 
 import sb from "app/lib/string-box.js";
-import i18n from "app/i18n/langs.js";
+import i18n from "app/model/menu.js";
 
 const tpl = '<li id="@id;" data-padre="@padre;" data-orden="@orden;"><a href="@enlace;" title="@titulo_i18n;">@icono;@nombre_i18n;</a></li>';
 

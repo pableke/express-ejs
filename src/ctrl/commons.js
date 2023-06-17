@@ -27,7 +27,7 @@ function Commons() {
 		req.session.lang = res.locals.i18n.lang; // Save current lang
 	
 		res.locals.menus = req.session.menus || dao.sqlite.menus.getPublic();
-		res.locals.body = { _tplBody: "web/index" }; // Set data on response
+		res.locals._tplBody = "web/index"; // Set data on response
 		res.locals.msgs = i18n.getMsgs(); // Set messages on view
 		res.on("finish", i18n.reset); // Close response event
 		next(); // Go next middleware
