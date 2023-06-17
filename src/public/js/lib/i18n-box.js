@@ -36,8 +36,11 @@ function I18nBox() {
 	this.format = tpl => sb.format(tpl, _lang);
 
 	this.getForms = () => FORMS;
-	this.getForm = id => FORMS[id];
-	this.setForm = (id, fn) => { FORMS[id] = fn; return self; };
+	this.getForm = name => FORMS[name];
+	this.setForm = (name, data) => {
+		FORMS[name] = data;
+		return self;
+	}
 
 	// Shortcuts
 	this.toInt = str => _lang.toInt(str);

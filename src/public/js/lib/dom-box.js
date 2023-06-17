@@ -173,10 +173,10 @@ function DomBox() {
 			fnRender();
 		}
 
-		table.first = function() { opts.find(fnMove(0)); }
-		table.prev = function() { opts.find(fnMove(detail.index - 1)); }
-		table.next = function() { opts.find(fnMove(detail.index + 1)); }
-		table.last = function() { opts.find(fnMove(detail.size)); }
+		table.first = () => opts.find(fnMove(0));
+		table.prev = () => opts.find(fnMove(detail.index - 1));
+		table.next = () => opts.find(fnMove(detail.index + 1));
+		table.last = () => opts.find(fnMove(detail.size));
 
 		table.remove = function() {
 			self.closeAlerts(); // close prev. alerts

@@ -1,16 +1,15 @@
 
-import jwt from "jsonwebtoken"; // JSON web token
 import config from "../config.js";
 import util from "app/ctrl/util.js";
-import i18n from "app/i18n/langs.js";
+import i18n from "app/model/login.js";
 import dao from "app/dao/factory.js";
 
-const TPL_LOGIN = "forms/login";
-const forms = i18n.getForms();
+const TPL_LOGIN = "web/login";
+const form = i18n.getForms("login");
 
 function Login() {
 	this.view = function(req, res) {
-		util.render(res, TPL_LOGIN);
+		util.tabs(res, 0).render(res, TPL_LOGIN);
 	}
 	function fnLogout(req) {
 		delete req.session.ssId; //remove user id
@@ -28,16 +27,13 @@ function Login() {
 		res.send("ok"); //response ok
 	}
 
-	this.check = function(req, res, next) {
+	this.sign = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN); // default view login
-		if (!forms.login(req.body)) // check errors
+		if (!form.validate(req.body)) // check errors
 			return next(i18n.getError());
-	
+
 		const { usuario, clave } = req.body; // read post data
-		dao.sqlite.usuarios.login(usuario, clave).then(user => {
-			if (!user) // user not in system
-				return next("userNotFound");
-	
+		dao.sqlite.usuarios.login(usuario, clave).then(user => { // user exists
 			req.session.ssId = user.id; // Important! autosave on res.send!
 			dao.sqlite.menus.serialize(user.id).then(tpl => { //specific user menus
 				res.locals.menus = req.session.menus = tpl; //set on view and session
@@ -49,9 +45,9 @@ function Login() {
 				}
 				res.redirect(url);
 			});
-		}).catch(next);
+		}).catch(next); // User not found, no login or clave error
 	}
-	this.auth = function(req, res, next) {
+	this.verify = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN); //if error => go login
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
@@ -61,30 +57,64 @@ function Login() {
 		}
 		next(); //next middleware
 	}
-	
-	const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
-	const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
-	this.sign = function(req, res, next) {
-		util.setBody(res, TPL_LOGIN); // default view login
-		if (!forms.login(req.body)) // check errors
-			return next(i18n.getError());
 
-		const { login, clave } = req.body; // Inputs
-		dao.sqlite.usuarios.login(login, clave).then(user => {
-			req.session.ssId = user.id; // Important! autosave on res.send!
-			const token = jwt.sign({ id: user.id }, config.JWT_KEY, JWT_OPTIONS); // get token
-			res.cookie("token", token, COOKIE_OPTS).send(token); // send token and save session
+	this.contact = (req, res) => {
+		const data = form.contact(req.body);
+		if (i18n.isError())
+			return util.errors(res);
+
+		res.locals.body = data;
+		util.sendMail({
+			to: config.ADMIN_EMAIL,
+			subject: "Solicitud de información",
+			body: "web/emails/contact.ejs",
+			data: res.locals //data
+		}).then(info => util.msg(res, "msgCorreo")).catch(next);
+	}
+
+	this.signup = (req, res, next) => {
+		const data = form.signup(req.body);
+		if (i18n.isError())
+			return util.errors(res);
+
+		data.clave = valid.generatePassword(8);
+		dao.sqlite.usuarios.insert(data).then(id => {
+			data.id = id; // set pk
+			res.locals.user = data;
+			util.sendMail({
+				to: data.email,
+				subject: "Registro como nuevo usuario",
+				body: "web/emails/signup.ejs",
+				data: res.locals //data
+			}).then(info => util.msg(res, "msgCorreo")).catch(next);
 		}).catch(next);
 	}
-	this.verify = function(req, res, next) {
-		util.setBody(res, TPL_LOGIN); // default view login
-		try {
-			jwt.verify(req.cookies.token, config.JWT_KEY, (err, user) => {
-				(err || !user) ? next(err || "err401") : next();
+	this.activate = (req, res, next) => {
+		util.setBody(res, TPL_LOGIN).tabs(res, 1); // default view
+		dao.sqlite.usuarios.getById(req.query.id).then(user => {
+			if (!user) // user not in system
+				return next("userNotFound");
+			dao.sqlite.usuarios.activate(user.id).then(changes => {
+				util.send(res, "msgUserActivated");
 			});
-		} catch (ex) {
-			next(err);
-		}
+		}).catch(next);
+	}
+
+	this.remember = (req, res, next) => {
+		if (!form.remember(req.body)) // check errors
+			return next(i18n.getError());
+	
+		const { usuario, clave } = req.body; // read post data
+		dao.sqlite.usuarios.login(usuario, clave).then(user => {
+			res.locals.clave = user.clave;
+			//res.locals.user = user;
+			util.sendMail({
+				to: user.email,
+				subject: "Nueva clave de acceso",
+				body: "web/emails/remember.ejs",
+				data: res.locals //data
+			}).then(info => util.msg(res, "msgCorreo")).catch(next);
+		}).catch(next);
 	}
 }
 

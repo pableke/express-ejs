@@ -68,32 +68,28 @@
 
 			<div class="ui-group ui-block">
 				<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
-				<input type="text" id="nombre" name="nombre" value="<%=body.nombre%>" maxlength="200" tabindex="1" 
-					class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
+				<input type="text" id="nombre" name="nombre" maxlength="200" tabindex="1" class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
 				<i class="input-item input-icon fas fa-signature"></i>
 				<div class="ui-errtip"><%=msgs.nombre%></div>
 			</div>
 
 			<div class="ui-group ui-block">
 				<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
-				<input type="text" id="correo" name="correo" value="<%=body.correo%>" maxlength="200" tabindex="2" 
-					class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
+				<input type="text" id="correo" name="correo" maxlength="200" tabindex="2" class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
 				<i class="input-item input-icon far fa-envelope"></i>
 				<div class="ui-errtip"><%=msgs.correo%></div>
 			</div>
 
 			<div class="ui-group ui-block">
 				<label for="asunto" class="required"><%=i18n.lblAsunto%>:</label>
-				<input type="text" id="asunto" name="asunto" value="<%=body.asunto%>" maxlength="200" tabindex="7" 
-					class="input-item ui-control ui-text" placeholder="Type a resume" />
+				<input type="text" id="asunto" name="asunto" maxlength="200" tabindex="7" class="input-item ui-control ui-text" placeholder="Type a resume" />
 				<i class="input-item input-icon fas fa-at"></i>
 				<div class="ui-errtip"><%=msgs.asunto%></div>
 			</div>
 
 			<div class="ui-group ui-block">
 				<label for="info" class="required">Informacion:</label>
-				<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"><%=body.info%></textarea>
-				<span class="msg-error"></span>
+				<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"></textarea>
 				<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
 				<div class="ui-errtip"><%=msgs.info%></div>
 			</div>

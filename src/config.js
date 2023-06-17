@@ -18,6 +18,8 @@ export default {
 	DIR_PUBLIC: path.join(SRC, "public"),
 	DIR_VIEWS: path.join(SRC, "views"),
 
+	ADMIN_EMAIL: "pableke@gmail.com",
+
 	SESSION_NAME: process.env.SESSION_NAME || "SESSION_NAME",
 	SESSION_EXPIRES: +process.env.SESSION_EXPIRES || 3600000, // default=1h
 	SESSION_SECRET: process.env.SESSION_SECRET || "EI1*cMijUIFg4^Q6uvmgB#D8lD&3iat1Axg%x@gj9OsgjN^bV1CO2R5q",
