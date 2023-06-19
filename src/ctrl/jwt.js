@@ -6,7 +6,7 @@ import i18n from "app/model/login.js";
 import dao from "app/dao/factory.js";
 
 const TPL_LOGIN = "web/login";
-const form = i18n.getForms("login");
+const form = i18n.getForm("login");
 
 const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
 const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };

@@ -26,29 +26,8 @@
 </head>
 
 <body>
-	<header></header>
-	<nav>
-		<ul class="menu hide">
-			<%-menus%>
-		</ul>
-		<ul class="menu-phone">
-			<li><a href="#toggle" data-target="ul.menu" data-css="active" data-toggle="fa-bars fa-arrow-left"><i class="fas fa-bars"></i></a></li>
-			<li><a href="#" title="Link phone 1">Link phone 1</a></li>
-			<li><a href="#" title="Link phone 2">Link phone 2</a></li>
-			<li><a href="#" title="Link phone 3">Link phone 3</a></li>
-		</ul>
-	</nav>
-
-	<main>
-		<%-include(_tplBody)%>
-	</main>
-
-	<footer>
-		<div>
-			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
-		</div>
-	</footer>
-
+	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
+	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
 	<div class="alerts">
 		<div class="alert alert-success hide">
 			<div class="alert-icon"><i class="fas fa-check-circle fa-3x"></i></div>
@@ -71,7 +50,28 @@
 			<div class="alert-close">&times;</div>
 		</div>
 	</div>
-	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
-	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
+
+	<header></header>
+	<nav>
+		<ul class="menu hide">
+			<%-menus%>
+		</ul>
+		<ul class="menu-phone">
+			<li><a href="#toggle" data-target="ul.menu" data-css="active" data-toggle="fa-bars fa-arrow-left"><i class="fas fa-bars"></i></a></li>
+			<li><a href="#" title="Link phone 1">Link phone 1</a></li>
+			<li><a href="#" title="Link phone 2">Link phone 2</a></li>
+			<li><a href="#" title="Link phone 3">Link phone 3</a></li>
+		</ul>
+	</nav>
+
+	<main>
+		<%-include(_tplBody)%>
+	</main>
+
+	<footer>
+		<div>
+			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
+		</div>
+	</footer>
 </body>
 </html>

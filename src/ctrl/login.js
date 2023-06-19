@@ -1,15 +1,16 @@
 
 import config from "../config.js";
+import api from "app/lib/api-box.js";
 import util from "app/ctrl/util.js";
 import i18n from "app/model/login.js";
 import dao from "app/dao/factory.js";
 
 const TPL_LOGIN = "web/login";
-const form = i18n.getForms("login");
+const form = i18n.getForm("login");
 
 function Login() {
 	this.view = function(req, res) {
-		util.tabs(res, 0).render(res, TPL_LOGIN);
+		util.goTab(res, TPL_LOGIN, 0);
 	}
 	function fnLogout(req) {
 		delete req.session.ssId; //remove user id
@@ -20,20 +21,23 @@ function Login() {
 	}
 	this.logout = function(req, res) {
 		fnLogout(req); //click logout user
-		util.setBody(res, TPL_LOGIN).send(res, "msgLogout");
+		util.setTab(res, TPL_LOGIN, 0).send(res, "msgLogout");
 	}
 	this.destroy = function(req, res) {
 		fnLogout(req); //onclose even client
 		res.send("ok"); //response ok
 	}
 
+	const fnScore = info => (info.score > .5) ? Promise.resolve(info) : Promise.reject("¿Eres humano?");
+	const reCaptcha = token => api.ajax.post(`https://www.google.com/recaptcha/api/siteverify?secret=${config.RECAPTCHA_PRIVATE}&response=${token}`).then(fnScore);
+	const fnLogin = (usuario, clave, token) => reCaptcha(token).then(info => dao.sqlite.usuarios.login(usuario, clave));
 	this.sign = function(req, res, next) {
-		util.setBody(res, TPL_LOGIN); // default view login
+		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (!form.validate(req.body)) // check errors
 			return next(i18n.getError());
 
-		const { usuario, clave } = req.body; // read post data
-		dao.sqlite.usuarios.login(usuario, clave).then(user => { // user exists
+		const { usuario, clave, token } = req.body; // read post data
+		fnLogin(usuario, clave, token).then(user => { // user exists
 			req.session.ssId = user.id; // Important! autosave on res.send!
 			dao.sqlite.menus.serialize(user.id).then(tpl => { //specific user menus
 				res.locals.menus = req.session.menus = tpl; //set on view and session
@@ -48,7 +52,7 @@ function Login() {
 		}).catch(next); // User not found, no login or clave error
 	}
 	this.verify = function(req, res, next) {
-		util.setBody(res, TPL_LOGIN); //if error => go login
+		util.setTab(res, TPL_LOGIN, 0); //if error => go login
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
 		if (!req.session.ssId || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
@@ -58,63 +62,70 @@ function Login() {
 		next(); //next middleware
 	}
 
+	const MAIL_CONCAT = {
+		to: config.ADMIN_EMAIL,
+		subject: "Solicitud de información",
+		body: "web/emails/contact.ejs"
+	};
 	this.contact = (req, res) => {
-		const data = form.contact(req.body);
+		// Clone resutls to avoid clean data before async call
+		const data = Object.assign({}, form.signup(req.body));
 		if (i18n.isError())
 			return util.errors(res);
 
 		res.locals.body = data;
-		util.sendMail({
-			to: config.ADMIN_EMAIL,
-			subject: "Solicitud de información",
-			body: "web/emails/contact.ejs",
-			data: res.locals //data
-		}).then(info => util.msg(res, "msgCorreo")).catch(next);
+		MAIL_CONCAT.data = res.locals;
+		reCaptcha(data.token)
+			.then(captcha => util.sendMail(MAIL_CONCAT))
+			.then(info => util.msg(res, "msgCorreo"))
+			.catch(next);
 	}
 
+	const MAIL_SIGNUP = {
+		subject: "Registro como nuevo usuario",
+		body: "web/emails/signup.ejs"
+	};
 	this.signup = (req, res, next) => {
-		const data = form.signup(req.body);
+		// Clone resutls to avoid clean data before async call
+		const data = Object.assign({}, form.signup(req.body));
 		if (i18n.isError())
 			return util.errors(res);
 
-		data.clave = valid.generatePassword(8);
-		dao.sqlite.usuarios.insert(data).then(id => {
+		data.clave = valid.generatePassword(8); // build password
+		reCaptcha(data.token).then(captcha => dao.sqlite.usuarios.insert(data)).then(id => {
 			data.id = id; // set pk
 			res.locals.user = data;
-			util.sendMail({
-				to: data.email,
-				subject: "Registro como nuevo usuario",
-				body: "web/emails/signup.ejs",
-				data: res.locals //data
-			}).then(info => util.msg(res, "msgCorreo")).catch(next);
-		}).catch(next);
+			MAIL_SIGNUP.to = data.email;
+			MAIL_SIGNUP.data = res.locals;
+			return util.sendMail(MAIL_SIGNUP);
+		})
+		.then(info => util.msg(res, "msgCorreo")).catch(next)
+		.catch(next);
 	}
 	this.activate = (req, res, next) => {
-		util.setBody(res, TPL_LOGIN).tabs(res, 1); // default view
-		dao.sqlite.usuarios.getById(req.query.id).then(user => {
-			if (!user) // user not in system
-				return next("userNotFound");
-			dao.sqlite.usuarios.activate(user.id).then(changes => {
-				util.send(res, "msgUserActivated");
-			});
-		}).catch(next);
+		util.setTab(res, TPL_LOGIN, 0); // default view
+		const fnResult = changes => (changes == 1) ? util.send(res, "msgUserActivated") : util.err500(res, "userNotFound");
+		dao.sqlite.usuarios.activate(+req.query.id).then(fnResult).catch(next);
 	}
 
+	const MAIL_REMEMBER = {
+		subject: "Nueva clave de acceso",
+		body: "web/emails/remember.ejs"
+	};
 	this.remember = (req, res, next) => {
 		if (!form.remember(req.body)) // check errors
 			return next(i18n.getError());
-	
-		const { usuario, clave } = req.body; // read post data
-		dao.sqlite.usuarios.login(usuario, clave).then(user => {
+
+		const { usuario, clave, token } = req.body; // read post data
+		fnLogin(usuario, clave, token).then(user => {
+			res.locals.user = user;
 			res.locals.clave = user.clave;
-			//res.locals.user = user;
-			util.sendMail({
-				to: user.email,
-				subject: "Nueva clave de acceso",
-				body: "web/emails/remember.ejs",
-				data: res.locals //data
-			}).then(info => util.msg(res, "msgCorreo")).catch(next);
-		}).catch(next);
+			MAIL_REMEMBER.to = user.email;
+			MAIL_REMEMBER.data = res.locals;
+			return util.sendMail(MAIL_REMEMBER);
+		})
+		.then(info => util.msg(res, "msgCorreo"))
+		.catch(next);
 	}
 }
 

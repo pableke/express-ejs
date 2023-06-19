@@ -8,16 +8,16 @@ import i18n from "./i18n/langs.js";
 dom.ready(function() {
 	i18n.load(); // Set language
 
-	// Scroll body to top on click and toggle back-to-top arrow
-	const _top = document.body.lastElementChild;
-	window.onscroll = function() { dom.toggle(_top, "hide", this.scrollY < 80); }
-	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
-
 	// Loading div
-	const _loading = _top.previousElementSibling;
+	const _loading = document.body.firstChild;
 	dom.loading = () => dom.show(_loading).closeAlerts();
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
+
+	// Scroll body to top on click and toggle back-to-top arrow
+	const _top = _loading.nextElementSibling;
+	window.onscroll = function() { dom.toggle(_top, "hide", this.scrollY < 80); }
+	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
 
 	// Build tree menu as UL > Li > *
 	const menu = dom.get("ul.menu");
@@ -96,8 +96,9 @@ dom.ready(function() {
 
 	dom.tabs(".tab-content") // Tabs hendlres
 		.toggleInfo("[href='#toggle']") // Info links
+		.alerts(_top.nextElementSibling) // Alerts messages
 		.autofocus(document.forms[0]?.elements) // Focus on first input
-		.alerts(_loading.previousElementSibling);
+		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)));
 
 	dom.onChangeFields(".ui-bool", (ev, el) => { el.value = i18n.fmtBool(el.value); })
 		.onChangeFields(".ui-integer", (ev, el) => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "text-err", sb.starts(el.value, "-")); })

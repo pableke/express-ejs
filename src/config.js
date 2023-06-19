@@ -30,6 +30,9 @@ export default {
 	GMAIL_USER: process.env.GMAIL_USER,
 	GMAIL_PASS: process.env.GMAIL_PASS,
 
+	RECAPTCHA_PUBLIC: process.env.RECAPTCHA_PUBLIC,
+	RECAPTCHA_PRIVATE: process.env.RECAPTCHA_PRIVATE,
+	
 	SQLITE_PATH: path.join(SRC, "/dao/sqlite", "web.db"),
 
 	MYSQL_HOST: process.env.MYSQL_HOST || "localhost",

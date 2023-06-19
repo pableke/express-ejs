@@ -109,7 +109,6 @@ dom.ready(function() {
 			end: data => dom.hide(".update-only").setInputVal(ftest, "id").showOk("saveOk")
 		};
 		dom.click("button#clone", el => !dom.validate(ftest, FORM_TEST_CLONE)) // clone current on server
-			.afterReset(ftest, ev => dom.closeAlerts().autofocus(ftest.elements)) // Reset form action
 			.submit(ftest, ev => !dom.validate(ftest, FORM_TEST)); // save current on server
 	})
 });

@@ -19,12 +19,6 @@ function UtilBox() {
 	this.err404 = (res, msg) => res.status(404).send(i18n.tr(msg));
 	this.err500 = (res, msg) => res.status(500).send(i18n.tr(msg));
 	this.errors = res => res.status(500).json(i18n.getMsgs());
-	this.tabs = (res, tab) => {
-		res.locals.cssTab0 = res.locals.cssTab1 = res.locals.cssTab2 = res.locals.cssTab3 = null;
-		res.locals.cssTab4 = res.locals.cssTab5 = res.locals.cssTab6 = res.locals.cssTab7 = null;
-		res.locals["cssTab" + tab] = "active";
-		return self;
-	}
 
 	/*this.html = (res, contents) => {
 		res.setHeader("content-type", "text/html").send(ejs.render(contents, res.locals));
@@ -39,6 +33,16 @@ function UtilBox() {
 	this.send = (res, msg) => { i18n.setOk(msg); res.render("index"); }
 	this.info = (res, msg) => { i18n.setInfo(msg); res.render("index"); }
 	this.error = (res, msg) => { i18n.setError(msg); res.render("index"); }
+
+	this.setTab = (res, tpl, tab) => self.tabs(res, tab).setBody(res, tpl);
+	this.goTab = (res, tpl, tab) => self.tabs(res, tab).render(res, tpl);
+	this.tabs = (res, tab) => {
+		res.locals.cssTab0 = res.locals.cssTab1 = res.locals.cssTab2 = res.locals.cssTab3 = null;
+		res.locals.cssTab4 = res.locals.cssTab5 = res.locals.cssTab6 = res.locals.cssTab7 = null;
+		res.locals.cssTab8 = res.locals.cssTab9 = res.locals.cssTab10 = res.locals.cssTab11 = null;
+		res.locals["cssTab" + tab] = "active";
+		return self;
+	}
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);
@@ -138,7 +142,7 @@ function UtilBox() {
 		mail = mail || MESSAGE;
 		mail.to = mail.to || MESSAGE.to;
 		mail.body = mail.body || MESSAGE.body;
-		mail.subject = mail.subject || MESSAGE.subject;
+		mail.subject = i18n.tr(mail.subject) || MESSAGE.subject;
 		//mail.attachments = mail.attachments || MESSAGE.attachments;
 
 		// Return promise to send email
