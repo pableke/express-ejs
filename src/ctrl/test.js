@@ -7,7 +7,7 @@ import sb from "app/lib/string-box.js";
 import i18n from "app/model/test.js";
 
 const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-const form = i18n.getForms("test");
+const form = i18n.getForm("test");
 
 export const index = (req, res) => util.tabs(res, 0).render(res, "web/index");
 

@@ -1,12 +1,91 @@
 
-<div id="tab-0" class="tab-content active">
+<div id="tab-0" class="tab-content <%=cssTab0%>">
 	<% actions.forEach(function(action) { %>
 		<a href="<%=action.enlace%>"><img src="/public/img/png/<%=action.icono%>"/><%=action.nombre%></a>
 	<% }); %>
+	<a href="#tab-1" title="Datos de perfil"><img src="/public/img/png/user_edit.png"/></a>
+	<a href="#tab-2" title="Cambio de clave"><img src="/public/img/png/bubble.png"/></a>
 	<a href="/logout.html"><img src="/public/img/png/exit.png"/></a>
 </div>
 
-<div id="tab-1" class="tab-content active">
+<div id="tab-1" class="tab-content <%=cssTab1%>">
+	<h1><%=i18n.msgFormLogin%></h1>
+	<hr/>
+
+	<form method="post" action="/user/profile.html">
+		<div class="input-group">
+			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nombre" name="nombre" size="35" maxlength="200" tabindex="1" class="input-item input-control" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<span class="msg-error"><%=msgs.nombre%></span>
+		</div>
+		<div class="input-group">
+			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
+			<input type="text" id="ap1" name="ap1" size="35" maxlength="200" tabindex="2" class="input-item input-control" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
+			<i class="input-item input-icon fas fa-file-signature"></i>
+			<span class="msg-error"><%=msgs.ap1%></span>
+		</div>
+		<div class="input-group">
+			<label for="ap2"><%=i18n.lblApellido2%>:</label>
+			<input type="text" id="ap2" name="ap2" size="35" maxlength="200" tabindex="3" class="input-item input-control" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido2%>" />
+			<i class="input-item input-icon fas fa-file-signature"></i>
+			<span class="msg-error"><%=msgs.ap2%></span>
+		</div>
+		<div class="input-group">
+			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
+			<input type="text" id="nif" name="nif" size="35" maxlength="20" tabindex="4" class="input-item input-control" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
+			<i class="input-item input-icon far fa-address-card"></i>
+			<div class="msg-error"><%=msgs.nif%></div>
+		</div>
+		<div class="input-group">
+			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
+			<input type="text" id="correo" name="correo" size="40" maxlength="200" tabindex="5" class="input-item input-control clearable" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
+			<i class="input-item input-icon far fa-envelope"></i>
+			<div class="msg-error"><%=msgs.correo%></div>
+		</div>
+		<div class="input-group">
+			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
+			<input type="text" id="alta" name="alta" size="15" maxlength="10" tabindex="6" readonly class="input-item input-control date disabled" title="<%=i18n.titDate%>" placeholder="<%=i18n.phDate%>" />
+			<i class="input-item input-icon far fa-calendar-alt"></i>
+			<div class="msg-error"><%=msgs.alta%></div>
+		</div>
+
+		<hr/>
+		<a href="#tab-0" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
 </div>
 
-<script type="module" src="/public/js/web/admin.js"></script>
+<div id="tab-2" class="tab-content <%=cssTab2%>">
+	<h1><%=i18n.msgFormLogin%></h1>
+	<hr/>
+
+	<form method="post" action="/user/pass.html">
+		<div class="input-group">
+			<label for="oldPass" class="required"><%=i18n.lblClaveAct%>:</label>
+			<input type="password" id="oldPass" name="oldPass" value="" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titUsuario;" placeholder="********" />
+			<i class="input-item input-icon fas fa-key"></i>
+			<span class="msg-error"><%=msgs.oldPass%></span>
+		</div>
+		<div class="input-group">
+			<label for="clave" class="required"><%=i18n.lblNewClave%>:</label>
+			<input type="password" id="clave" name="clave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="@titClave;" placeholder="********" />
+			<i class="input-item input-icon fas fa-ellipsis-h"></i>
+			<span class="msg-error"><%=msgs.clave%></span>
+		</div>
+		<div class="input-group">
+			<label for="reclave" class="required"><%=i18n.lblReClave%>:</label>
+			<input type="password" id="reclave" name="reclave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="3" title="@titClave;" placeholder="********" />
+			<i class="input-item input-icon fas fa-ellipsis-h"></i>
+			<span class="msg-error"><%=msgs.reclave%></span>
+		</div>
+
+		<hr/>
+		<a href="#tab-0" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
+		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
+</div>
+
+<script type="module" src="/public/js/admin.js"></script>

@@ -263,6 +263,7 @@ function DomBox() {
 	this.getInput = (form, selector) => form && self.find(selector, form.elements);
 	this.getInputVal = (form, name) => self.getValue(self.getInput(form, "[name='" + name + "']"));
 	this.setInputVal = (form, name, value) => self.setValue(self.getInput(form, "[name='" + name + "']"), value);
+	this.setVal = (name, value) => self.each(document.forms, form => self.setInputVal(form, name, value));
 	this.setValues = (form, data) => {
 		for (let key in data) // update key names only
 			self.setInputVal(form, key, data[key]);

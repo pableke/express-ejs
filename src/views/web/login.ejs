@@ -3,6 +3,8 @@
 	<h2>Formulario de acceso</h2>
 
 	<form id="login" method="post" action="/login">
+		<input type="hidden" name="token" />
+
 		<div class="navbar">
 			<div class="ui-group ui-block">
 				<label for="usuario" class="required">Usuario:</label>
@@ -31,35 +33,37 @@
 	<hr/>
 
 	<form id="user" action="/signup.html" method="post" class="ajax">
+		<input type="hidden" name="token" />
+
 		<div class="input-group">
-			<label for="nm" class="required"><%=i18n.lblNombre%>:</label>
+			<label for="nm" class="required">Nombre:</label>
 			<input type="text" id="nm" name="nm" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
 			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nm%></span>
+			<span class="ui-errtip"><%=msgs.nm%></span>
 		</div>
 		<div class="input-group">
 			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
 			<input type="text" id="ap1" name="ap1" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="<%=i18n.titApellido1%>" placeholder="<%=i18n.phApellido1%>" />
 			<i class="input-item input-icon fas fa-file-signature"></i>
-			<span class="msg-error"><%=msgs.ap1%></span>
+			<span class="ui-errtip"><%=msgs.ap1%></span>
 		</div>
 		<div class="input-group">
 			<label for="ap2"><%=i18n.lblApellido2%>:</label>
 			<input type="text" id="ap2" name="ap2" size="35" maxlength="200" class="input-item input-control" tabindex="3" title="<%=i18n.titApellido2%>" placeholder="<%=i18n.phApellido2%>" />
 			<i class="input-item input-icon fas fa-file-signature"></i>
-			<span class="msg-error"><%=msgs.ap2%></span>
+			<span class="ui-errtip"><%=msgs.ap2%></span>
 		</div>
 		<div class="input-group">
 			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
 			<input type="text" id="nif" name="nif" size="35" maxlength="20" class="input-item input-control" tabindex="4" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
 			<i class="input-item input-icon far fa-address-card"></i>
-			<div class="msg-error"><%=msgs.nif%></div>
+			<div class="ui-errtip"><%=msgs.nif%></div>
 		</div>
 		<div class="input-group">
 			<label for="correo" class="required"><%=i18n.lblCorreo%></label>
-			<input type="text" id="correo" name="correo" size="40" maxlength="200" tabindex="5" class="input-item input-control clearable" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.phCorreo%>" />
+			<input type="text" name="correo" size="40" maxlength="200" tabindex="5" class="input-item input-control clearable" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.phCorreo%>" />
 			<i class="input-item input-icon far fa-envelope"></i>
-			<div class="msg-error"><%=msgs.correo%></div>
+			<div class="ui-errtip"><%=msgs.correo%></div>
 		</div>
 
 		<hr/>
@@ -68,13 +72,73 @@
 	</form>
 </div>
 
+<div id="tab-2" class="form-glass tab-content <%=cssTab2%>">
+	<h1>Remember</h1>
+	<hr/>
+
+	<form id="reactive" action="/reactive.html" method="post" class="ajax">
+		<input type="hidden" name="token" />
+
+		<div class="input-group">
+			<label for="correo" class="required">E-Mail</label>
+			<input type="text" name="correo" size="40" maxlength="200" tabindex="2" class="input-item input-control clearable" title="Type your email" placeholder="xxxx@yyyy.com" />
+			<i class="input-item input-icon far fa-envelope"></i>
+			<div class="msg-error"><%=msgs.correo%></div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary captcha" tabindex="100"><%=i18n.lblEnviar%> <i class="far fa-paper-plane"></i></button>
+	</form>
+</div>
+
+<div id="tab-3" class="form-glass tab-content <%=cssTab3%>">
+	<h2><%=i18n.lblFormContact%></h2>
+
+	<form id="contact" action="/contact.html" method="post" class="ajax">
+		<input type="hidden" name="token" />
+
+		<div class="input-item input-group-row">
+			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<input type="text" id="nombre" name="nombre" maxlength="200" tabindex="1" class="input-item ui-control ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
+			<i class="input-item input-icon fas fa-signature"></i>
+			<div class="ui-errtip"></div>
+		</div>
+
+		<div class="input-item input-group-row">
+			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
+			<input type="text" name="correo" vmaxlength="200" tabindex="2" class="input-item ui-control ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
+			<i class="input-item input-icon far fa-envelope"></i>
+			<div class="ui-errtip"></div>
+		</div>
+
+		<div class="input-item input-group-row">
+			<label for="asunto" class="required"><%=i18n.lblAsunto%>:</label>
+			<input type="text" id="asunto" name="asunto" maxlength="200" tabindex="7" class="input-item ui-control ui-text" placeholder="Type a resume" />
+			<i class="input-item input-icon fas fa-at"></i>
+			<div class="ui-errtip"></div>
+		</div>
+
+		<div class="input-item input-group-row">
+			<label for="info" class="required">Informacion:</label>
+			<textarea id="info" name="info" class="input-item input-control ui-ta" tabindex="8" maxlength="600"></textarea>
+			<span class="msg-error"></span>
+			<p>Nº de caracteres restantes = <span id="counter-info">600</span></p>
+			<div class="ui-errtip"></div>
+		</div>
+
+		<hr/>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>"><%=i18n.lblEnviar%><i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i><%=i18n.lblLimpiar%></button>
+	</form>
+</div>
+
 <div class="wrapper">
 	<ul class="inline">
 		<li><a href="/">home</a></li>
-		<li><a href="/login.html">Login</a></li>
-		<li><a href="/signup.html">Sign Up</a></li>
-		<li><a href="/reactive.html">Reactive</a></li>
-		<li><a href="/contact.html">Contact</a></li>
+		<li><a href="#tab-0">Login</a></li>
+		<li><a href="#tab-1">Sign Up</a></li>
+		<li><a href="#tab-2">Remember</a></li>
+		<li><a href="#tab-3">Contact</a></li>
 	</ul>
 </div>
 
