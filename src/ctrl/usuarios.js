@@ -10,20 +10,6 @@ export const view = (req, res) => {
 	dao.sqlite.usuarios.getById(req.query.id).then(user => res.json(user));
 }
 
-export const reactivate = (req, res, next) => {
-	dao.sqlite.usuarios.getById(req.query.id).then(user => {
-		if (!user)
-			return next("userNotFound");
-		res.locals.user = user;
-		util.sendMail({
-			to: user.email,
-			subject: "Reactivación de su cuenta",
-			body: "web/emails/reactivate.ejs",
-			data: res.locals //data
-		}).then(info => util.msg(res, "msgCorreo")).catch(next);
-	}).catch(next);
-}
-
 export const insert = (req, res, next) => {
 	if (!i18n.forms.user(req.body))
 		return util.errors(res);

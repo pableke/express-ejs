@@ -33,57 +33,6 @@ body::after {
 main { display: inline-block; margin: 8px 0; width: 100%; }
 hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 
-/* Animations */
-.fadeIn { animation: fadeIn 1s; }
-.fadeOut { animation: fadeOut 1s; }
-@keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-@keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; } }
-
-.slideIn { animation: slideIn 1s forwards; }
-.slideOut { animation: slideOut 1s forwards; }
-@keyframes slideIn { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
-@keyframes slideOut { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
-
-.slideRtl { animation: slideRtl 1s forwards; }
-.slideLtr { animation: slideLtr 1s forwards; }
-@keyframes slideRtl { 0% { transform: translateX(100%); } 100% { transform: translateX(0%); } }
-@keyframes slideLtr { 0% { transform: translateX(0%); } 100% { transform: translateX(100%); } }
-
-/* Cards clases */
-.card { border-left: 6px solid #1976D2; }
-.card h1 { margin: 1em; /*color: #1976D2;*/ border-bottom: 1px solid #1976D2; }
-
-.cards-glass {
-	position: relative;
-	display: flex;
-	margin: auto;
-	justify-content: center;
-	align-items: center;
-	max-width: 1200px;
-	flex-wrap: wrap;
-}
-.card-glass, .form-glass {
-	position: relative;
-	margin: 30px auto; padding: 20px;
-	width: 280px; height: 400px;
-	/*color: #fff;*/ text-align: center;
-	background: rgba(0, 0, 0, .1);
-	border-radius: 15px;
-	box-shadow: 20px 20px 50px rgba(0, 0, 0, .5);
-	border-top: 1px solid rgba(255, 255, 255, .5);
-	border-left: 1px solid rgba(255, 255, 255, .5);
-	backdrop-filter: blur(5px);
-	overflow: hidden;
-}
-.form-glass {
-	width: 90%; max-width: 900px;
-	height: 100%;
-}
-.card-glass h2, .form-glass h2 {
-	margin: 5px auto;
-	width: 96%;
-}
-
 /* Specific styles */
 .hide, .d-none { display: none !important; } /* force display none */
 .disabled { opacity: 0.5; pointer-events: none; text-decoration: none; }
