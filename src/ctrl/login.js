@@ -67,9 +67,10 @@ function Login() {
 		subject: "Solicitud de información",
 		body: "web/emails/contact.ejs"
 	};
-	this.contact = (req, res) => {
+	this.contact = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
 		const data = Object.assign({}, form.signup(req.body));
+		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (i18n.isError())
 			return util.errors(res);
 
@@ -113,6 +114,7 @@ function Login() {
 		body: "web/emails/remember.ejs"
 	};
 	this.remember = (req, res, next) => {
+		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (!form.remember(req.body)) // check errors
 			return next(i18n.getError());
 

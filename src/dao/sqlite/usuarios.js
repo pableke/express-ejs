@@ -38,8 +38,9 @@ export default class Usuarios {
     }
     getByLogin(login) {
         const sql = "select * from usuarios where nif = ? or email = ?";
+        const params = [login.toUpperCase(), login.toLowerCase()];
         return new Promise((resolve, reject) => {
-            this.db.get(sql, [login, login], (err, user) => err ? reject(err) : resolve(user));
+            this.db.get(sql, params, (err, user) => err ? reject(err) : resolve(user));
         });
     }
     login(login, pass) {
@@ -51,7 +52,7 @@ export default class Usuarios {
 
     insert(data) {
         const sql = "insert into usuarios (nif, nombre, apellido1, apellido2, email, clave) values (?, ?, ?, ?, ?, ?)";
-        const params = [data.nif, data.nombre, data.apellido1, data.apellido2, data.email, bcrypt.hashSync(data.clave, 10)];
+        const params = [data.nif.toUpperCase(), data.nombre, data.apellido1, data.apellido2, data.email.toLowerCase(), bcrypt.hashSync(data.clave, 10)];
         return new Promise((resolve, reject) => { // Store hash in the database, Important! declare function to use this!!
             this.db.run(sql, params, function(err) { err ? fnError(reject, err) : resolve(this.lastID); });
         });
