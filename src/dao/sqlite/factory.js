@@ -13,6 +13,29 @@ const db = new sqlite.Database(config.SQLITE_PATH, sqlite.OPEN_READWRITE, err =>
 	console.log("> Sqlite " + config.SQLITE_PATH + " open.");
 });
 
+// Add actions as promises
+db.filter = (sql, params) => {
+	return new Promise((resolve, reject) => {
+		db.all(sql, params, (err, data) => err ? reject(err) : resolve(data));
+	});
+}
+db.find = (sql, params) => {
+	return new Promise((resolve, reject) => {
+		db.get(sql, params, (err, data) => err ? reject(err) : resolve(data));
+	});
+}
+db.insert = function(sql, params) {
+	return new Promise((resolve, reject) => { // Important! declare function to use this!!
+		db.run(sql, params, function(err) { err ? reject(err) : resolve(this.lastID); });
+	});
+}
+function fnUpdate(sql, params) {
+	return new Promise((resolve, reject) => { // Important! declare function to use this!!
+		db.run(sql, params, function(err) { err ? reject(err) : resolve(this.changes); });
+	});
+}
+db.delete = db.update = fnUpdate;
+
 const menus = new Menus(db);
 const usuarios = new Usuarios(db);
 

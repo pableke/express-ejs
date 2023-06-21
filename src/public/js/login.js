@@ -10,9 +10,9 @@ dom.ready(function() {
     dom.onChangeInputs(flogin, "#usuario", (ev, el) => { el.value = sb.clean(el.value); })
 		.submit(flogin, ev => dom.isValid(flogin, form.validate)); // validate and submit
 
-	/*grecaptcha.ready(function() {
+	grecaptcha.ready(function() {
 		grecaptcha.execute("6LeDFNMZAAAAAKssrm7yGbifVaQiy1jwfN8zECZZ", { action: "submit" }).then(token => {
 			dom.setVal("token", token);
 		});
-	});*/
+	});
 });
