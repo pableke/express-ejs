@@ -1,5 +1,5 @@
 
-<div id="tab-0" class="tab-content <%=cssTab0%>">
+<div id="tab-0" class="tab-content <%=css.tab0%>">
 	<% actions.forEach(function(action) { %>
 		<a href="<%=action.enlace%>"><img src="/public/img/png/<%=action.icono%>"/><%=action.nombre%></a>
 	<% }); %>
@@ -8,46 +8,44 @@
 	<a href="/logout.html"><img src="/public/img/png/exit.png"/></a>
 </div>
 
-<div id="tab-1" class="tab-content <%=cssTab1%>">
-	<h1><%=i18n.msgFormLogin%></h1>
-	<hr/>
-
+<div id="tab-1" class="tab-content <%=css.tab1%>">
 	<form method="post" action="/user/profile.html">
-		<div class="input-group">
+		<h2><%=i18n.msgFormLogin%></h2><hr/>
+
+		<div class="ui-block">
 			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
-			<input type="text" id="nombre" name="nombre" size="35" maxlength="200" tabindex="1" class="input-item input-control" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
-			<i class="input-item input-icon fas fa-signature"></i>
-			<span class="msg-error"><%=msgs.nombre%></span>
+			<input type="text" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
+			<span class="ui-errtip"><%=msgs.nombre%></span>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
-			<input type="text" id="ap1" name="ap1" size="35" maxlength="200" tabindex="2" class="input-item input-control" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
-			<i class="input-item input-icon fas fa-file-signature"></i>
-			<span class="msg-error"><%=msgs.ap1%></span>
+			<input type="text" id="ap1" name="ap1" maxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
+			<span class="ui-errtip"><%=msgs.ap1%></span>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="ap2"><%=i18n.lblApellido2%>:</label>
-			<input type="text" id="ap2" name="ap2" size="35" maxlength="200" tabindex="3" class="input-item input-control" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido2%>" />
-			<i class="input-item input-icon fas fa-file-signature"></i>
-			<span class="msg-error"><%=msgs.ap2%></span>
+			<input type="text" id="ap2" name="ap2" maxlength="200" tabindex="3" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido2%>" />
+			<span class="ui-errtip"><%=msgs.ap2%></span>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
-			<input type="text" id="nif" name="nif" size="35" maxlength="20" tabindex="4" class="input-item input-control" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
-			<i class="input-item input-icon far fa-address-card"></i>
-			<div class="msg-error"><%=msgs.nif%></div>
+			<input type="text" name="nif" maxlength="20" tabindex="4" class="ui-input ui-text" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
+			<div class="ui-errtip"><%=msgs.nif%></div>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
-			<input type="text" id="correo" name="correo" size="40" maxlength="200" tabindex="5" class="input-item input-control clearable" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
-			<i class="input-item input-icon far fa-envelope"></i>
-			<div class="msg-error"><%=msgs.correo%></div>
+			<input type="text" id="correo" name="correo" maxlength="200" tabindex="5" class="ui-input ui-text" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
+			<div class="ui-errtip"><%=msgs.correo%></div>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
-			<input type="text" id="alta" name="alta" size="15" maxlength="10" tabindex="6" readonly class="input-item input-control date disabled" title="<%=i18n.titDate%>" placeholder="<%=i18n.phDate%>" />
-			<i class="input-item input-icon far fa-calendar-alt"></i>
-			<div class="msg-error"><%=msgs.alta%></div>
+			<input type="text" id="alta" name="alta" size="15" maxlength="10" tabindex="6" readonly class="ui-input ui-text date disabled" title="<%=i18n.titDate%>" placeholder="<%=i18n.phDate%>" />
+			<div class="ui-errtip"><%=msgs.alta%></div>
 		</div>
 
 		<hr/>
@@ -57,34 +55,195 @@
 	</form>
 </div>
 
-<div id="tab-2" class="tab-content <%=cssTab2%>">
+<div id="tab-2" class="tab-content <%=css.tab2%>">
 	<h1><%=i18n.msgFormLogin%></h1>
 	<hr/>
 
 	<form method="post" action="/user/pass.html">
-		<div class="input-group">
+		<div class="ui-block">
 			<label for="oldPass" class="required"><%=i18n.lblClaveAct%>:</label>
-			<input type="password" id="oldPass" name="oldPass" value="" size="35" maxlength="200" class="input-item input-control" tabindex="1" title="@titUsuario;" placeholder="********" />
-			<i class="input-item input-icon fas fa-key"></i>
-			<span class="msg-error"><%=msgs.oldPass%></span>
+			<input type="password" id="oldPass" name="oldPass" value="" maxlength="200" class="ui-input ui-text" tabindex="1" title="@titUsuario;" placeholder="********" />
+			<span class="ui-errtip"><%=msgs.oldPass%></span>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="clave" class="required"><%=i18n.lblNewClave%>:</label>
-			<input type="password" id="clave" name="clave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="2" title="@titClave;" placeholder="********" />
-			<i class="input-item input-icon fas fa-ellipsis-h"></i>
-			<span class="msg-error"><%=msgs.clave%></span>
+			<input type="password" id="clave" name="clave" value="" maxlength="200" class="ui-input ui-text" tabindex="2" title="@titClave;" placeholder="********" />
+			<span class="ui-errtip"><%=msgs.clave%></span>
 		</div>
-		<div class="input-group">
+		<br/>
+		<div class="ui-block">
 			<label for="reclave" class="required"><%=i18n.lblReClave%>:</label>
-			<input type="password" id="reclave" name="reclave" value="" size="35" maxlength="200" class="input-item input-control" tabindex="3" title="@titClave;" placeholder="********" />
-			<i class="input-item input-icon fas fa-ellipsis-h"></i>
-			<span class="msg-error"><%=msgs.reclave%></span>
+			<input type="password" id="reclave" name="reclave" value="" maxlength="200" class="ui-input ui-text" tabindex="3" title="@titClave;" placeholder="********" />
+			<span class="ui-errtip"><%=msgs.reclave%></span>
 		</div>
 
 		<hr/>
 		<a href="#tab-0" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
 		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
 		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+	</form>
+</div>
+
+<div id="tab-3" class="tab-content <%=css.tab3%>">
+	<form id="fmenu" action="/menu/list.html">
+		<h2>Menus</h2><hr/>
+
+		<div class="ui-block">
+			<label for="nombre">Nombre:</label>
+			<input type="text" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" placeholder="File / Edit ..." />
+			<span class="ui-errtip"></span>
+		</div>
+		<div class="ui-block">
+			<label for="titulo">Título:</label>
+			<input type="text" id="titulo" name="titulo" maxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
+			<span class="ui-errtip"></span>
+		</div>
+		<div class="ui-block">
+			<label for="enlace">Enlace:</label>
+			<input type="text" id="enlace" name="enlace" maxlength="200" tabindex="3" class="ui-input ui-text" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
+			<div class="ui-errtip"></div>
+		</div>
+		<br/>
+		<div class="ui-block">
+			<label for="tipo">Tipo</label>
+			<select id="tipo" name="tipo" tabindex="4" class="ui-input ui-select">
+				<option></option>
+				<option value="1">Menú</option>
+				<option value="2">Acción</option>
+			</select>
+			<span class="ui-errtip"></span>
+		</div>
+		<div class="ui-block">
+			<label for="orden">Orden:</label>
+			<input type="text" id="orden" name="orden" maxlength="200" tabindex="5" class="ui-input ui-integer" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-block">
+			<label for="f1">Fecha:</label>
+			<input type="date" id="f1" name="f1" value="" class="ui-input ui-date" tabindex="6" />...
+			<input type="date" id="f2" name="f2" value="" class="ui-input ui-date" tabindex="7" />
+		</div>
+
+		<hr/>
+		<a href="#tab-0" tabindex="20" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Volver</a>
+		<button type="reset" class="btn btn-light" tabindex="21">Limpiar<i class="fas fa-solid fa-broom icon"></i></button>
+		<button type="submit" class="btn btn-primary" tabindex="22">Buscar<i class="fas fa-search icon"></i></button>
+		<a href="#next-tab" tabindex="23" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
+	</form>
+
+	<table id="menus">
+		<thead>
+			<tr>
+				<th>Nº</th>
+				<th>Nombre<a href="#nombre" class="sort sort-none"></a></th>
+				<th>Título<a href="#titulo" class="sort sort-none"></a></th>
+				<th>Enlace<a href="#enlace" class="sort sort-none"></a></th>
+				<th>Tipo<a href="#tipo" class="sort sort-none"></a></th>
+				<th>Orden<a href="#orden" class="sort sort-none"></a></th>
+				<th>F. Creación<a href="#creado" class="sort sort-none"></a></th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody id="pruebas-row" class="hide">
+			<tr class="tb-data">
+				<td class="text-center">@count;</td>
+				<td><a href="#find">@nombre_i18n;</a></td>
+				<td>@titulo;</td>
+				<td>@enlace;</td>
+				<td>@tipo;</td>
+				<td class="textr">@orden;</td>
+				<td class="text-center">@creado_i18n;</td>
+				<td class="text-center">
+					<a href="#find"><i class="fas fa-search icon"></i></a>
+					<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
+				</td>
+			</tr>
+		</tbody>
+		<tbody class="no-data">
+			<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
+		</tbody>
+		<tfoot class="hide">
+			<tr><td colspan="8">Filas: @size;</td></tr>
+		</tfoot>
+	</table>
+
+	<div class="navbar">
+		<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Volver</a>
+		<a href="#next-tab" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
+		<a href="#reset" class="btn btn-danger"><i class="fas fa-solid fa-trash icon"></i>Borrar</a>
+	</div>
+</div>
+
+<div id="tab-4" class="tab-content <%=css.tab4%>">
+	<div class="navbar update-only">
+		<hr/>
+		<a href="#first-item" class="btn btn-primary" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
+		<a href="#prev-item" class="btn btn-primary" tabindex="61"><i class="fas fa-angle-left"></i></a>
+		<a href="#next-item" class="btn btn-primary" tabindex="62"><i class="fas fa-angle-right"></i></a>
+		<a href="#last-item" class="btn btn-primary" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
+		<hr/>
+	</div>
+
+	<form id="menu" action="/menu/save.html" method="post">
+		<!-- reset form not to aplly for hidden inputs -->
+		<input type="text" id="id" name="id" value="" class="hide" />
+
+		<div class="navbar">
+			<div class="ui-block">
+				<label for="ac-name" class="required">Nombre:</label>
+				<input type="search" id="ac-name" name="ac-name" value="" class="ui-input ui-text" tabindex="1" />
+				<div class="ui-errtip"></div>
+			</div>
+			<div class="ui-block">
+				<label for="imp" class="required">Importe:</label>
+				<input type="text" id="imp" name="imp" value="" class="ui-input ui-float" tabindex="3" />
+				<div class="ui-errtip"></div>
+			</div>
+			<div class="ui-block">
+				<label for="fecha" class="required">Fecha:</label>
+				<input type="date" id="fecha" name="fecha" value="" class="ui-input ui-date" tabindex="4" />
+				<div class="ui-errtip"></div>
+			</div>
+			<div class="ui-row"> <!-- check-group checked subgroup by id -->
+				<label for="check1" class="inline">check1:</label><input id="check1" type="checkbox" value="1" class="check-binary ui-check">
+				<label for="check2" class="inline">check2:</label><input id="check2" type="checkbox" value="2" class="check-binary ui-check">
+				<label for="check3" class="inline">check3:</label><input id="check3" type="checkbox" value="4" class="check-binary ui-check">
+				<label for="check4" class="inline">check4:</label><input id="check4" type="checkbox" value="8" class="check-binary ui-check">
+				<label for="binary" class="inline">All:</label><input id="binary" type="checkbox" name="binary" value="15" class="ui-check ui-calculated">
+			</div>
+			<div class="ui-row"> <!-- check-list checked subgroup by id -->
+				<label for="check-list1" class="inline">check1:</label><input id="check-list1" type="checkbox" value="1" class="check-values ui-check">
+				<label for="check-list2" class="inline">check2:</label><input id="check-list2" type="checkbox" value="2" class="check-values ui-check">
+				<label for="check-list3" class="inline">check3:</label><input id="check-list3" type="checkbox" value="3" class="check-values ui-check">
+				<label for="check-list4" class="inline">check4:</label><input id="check-list4" type="checkbox" value="4" class="check-values ui-check">
+				<label for="values" class="inline">All:</label><input id="values" type="checkbox" name="values" value="on" class="ui-check ui-calculated">
+			</div>
+			<div>
+				<input id="fav" type="checkbox" value="1" class="check-icon check-icons" /><label for="fav" class="fas fa-star ui-fav icon xl-icon"></label>
+				<input id="none" type="checkbox" value="2" class="check-icon check-icons" /><label for="none" class="fas fa-times-circle ui-none icon xl-icon"></label>
+				<input id="icons" type="checkbox" name="icons" value="3" class="hide ui-calculated">
+			</div>
+			<div class="ui-block">
+				<label for="adjuntos">Ajuntos:</label>
+				<input type="file" id="adjuntos" name="adjuntos" multiple tabindex="5" />
+				<a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload icon"></i></button>
+				<div class="ui-errtip"></div>
+			</div>
+			<div class="ui-row">
+				<label for="memo" class="required">Memoria:</label>
+				<textarea id="memo" name="memo" class="ui-input ui-ta" tabindex="6"></textarea>
+			</div>
+		</div>
+
+		<div class="navbar">
+			<hr/>
+			<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
+			<button type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
+			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save icon"></i>Save</button>
+			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
+			<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash icon"></i> Borrar</a>
+		</div>
 	</form>
 </div>
 

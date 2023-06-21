@@ -32,7 +32,7 @@ function symdir(source, dest, name) {
 var node;
 gulp.task("server", done => {
 	if (node) node.kill();
-	node = spawn("node", [ "./dist/index.js" ], { stdio: "inherit" });
+	node = spawn("node", [ "--inspect", "./dist/index.js" ], { stdio: "inherit" });
 	node.on("close", function(code) {
 		if (code === 8)
 			gulp.log("Error detected, waiting for changes...");

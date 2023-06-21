@@ -1,7 +1,9 @@
 
 import util from "app/ctrl/util.js";
-import i18n from "app/i18n/langs.js";
+import i18n from "app/model/usuario.js";
 import dao from "app/dao/factory.js";
+
+const form = i18n.getForm("usuario");
 
 export const list = (req, res) => {
 	dao.sqlite.usuarios.filter(req.query).then(users => res.json(users));
@@ -11,14 +13,14 @@ export const view = (req, res) => {
 }
 
 export const insert = (req, res, next) => {
-	if (!i18n.forms.user(req.body))
+	if (!form.validate(req.body))
 		return util.errors(res);
 	dao.sqlite.usuarios.insert(i18n.getData())
 					.then(id => res.json("" + id))
 					.catch(next);
 }
 export const update = (req, res, next) => {
-	dao.sqlite.usuarios.insert(req.body).then(changes => res.send("" + changes)).catch(next);
+	dao.sqlite.usuarios.update(req.body).then(changes => res.send("" + changes)).catch(next);
 }
 export const save = (req, res, next) => {
 	dao.sqlite.usuarios.save(req.body).then(info => res.send("" + info)).catch(next);

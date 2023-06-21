@@ -1,12 +1,12 @@
 
 import bcrypt from "bcrypt";
 
-function fnError(reject, err) {
-    return reject((err.errno == 19) ? "Users previously registered in the system" : err);
+function fnError(err) {
+    return (err.errno == 19) ? "Users previously registered in the system" : err; //UK violated
 }
 function fnUpdate(db, sql, params) {
     return new Promise((resolve, reject) => { // Important! declare function to use this!!
-        db.run(sql, params, function(err) { err ? fnError(reject, err) : resolve(this.changes); });
+        db.run(sql, params, function(err) { err ? reject(fnError(err)) : resolve(this.changes); });
     });
 }
 
@@ -16,32 +16,20 @@ export default class Usuarios {
     }
 
     all() {
-        const sql = "select * from usuarios order by nif desc limit 10";
-        return new Promise((resolve, reject) => {
-            this.db.all(sql, [], (err, users) => err ? reject(err) : resolve(users));
-        });
+        return this.db.filter("select * from usuarios order by nif desc limit 10", []);
     }
     filter(data) {
         const sql = "select * from usuarios where (? is null or nif like ?) and (? is null or email like ?)";
         //const sql2 = "select * from usuarios where nif like :nif and email like :email"; //no named parameters
-        const params = [data.nif, data.nif + "%", data.email, data.email + "%"];
-        return new Promise((resolve, reject) => {
-            this.db.all(sql, params, (err, users) => err ? reject(err) : resolve(users));
-        });
+        return this.db.filter(sql, [data.nif, data.nif + "%", data.email, data.email + "%"]);
     }
 
     getById(id) {
-        const sql = "select * from usuarios where id = ?";
-        return new Promise((resolve, reject) => {
-            this.db.get(sql, id, (err, user) => err ? reject(err) : resolve(user));
-        });
+        return this.db.find("select * from usuarios where id = ?", id);
     }
     getByLogin(login) {
         const sql = "select * from usuarios where nif = ? or email = ?";
-        const params = [login.toUpperCase(), login.toLowerCase()];
-        return new Promise((resolve, reject) => {
-            this.db.get(sql, params, (err, user) => err ? reject(err) : resolve(user));
-        });
+        return this.db.find(sql, [login.toUpperCase(), login.toLowerCase()]);
     }
     login(login, pass) {
         pass = pass || "__none#pass__"; // not empty avoid exception
@@ -54,7 +42,7 @@ export default class Usuarios {
         const sql = "insert into usuarios (nif, nombre, apellido1, apellido2, email, clave) values (?, ?, ?, ?, ?, ?)";
         const params = [data.nif.toUpperCase(), data.nombre, data.apellido1, data.apellido2, data.email.toLowerCase(), bcrypt.hashSync(data.clave, 10)];
         return new Promise((resolve, reject) => { // Store hash in the database, Important! declare function to use this!!
-            this.db.run(sql, params, function(err) { err ? fnError(reject, err) : resolve(this.lastID); });
+            this.db.run(sql, params, function(err) { err ? reject(fnError(err)) : resolve(this.lastID); });
         });
     }
     update(data) {
@@ -75,9 +63,6 @@ export default class Usuarios {
         return data.id ? this.update(data) : this.insert(data);
     }
     delete(id) {
-        const sql = "delete from usuarios where id = ?";
-        return new Promise((resolve, reject) => { // Important! declare function to use this!!
-            this.db.run(sql, id, function(err) { err ? reject(err) : resolve(this.changes); });
-        });
+        return this.db.delete("delete from usuarios where id = ?", id);
     }
 }
