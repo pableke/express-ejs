@@ -38,8 +38,8 @@ dom.ready(() => {
 	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)));
 
 	//dom.click("[href='#tab-0']", el => dom.setValue("#org-id").setValue("#tramit-value"));
-	const file = dom.get("#factura_input");
-	file.parentNode.style.padding = "3px";
+	//const file = dom.get("#factura_input");
+	//file.parentNode.style.padding = "3px";
 	dom.click("[href='#tab-1']", el => {
 		dom.setValue("#org-id", el.dataset.organica).setValue("#tramit-value", el.dataset.grupo);
 		//file.click();

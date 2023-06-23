@@ -19,12 +19,12 @@ export default class Menus {
     }
 
     filter(data) {
-        const sql = "select * from menus where (? is null or tipo = ?) and (? is null or nombre like ?)";
+        const sql = "select * from v_menu_padre where (? is null or tipo = ?) and (? is null or nombre like ?)";
         return this.db.filter(sql, [data.tipo, data.tipo, data.nombre, data.nombre + "%"]);
     }
 
     getById(id) {
-        return this.db.find("select * from menus where id = ?", id);
+        return this.db.find("select * from v_menu_padre where id = ?", id);
     }
  
     getPublic() { return i18n.get("menus") };
@@ -38,24 +38,17 @@ export default class Menus {
     insert(data) {
         const sql = "insert into menus (tipo, padre, icono, nombre, titulo, enlace, orden, mask) values (?, ?, ?, ?, ?, ?, ?, ?)";
         const params = [data.tipo, data.padre, data.icono, data.nombre, data.titulo, data.enlace, data.orden, data.mask];
-        return new Promise((resolve, reject) => { // Important! declare function to use this!!
-            this.db.run(sql, params, function(err) { err ? reject(err) : resolve(this.lastID); });
-        });
+        return this.db.insert(sql, params);
     }
     update(data) {
         const sql = "update menus set tipo = ?, padre = ?, icono = ?, nombre = ?, titulo = ?, enlace = ?, orden = ?, mask = ? where id = ?";
         const params = [data.tipo, data.padre, data.icono, data.nombre, data.titulo, data.enlace, data.orden, data.mask, data.id];
-        return new Promise((resolve, reject) => { // Important! declare function to use this!!
-            this.db.run(sql, params, function(err) { err ? reject(err) : resolve(this.changes); });
-        });
+        return this.db.update(sql, params);
     }
     save(data) {
         return data.id ? this.update(data) : this.insert(data);
     }
     delete(id) {
-        const sql = "delete from menus where id = ?";
-        return new Promise((resolve, reject) => { // Important! declare function to use this!!
-            this.db.run(sql, id, function(err) { err ? reject(err) : resolve(this.changes); });
-        });
+        return this.db.delete("delete from menus where id = ?", id);
     }
 }

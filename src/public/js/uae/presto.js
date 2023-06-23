@@ -172,8 +172,9 @@ dom.ready(function() {
 		if (!partidas.length) //todas las solicitudes tienen partidas a incrementar
 			dom.addError("#org-inc", "Debe seleccionar al menos una partida a aumentar!", msgRequired);
 		if (dec) {
+			const ok = (PRESTO.tipo == 5) || (RESUME.imp <= dec.imp); // los anticipos no validan el CD
 			dom.required("#imp-dec", "Debe indicar el importe de la partida que disminuye.", msgRequired);
-			(dec.imp < RESUME.imp) && dom.addError("#imp-dec", "¡Importe máximo de la partida a disminuir excedido!", msgRequired);
+			ok || dom.addError("#imp-dec", "¡Importe máximo de la partida a disminuir excedido!", msgRequired);
 		}
 		if (dom.isOk()) { //todas las validaciones estan ok?
 			//dom.setValue("#imp-dec", i18n.isoFloat(RESUME.imp)); //reajusto importe a decrementar

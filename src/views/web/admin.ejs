@@ -90,33 +90,32 @@
 		<h2>Menus</h2><hr/>
 
 		<div class="ui-block">
-			<label for="nombre">Nombre:</label>
-			<input type="text" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" placeholder="File / Edit ..." />
+			<label for="fmenu-nombre">Nombre:</label>
+			<input type="text" id="fmenu-nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" placeholder="File / Edit ..." />
 			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-block">
-			<label for="titulo">Título:</label>
-			<input type="text" id="titulo" name="titulo" maxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
+			<label for="fmenu-titulo">Título:</label>
+			<input type="text" id="fmenu-titulo" name="titulo" maxlength="200" tabindex="2" class="ui-input ui-text" placeholder="Title attribute" />
 			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-block">
-			<label for="enlace">Enlace:</label>
-			<input type="text" id="enlace" name="enlace" maxlength="200" tabindex="3" class="ui-input ui-text" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
+			<label for="fmenu-enlace">Enlace:</label>
+			<input type="text" id="fmenu-enlace" name="enlace" maxlength="200" tabindex="3" class="ui-input ui-text" placeholder="http://, #tab-0, etc..." />
 			<div class="ui-errtip"></div>
 		</div>
 		<br/>
 		<div class="ui-block">
-			<label for="tipo">Tipo</label>
-			<select id="tipo" name="tipo" tabindex="4" class="ui-input ui-select">
+			<label for="fmenu-tipo">Tipo</label>
+			<select id="fmenu-tipo" name="tipo" tabindex="4" class="ui-input ui-select">
 				<option></option>
-				<option value="1">Menú</option>
-				<option value="2">Acción</option>
+				<%-i18n.menuTiposOpt%>
 			</select>
 			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-block">
-			<label for="orden">Orden:</label>
-			<input type="text" id="orden" name="orden" maxlength="200" tabindex="5" class="ui-input ui-integer" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
+			<label for="fmenu-orden">Orden:</label>
+			<input type="number" id="fmenu-orden" name="orden" maxlength="200" tabindex="5" class="ui-input ui-integer" placeholder="1, 2, 3, etc..." />
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-block">
@@ -126,35 +125,39 @@
 		</div>
 
 		<hr/>
-		<a href="#tab-0" tabindex="20" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Volver</a>
-		<button type="reset" class="btn btn-light" tabindex="21">Limpiar<i class="fas fa-solid fa-broom icon"></i></button>
-		<button type="submit" class="btn btn-primary" tabindex="22">Buscar<i class="fas fa-search icon"></i></button>
-		<a href="#next-tab" tabindex="23" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
+		<a href="#tab-0" tabindex="20" class="btn btn-primary"><i class="fas fa-angle-double-left licon"></i>Volver</a>
+		<button type="reset" class="btn btn-light" tabindex="21">Limpiar<i class="fas fa-solid fa-broom ricon"></i></button>
+		<button type="submit" class="btn btn-primary" tabindex="22">Buscar<i class="fas fa-search ricon"></i></button>
+		<a href="#next-tab" tabindex="23" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus ricon"></i></a>
 	</form>
 
 	<table id="menus">
 		<thead>
 			<tr>
 				<th>Nº</th>
-				<th>Nombre<a href="#nombre" class="sort sort-none"></a></th>
-				<th>Título<a href="#titulo" class="sort sort-none"></a></th>
+				<th>Nombre<a href="#nombre_i18n" class="sort sort-none"></a></th>
+				<th>Padre<a href="#padre_i18n" class="sort sort-none"></a></th>
+				<th>Título<a href="#titulo_i18n" class="sort sort-none"></a></th>
 				<th>Enlace<a href="#enlace" class="sort sort-none"></a></th>
-				<th>Tipo<a href="#tipo" class="sort sort-none"></a></th>
+				<th>Tipo<a href="#tipo_i18n" class="sort sort-none"></a></th>
 				<th>Orden<a href="#orden" class="sort sort-none"></a></th>
+				<th>Importe<a href="#imp" class="sort sort-none"></a></th>
 				<th>F. Creación<a href="#creado" class="sort sort-none"></a></th>
 				<th>Acciones</th>
 			</tr>
 		</thead>
 		<tbody id="pruebas-row" class="hide">
 			<tr class="tb-data">
-				<td class="text-center">@count;</td>
+				<td class="textc">@count;</td>
 				<td><a href="#find">@nombre_i18n;</a></td>
-				<td>@titulo;</td>
-				<td>@enlace;</td>
-				<td>@tipo;</td>
+				<td><a href="#find-padre">@padre_i18n;</a></td>
+				<td>@titulo_i18n;</td>
+				<td><a href="@enlace;" title="@titulo;">@enlace;</a></td>
+				<td>@tipo_i18n;</td>
 				<td class="textr">@orden;</td>
-				<td class="text-center">@creado_i18n;</td>
-				<td class="text-center">
+				<td class="textr">@imp_i18n;</td>
+				<td class="textc">@creado_i18n;</td>
+				<td class="textc">
 					<a href="#find"><i class="fas fa-search icon"></i></a>
 					<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
 				</td>
@@ -164,14 +167,14 @@
 			<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
 		</tbody>
 		<tfoot class="hide">
-			<tr><td colspan="8">Filas: @size;</td></tr>
+			<tr><td colspan="99">Filas: @size;</td></tr>
 		</tfoot>
 	</table>
 
 	<div class="navbar">
-		<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left icon"></i>Volver</a>
-		<a href="#next-tab" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus icon"></i></a>
-		<a href="#reset" class="btn btn-danger"><i class="fas fa-solid fa-trash icon"></i>Borrar</a>
+		<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left licon"></i>Volver</a>
+		<a href="#next-tab" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus ricon"></i></a>
+		<a href="#reset" class="btn btn-danger"><i class="fas fa-solid fa-trash licon"></i>Borrar</a>
 	</div>
 </div>
 
@@ -187,62 +190,36 @@
 
 	<form id="menu" action="/menu/save.html" method="post">
 		<!-- reset form not to aplly for hidden inputs -->
-		<input type="text" id="id" name="id" value="" class="hide" />
+		<input type="text" id="id" name="id" class="hide" />
 
-		<div class="navbar">
-			<div class="ui-block">
-				<label for="ac-name" class="required">Nombre:</label>
-				<input type="search" id="ac-name" name="ac-name" value="" class="ui-input ui-text" tabindex="1" />
-				<div class="ui-errtip"></div>
-			</div>
-			<div class="ui-block">
-				<label for="imp" class="required">Importe:</label>
-				<input type="text" id="imp" name="imp" value="" class="ui-input ui-float" tabindex="3" />
-				<div class="ui-errtip"></div>
-			</div>
-			<div class="ui-block">
-				<label for="fecha" class="required">Fecha:</label>
-				<input type="date" id="fecha" name="fecha" value="" class="ui-input ui-date" tabindex="4" />
-				<div class="ui-errtip"></div>
-			</div>
-			<div class="ui-row"> <!-- check-group checked subgroup by id -->
-				<label for="check1" class="inline">check1:</label><input id="check1" type="checkbox" value="1" class="check-binary ui-check">
-				<label for="check2" class="inline">check2:</label><input id="check2" type="checkbox" value="2" class="check-binary ui-check">
-				<label for="check3" class="inline">check3:</label><input id="check3" type="checkbox" value="4" class="check-binary ui-check">
-				<label for="check4" class="inline">check4:</label><input id="check4" type="checkbox" value="8" class="check-binary ui-check">
-				<label for="binary" class="inline">All:</label><input id="binary" type="checkbox" name="binary" value="15" class="ui-check ui-calculated">
-			</div>
-			<div class="ui-row"> <!-- check-list checked subgroup by id -->
-				<label for="check-list1" class="inline">check1:</label><input id="check-list1" type="checkbox" value="1" class="check-values ui-check">
-				<label for="check-list2" class="inline">check2:</label><input id="check-list2" type="checkbox" value="2" class="check-values ui-check">
-				<label for="check-list3" class="inline">check3:</label><input id="check-list3" type="checkbox" value="3" class="check-values ui-check">
-				<label for="check-list4" class="inline">check4:</label><input id="check-list4" type="checkbox" value="4" class="check-values ui-check">
-				<label for="values" class="inline">All:</label><input id="values" type="checkbox" name="values" value="on" class="ui-check ui-calculated">
-			</div>
-			<div>
-				<input id="fav" type="checkbox" value="1" class="check-icon check-icons" /><label for="fav" class="fas fa-star ui-fav icon xl-icon"></label>
-				<input id="none" type="checkbox" value="2" class="check-icon check-icons" /><label for="none" class="fas fa-times-circle ui-none icon xl-icon"></label>
-				<input id="icons" type="checkbox" name="icons" value="3" class="hide ui-calculated">
-			</div>
-			<div class="ui-block">
-				<label for="adjuntos">Ajuntos:</label>
-				<input type="file" id="adjuntos" name="adjuntos" multiple tabindex="5" />
-				<a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload icon"></i></button>
-				<div class="ui-errtip"></div>
-			</div>
-			<div class="ui-row">
-				<label for="memo" class="required">Memoria:</label>
-				<textarea id="memo" name="memo" class="ui-input ui-ta" tabindex="6"></textarea>
-			</div>
+		<div class="ui-block">
+			<label for="menu-nombre" class="required">Nombre:</label>
+			<input type="text" id="menu-nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-block">
+			<label for="menu-titulo" class="required">Título:</label>
+			<input type="text" id="menu-titulo" name="titulo" maxlength="200" tabindex="2" class="ui-input ui-text" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-block">
+			<label for="menu-imp" class="required">Importe:</label>
+			<input type="text" id="menu-imp" name="imp_i18n" maxlength="20" tabindex="3" class="ui-input ui-float" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-block">
+			<label for="menu-fecha" class="required">Fecha:</label>
+			<input type="date" id="menu-fecha" name="creado" tabindex="4" class="ui-input ui-date" disabled />
+			<div class="ui-errtip"></div>
 		</div>
 
 		<div class="navbar">
 			<hr/>
-			<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left icon"></i>Prev.</a>
-			<button type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush icon"></i>Clear</i></button>
-			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save icon"></i>Save</button>
-			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy icon"></i></i>Clone</button>
-			<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash icon"></i> Borrar</a>
+			<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left licon"></i>Volver</a>
+			<button type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush licon"></i>Clear</i></button>
+			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save licon"></i>Save</button>
+			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy licon"></i></i>Clone</button>
+			<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash licon"></i> Borrar</a>
 		</div>
 	</form>
 </div>

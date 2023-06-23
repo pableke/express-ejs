@@ -131,23 +131,17 @@ function StringBox() {
 		return tpl.replace(/@(\w+);/g, (m, k) => data[k] ?? EMPTY);
 	}
 	this.render = function(tpl, list, fnRender) {
-		fnRender = fnRender || (() => {});
+		fnRender = fnRender || (data => data);
 		const size = fnSize(list);
-		const status = { size };
-
 		let output = EMPTY; // Initialize result
-		for (let i = 0; i < size; i++) {
-			status.index = i;
-			status.count = i + 1;
-			fnRender(list[i], status);
-			output += self.format(tpl, status);
-		}
+		for (let i = 0; i < size; i++)
+			output += self.format(tpl, fnRender(list[i], i, list));
 		return output;
 	}
 	this.entries = function(tpl, data) {
 		let output = EMPTY; //result buffer
 		for (const k in data)
-			output += tpl.replace("@key;", k).replace("@value;", data[k]);
+			output += tpl.replace("@value;", k).replace("@label;", data[k]);
 		return output;
 	}
 }

@@ -21,6 +21,13 @@ function ArrayBox() {
 		this[b] = aux;
 		return this;
 	}
+	Array.prototype.format = function(tpl, i, size) {
+		let output = EMPTY; //result buffer
+		size = size || this.length; //max
+		for (i = i || 0; i < size; i++)
+			output += tpl.replace("@value;", i).replace("@label;", this[i]);
+		return output;
+	}
 
 	// Module functions
 	this.size = fnSize;
@@ -77,6 +84,7 @@ function ArrayBox() {
 	this.push = (arr, obj) => { arr && arr.push(obj); return self; }
 	this.remove = (arr, fn) => { arr && arr.remove(fn); return self; }
 	this.reset = arr => { arr && arr.splice(0); return self; }
+	this.format = (tpl, arr, i, size) => arr && arr.format(tpl, i, size);
 	this.get = (arr, i) => arr ? arr[i] : null;
 	this.last = arr => self.get(arr, fnSize(arr) - 1);
 	this.clone = arr => arr ? arr.slice() : [];

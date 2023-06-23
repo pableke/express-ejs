@@ -37,6 +37,7 @@ function I18nBox() {
 
 	this.getForms = () => FORMS;
 	this.getForm = name => FORMS[name];
+	this.getValidator = (form, name) => FORMS[form][name];
 	this.setForm = (name, data) => {
 		FORMS[name] = data;
 		return self;
