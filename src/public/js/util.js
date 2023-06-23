@@ -94,8 +94,7 @@ dom.ready(function() {
 		});
 	}
 
-	dom.tabs(".tab-content") // Tabs hendlres
-		.toggleInfo("[href='#toggle']") // Info links
+	dom.toggleInfo("[href='#toggle']") // Info links
 		.alerts(_top.nextElementSibling) // Alerts messages
 		.autofocus(document.forms[0]?.elements) // Focus on first input
 		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)));

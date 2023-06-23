@@ -53,6 +53,7 @@ function Login() {
 	}
 	this.verify = function(req, res, next) {
 		util.setTab(res, TPL_LOGIN, 0); //if error => go login
+		req.session.ssId = 1; // pruebas quitar
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
 		if (!req.session.ssId || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired

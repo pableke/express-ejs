@@ -1,25 +1,39 @@
 
-import ab from "../usuario/array-box.js";
-import sb from "../usuario/string-box.js";
+import nb from "../lib/number-box.js";
+import sb from "../lib/string-box.js";
 import i18n from "../i18n/langs.js";
 
 const form = {}; // validators for model
 const langs = i18n.getLangs(); // Languages container
-const fields = ["id", "tipo", "padre", "orden", "enlace", "icono", "nombre", "nombre_en", "titulo", "titulo_en"];
 
-langs.en.menu = (data, view) => {
-    view.creado = sb.isoDate(data.creado);
-    view.creado_i18n = view.creado;
-    view.nombre_i18n = data.nombre_en || data.nombre;
-    view.titulo_i18n = data.titulo_en || data.titulo;
-    return ab.copy(fields, data, view);
+const tplMenuTipo = '<option value="@value;">@label;</option>';
+langs.en.menuTipos = { 1: "Menu", 2: "Action" };
+langs.es.menuTipos = { 1: "Menú", 2: "Acción" };
+langs.en.menuTiposOpt = sb.entries(tplMenuTipo, langs.en.menuTipos);
+langs.es.menuTiposOpt = sb.entries(tplMenuTipo, langs.es.menuTipos);
+
+langs.en.menu = (data, i) => {
+    data.count = i + 1;
+    data.creado = sb.isoDate(data.creado);
+    data.creado_i18n = data.creado;
+    data.tipo_i18n = langs.en.menuTipos[data.tipo];
+    data.nombre_i18n = data.nombre_en || data.nombre;
+    data.titulo_i18n = data.titulo_en || data.titulo;
+    data.padre_i18n = data.padre_en || data.padre_es;
+    return data;
 }
-langs.es.menu = (data, view) => {
-    view.creado = sb.isoDate(data.creado);
-    view.creado_i18n = sb.esDate(data.creado);
-    view.nombre_i18n = data.nombre;
-    view.titulo_i18n = data.titulo;
-    return ab.copy(fields, data, view);
+langs.es.menu = (data, i) => {
+    data.count = i + 1;
+    data.creado = sb.isoDate(data.creado);
+    data.creado_i18n = sb.esDate(data.creado);
+    data.tipo_i18n = langs.es.menuTipos[data.tipo];
+    data.nombre_i18n = data.nombre;
+    data.titulo_i18n = data.titulo;
+    data.padre_i18n = data.padre_es;
+
+    data.imp = data.imp ?? nb.rand(100);
+    data.imp_i18n = nb.esIsoFloat(data.imp);
+    return data;
 }
 
 form.filter = data => {
@@ -31,8 +45,9 @@ form.filter = data => {
 }
 form.validate = data => {
     i18n.reset() // required fields
-        .required("nombre", data.nombre).required("enlace", data.enlace)
-        .gt0("tipo", data.tipo).gt0("orden", data.orden);
+        .required("nombre", data.nombre).required("titulo", data.titulo).required("enlace", data.enlace)
+        .iGt0("tipo", data.tipo).iGt0("orden", data.orden)
+        .gt0("imp", data.imp_i18n);
     return i18n.isOk() ? i18n.getData() : !i18n.setError("errForm");
 }
 

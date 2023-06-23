@@ -154,29 +154,22 @@ function DomBox() {
 			}).click(action, (ev, link) => {
 				const name = link.getAttribute("href");
 				const fnFind = opts[name.substring(1)];
-				fnFind(fnEvent(link.closest("tr"), link));
+				fnFind(fnEvent(link.closest("tr"), link), data);
 			});
 			fnFooter();
 		}
 
 		fnRender(); // Render table and add extra events
-		table.update = fnRender; // Mutate table object 
-		table.insert = function(row) { data.push(row); fnRender(); }
+		table.render = fnRender; // Mutate table object 
+		table.insert = function(row, id) { row.id = id; data.push(row); fnRender(); }
+		table.update = function(row) { Object.assign(detail.data, row); fnRender(); }
+		//table.save = function(row, id) { id ? table.insert(row, id) : table.update(row); } // Insert or update
 		table.append = function(rows) { ab.append(data, rows); fnRender(); }
-		table.save = function(row, id) {
-			if (id) { // Inserting....
-				row.id = id;
-				data.push(row);
-			}
-			else // Updating....
-				Object.assign(detail.data, row);
-			fnRender();
-		}
 
-		table.first = () => opts.find(fnMove(0));
-		table.prev = () => opts.find(fnMove(detail.index - 1));
-		table.next = () => opts.find(fnMove(detail.index + 1));
-		table.last = () => opts.find(fnMove(detail.size));
+		table.first = () => opts.find(fnMove(0), data);
+		table.prev = () => opts.find(fnMove(detail.index - 1), data);
+		table.next = () => opts.find(fnMove(detail.index + 1), data);
+		table.last = () => opts.find(fnMove(detail.size), data);
 
 		table.remove = function() {
 			self.closeAlerts(); // close prev. alerts
@@ -195,18 +188,17 @@ function DomBox() {
 
 		// Orderable columns system
 		const links = self.getAll(".sort", table.tHead);
-		return self.each(links, link => { // Each sort icon
-			link.onclick = ev => { // Replace sort events => not duplicate them
-				const dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
-				const column = link.getAttribute("href").substring(1); // Column name
-				const fnSort = opts["sort-" + column] || ((a, b) => sb.cmpBy(a, b, column)); // Sort function
-				// Update all sort icons
-				self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
-					.addClass(links, "sort-none") // Reset all orderable columns
-					.removeClass(link, "sort-none").addClass(link, "sort-" + dir); // Column to order table
-				ab.sort(data, dir, fnSort); // Sort data by function
-				fnRender(); // Build table rows
-			}
+		return self.setClick(links, ev => { // Replace sort events => not duplicate them
+			const link = ev.target; // current link clicked
+			const dir = self.hasClass(link, "sort-asc") ? "desc" : "asc"; // Toggle sort direction
+			const column = link.getAttribute("href").substring(1); // Column name
+			const fnSort = opts["sort-" + column] || ((a, b) => sb.cmpBy(a, b, column)); // Sort function
+			// Update all sort icons
+			self.removeClass(links, "sort-asc").removeClass(links, "sort-desc") // Remove prev order
+				.addClass(links, "sort-none") // Reset all orderable columns
+				.removeClass(link, "sort-none").addClass(link, "sort-" + dir); // Column to order table
+			ab.sort(data, dir, fnSort); // Sort data by function
+			fnRender(); // Build table rows
 		});
 	}
 
@@ -377,10 +369,7 @@ function DomBox() {
 		const data = Object.assign({}, aux); // clone resutls
 		const pk = data[opts.pkName || "id"]; // Get pk value
 		const fnSave = (opts.insert && !pk) ? opts.insert : opts.update;
-		return self.send(form, opts).then(srv => {
-			fnSave(data, srv); // Lunch insert or update
-			opts.end && opts.end(data, srv); // Common end
-		});
+		return self.send(form, opts).then(info => { fnSave(data, info); }); // Lunch insert or update
 	}
 
 	this.mask = (list, mask, name) => self.each(list, (el, i) => fnToggle(el, name, nb.mask(mask, i))); //toggle class by mask
@@ -448,6 +437,8 @@ function DomBox() {
 
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
+	this.setClick = (list, fn) => self.each(list, el => { el.onclick = fn; });
+	this.setClickFrom = (el, selector, fn) => self.setClick(el.querySelectorAll(selector), fn);
 	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
 	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
@@ -463,24 +454,17 @@ function DomBox() {
 	this.afterReset = (form, fn) => fnAddEvent(form, "reset", ev => setTimeout(() => fn(ev), 1));
 
 	this.tabs = function(tabs, opts) {
-		opts = opts || {};
-		opts.classTab = opts.classTab || "tab-content";
+		tabs = fnQueryAll(tabs); // Get all tabs
+		opts = opts || {}; // default optios
 		opts.classActive = opts.classActive || "active";
 
-		tabs = fnQueryAll(tabs || ("." + opts.classTab)); // Get all tabs
 		let _tabIndex = self.findIndex("." + opts.classActive, tabs); //current index tab
 		let _tabSize = tabs.length - 1; // max tabs size
+		let _prevTab = _tabIndex; // back to previous tab
 		let _tabMask = ~0; // all 11111....
 
 		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
-
-		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
-		self.onPrevTab = (id, fn) => self.onTab(id, "prev-tab", fn);
-		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
-		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
-		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
-		self.onChangeTab = (id, fn) => self.onTab(id, ON_CHANGE, fn);
 
 		function fnShowTab(i) { //show tab by index
 			self.closeAlerts(); // always close alerts
@@ -488,14 +472,14 @@ function DomBox() {
 			if (i == _tabIndex) // is current tab
 				return self; // nothing to do
 			const tab = tabs[i]; // get next tab
-			const name = (i < _tabIndex) ? "prev-tab" : "next-tab"; // Event name
-			// Trigger prev or next tab event and after show tab event (show-tab) and change tab if all ok
-			if (self.trigger(tabs[_tabIndex], name).isOk() && self.trigger(tab, "show-tab").isOk()) {
+			const fn = opts["tab-" + i] || fnSelf; // Event handler
+			if (fn(tab)) { // Validata change tab
 				const progressbar = self.get("#progressbar");
 				if (progressbar) { // progressbar is optional
 					const step = "step-" + i; //go to a specific step on progressbar
 					self.each(progressbar.children, li => self.toggle(li, opts.classActive, li.id <= step));
 				}
+				_prevTab = _tabIndex; // save from
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, opts.classActive).addClass(tab, opts.classActive) // set active tab
 					.setFocus(tab); // Auto set focus and scroll
@@ -505,10 +489,7 @@ function DomBox() {
 
 		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
 		self.lastTab = () => fnShowTab(_tabSize);
-		self.prevTab = () => { // Ignore 0's mask tab
-			for (var i = _tabIndex - 1; !nb.mask(_tabMask, i) && (i > 0); i--);
-			return fnShowTab(i); // Show calculated prev tab
-		}
+		self.prevTab = () => fnShowTab(_prevTab);
 		self.nextTab = () => { // Ignore 0's mask tab
 			for (var i = _tabIndex + 1; !nb.mask(_tabMask, i) && (i < _tabSize); i++);
 			return fnShowTab(i); // Show calculated next tab

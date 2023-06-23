@@ -1,6 +1,6 @@
 
-import ab from "../usuario/array-box.js";
-import sb from "../usuario/string-box.js";
+import ab from "../lib/array-box.js";
+import sb from "../lib/string-box.js";
 import i18n from "../i18n/langs.js";
 
 const form = {}; // validators for model
