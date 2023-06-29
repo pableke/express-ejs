@@ -7,7 +7,9 @@ import i18n from "./model/login.js";
 dom.ready(function() {
 	const form = i18n.getForm("login");
 	const flogin = dom.getForm("#login");
-    dom.onChangeInputs(flogin, "#usuario", (ev, el) => { el.value = sb.clean(el.value); })
+
+	dom.tabs(".tab-content") // Tabs hendlres
+		.onChangeInputs(flogin, "#usuario", (ev, el) => { el.value = sb.clean(el.value); })
 		.submit(flogin, ev => dom.isValid(flogin, form.validate)); // validate and submit
 
 	grecaptcha.ready(function() {

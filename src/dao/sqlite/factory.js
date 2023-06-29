@@ -14,7 +14,7 @@ const db = new sqlite.Database(config.SQLITE_PATH, sqlite.OPEN_READWRITE, err =>
 });
 
 // Add actions as promises
-db.filter = (sql, params) => {
+db.list = (sql, params) => {
 	return new Promise((resolve, reject) => {
 		db.all(sql, params, (err, data) => err ? reject(err) : resolve(data));
 	});
@@ -26,12 +26,12 @@ db.find = (sql, params) => {
 }
 db.insert = function(sql, params) {
 	return new Promise((resolve, reject) => { // Important! declare function to use this!!
-		db.run(sql, params, function(err) { err ? reject(err) : resolve(this.lastID); });
+		db.run(sql, params, err => err ? reject(err) : resolve(db.lastID));
 	});
 }
 function fnUpdate(sql, params) {
-	return new Promise((resolve, reject) => { // Important! declare function to use this!!
-		db.run(sql, params, function(err) { err ? reject(err) : resolve(this.changes); });
+	return new Promise((resolve, reject) => {
+		db.run(sql, params, err => err ? reject(err) : resolve(db.changes));
 	});
 }
 db.delete = db.update = fnUpdate;

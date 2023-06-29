@@ -1,5 +1,5 @@
 
-import mysql from "mysql"; // MySql connector
+import mysql from "mysql2/promise"; // MySql connector
 import config from "app/dist/config.js"; // Configurations
 
 const pool = mysql.createPool({
@@ -11,29 +11,19 @@ const pool = mysql.createPool({
 	password: config.MYSQL_PASS
 });
 
-pool.exec = function(sql) {
-	return new Promise((resolve, reject) => {
-		pool.query(sql, (err, results) => {
-			err ? reject(err) : resolve(results);
-		});
-	});
-};
+// Add actions as promises
+pool.list = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows));
+pool.find = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows[0]));
+pool.insert = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.insertId));
+const fnUpdate = (sql, params) => pool.query(sql, params).then(result => {console.log(result);return Promise.resolve(result.affectedRows)});
+pool.delete = pool.update = fnUpdate;
 
 export default {
 	open: function() {
-		pool.getConnection((err, connection) => {
-			if (err)
-				return console.error(err);
-			connection.release();
-			console.log("> MySql DAO open.");
-		});
 	},
 	close: function() {
-		pool.end(function(err) {
-			if (err)
-				return console.error(err);
-			// close all connections
-			console.log("> MySql DAO closed.")
+		pool.end(function(err) { // close all connections
+			err ? console.error(err) : console.log("> MySql DAO closed.");
 		});
 	}
 };

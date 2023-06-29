@@ -40,6 +40,13 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 .textr { text-align: right; }
 .text-err { color: red; }
 .fr { float: right; }
+.vertical-line {
+	display: inline-block;
+	margin: 0 10px;
+	height: 46px;
+	border-left: 1px solid #464646;
+	vertical-align: bottom;
+}
 
 .icon { margin: 2px 6px; }
 .licon { margin-right: 6px; }

@@ -179,37 +179,33 @@
 </div>
 
 <div id="tab-4" class="tab-content <%=css.tab4%>">
-	<div class="navbar update-only">
-		<hr/>
-		<a href="#first-item" class="btn btn-primary" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
-		<a href="#prev-item" class="btn btn-primary" tabindex="61"><i class="fas fa-angle-left"></i></a>
-		<a href="#next-item" class="btn btn-primary" tabindex="62"><i class="fas fa-angle-right"></i></a>
-		<a href="#last-item" class="btn btn-primary" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
-		<hr/>
-	</div>
-
-	<form id="menu" action="/menu/save.html" method="post">
+	<form id="menu" action="/menu/save.html" method="post" class="form-glass">
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" id="id" name="id" class="hide" />
 
-		<div class="ui-block">
+		<div class="ui-inline">
 			<label for="menu-nombre" class="required">Nombre:</label>
 			<input type="text" id="menu-nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" />
 			<div class="ui-errtip"></div>
 		</div>
-		<div class="ui-block">
+		<div class="ui-inline">
 			<label for="menu-titulo" class="required">Título:</label>
 			<input type="text" id="menu-titulo" name="titulo" maxlength="200" tabindex="2" class="ui-input ui-text" />
 			<div class="ui-errtip"></div>
 		</div>
-		<div class="ui-block">
-			<label for="menu-imp" class="required">Importe:</label>
-			<input type="text" id="menu-imp" name="imp_i18n" maxlength="20" tabindex="3" class="ui-input ui-float" />
+		<div class="ui-box">
+			<label for="menu-enlace" class="required">Enlace:</label>
+			<input type="text" id="menu-enlace" name="enlace" maxlength="200" tabindex="3" class="ui-input ui-text" />
 			<div class="ui-errtip"></div>
 		</div>
-		<div class="ui-block">
+		<div class="ui-box">
+			<label for="menu-imp" class="required">Importe:</label>
+			<input type="text" id="menu-imp" name="imp_i18n" maxlength="20" tabindex="4" class="ui-input ui-float" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-box">
 			<label for="menu-fecha" class="required">Fecha:</label>
-			<input type="date" id="menu-fecha" name="creado" tabindex="4" class="ui-input ui-date" disabled />
+			<input type="date" id="menu-fecha" name="creado" tabindex="5" class="ui-input ui-date" disabled />
 			<div class="ui-errtip"></div>
 		</div>
 
@@ -220,6 +216,11 @@
 			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save licon"></i>Save</button>
 			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy licon"></i></i>Clone</button>
 			<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash licon"></i> Borrar</a>
+			<span class="vertical-line update-only"></span>
+			<a href="#first-item" class="btn btn-primary update-only" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
+			<a href="#prev-item" class="btn btn-primary update-only" tabindex="61"><i class="fas fa-angle-left"></i></a>
+			<a href="#next-item" class="btn btn-primary update-only" tabindex="62"><i class="fas fa-angle-right"></i></a>
+			<a href="#last-item" class="btn btn-primary update-only" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
 		</div>
 	</form>
 </div>

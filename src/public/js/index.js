@@ -7,7 +7,9 @@ import i18n from "./model/test.js";
 
 //DOM is fully loaded
 dom.ready(function() {
-	dom.onLoadTab(2, (ev, tab) => {
+    const tabs = {};
+
+    tabs["tab-2"] = tab => {
 		const ftest = dom.getForm("#test");
 		const filter = dom.getForm("#filter");
 		const pruebas = dom.get("table#pruebas");
@@ -19,7 +21,8 @@ dom.ready(function() {
 				RESUME.c4 = RESUME.imp = 0;
 				dom.toggleHide("a[href='#clear-pruebas']", !data.size);
 			},
-			onRender: (data, view) => {
+			onRender: (data, i) => {
+				data.count = i + 1;
 				data.nif = data.nif ?? sb.rand(9);
 				data.memo = data.memo ?? (sb.rand(nb.randInt(9, 15)) + " " + sb.rand(nb.randInt(5, 12)) + " " + sb.rand(nb.randInt(3, 9)));
 				data.c4 = data.c4 ?? nb.rand(0, 300);
@@ -30,7 +33,7 @@ dom.ready(function() {
 				data.icons = data.icons ?? nb.randInt(0, 3);
 	
 				RESUME.c4 += data.c4; RESUME.imp += data.imp;
-				fnRender(data, view);
+				fnRender(data);
 			},
 			afterRender: data => {
 				data.c4 = i18n.isoFloat(RESUME.c4);
@@ -109,5 +112,8 @@ dom.ready(function() {
 		};
 		dom.click("button#clone", el => !dom.validate(ftest, FORM_TEST_CLONE)) // clone current on server
 			.submit(ftest, ev => !dom.validate(ftest, FORM_TEST)); // save current on server
-	})
+		delete tabs["tab-2"]; // Run once
+	}
+
+	dom.tabs(".tab-content", tabs) // Tabs hendlres
 });

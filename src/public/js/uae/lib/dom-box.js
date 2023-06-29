@@ -744,6 +744,7 @@ function DomBox(opts) {
 		/**************** Tabs helper ****************/
 		let _tabIndex = self.findIndex(".active", tabs); //current index tab
 		let _tabSize = tabs.length - 1; // max tabs size
+		let _backTab = _tabIndex; // back to previous tab
 		let _tabMask = ~0; // all 11111....
 
 		self.getTabs = () => tabs; //all tabs
@@ -771,6 +772,7 @@ function DomBox(opts) {
 					const step = "step-" + i; //go to a specific step on progressbar
 					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
 				}
+				_backTab = _tabIndex; // save from
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
 					.setFocus(tab).scroll(); // Auto set focus and scroll
@@ -780,6 +782,7 @@ function DomBox(opts) {
 
 		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
 		self.lastTab = () => fnShowTab(_tabSize);
+		self.backTab = () => fnShowTab(_backTab);
 		self.prevTab = () => { // Ignore 0's mask tab
 			for (var i = _tabIndex - 1; !nb.mask(_tabMask, i) && (i > 0); i--);
 			return fnShowTab(i); // Show calculated prev tab
@@ -790,7 +793,8 @@ function DomBox(opts) {
 		}
 
 		if (_tabSize > 0) { // Has view tabs?
-			self.onclick("a[href='#prev-tab']", () => !self.prevTab())
+			self.onclick("a[href='#back-tab']", () => !self.backTab())
+				.onclick("a[href='#prev-tab']", () => !self.prevTab())
 				.onclick("a[href='#next-tab']", () => !self.nextTab())
 				.onclick("a[href='#last-tab']", () => !self.lastTab())
 				.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
