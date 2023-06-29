@@ -20,7 +20,7 @@ export default class Menus {
 
     filter(data) {
         const sql = "select * from v_menu_padre where (? is null or tipo = ?) and (? is null or nombre like ?)";
-        return this.db.filter(sql, [data.tipo, data.tipo, data.nombre, data.nombre + "%"]);
+        return this.db.list(sql, [data.tipo, data.tipo, data.nombre, data.nombre + "%"]);
     }
 
     getById(id) {
@@ -28,8 +28,8 @@ export default class Menus {
     }
  
     getPublic() { return i18n.get("menus") };
-    getActions(user) { return this.db.filter("select * from v_actions where usuario_id = ?", user); }
-    getMenus(user) { return this.db.filter("select * from v_menus where usuario_id is null or usuario_id = ?", user) };
+    getActions(user) { return this.db.list("select * from v_actions where usuario_id = ?", user); }
+    getMenus(user) { return this.db.list("select * from v_menus where usuario_id is null or usuario_id = ?", user) };
     serialize(user) {
         const fnRender = i18n.get("menu");
         return this.getMenus(user).then(menus => Promise.resolve(sb.render(tpl, menus, fnRender)));

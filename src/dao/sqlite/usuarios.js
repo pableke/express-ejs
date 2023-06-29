@@ -16,12 +16,12 @@ export default class Usuarios {
     }
 
     all() {
-        return this.db.filter("select * from usuarios order by nif desc limit 10", []);
+        return this.db.list("select * from usuarios order by nif desc limit 10", []);
     }
     filter(data) {
         const sql = "select * from usuarios where (? is null or nif like ?) and (? is null or email like ?)";
         //const sql2 = "select * from usuarios where nif like :nif and email like :email"; //no named parameters
-        return this.db.filter(sql, [data.nif, data.nif + "%", data.email, data.email + "%"]);
+        return this.db.list(sql, [data.nif, data.nif + "%", data.email, data.email + "%"]);
     }
 
     getById(id) {
@@ -50,7 +50,7 @@ export default class Usuarios {
         const params = [data.nif, data.nombre, data.apellido1, data.apellido2, data.email, data.activado, data.id];
         return fnUpdate(this.db, sql, params);
     }
-    activate(user) { //datetime ej: datetime('2023-06-07T12:00:25.0Z')
+    activate(user) { //ej: select datetime('2023-06-07T12:00:25.0Z') -> select strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
         const sql = "update usuarios set activado = datetime('now')  where id = ?";
         return fnUpdate(this.db, sql, user);
     }

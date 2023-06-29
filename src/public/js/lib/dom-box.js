@@ -108,13 +108,14 @@ function DomBox() {
 			return self; // guard statement
 
 		opts = opts || {};
-		opts.remove = opts.remove || "remove";
-		opts.removeAll = opts.removeAll || "removeAll";
+		opts.msgConfirmRemove = opts.msgConfirmRemove || "remove";
+		opts.msgConfirmReset = opts.msgConfirmReset || "removeAll";
 		opts.beforeRender = opts.beforeRender || fnSelf;
 		opts.afterRender = opts.afterRender || fnSelf;
+		opts.findIndex = opts.findIndex || fnSelf;
 		opts.reset = opts.reset || fnSelf;
 
-		const detail = { size: 0, index: 0 }; // Event detail
+		const detail = { rows: data, size: 0, index: 0 }; // Event detail
 		const tbody = table.tBodies[0]; // Data rows
 
 		function fnMove(i) {
@@ -130,11 +131,11 @@ function DomBox() {
 		}
 		function fnChange(ev, tr) {
 			const fn = opts["change-" + ev.target.name];
-			fn(fnEvent(tr, ev.target), data);
+			fn(fnEvent(tr, ev.target));
 			fnFooter(); // Build footer only
 		}
 		function fnFooter() { // Render tFoot only
-			opts.afterRender(detail, data);
+			opts.afterRender(detail);
 			self.format(table.tFoot, detail)
 				.change(table.tFoot.children, fnChange);
 		}
@@ -154,7 +155,7 @@ function DomBox() {
 			}).click(action, (ev, link) => {
 				const name = link.getAttribute("href");
 				const fnFind = opts[name.substring(1)];
-				fnFind(fnEvent(link.closest("tr"), link), data);
+				fnFind(fnEvent(link.closest("tr"), link));
 			});
 			fnFooter();
 		}
@@ -166,21 +167,21 @@ function DomBox() {
 		//table.save = function(row, id) { id ? table.insert(row, id) : table.update(row); } // Insert or update
 		table.append = function(rows) { ab.append(data, rows); fnRender(); }
 
-		table.first = () => opts.find(fnMove(0), data);
-		table.prev = () => opts.find(fnMove(detail.index - 1), data);
-		table.next = () => opts.find(fnMove(detail.index + 1), data);
-		table.last = () => opts.find(fnMove(detail.size), data);
+		table.first = () => fnMove(0);
+		table.prev = () => fnMove(detail.index - 1);
+		table.next = () => fnMove(detail.index + 1);
+		table.last = () => fnMove(detail.size);
 
 		table.remove = function() {
 			self.closeAlerts(); // close prev. alerts
-			if (i18n.confirm(opts.remove) && opts.remove(detail)) {
+			if (i18n.confirm(opts.msgConfirmRemove) && opts.remove(detail)) {
 				data.splice(detail.index, 1); // Remove data row
 				fnRender(); // Build table rows
 			}
 		}
 		table.reset = function() {
 			self.closeAlerts(); // close prev. alerts
-			if (i18n.confirm(opts.removeAll) && opts.reset(data)) {
+			if (i18n.confirm(opts.msgConfirmReset) && opts.reset(data)) {
 				data.splice(0); // Remove data row
 				fnRender(); // Build table rows
 			}
@@ -460,7 +461,7 @@ function DomBox() {
 
 		let _tabIndex = self.findIndex("." + opts.classActive, tabs); //current index tab
 		let _tabSize = tabs.length - 1; // max tabs size
-		let _prevTab = _tabIndex; // back to previous tab
+		let _backTab = _tabIndex; // back to previous tab
 		let _tabMask = ~0; // all 11111....
 
 		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
@@ -479,7 +480,7 @@ function DomBox() {
 					const step = "step-" + i; //go to a specific step on progressbar
 					self.each(progressbar.children, li => self.toggle(li, opts.classActive, li.id <= step));
 				}
-				_prevTab = _tabIndex; // save from
+				_backTab = _tabIndex; // save from
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, opts.classActive).addClass(tab, opts.classActive) // set active tab
 					.setFocus(tab); // Auto set focus and scroll
@@ -489,14 +490,19 @@ function DomBox() {
 
 		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
 		self.lastTab = () => fnShowTab(_tabSize);
-		self.prevTab = () => fnShowTab(_prevTab);
+		self.backTab = () => fnShowTab(_backTab);
+		self.prevTab = () => { // Ignore 0's mask tab
+			for (var i = _tabIndex - 1; !nb.mask(_tabMask, i) && (i > 0); i--);
+			return fnShowTab(i); // Show calculated prev tab
+		}
 		self.nextTab = () => { // Ignore 0's mask tab
 			for (var i = _tabIndex + 1; !nb.mask(_tabMask, i) && (i < _tabSize); i++);
 			return fnShowTab(i); // Show calculated next tab
 		}
 
 		if (_tabSize > 0) { // Has view tabs?
-			self.click("a[href='#prev-tab']", () => !self.prevTab())
+			self.click("a[href='#back-tab']", () => !self.backTab())
+				.click("a[href='#prev-tab']", () => !self.prevTab())
 				.click("a[href='#next-tab']", () => !self.nextTab())
 				.click("a[href='#last-tab']", () => !self.lastTab())
 				.click("a[href^='#tab-']", (ev, el) => !self.viewTab(sb.lastId(el.href)));

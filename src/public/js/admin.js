@@ -19,13 +19,13 @@ dom.ready(function() {
         function fnFormMenu(data) {
             const form = dom.getForm("#menu");
             const validate = menu.getValidator("menu", "validate");
-            const endSubmit = () => dom.prevTab().showOk("saveOk");
+            const endSubmit = () => dom.backTab().showOk("saveOk");
             const endClone = () => dom.hide(updateOnly).setInputVal(form, "id").showOk("saveOk");
             const FORM_MENU = { validate, update: table.update, insert: table.insert };
 
             // Rewrite submit event when show form tab
             form.onsubmit = ev => { ev.preventDefault(); dom.validate(form, FORM_MENU).then(endSubmit); }
-            dom.setClickFrom(tabForm, "button#clone", el => !dom.validate(form, FORM_MENU).then(endClone))
+            dom.setClickFrom(tabForm, "button#clone", el => dom.validate(form, FORM_MENU).then(endClone))
                 .load(form, data).viewTab(4);
         }
         function fnCreateMenu() {
@@ -34,10 +34,10 @@ dom.ready(function() {
         }
         function fnViewMenu(data) {
             // Eventos de control para el formulario de datos
-            dom.setClickFrom(tabForm, "a[href='#first-item']", ev => table.first())
-                .setClickFrom(tabForm, "a[href='#prev-item']", ev => table.prev())
-                .setClickFrom(tabForm, "a[href='#next-item']", ev => table.next())
-                .setClickFrom(tabForm, "a[href='#last-item']", ev => table.last())
+            dom.setClickFrom(tabForm, "a[href='#first-item']", ev => fnViewMenu(table.first().data))
+                .setClickFrom(tabForm, "a[href='#prev-item']", ev => fnViewMenu(table.prev().data))
+                .setClickFrom(tabForm, "a[href='#next-item']", ev => fnViewMenu(table.next().data))
+                .setClickFrom(tabForm, "a[href='#last-item']", ev => fnViewMenu(table.last().data))
                 .setClickFrom(tabForm, "a[href='#remove-item']", ev => table.remove())
                 .show(updateOnly);
             fnFormMenu(data);
@@ -47,8 +47,8 @@ dom.ready(function() {
         const TABLE_MENUS = {
             beforeRender: data => dom.toggleHide(linksReset, !data.size),
             onRender: menu.get("menu"), // Render object
-            find: ev => fnViewMenu(ev.data),
-            "find-padre": (ev, list) => fnViewMenu(list.find(row => (row.id == ev.data.padre))),
+            find: ev => fnViewMenu(ev.data), // Show current data
+            "find-padre": ev => fnViewMenu(ev.rows.find(row => (row.id == ev.data.padre))),
             "sort-orden": (a, b) => nb.cmp(a.orden, b.orden),
             "sort-imp": (a, b) => nb.cmp(a.imp, b.imp),
             remove: ev => dom.viewTab(3)
