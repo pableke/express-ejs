@@ -1,6 +1,6 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-gh-pages
-//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-gh-pages
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
@@ -9,7 +9,6 @@ import uglify from 'gulp-uglify';
 import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
 import strip from "gulp-strip-comments";
-import deploy from "gulp-gh-pages";
 
 const CSS_FILES = "src/public/css/**/*.css";
 const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];
@@ -75,7 +74,7 @@ gulp.task("minify-js", done => {
 });
 
 // Task to build dist when deployment on server
-gulp.task("deploy", ["modules", "minify-html", "minify-css", "minify-js"]);
+gulp.task("deploy", gulp.series("modules", "minify-html", "minify-css", "minify-js"));
 
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
