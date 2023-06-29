@@ -6,10 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "gulp",
+    "deploy": "gulp deploy",
+    "start": "node ./index.js",
+    "local": "node ./dist/index.js",
     "test": "node --no-warnings ./tests/validator.test.js",
-    "dev": "nodemon --ignore src --ignore test --ignore dist/public --watch dist ./dist/index.js",
-    "static": "live-server src/public --port=3001",
-    "start": "node ./src/index.js"
+    "dev": "nodemon --ignore dist/public --watch dist ./dist/index.js",
+    "static": "live-server src/public --port=3001"
   },
   "keywords": [],
   "author": "Pablo Rosique Vidal",
@@ -34,6 +36,7 @@
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
+    "gulp-gh-pages": "^0.5.4",
     "gulp-htmlmin": "^5.0.1",
     "gulp-minify-ejs": "^1.0.3",
     "gulp-strip-comments": "^2.5.2",

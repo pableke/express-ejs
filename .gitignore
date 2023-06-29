@@ -6,6 +6,7 @@ certs
 src/public/files
 src/public/thumb
 node_modules
+.vscode
 
 # Files
 .env

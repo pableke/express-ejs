@@ -1,6 +1,6 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
-//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-gh-pages
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-gh-pages
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
@@ -9,6 +9,7 @@ import uglify from 'gulp-uglify';
 import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
 import strip from "gulp-strip-comments";
+import deploy from "gulp-gh-pages";
 
 const CSS_FILES = "src/public/css/**/*.css";
 const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];
@@ -70,6 +71,25 @@ gulp.task("minify-js", done => {
 	gulp.src(JS_FILES).pipe(uglify()).pipe(gulp.dest("dist")).on("end", () => {
 		fnConcat(JS_UAE, "dist/public/js/uae", "uae-min.js");
 		fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", done);
+	});
+});
+
+// Task to update distribution branch
+gulp.task("deploy", done => {
+	const config = { 
+		remoteUrl: "https://github.com/pableke/express-ejs.git",
+		branch: "dist"
+	};
+
+	const PATH = ["package.json", "./dist/**/*"];
+	return gulp.src(PATH).pipe(deploy(config)).on("end", () => {
+		gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/dao").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/ctrl").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/i18n").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
+		gulp.src("dist/public/js/model").pipe(gulp.symlink("node_modules/app"));
+		done();
 	});
 });
 
