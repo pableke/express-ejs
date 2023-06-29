@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "gulp",
-    "postinstall": "gulp",
-    "deploy": "gulp deploy",
+    "postinstall": "gulp deploy",
     "start": "node ./dist/index.js",
     "test": "node --no-warnings ./tests/validator.test.js",
     "dev": "nodemon --ignore dist/public --watch dist ./dist/index.js",
