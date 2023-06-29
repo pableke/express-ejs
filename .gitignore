@@ -2,10 +2,7 @@
 # Directories
 dist
 docs
-spec
 certs
-dbs
-src/dbs
 src/public/files
 src/public/thumb
 node_modules
