@@ -74,24 +74,8 @@ gulp.task("minify-js", done => {
 	});
 });
 
-// Task to update distribution branch
-gulp.task("deploy", done => {
-	const config = { 
-		remoteUrl: "https://github.com/pableke/express-ejs.git",
-		branch: "dist"
-	};
-
-	const PATH = ["package.json", "./dist/**/*"];
-	return gulp.src(PATH).pipe(deploy(config)).on("end", () => {
-		gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/dao").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/ctrl").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/i18n").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/public/js/model").pipe(gulp.symlink("node_modules/app"));
-		done();
-	});
-});
+// Task to build dist when deployment on server
+gulp.task("deploy", ["modules", "minify-html", "minify-css", "minify-js"]);
 
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
