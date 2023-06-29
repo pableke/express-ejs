@@ -1,6 +1,6 @@
 
 //npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
-//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
