@@ -1,8 +1,7 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-rename gulp-minify-ejs
-//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-rename gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
+//npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
 import fs from "fs"; //file system module
-import path from "path"; //file and directory paths
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
 import minifyejs from "gulp-minify-ejs";
@@ -10,7 +9,6 @@ import uglify from 'gulp-uglify';
 import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
 import strip from "gulp-strip-comments";
-import rename from "gulp-rename";
 
 const CSS_FILES = "src/public/css/**/*.css";
 const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];

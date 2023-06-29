@@ -1,5 +1,5 @@
 
-import nb from "../usuario/number-box.js";
+import nb from "../lib/number-box.js";
 
 export default {
     lang: "en", // English
