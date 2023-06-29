@@ -3,7 +3,6 @@
 //npm install -D gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-rename gulp-minify-ejs
 import fs from "fs"; //file system module
 import path from "path"; //file and directory paths
-import { spawn } from "child_process";
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
 import minifyejs from "gulp-minify-ejs";
@@ -18,27 +17,7 @@ const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];
 const HTML_PATH = [ "src/**/*.html", "src/**/*.ejs" ];
 const RM_OPTS = { recursive: true, force: true };
 
-const fnError = err => err && console.error(err);
 const fnConcat = (source, dest, name) => gulp.src(source).pipe(concat(name)).pipe(gulp.dest(dest));
-function symdir(source, dest, name) {
-	const name1 = path.basename(source);
-	fs.rmSync(path.join(dest, name), RM_OPTS);
-	return gulp.src(source).pipe(gulp.symlink(dest)).on("end", () => {
-		fs.renameSync(path.join(dest, name1), path.join(dest, name), fnError);
-	});
-}
-
-// Server task
-var node;
-gulp.task("server", done => {
-	if (node) node.kill();
-	node = spawn("node", [ "--inspect", "./dist/index.js" ], { stdio: "inherit" });
-	node.on("close", function(code) {
-		if (code === 8)
-			gulp.log("Error detected, waiting for changes...");
-	});
-	done();
-});
 
 // Tasks to copy sources to dist
 gulp.task("modules", done => {
@@ -99,9 +78,8 @@ gulp.task("minify-js", done => {
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
-	gulp.watch(JS_FILES, gulp.series("minify-js", "server"));
+	gulp.watch(JS_FILES, gulp.series("minify-js"));
 	// Other watchers ...
 });
 
-gulp.task("default", gulp.series("modules", "minify-html", "minify-css", "minify-js", 
-								"server", "watch"));
+gulp.task("default", gulp.series("modules", "minify-html", "minify-css", "minify-js", "watch"));

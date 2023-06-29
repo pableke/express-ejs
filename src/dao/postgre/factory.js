@@ -15,6 +15,7 @@ pool.delete = pool.update = fnUpdate;
 
 export default {
 	open: function() {
+		console.log("> PostgreSql DAO open.")
 	},
 	close: function() {
 		pool.end(); // close all connections
