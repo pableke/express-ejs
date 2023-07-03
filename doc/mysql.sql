@@ -11,15 +11,9 @@ CREATE TABLE IF NOT EXISTS users (
 	nombre: varchar(100) not null,
 	ap1: varchar(100) not null,
 	ap2: varchar(100),
-	correo: varchar(200) not null,
-	salt: varchar(50) not null,
+	email: varchar(200) not null,
 	clave: varchar(150) not null,
 	mask: smallint() unsigned default 0, //0 a 65535
-	created_at: timestamp not null default current_date,
-	valid_at: timestamp default null
-);
-
-CREATE TABLE IF NOT EXISTS menus (
-	id int(11) not null auto_increment primary key, //0 a 429.4967.295
-	created_at: timestamp not null default current_date
+	activado: timestamp not null default current_date,
+	creado: timestamp default null
 );

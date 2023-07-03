@@ -35,13 +35,10 @@ dom.ready(() => {
 		unloading(); // fin del calculo de las UT's
 	}
 
-	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)));
-
-	//dom.click("[href='#tab-0']", el => dom.setValue("#org-id").setValue("#tramit-value"));
-	//const file = dom.get("#factura_input");
-	//file.parentNode.style.padding = "3px";
-	dom.click("[href='#tab-1']", el => {
-		dom.setValue("#org-id", el.dataset.organica).setValue("#tramit-value", el.dataset.grupo);
-		//file.click();
+	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)))
+		.onChangeFile("[type='file']", (file, data) => dom.toggleHide("A.tab-file-next", !data))
+		.click("[data-organica]", link => { dom.each("a.load-mask", el => { el.dataset.mask = link.dataset.mask; }); })
+		.click("[data-mask]", el => { dom.setTabMask(parseInt(el.dataset.mask, 2)); })
+		.click("[data-bitor]", el => { dom.orTabMask(parseInt(el.dataset.bitor, 2)); })
+		.click("[data-bitand]", el => { dom.andTabMask(parseInt(el.dataset.bitand, 2)); });
 	});
-});

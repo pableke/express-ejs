@@ -14,8 +14,8 @@ import usuarios from "./usuarios.js";
 router.use(util.lang);
 router.get("/", web.index).get("/index", web.index).get("/home", web.index).get("/inicio", web.index)
 		.get("/index.html", web.index).get("/home.html", web.index).get("/inicio.html", web.index);
-router.get("/contact", login.contact).get("/contacto", login.contact)
-		.get("/contact.html", login.contact).get("/contacto.html", login.contact);
+router.post("/contact", login.contact).post("/contacto", login.contact)
+		.post("/contact.html", login.contact).post("/contacto.html", login.contact);
 
 router.get("/login", login.view).get("/signin", login.view)
 		.get("/login.html", login.view).get("/signin.html", login.view);
