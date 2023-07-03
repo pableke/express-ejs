@@ -13,34 +13,23 @@ dom.ready(function() {
         const linksCreate = dom.getAll(".create-data", tab); // ojo uno/varios por tab
         const linksReset = dom.getAll("a[href='#reset']", tab); // ojo uno/varios por tab
 
-        const tabForm = dom.getTab(4); // Menu form tab
-        const updateOnly = tabForm.querySelectorAll(".update-only"); // ojo uno/varios por tab
-
-        function fnFormMenu(data) {
-            const form = dom.getForm("#menu");
+        function fnViewMenu(data) {
+            const form = dom.getForm("#menu"); // form associated to tab
+            const updateOnly = form.querySelectorAll(".update-only"); // ojo uno/varios por tab
             const validate = menu.getValidator("menu", "validate");
             const endSubmit = () => dom.backTab().showOk("saveOk");
             const endClone = () => dom.hide(updateOnly).setInputVal(form, "id").showOk("saveOk");
             const FORM_MENU = { validate, update: table.update, insert: table.insert };
 
-            // Rewrite submit event when show form tab
+            // Rewrite click and submit event when show form tab
             form.onsubmit = ev => { ev.preventDefault(); dom.validate(form, FORM_MENU).then(endSubmit); }
-            dom.setClickFrom(tabForm, "button#clone", el => dom.validate(form, FORM_MENU).then(endClone))
-                .load(form, data).viewTab(4);
-        }
-        function fnCreateMenu() {
-            dom.hide(updateOnly);
-            fnFormMenu();
-        }
-        function fnViewMenu(data) {
-            // Eventos de control para el formulario de datos
-            dom.setClickFrom(tabForm, "a[href='#first-item']", ev => fnViewMenu(table.first().data))
-                .setClickFrom(tabForm, "a[href='#prev-item']", ev => fnViewMenu(table.prev().data))
-                .setClickFrom(tabForm, "a[href='#next-item']", ev => fnViewMenu(table.next().data))
-                .setClickFrom(tabForm, "a[href='#last-item']", ev => fnViewMenu(table.last().data))
-                .setClickFrom(tabForm, "a[href='#remove-item']", ev => table.remove())
-                .show(updateOnly);
-            fnFormMenu(data);
+            dom.setAction(form, "#clone", el => dom.validate(form, FORM_MENU).then(endClone))
+                .setAction(form, "#remove-item", ev => table.remove())
+                .setAction(form, "#first-item", ev => fnViewMenu(table.first().data))
+                .setAction(form, "#prev-item", ev => fnViewMenu(table.prev().data))
+                .setAction(form, "#next-item", ev => fnViewMenu(table.next().data))
+                .setAction(form, "#last-item", ev => fnViewMenu(table.last().data))
+                .toggleHide(updateOnly, !data?.id).load(form, data).viewTab(4);
         }
 
         //const RESUME = {};
@@ -48,7 +37,10 @@ dom.ready(function() {
             beforeRender: data => dom.toggleHide(linksReset, !data.size),
             onRender: menu.get("menu"), // Render object
             find: ev => fnViewMenu(ev.data), // Show current data
-            "find-padre": ev => fnViewMenu(ev.rows.find(row => (row.id == ev.data.padre))),
+            "find-padre": ev => {
+                table.find(row => (row.id == ev.data.padre));
+                fnViewMenu(ev.data);
+            },
             "sort-orden": (a, b) => nb.cmp(a.orden, b.orden),
             "sort-imp": (a, b) => nb.cmp(a.imp, b.imp),
             remove: ev => dom.viewTab(3)
@@ -59,7 +51,7 @@ dom.ready(function() {
 		dom.setRangeDate(filter, "#f1", "#f2") // Filter range date
 			.afterReset(filter, ev => dom.send(filter).then(fnList))
 			.submit(filter, ev => !dom.send(filter).then(fnList))
-            .click(linksCreate, el => fnCreateMenu())
+            .click(linksCreate, el => fnViewMenu())
             .click(linksReset, el => table.reset())
             .send(filter).then(fnList); // autoload data in table
         delete tabs["tab-3"]; // run once

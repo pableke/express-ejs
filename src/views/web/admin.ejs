@@ -199,6 +199,11 @@
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-box">
+			<label for="menu-padre" class="required">Padre:</label>
+			<input type="text" id="menu-padre" name="padre_es" maxlength="200" tabindex="3" class="ui-input ui-text" />
+			<div class="ui-errtip"></div>
+		</div>
+		<div class="ui-box">
 			<label for="menu-imp" class="required">Importe:</label>
 			<input type="text" id="menu-imp" name="imp_i18n" maxlength="20" tabindex="4" class="ui-input ui-float" />
 			<div class="ui-errtip"></div>
@@ -215,12 +220,12 @@
 			<button type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush licon"></i>Clear</i></button>
 			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save licon"></i>Save</button>
 			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy licon"></i></i>Clone</button>
-			<a href="#remove-item" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash licon"></i> Borrar</a>
+			<button id="remove-item" type="button" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash licon"></i> Borrar</button>
 			<span class="vertical-line update-only"></span>
-			<a href="#first-item" class="btn btn-primary update-only" tabindex="60"><i class="fas fa-angle-double-left"></i></a>
-			<a href="#prev-item" class="btn btn-primary update-only" tabindex="61"><i class="fas fa-angle-left"></i></a>
-			<a href="#next-item" class="btn btn-primary update-only" tabindex="62"><i class="fas fa-angle-right"></i></a>
-			<a href="#last-item" class="btn btn-primary update-only" tabindex="63"><i class="fas fa-angle-double-right"></i></a>
+			<button id="first-item" type="button" class="btn btn-primary update-only" tabindex="106"><i class="fas fa-angle-double-left"></i></button>
+			<button id="prev-item" type="button" class="btn btn-primary update-only" tabindex="107"><i class="fas fa-angle-left"></i></button>
+			<button id="next-item" type="button" class="btn btn-primary update-only" tabindex="108"><i class="fas fa-angle-right"></i></button>
+			<button id="last-item" type="button" class="btn btn-primary update-only" tabindex="109"><i class="fas fa-angle-double-right"></i></button>
 		</div>
 	</form>
 </div>

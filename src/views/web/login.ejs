@@ -1,6 +1,6 @@
 
 <div id="tab-0" class="tab-content <%=css.tab0%>">
-	<form id="login" method="post" action="/login" class="form-glass">
+	<form id="signin" method="post" action="/login" class="form-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Formulario de acceso</h2><hr/>
@@ -22,34 +22,34 @@
 </div>
 
 <div id="tab-1" class="tab-content <%=css.tab1%>">
-	<form id="user" action="/signup.html" method="post" class="form-glass">
+	<form id="signup" action="/signup.html" method="post" class="form-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Alta de nuevo usuario</h2><hr/>
 		<div class="ui-box">
 			<label for="nm" class="required">Nombre:</label>
 			<input type="text" id="nm" name="nm" maxlength="200" class="ui-input ui-text" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
-			<span class="ui-errtip"><%=msgs.nm%></span>
+			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-box">
-			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
+			<label for="ap1" class="required">Primer Apellido:</label>
 			<input type="text" id="ap1" name="ap1" maxlength="200" class="ui-input ui-text" tabindex="2" title="<%=i18n.titApellido1%>" placeholder="<%=i18n.phApellido1%>" />
-			<span class="ui-errtip"><%=msgs.ap1%></span>
+			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-box">
-			<label for="ap2"><%=i18n.lblApellido2%>:</label>
+			<label for="ap2">Segundo Apellido:</label>
 			<input type="text" id="ap2" name="ap2" maxlength="200" class="ui-input ui-text" tabindex="3" title="<%=i18n.titApellido2%>" placeholder="<%=i18n.phApellido2%>" />
-			<span class="ui-errtip"><%=msgs.ap2%></span>
+			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-box">
-			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
+			<label for="nif" class="required">Nif:</label>
 			<input type="text" id="nif" name="nif" maxlength="20" class="ui-input ui-text" tabindex="4" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
-			<div class="ui-errtip"><%=msgs.nif%></div>
+			<span class="ui-errtip"></span>
 		</div>
 		<div class="ui-box">
-			<label for="correo" class="required"><%=i18n.lblCorreo%></label>
+			<label for="correo" class="required">E-Mail:</label>
 			<input type="text" name="correo" maxlength="200" tabindex="5" class="ui-input ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.phCorreo%>" />
-			<div class="ui-errtip"><%=msgs.correo%></div>
+			<span class="ui-errtip"></span>
 		</div>
 
 		<hr/>
@@ -80,17 +80,17 @@
 
 		<h2>Contacto</h2><hr/>
 		<div class="ui-box">
-			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
+			<label for="nombre" class="required">Nombre:</label>
 			<input type="text" id="nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-box">
-			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
+			<label for="correo" class="required">E-Mail:</label>
 			<input type="text" name="correo" vmaxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-box">
-			<label for="asunto" class="required"><%=i18n.lblAsunto%>:</label>
+			<label for="asunto" class="required">Asunto:</label>
 			<input type="text" id="asunto" name="asunto" maxlength="200" tabindex="7" class="ui-input ui-text" placeholder="Type a resume" />
 			<div class="ui-errtip"></div>
 		</div>
@@ -101,8 +101,8 @@
 		</div>
 
 		<hr/>
-		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>"><%=i18n.lblEnviar%><i class="fas fa-angle-double-right icon"></i></button>
-		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i><%=i18n.lblLimpiar%></button>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Enviar<i class="fas fa-angle-double-right icon"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt icon"></i>Limpiar</button>
 	</form>
 </div>
 

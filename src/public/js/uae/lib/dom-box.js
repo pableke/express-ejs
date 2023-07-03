@@ -427,7 +427,6 @@ function DomBox(opts) {
 	this.onsubmit = this.onSubmit = self.submit;
 
 	this.ready(function() {
-		const reader = new FileReader(); // File Reader object
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables
@@ -520,16 +519,23 @@ function DomBox(opts) {
 		self.onChangeInput = (selector, fn) => fnAddEvent(self.getInput(selector), ON_CHANGE, fn);
 		self.onChangeInputs = (selector, fn) => fnAddEvents(selector, inputs, ON_CHANGE, fn);
 		self.onChangeSelect = (selector, fn) => self.apply(selector, inputs, (el, i) => { fn(el); fnEvent(el, ON_CHANGE, i, fn); });
-		self.onFileInput = (selector, fn) => self.onChangeInput(selector, el => {
-			const fnRead = file => { file && reader.readAsBinaryString(file); } //reader.readAsText(file, "UTF-8");
-			let index = 0; // position
-			reader.onload = ev => { // event on load file
-				fn(el, ev, el.files[index], ev.target.result, index);
-				fnRead(el.files[++index]);
-			}
-			fnRead(el.files[index]);
-		});
+		self.onChangeFile = (selector, fn) => {
+			const reader = new FileReader();
+			const el = self.getInput(selector);
 
+			return fnAddEvent(el, ON_CHANGE, ev => {
+				let index = 0; // position
+				let file = el.files[index];
+				const fnRead = () => reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
+				reader.onload = ev => { // event on load file
+					fn(file, ev.target.result, index);
+					file = el.files[++index];
+					file && fnRead();
+				}
+				file ? fnRead() : fn();
+			});
+		}
+	
 		self.setRangeDate = (f1, f2) => {
 			return self.onBlurInput(f1, el => self.setAttrInput(f2, "min", el.value))
 						.onBlurInput(f2, el => self.setAttrInput(f1, "max", el.value));
@@ -750,6 +756,8 @@ function DomBox(opts) {
 		self.getTabs = () => tabs; //all tabs
 		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
+		self.orTabMask = mask => self.setTabMask(_tabMask | mask); // set or mask for tabs
+		self.andTabMask = mask => self.setTabMask(_tabMask & mask); // set and mask for tabs
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
 		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);

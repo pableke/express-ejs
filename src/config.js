@@ -34,7 +34,7 @@ export default {
 	RECAPTCHA_PRIVATE: process.env.RECAPTCHA_PRIVATE,
 	
 	SQLITE_PATH: path.join(SRC, process.env.SQLITE_PATH),
-	REDIS_URL: process.env.REDIS_URL,
+	REDIS_URL: process.env.REDIS_URL || "localhost",
 
 	POSTGRE_URL: process.env.POSTGRE_URL || "localhost",
 	POSTGRE_HOST: process.env.POSTGRE_HOST || "localhost",

@@ -9,7 +9,7 @@ const pool = new pg.Pool({
 // Add actions as promises
 pool.list = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows));
 pool.find = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows[0]));
-pool.insert = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows[0].id));
+pool.insert = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rows[0].id)); // INSERT INTO ... () VALUES () RETURNING id
 const fnUpdate = (sql, params) => pool.query(sql, params).then(result => Promise.resolve(result.rowCount));
 pool.delete = pool.update = fnUpdate;
 

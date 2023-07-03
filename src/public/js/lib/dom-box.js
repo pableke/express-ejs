@@ -171,6 +171,7 @@ function DomBox() {
 		table.prev = () => fnMove(detail.index - 1);
 		table.next = () => fnMove(detail.index + 1);
 		table.last = () => fnMove(detail.size);
+		table.find = fn => fnMove(data.findIndex(fn));
 
 		table.remove = function() {
 			self.closeAlerts(); // close prev. alerts
@@ -280,17 +281,19 @@ function DomBox() {
 	this.onChangeFile = (form, name, fn) => {
 		const reader = new FileReader();
 		const el = self.getInput(form, name);
-		const fnRead = file => file && reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
 
 		return fnAddEvent(el, ON_CHANGE, ev => {
 			let index = 0; // position
+			let file = el.files[index];
+			const fnRead = () => reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
 			reader.onload = ev => { // event on load file
-				fn(el.files[index], ev.target.result, index);
-				fnRead(el.files[++index]);
+				fn(file, ev.target.result, index);
+				file = el.files[++index];
+				file && fnRead();
 			}
-			fnRead(el.files[index]);
+			file ? fnRead() : fn();
 		});
-	}
+}
 
 	this.focus = el => fnSelf(el && el.focus());
 	this.putFocus = el => self.focus(fnQuery(el));
@@ -369,7 +372,8 @@ function DomBox() {
 
 		const data = Object.assign({}, aux); // clone resutls
 		const pk = data[opts.pkName || "id"]; // Get pk value
-		const fnSave = (opts.insert && !pk) ? opts.insert : opts.update;
+		const fnUpdate = (data, info) => self.setOk(form, info); // Default acction
+		const fnSave = ((opts.insert && !pk) ? opts.insert : opts.update) || fnUpdate;
 		return self.send(form, opts).then(info => { fnSave(data, info); }); // Lunch insert or update
 	}
 
@@ -424,6 +428,7 @@ function DomBox() {
 
 	// Events
 	const ON_CHANGE = "change";
+	const fnOnclick = (el, fn) => { el.onclick = ev => fn(ev, el); }
 	const fnEvent = (el, name, fn, opts) => fnSelf(el.addEventListener(name, ev => fn(ev, el) || ev.preventDefault(), opts));
 	const fnAddEvent = (el, name, fn, opts) => (el ? fnEvent(el, name, fn, opts) : self);
 
@@ -438,8 +443,8 @@ function DomBox() {
 
 	this.ready = fn => fnEvent(document, "DOMContentLoaded", fn);
 	this.click = (list, fn) => self.each(list, el => fnEvent(el, "click", fn));
-	this.setClick = (list, fn) => self.each(list, el => { el.onclick = fn; });
-	this.setClickFrom = (el, selector, fn) => self.setClick(el.querySelectorAll(selector), fn);
+	this.setClick = (list, fn) => self.each(list, el => fnOnclick(el, fn));
+	this.setAction = (form, selector, fn) => self.apply(selector, form.elements, el => fnOnclick(el, fn));
 	this.change = (list, fn) => self.each(list, el => fnEvent(el, ON_CHANGE, fn));
 	this.keyup = (list, fn) => self.each(list, el => fnEvent(el, "keyup", fn));
 	this.keydown = (list, fn) => self.each(list, el => fnEvent(el, "keydown", fn));
@@ -466,6 +471,8 @@ function DomBox() {
 
 		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
+		self.orTabMask = mask => self.setTabMask(_tabMask | mask); // set or mask for tabs
+		self.andTabMask = mask => self.setTabMask(_tabMask & mask); // set and mask for tabs
 
 		function fnShowTab(i) { //show tab by index
 			self.closeAlerts(); // always close alerts

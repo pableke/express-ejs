@@ -33,7 +33,7 @@ function Login() {
 	const fnLogin = (usuario, clave, token) => reCaptcha(token).then(info => dao.sqlite.usuarios.login(usuario, clave));
 	this.sign = function(req, res, next) {
 		util.setTab(res, TPL_LOGIN, 0); // default view login
-		if (!form.validate(req.body)) // check errors
+		if (!form.signin(req.body)) // check errors
 			return next(i18n.getError());
 
 		const { usuario, clave, token } = req.body; // read post data
@@ -66,11 +66,11 @@ function Login() {
 	const MAIL_CONCAT = {
 		to: config.ADMIN_EMAIL,
 		subject: "Solicitud de información",
-		body: "web/emails/contact.ejs"
+		body: "emails/contact.ejs"
 	};
 	this.contact = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
-		const data = Object.assign({}, form.signup(req.body));
+		const data = Object.assign({}, form.contact(req.body));
 		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (i18n.isError())
 			return util.errors(res);
@@ -85,7 +85,7 @@ function Login() {
 
 	const MAIL_SIGNUP = {
 		subject: "Registro como nuevo usuario",
-		body: "web/emails/signup.ejs"
+		body: "emails/signup.ejs"
 	};
 	this.signup = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
@@ -112,7 +112,7 @@ function Login() {
 
 	const MAIL_REMEMBER = {
 		subject: "Nueva clave de acceso",
-		body: "web/emails/remember.ejs"
+		body: "emails/remember.ejs"
 	};
 	this.remember = (req, res, next) => {
 		util.setTab(res, TPL_LOGIN, 0); // default view login
