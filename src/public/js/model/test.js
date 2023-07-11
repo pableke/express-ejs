@@ -6,25 +6,26 @@ import i18n from "../i18n/langs.js";
 
 const form = {}; // validators for model
 const langs = i18n.getLangs(); // Languages container
-const fields = ["id", "nif", "name", "email", "memo", "memo_en"];
 
-langs.en.test = (data, view) => {
-    view.c4 = nb.enIsoFloat(data.c4);
-    view.imp = nb.enIsoFloat(data.imp);
-    view.fecha = sb.isoDate(data.fecha);
-    view.fecha_i18n = view.fecha;
-    view.memo_i18n = data.memo_en || data.memo;
-    view["ac-name"] = data.nif + " - " + data.name;
-    return ab.copy(fields, data, view);
+langs.en.test = (data, i) => {
+    data.count = i + 1;
+    data.c4_i18n = nb.enIsoFloat(data.c4);
+    data.imp_i18n = nb.enIsoFloat(data.imp);
+    data.fecha = sb.isoDate(data.fecha);
+    data.fecha_i18n = data.fecha;
+    data.memo_i18n = data.memo_en || data.memo;
+    data["ac-nif"] = data.nif + " - " + data.name;
+    return data;
 }
-langs.es.test = (data, view) => {
-    view.c4 = nb.esIsoFloat(data.c4);
-    view.imp = nb.esIsoFloat(data.imp);
-    view.fecha = sb.isoDate(data.fecha);
-    view.fecha_i18n = sb.esDate(data.fecha);
-    view.memo_i18n = data.memo;
-    view["ac-name"] = data.nif + " - " + data.name;
-    return ab.copy(fields, data, view);
+langs.es.test = (data, i) => {
+    data.count = i + 1;
+    data.c4_i18n = nb.esIsoFloat(data.c4);
+    data.imp_i18n = nb.esIsoFloat(data.imp);
+    data.fecha = sb.isoDate(data.fecha);
+    data.fecha_i18n = sb.esDate(data.fecha);
+    data.memo_i18n = data.memo;
+    data["ac-nif"] = data.nif + " - " + data.name;
+    return data;
 }
 
 form.filter = data => {

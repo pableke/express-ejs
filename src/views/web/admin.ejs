@@ -5,6 +5,7 @@
 	<% }); %>
 	<a href="#tab-1" title="Datos de perfil"><img src="/public/img/png/user_edit.png"/></a>
 	<a href="#tab-2" title="Cambio de clave"><img src="/public/img/png/bubble.png"/></a>
+	<a href="#tab-5" title="Formulario de Pruebas"><img src="/public/img/png/test-tube.png"/></a>
 	<a href="/logout.html"><img src="/public/img/png/exit.png"/></a>
 </div>
 
@@ -119,16 +120,9 @@
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-block">
-			<label for="f1">Fecha:</label>
-			<input type="date" id="f1" name="f1" value="" class="ui-input ui-date" tabindex="6" />...
-			<input type="date" id="f2" name="f2" value="" class="ui-input ui-date" tabindex="7" />
+			<%-include("../forms/dates/uiRangeDate", { id: "fmenu-f", name: "fmenu-f", tabindex: 6 })%>
 		</div>
-
-		<hr/>
-		<a href="#tab-0" tabindex="20" class="btn btn-primary"><i class="fas fa-angle-double-left licon"></i>Volver</a>
-		<button type="reset" class="btn btn-light" tabindex="21">Limpiar<i class="fas fa-solid fa-broom ricon"></i></button>
-		<button type="submit" class="btn btn-primary" tabindex="22">Buscar<i class="fas fa-search ricon"></i></button>
-		<a href="#next-tab" tabindex="23" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus ricon"></i></a>
+		<%-include("../forms/uiFilterButtons")%>
 	</form>
 
 	<table id="menus">
@@ -141,25 +135,23 @@
 				<th>Enlace<a href="#enlace" class="sort sort-none"></a></th>
 				<th>Tipo<a href="#tipo_i18n" class="sort sort-none"></a></th>
 				<th>Orden<a href="#orden" class="sort sort-none"></a></th>
-				<th>Importe<a href="#imp" class="sort sort-none"></a></th>
 				<th>F. Creación<a href="#creado" class="sort sort-none"></a></th>
 				<th>Acciones</th>
 			</tr>
 		</thead>
-		<tbody id="pruebas-row" class="hide">
+		<tbody id="menus-body" class="hide">
 			<tr class="tb-data">
-				<td class="textc">@count;</td>
-				<td><a href="#find">@nombre_i18n;</a></td>
-				<td><a href="#find-padre">@padre_i18n;</a></td>
+				<td class="text-center">@count;</td>
+				<td><a href="#find" class="link">@nombre_i18n;</a></td>
+				<td><a href="#find-padre" class="link">@padre_i18n;</a></td>
 				<td>@titulo_i18n;</td>
-				<td><a href="@enlace;" title="@titulo;">@enlace;</a></td>
+				<td><a href="@enlace;" class="link" title="@titulo;">@enlace;</a></td>
 				<td>@tipo_i18n;</td>
-				<td class="textr">@orden;</td>
-				<td class="textr">@imp_i18n;</td>
-				<td class="textc">@creado_i18n;</td>
-				<td class="textc">
-					<a href="#find"><i class="fas fa-search icon"></i></a>
-					<a href="#remove"><i class="fa fa-times icon text-err"></i></a>
+				<td class="text-right">@orden;</td>
+				<td class="text-center">@creado_i18n;</td>
+				<td class="text-center">
+					<a href="#find"><i class="fas fa-search text-blue-400 hover:text-blue-700"></i></a>
+					<a href="#remove"><i class="fa fa-times ml-2 text-red-400 hover:text-red-700"></i></a>
 				</td>
 			</tr>
 		</tbody>
@@ -170,18 +162,13 @@
 			<tr><td colspan="99">Filas: @size;</td></tr>
 		</tfoot>
 	</table>
-
-	<div class="navbar">
-		<a href="#tab-0" class="btn btn-primary"><i class="fas fa-angle-double-left licon"></i>Volver</a>
-		<a href="#next-tab" class="btn btn-success create-data">Nuevo <i class="fas fa-solid fa-plus ricon"></i></a>
-		<a href="#reset" class="btn btn-danger"><i class="fas fa-solid fa-trash licon"></i>Borrar</a>
-	</div>
+	<%-include("../forms/uiTableButtons")%>
 </div>
 
 <div id="tab-4" class="tab-content <%=css.tab4%>">
 	<form id="menu" action="/menu/save.html" method="post" class="form-glass">
 		<!-- reset form not to aplly for hidden inputs -->
-		<input type="text" id="id" name="id" class="hide" />
+		<input type="text" name="id" class="hide" />
 
 		<div class="ui-inline">
 			<label for="menu-nombre" class="required">Nombre:</label>
@@ -204,29 +191,98 @@
 			<div class="ui-errtip"></div>
 		</div>
 		<div class="ui-box">
-			<label for="menu-imp" class="required">Importe:</label>
-			<input type="text" id="menu-imp" name="imp_i18n" maxlength="20" tabindex="4" class="ui-input ui-float" />
-			<div class="ui-errtip"></div>
-		</div>
-		<div class="ui-box">
 			<label for="menu-fecha" class="required">Fecha:</label>
-			<input type="date" id="menu-fecha" name="creado" tabindex="5" class="ui-input ui-date" disabled />
+			<input type="date" id="menu-fecha" name="creado" tabindex="5" class="disabled:opacity-75" disabled />
 			<div class="ui-errtip"></div>
 		</div>
+		<%-include("../forms/uiFormButtons")%>
+	</form>
+</div>
 
-		<div class="navbar">
-			<hr/>
-			<a href="#prev-tab" class="btn btn-primary" tabindex="101"><i class="fas fa-angle-double-left licon"></i>Volver</a>
-			<button type="reset" class="btn btn-light" tabindex="102"><i class="fas fa-brush licon"></i>Clear</i></button>
-			<button type="submit" class="btn btn-success" tabindex="103"><i class="fas fa-save licon"></i>Save</button>
-			<button id="clone" type="button" class="btn btn-success" tabindex="104"><i class="far fa-copy licon"></i></i>Clone</button>
-			<button id="remove-item" type="button" class="btn btn-danger update-only" tabindex="105"><i class="fas fa-solid fa-trash licon"></i> Borrar</button>
-			<span class="vertical-line update-only"></span>
-			<button id="first-item" type="button" class="btn btn-primary update-only" tabindex="106"><i class="fas fa-angle-double-left"></i></button>
-			<button id="prev-item" type="button" class="btn btn-primary update-only" tabindex="107"><i class="fas fa-angle-left"></i></button>
-			<button id="next-item" type="button" class="btn btn-primary update-only" tabindex="108"><i class="fas fa-angle-right"></i></button>
-			<button id="last-item" type="button" class="btn btn-primary update-only" tabindex="109"><i class="fas fa-angle-double-right"></i></button>
+<div id="tab-5" class="tab-content <%=css.tab2%>">
+	<form id="ftest" action="/test/filter.html">
+		<div class="mx-auto my-2">
+			<%-include("../forms/uiText", { id: "ftest-name", name: "name", label: "Nombre", tabindex: 1 })%>
+			<%-include("../forms/uiText", { id: "ftest-memo", name: "memo", label: "Memoria", tabindex: 2 })%>
+			<%-include("../forms/floats/uiRangeFloat", { id: "ftest-imp", name: "ftest-imp", tabindex: 3 })%>
+			<%-include("../forms/dates/uiRangeDate", { id: "ftest-f", name: "ftest-f", tabindex: 5 })%>
 		</div>
+		<%-include("../forms/uiFilterButtons")%>
+	</form>
+
+	<table id="pruebas">
+		<thead>
+			<tr>
+				<th>Nº</th>
+				<th>Nombre<a href="#name" class="sort sort-none"></a></th>
+				<th>E-Mail<a href="#email" class="sort sort-none"></a></th>
+				<th>Info<a href="#memo" class="sort sort-none"></a></th>
+				<th>Importe<a href="#imp" class="sort sort-none"></a></th>
+				<th>Fecha<a href="#fecha" class="sort sort-none"></a></th>
+				<th>C4</th>
+				<th>Acciones</th>
+			</tr>
+		</thead>
+		<tbody id="pruebas-body" class="hide">
+			<tr class="tb-data">
+				<td class="text-center">@count;</td>
+				<td><a href="#find" class="link">@name;</a></td>
+				<td>@email;</td>
+				<td>@memo_i18n;</td>
+				<td class="text-right">@imp_i18n;</td>
+				<td class="text-center">@fecha_i18n;</td>
+				<td class="text-right"><input type="text" name="test" value="@c4_i18n;" class="ui-float ui-input-colors" /></td>
+				<td class="text-center">
+					<a href="#find"><i class="fas fa-search text-blue-400 hover:text-blue-700"></i></a>
+					<a href="#remove"><i class="fa fa-times ml-2 text-red-400 hover:text-red-700"></i></a>
+				</td>
+			</tr>
+		</tbody>
+		<tbody class="no-data">
+			<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
+		</tbody>
+		<tfoot data-tpl="pruebas-footer" class="hide">
+			<tr><td colspan="4">Filas: @size;</td><td class="text-right">@imp_i18n;</td><td></td><td class="text-right">@c4_i18n;</td><td></td></tr>
+		</tfoot>
+	</table>
+	<%-include("../forms/uiTableButtons")%>
+</div>
+
+<div id="tab-6" class="tab-content <%=css.tab3%>">
+	<form id="test" action="/test/save.html" method="post" enctype="multipart/form-data" 
+		class="lg:mx-60 md:px-4 py-10 bg-white shadow-lg sm:rounded-3xl bg-clip-padding bg-opacity-50 border border-gray-200 filter blur-lg">
+
+		<!-- reset form not to aplly for hidden inputs -->
+		<input type="text" name="id" class="hide" />
+
+		<div class="mx-auto my-2 lg:px-10">
+			<%-include("../forms/uiAutocomplete", { id: "test-nif", name: "nif", label: "Nombre", tabindex: 1 })%>
+			<br/>
+			<%-include("../forms/floats/uiEuro", { id: "test-imp", name: "imp_i18n", label: "Importe", tabindex: 2 })%>
+			<%-include("../forms/dates/uiDate", { id: "test-fecha", name: "fecha", tabindex: 3 })%>
+			<br/>
+			<div class="flex flex-wrap m-2"> <!-- check-group checked subgroup by id -->
+				<%-include("../forms/checkboxes/uiCheckRed", { id: "test-bin1", name: "binary", value:"1", label: "Check 1", tabindex: 4 })%>
+				<%-include("../forms/checkboxes/uiCheckGreen", { id: "test-bin2", name: "binary", value:"2", label: "Check 2", tabindex: 5 })%>
+				<%-include("../forms/checkboxes/uiCheckPurple", { id: "test-bin3", name: "binary", value:"4", label: "Check 3", tabindex: 6 })%>
+				<%-include("../forms/checkboxes/uiCheckTeal", { id: "test-bin4", name: "binary", value:"8", label: "Check 4", tabindex: 7 })%>
+				<%-include("../forms/checkboxes/uiCheckRight", { id: "binary", name: "", value:"15", label: "All", tabindex: 8 })%>
+			</div>
+			<br/>
+			<div class="flex flex-wrap m-2"> <!-- check-list checked subgroup by id -->
+				<%-include("../forms/checkboxes/uiCheckRed", { id: "test-list1", name: "values", value:"1", label: "Check 1", tabindex: 9 })%>
+				<%-include("../forms/checkboxes/uiCheckGreen", { id: "test-list2", name: "values", value:"2", label: "Check 2", tabindex: 10 })%>
+				<%-include("../forms/checkboxes/uiCheckPurple", { id: "test-list3", name: "values", value:"3", label: "Check 3", tabindex: 11 })%>
+				<%-include("../forms/checkboxes/uiCheckTeal", { id: "test-list4", name: "values", value:"4", label: "Check 4", tabindex: 12 })%>
+				<%-include("../forms/checkboxes/uiCheckRight", { id: "values", name: "", value:"15", label: "All", tabindex: 13 })%>
+			</div>
+			<br/>
+			<%-include("../forms/uiFile", { id: "test-adjuntos", name: "adjuntos", tabindex: 14 })%>
+			<!-- <a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload ml-1"></i></button> -->
+			<br/>
+			<%-include("../forms/uiTextArea", { id: "test-memo", name: "memo", label: "Memoria", tabindex: 15 })%>
+		</div>
+		<%-include("../forms/uiFormButtons")%>
 	</form>
 </div>
 

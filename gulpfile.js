@@ -1,13 +1,16 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
-//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs
+//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss gulp-autoprefixer
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss gulp-autoprefixer
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
 import minifyejs from "gulp-minify-ejs";
-import uglify from 'gulp-uglify';
+import uglify from "gulp-uglify";
 import concat from "gulp-concat";
 import cssmin from "gulp-clean-css";
+import postcss from "gulp-postcss";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "gulp-autoprefixer";
 import strip from "gulp-strip-comments";
 
 const CSS_FILES = "src/public/css/**/*.css";
@@ -35,26 +38,27 @@ gulp.task("modules", done => {
 	});
 });
 
-// Task to minify all views (HTML's and EJS's)
+// Task to minify all views (HTML"s and EJS"s)
 gulp.task("minify-html", done => {
 	const options = {
 		caseSensitive: true,
 		sortClassName: true,
 		collapseWhitespace: true,
 		removeComments: true, //removeComments => remove CDATA
-		removeRedundantAttributes: true //remove attr with default value
+		removeRedundantAttributes: false //remove attr with default value
 	};
-	return gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs()).pipe(gulp.dest("dist"));
+	gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs()).pipe(gulp.dest("dist")).on("end", done);
 });
-// Tasks to minify CSS's
+// Tasks to minify CSS"s
 gulp.task("minify-css", done => {
 	const config = { level: {1: { specialComments: 0 }} };
+	const plugins = [ tailwindcss("./tailwind.config.js"), autoprefixer ];
 	fs.rmSync("dist/public/css/styles-min.css", RM_OPTS); // NO lo duplico
-	gulp.src(CSS_FILES).pipe(cssmin(config)).pipe(gulp.dest("dist/public/css")).on("end", () => {
+	gulp.src(CSS_FILES).pipe(postcss(plugins, {})).pipe(cssmin(config)).pipe(gulp.dest("dist/public/css")).on("end", () => {
 		fnConcat("dist/public/css/**/*.css", "dist/public/css", "styles-min.css").on("end", done);
 	});
 });
-// Tasks to minify JS's
+// Tasks to minify JS"s
 gulp.task("minify-js", done => {
 	const JS_UAE = [
 		"dist/public/js/uae/lib/array-box.js", "dist/public/js/uae/lib/date-box.js", "dist/public/js/uae/lib/dom-box.js", 
@@ -74,10 +78,10 @@ gulp.task("minify-js", done => {
 });
 
 // Task to build dist when deployment on server
-gulp.task("deploy", gulp.series("modules", "minify-html", "minify-css", "minify-js"));
+gulp.task("deploy", gulp.series("modules", "minify-html", "minify-js"));
 
 gulp.task("watch", () => {
-	gulp.watch(HTML_PATH, gulp.series("minify-html"));
+	gulp.watch(HTML_PATH, gulp.series("minify-html", "minify-css"));
 	gulp.watch(CSS_FILES, gulp.series("minify-css"));
 	gulp.watch(JS_FILES, gulp.series("minify-js"));
 	// Other watchers ...

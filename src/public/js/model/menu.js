@@ -1,5 +1,4 @@
 
-import nb from "../lib/number-box.js";
 import sb from "../lib/string-box.js";
 import i18n from "../i18n/langs.js";
 
@@ -30,9 +29,6 @@ langs.es.menu = (data, i) => {
     data.nombre_i18n = data.nombre;
     data.titulo_i18n = data.titulo;
     data.padre_i18n = data.padre_es;
-
-    data.imp = data.imp ?? nb.rand(100);
-    data.imp_i18n = nb.esIsoFloat(data.imp);
     return data;
 }
 
