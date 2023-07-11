@@ -97,7 +97,8 @@ dom.ready(function() {
 	dom.toggleInfo("[href='#toggle']") // Info links
 		.alerts(_top.nextElementSibling) // Alerts messages
 		.autofocus(document.forms[0]?.elements) // Focus on first input
-		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)));
+		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)))
+		.click("[href='#dark']", ev => document.documentElement.classList.toggle("dark"));
 
 	dom.onChangeFields(".ui-bool", (ev, el) => { el.value = i18n.fmtBool(el.value); })
 		.onChangeFields(".ui-integer", (ev, el) => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "text-err", sb.starts(el.value, "-")); })

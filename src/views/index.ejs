@@ -21,7 +21,7 @@
 	<!-- JS Scripts -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
-	<script type="text/javascript" src="https://kit.fontawesome.com/76f12cea70.js" crossorigin="anonymous"></script>
+	<script src="https://kit.fontawesome.com/76f12cea70.js" crossorigin="anonymous"></script>
 	<script type="module" src="/public/js/util.js"></script>
 </head>
 
@@ -69,8 +69,11 @@
 	</main>
 
 	<footer>
-		<div>
-			<p>Copyright &#169; @yyyy; @lblEmpresaNombre;. All rights reserved.</p>
+		<p class="text-center text-gray-500 text-xs">Copyright &#169; 2023 <%=i18n.lblEmpresaNombre%>. All rights reserved.</p>
+		<div class="navbar">
+			<a href="?lang=en"><img width="24px" src="/public/img/flags/great_britain.png"></a>
+			<a href="?lang=es"><img width="24px" src="/public/img/flags/spain.png"></a>
+			<a href="#dark" class="from-genoa-200 to-genoa-600">toggle dark mode</a>
 		</div>
 	</footer>
 </body>

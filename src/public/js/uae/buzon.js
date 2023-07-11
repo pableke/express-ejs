@@ -36,9 +36,10 @@ dom.ready(() => {
 	}
 
 	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)))
-		.onChangeFile("[type='file']", (file, data) => dom.toggleHide("A.tab-file-next", !data))
 		.click("[data-organica]", link => { dom.each("a.load-mask", el => { el.dataset.mask = link.dataset.mask; }); })
 		.click("[data-mask]", el => { dom.setTabMask(parseInt(el.dataset.mask, 2)); })
 		.click("[data-bitor]", el => { dom.orTabMask(parseInt(el.dataset.bitor, 2)); })
-		.click("[data-bitand]", el => { dom.andTabMask(parseInt(el.dataset.bitand, 2)); });
+		.click("[data-bitand]", el => { dom.andTabMask(parseInt(el.dataset.bitand, 2)); })
+		.onChangeFile("[type='file']", (file, data) => dom.toggleHide(".tab-file-next", !data))
+		.onShowTab(0, tab => dom.hide(".tab-file-next").find("#xeco-buzon", document.forms).reset());
 	});

@@ -1,8 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-* {
-	margin: 0;
-	padding: 0;
-}
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 1rem;
@@ -36,28 +35,7 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 /* Specific styles */
 .hide, .d-none { display: none !important; } /* force display none */
 .disabled { opacity: 0.5; pointer-events: none; text-decoration: none; }
-.textc { text-align: center; }
-.textr { text-align: right; }
-.text-err { color: red; }
-.fr { float: right; }
-.vertical-line {
-	display: inline-block;
-	margin: 0 10px;
-	height: 46px;
-	border-left: 1px solid #464646;
-	vertical-align: bottom;
-}
-
-.icon { margin: 2px 6px; }
-.licon { margin-right: 6px; }
-.ricon { margin-left: 6px; }
-.xl-icon { font-size: x-large; }
-.check-icon { display: none; }
-.check-icon + label { cursor: pointer; }
-.ui-fav.active { color: #ffbc00; }
-.ui-fav:hover { color: #ffcc00; }
-.ui-none.active { color: tomato; }
-.ui-none:hover { color: red; }
+.link { @apply text-blue-600 underline dark:text-blue-500 hover:no-underline }
 
 /* Tabs classes */
 .tab-content { display: none; width: 100%; min-height: 70vh; max-height: 90vh; padding: 2px; }

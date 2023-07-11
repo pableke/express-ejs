@@ -229,11 +229,9 @@ function DomBox() {
 		opts.action = opts.action || form.action; //action-override
 		opts.method = opts.method || form.method; //method-override
 		opts.classExcluded = opts.classExcluded || "ui-excluded";
-		opts.classCalculated = opts.classCalculated || "ui-calculated";
 
 		const fd = new FormData(form); // Data container
-		self.apply("." + opts.classExcluded, form.elements, el => fd.delete(el.name))
-			.apply("." + opts.classCalculated, form.elements, el => fd.set(el.name, el.value));
+		self.apply("." + opts.classExcluded, form.elements, el => fd.delete(el.name));
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
 		else
@@ -312,52 +310,25 @@ function DomBox() {
 		self.apply(FIELDS, form.elements, el => { data[el.name] = el.value; });
 		return data;
 	}
-	this.checklist = (form, name, values) => {
-		const group = self.getAll(".check-" + name, form);
-		const check = self.find("#" + name, form.elements);
-
-		function fnCheck() {
-			const result = []; // Id's container
-			self.each(group, el => { el.checked && result.push(el.value); });
-			check.checked = (result.length == group.length);
-			check.value = result.join(",");
-			return self;
-		}
-
-		if (!check.dataset.procesed) {
-			self.click(group, fnCheck)
-				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
-			check.dataset.procesed = true; // Only one click listener
-		}
-		if (values)
-			self.each(group, el => { el.checked = (values.indexOf(el.value) > -1); });
-		else
-			self.setChecked(group, false);
-		return fnCheck();
-	}
 	this.checkbin = (form, name, value) => {
-		const group = self.getAll(".check-" + name, form);
+		const group = form.querySelectorAll("[name='" + name + "']");
 		const check = self.find("#" + name, form.elements);
-		var all = 0;
 
 		function fnCheck() {
 			let result = 0; // mask
-			self.each(group, el => {
-				result |= (el.checked ? +el.value : 0);
-				const icon = self.next(el, "label[for='" + el.id + "']"); //font-awesome
-				icon && fnToggle(icon, "active", el.checked); //toggle icon style
-			});
-			check.checked = (all == result);
-			check.value = result;
+			self.each(group, (el, i) => { result |= +el.checked << i; });
+			check.checked = (+check.value == result);
 			return self;
 		}
 
 		if (!check.dataset.procesed) {
-			self.click(group, fnCheck)
-				.click(check, ev => { self.setChecked(group, check.checked); return fnCheck(); });
+			self.click(group, fnCheck).click(check, ev => self.setChecked(group, check.checked));
 			check.dataset.procesed = true; // Only one click listener
 		}
-		self.each(group, el => { el.checked = (value & el.value); all |= +el.value; });
+		const fn = Array.isArray(value)
+				? (el => { el.checked = value.indexOf(el.value) > -1; }) 
+				: (el => { el.checked = (value & el.value); });
+		self.each(group, fn);
 		return fnCheck();
 	}
 
