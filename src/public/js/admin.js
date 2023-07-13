@@ -34,7 +34,7 @@ dom.ready(function() {
                 .setAction(form, ".prev-item", ev => goTo(table.prev()))
                 .setAction(form, ".next-item", ev => goTo(table.next()))
                 .setAction(form, ".last-item", ev => goTo(table.last()))
-                .toggleHide(updateOnly, !data?.id).load(form, data).viewTab(4);
+                .toggleHide(updateOnly, !data.id).load(form, data).viewTab(4);
         }
 
         //const RESUME = {};
@@ -56,7 +56,7 @@ dom.ready(function() {
 		dom.setRangeDate(filter, "#fmenu-f1", "#fmenu-f2") // Filter range date
 			.afterReset(filter, ev => dom.send(filter).then(fnList))
 			.submit(filter, ev => !dom.send(filter).then(fnList))
-            .click(linksCreate, el => fnViewMenu())
+            .click(linksCreate, el => fnViewMenu({ tipo: 1, creado: dt.isoSysDate() }))
             .click(linksReset, el => table.reset())
             .send(filter).then(fnList); // autoload data in table
         delete tabs["tab-3"]; // run once

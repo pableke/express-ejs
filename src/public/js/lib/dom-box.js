@@ -302,7 +302,7 @@ function DomBox() {
 	}
 
 	this.load = (form, data) => {
-		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name]))
+		return data ? self.apply(FIELDS, form.elements, el => fnSetValue(el, data[el.name] || EMPTY))
 					: self.apply(FIELDS, form.elements, el => fnSetValue(el, EMPTY));
 	}
 	this.toObject = (form, data) => {
