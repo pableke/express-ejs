@@ -29,6 +29,12 @@ function Commons() {
 		res.locals.menus = req.session.menus || dao.sqlite.menus.getPublic();
 		res.locals._tplBody = "web/index"; // Set data on response
 		res.locals.msgs = i18n.getMsgs(); // Set messages on view
+
+		// View classes
+		res.locals.css = {};
+		res.locals.css.uiInput = "p-3 text-sm rounded-lg disabled:opacity-75 bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-300 focus:border-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-300 dark:focus:border-blue-300";
+		res.locals.css.uiErrtip = "text-xs italic text-red-500";
+
 		res.on("finish", i18n.reset); // Close response event
 		next(); // Go next middleware
 	}

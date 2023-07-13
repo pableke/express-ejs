@@ -1,21 +1,25 @@
 
 <div id="tab-0" class="tab-content <%=css.tab0%>">
-	<form id="signin" method="post" action="/login" class="form-glass">
+	<form id="signin" method="post" action="/login" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Formulario de acceso</h2><hr/>
 		<%-include("../forms/uiUser", { id: "usuario", name: "usuario", tabindex: 1 })%>
 		<%-include("../forms/uiPassword", { id: "clave", name: "clave", tabindex: 2 })%>
 
-		<div class="flex items-center justify-between">
-			<button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right ml-1"></i></button>
-			<a href="#tab-2" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">Forgot Password?</a>
+		<div class="flex my-4 mx-auto px-4">
+			<div class="flex grow">
+				<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right ml-1"></i></button>
+			</div>
+			<div class="flex grow justify-end items-center">
+				<a href="#tab-2" class="action">Forgot Password?</a>
+			</div>
 		</div>
 	</form>
 </div>
 
 <div id="tab-1" class="tab-content <%=css.tab1%>">
-	<form id="signup" action="/signup.html" method="post" class="form-glass">
+	<form id="signup" action="/signup.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Alta de nuevo usuario</h2><hr/>
@@ -48,7 +52,7 @@
 </div>
 
 <div id="tab-2" class="tab-content <%=css.tab2%>">
-	<form id="reactive" action="/reactive.html" method="post" class="form-glass">
+	<form id="reactive" action="/reactive.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<%-include("../forms/uiEmail", { id: "remember", name: "correo", tabindex: 5 })%>
@@ -59,7 +63,7 @@
 </div>
 
 <div id="tab-3" class="tab-content <%=css.tab3%>">
-	<form id="contact" action="/contact.html" method="post" class="form-glass">
+	<form id="contact" action="/contact.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Contacto</h2><hr/>

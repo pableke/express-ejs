@@ -35,7 +35,8 @@ function DateBox() {
 
 	// Module functions
 	this.isValid = isDate;
-	this.sysdate = () => sysdate;
+	this.sysdate = () => { sysdate.setTime(Date.now()); return sysdate; }
+	this.isoSysDate = () => self.sysdate().toISOString().substring(0, 10);
 	this.toDate = str => str ? new Date(str) : null;
 	this.isLeap = date => date && isLeapYear(date.getFullYear());
 	this.getDays = (d1, d2) => Math.round(Math.abs((d1 - d2) / ONE_DAY));

@@ -1,14 +1,13 @@
 
 <div class="inline-block m-2">
-    <label for="<%=id%>" class="block mb-1 text-sm text-gray-900 dark:text-white required"><%=label%>:</label>
+    <label for="<%=id%>" class="block mb-1 required"><%=label%>:</label>
     <div class="relative flex w-full flex-wrap items-stretch mb-3">
-        <input type="text" id="<%=id%>" name="<%=name%>" tabindex="<%=tabindex%>"
-            class="ui-float bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-300 block pr-9 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-300 dark:focus:border-blue-300">
+        <input type="text" id="<%=id%>" name="<%=name%>" maxlength="12" tabindex="<%=tabindex%>" class="ui-input ui-float pr-9">
         <div class="ui-r-icon flex items-center pr-3 pointer-events-none">
             <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 18">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 7h9.231M1 11h9.231M13 2.086A5.95 5.95 0 0 0 9.615 1C5.877 1 2.846 4.582 2.846 9s3.031 8 6.769 8A5.94 5.94 0 0 0 13 15.916"/>
               </svg>
         </div>
-        <p class="ui-errtip text-red-500 text-xs italic"></p>
+        <p class="ui-errtip"></p>
     </div>
 </div>

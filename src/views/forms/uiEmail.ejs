@@ -1,6 +1,6 @@
 
-<div class="m-auto w-96">
-    <label for="<%=id%>" class="block mb-1 text-sm text-gray-900 dark:text-white">Your Email:</label>
+<div class="flex grow flex-col m-2">
+    <label for="<%=id%>" class="block mb-1">Your Email:</label>
     <div class="relative flex w-full flex-wrap items-stretch mb-3">
         <div class="ui-l-icon flex items-center pl-3 pointer-events-none">
             <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
@@ -8,8 +8,7 @@
                 <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"/>
             </svg>
         </div>
-        <input type="text" id="<%=id%>" name="<%=name%>" maxlength="200" tabindex="<%=tabindex%>" placeholder="name@gmail.com"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-300 focus:border-blue-300 block w-full pl-9 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-300 dark:focus:border-blue-300">
-        <p class="ui-errtip text-red-500 text-xs italic"></p>
+        <input type="text" id="<%=id%>" name="<%=name%>" maxlength="200" tabindex="<%=tabindex%>" placeholder="name@gmail.com" class="ui-input pl-9">
+        <p class="ui-errtip"></p>
     </div>
 </div>

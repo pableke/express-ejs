@@ -37,7 +37,6 @@ function UtilBox() {
 	this.setTab = (res, tpl, tab) => self.tabs(res, tab).setBody(res, tpl);
 	this.goTab = (res, tpl, tab) => self.tabs(res, tab).render(res, tpl);
 	this.tabs = (res, tab) => {
-		res.locals.css = {}; // View classes
 		res.locals.css["tab" + tab] = "active";
 		return self;
 	}
