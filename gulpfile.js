@@ -26,6 +26,8 @@ gulp.task("modules", done => {
 		"dist", "dist/public", "dist/views", 
 		"dist/public/files", "dist/public/files/uploads/", "dist/public/files/thumbs/"
 	];
+	fs.rmSync("dist/public/js", RM_OPTS); // Reset js client files
+	fs.rmSync("dist/public/css", RM_OPTS); // Reset css statics files
 	FOLDERS.forEach(dir => (fs.existsSync(dir) || fs.mkdirSync(dir)));
 	gulp.src("src/**/*").pipe(gulp.dest("dist/")).on("end", () => {
 		gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
