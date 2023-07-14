@@ -3,13 +3,13 @@
 	<form id="signin" method="post" action="/login" class="card-glass">
 		<input type="hidden" name="token" />
 
-		<h2>Formulario de acceso</h2><hr/>
+		<h2>Formulario de acceso</h2><br/>
 		<%-include("../forms/uiUser", { id: "usuario", name: "usuario", tabindex: 1 })%>
 		<%-include("../forms/uiPassword", { id: "clave", name: "clave", tabindex: 2 })%>
 
-		<div class="flex my-4 mx-auto px-4">
+		<div class="flex my-4 px-4">
 			<div class="flex grow">
-				<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right ml-1"></i></button>
+				<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Acceder<i class="fas fa-angle-double-right ml-2"></i></button>
 			</div>
 			<div class="flex grow justify-end items-center">
 				<a href="#tab-2" class="action">Forgot Password?</a>
@@ -22,7 +22,7 @@
 	<form id="signup" action="/signup.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
-		<h2>Alta de nuevo usuario</h2><hr/>
+		<h2>Alta de nuevo usuario</h2><br/>
 		<div class="ui-box">
 			<label for="nm" class="required">Nombre:</label>
 			<input type="text" id="nm" name="nm" maxlength="200" class="ui-input ui-text" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
@@ -46,8 +46,8 @@
 		<%-include("../forms/uiEmail", { id: "correo", name: "correo", tabindex: 5 })%>
 
 		<hr/>
-		<button type="submit" class="btn btn-primary ajax-submit captcha" tabindex="100" title="@titAcceder;"><%=i18n.lblEnviar%> &raquo;</button>
-		<button type="reset" class="btn btn-light" tabindex="101" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;">Enviar &raquo;</button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="@titRestaurar;">&olarr; Limpiar</button>
 	</form>
 </div>
 
@@ -55,10 +55,17 @@
 	<form id="reactive" action="/reactive.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
+		<h2>Remember password</h2><br/>
 		<%-include("../forms/uiEmail", { id: "remember", name: "correo", tabindex: 5 })%>
 
-		<hr/>
-		<button type="submit" class="btn btn-primary captcha" tabindex="100"><%=i18n.lblEnviar%> <i class="far fa-paper-plane"></i></button>
+		<div class="flex my-4 px-4">
+			<div class="flex grow items-center">
+				<a href="#tab-0" class="action"><i class="fas fa-angle-double-left mr-2"></i>Login</a>
+			</div>
+			<div class="flex grow justify-end">
+				<button type="submit" class="btn btn-primary" tabindex="100">Enviar<i class="far fa-paper-plane ml-2"></i></button>
+			</div>
+		</div>
 	</form>
 </div>
 
@@ -66,7 +73,7 @@
 	<form id="contact" action="/contact.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
-		<h2>Contacto</h2><hr/>
+		<h2>Contacto</h2><br/>
 		<div class="ui-box">
 			<label for="nombre" class="required">Nombre:</label>
 			<input type="text" id="nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
@@ -82,15 +89,11 @@
 			<input type="text" id="asunto" name="asunto" maxlength="200" tabindex="7" class="ui-input ui-text" placeholder="Type a resume" />
 			<div class="ui-errtip"></div>
 		</div>
-		<div class="ui-box">
-			<label for="info" class="required">Informacion:</label>
-			<textarea id="info" name="info" class="ui-input ui-ta" tabindex="8" maxlength="600"></textarea>
-			<div class="ui-errtip"></div>
-		</div>
+		<%-include("../forms/uiTextArea", { id: "contact-info", name: "info", label: "Informacion", tabindex: 8 })%>
 
 		<hr/>
-		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Enviar<i class="fas fa-angle-double-right ml-1"></i></button>
-		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt ml-1"></i>Limpiar</button>
+		<button type="submit" class="btn btn-primary" tabindex="100" title="<%=i18n.titAcceder%>">Enviar<i class="fas fa-angle-double-right ml-2"></i></button>
+		<button type="reset" class="btn btn-light" tabindex="101" title="<%=i18n.titRestaurar%>"><i class="fas fa-undo-alt mr-2"></i>Limpiar</button>
 	</form>
 </div>
 

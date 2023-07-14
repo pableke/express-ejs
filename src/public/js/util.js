@@ -97,10 +97,53 @@ dom.ready(function() {
 	dom.toggleInfo("[href='#toggle']") // Info links
 		.alerts(_top.nextElementSibling) // Alerts messages
 		.autofocus(document.forms[0]?.elements) // Focus on first input
-		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)))
-		.click("[href='#dark']", ev => document.documentElement.classList.toggle("dark"));
+		.each(document.forms, form => dom.afterReset(form, ev => dom.closeAlerts().autofocus(form.elements)));
 
 	dom.onChangeFields(".ui-bool", (ev, el) => { el.value = i18n.fmtBool(el.value); })
-		.onChangeFields(".ui-integer", (ev, el) => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "text-err", sb.starts(el.value, "-")); })
-		.onChangeFields(".ui-float", (ev, el) => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "text-err", sb.starts(el.value, "-")); })
+		//.onChangeFields(".ui-integer", (ev, el) => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "text-red", sb.starts(el.value, "-")); })
+		.onChangeFields(".ui-float", (ev, el) => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "text-red", sb.starts(el.value, "-")); })
+
+	// Language selector
+	const currentLang = dom.get("#currentLang", menu);
+	const liLangIcon = dom.get("li#" + i18n.get("lang"), menu);
+	currentLang.src = liLangIcon.firstElementChild.firstElementChild.src;
+	dom.hide(liLangIcon);
+
+	// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+	const themeToggleBtn = dom.get("#theme-toggle", menu);
+	const themeToggleDarkIcon = themeToggleBtn.firstElementChild;
+	const themeToggleLightIcon = themeToggleBtn.lastElementChild;
+	if ((localStorage.getItem("color-theme") === "dark") || (!("color-theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+		document.documentElement.classList.add("dark");
+		themeToggleLightIcon.classList.remove("hidden");
+	}
+	else {
+		document.documentElement.classList.remove("dark");
+		themeToggleDarkIcon.classList.remove("hidden");
+	}
+	themeToggleBtn.addEventListener("click", function() {
+		// toggle icons inside button
+		themeToggleDarkIcon.classList.toggle("hidden");
+		themeToggleLightIcon.classList.toggle("hidden");
+
+		// if set via local storage previously
+		if (localStorage.getItem("color-theme")) {
+			if (localStorage.getItem("color-theme") === "light") {
+				document.documentElement.classList.add("dark");
+				localStorage.setItem("color-theme", "dark");
+			} else {
+				document.documentElement.classList.remove("dark");
+				localStorage.setItem("color-theme", "light");
+			}
+		}
+		else { // if NOT set via local storage previously
+			if (document.documentElement.classList.contains("dark")) {
+				document.documentElement.classList.remove("dark");
+				localStorage.setItem("color-theme", "light");
+			} else {
+				document.documentElement.classList.add("dark");
+				localStorage.setItem("color-theme", "dark");
+			}
+		}
+	});
 });

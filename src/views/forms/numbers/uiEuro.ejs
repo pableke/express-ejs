@@ -1,8 +1,8 @@
 
-<div class="inline-block m-2">
+<div class="inline-block w-40 m-2">
     <label for="<%=id%>" class="block mb-1 required"><%=label%>:</label>
     <div class="relative flex w-full flex-wrap items-stretch mb-3">
-        <input type="text" id="<%=id%>" name="<%=name%>" maxlength="12" tabindex="<%=tabindex%>" class="ui-input ui-float pr-9">
+        <input type="text" id="<%=id%>" name="<%=name%>" maxlength="12" tabindex="<%=tabindex%>" <%=disabled%> class="ui-input ui-float pr-9">
         <div class="ui-r-icon flex items-center pr-3 pointer-events-none">
             <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 18">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 7h9.231M1 11h9.231M13 2.086A5.95 5.95 0 0 0 9.615 1C5.877 1 2.846 4.582 2.846 9s3.031 8 6.769 8A5.94 5.94 0 0 0 13 15.916"/>

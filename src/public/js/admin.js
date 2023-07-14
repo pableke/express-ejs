@@ -64,7 +64,6 @@ dom.ready(function() {
     }
 
     tabs["tab-5"] = tab => {
-		//const ftest = dom.getForm("#test");
 		const filter = dom.getForm("#ftest");
         const table = dom.get("table#pruebas", tab);
         const linksCreate = dom.getAll(".create-data", tab); // ojo uno/varios por tab

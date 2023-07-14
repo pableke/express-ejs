@@ -23,7 +23,7 @@ ul.menu ul { position: absolute; left: 0; display: none; background-color: #f8f9
 ul.menu li { position: relative; float: left; list-style: none; }
 ul.menu li:hover { color: #000; background-color: #2c3e50; }
 ul.menu li:hover > a { color: #fff; }
-ul.menu li:hover > a.nav-tri:after { content: "\25BE"; }
+ul.menu li:hover > .nav-tri:after { content: "\25BE"; }
 /* Next deep level in tree (second level) */
 ul.menu ul li { width: 100%; } /* Sublines expand over all ul parent space */
 /* Display the next dropdown */
@@ -34,6 +34,11 @@ ul.menu ul ul { top: 1%; left: 99%; }
 ul.menu a { display: block; padding: .5rem .8rem; white-space: nowrap; text-decoration: none; color: #000; }
 ul.menu .nav-tri:after { content: "\25B6"; margin-left: 4px; }
 .nav-icon { display: inline-block; margin-right: 8px; }
+/* Right options menu */
+ul.menu li.button-right { float: right; background-color: transparent; }
+ul.menu li.options ul { border: none; }
+ul.menu li.options li:hover { background-color: #f8f9fa; }
+ul.menu li:hover a { color: #000; }
 /* Menu dropdown */
 
 /* Breadcrumb pagination */

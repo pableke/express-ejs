@@ -87,7 +87,8 @@
 </div>
 
 <div id="tab-3" class="tab-content <%=css.tab3%>">
-	<form id="fmenu" action="/menu/list.html">
+	<form id="fmenu" action="/menu/list.html" class="card">
+		<h2>Menu Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
 			<%-include("../forms/uiText", { id: "fmenu-nombre", name: "nombre", label: "Nombre", tabindex: 1, ph: "File / Edit ..." })%>
 			<%-include("../forms/uiText", { id: "fmenu-titulo", name: "titulo", label: "Título", tabindex: 2, ph: "Title attribute" })%>
@@ -96,8 +97,7 @@
 		<div class="flex flex-wrap">
 			<%-include("../forms/uiSelect", {
 				id: "fmenu-tipo", name: "tipo", label: "Tipo", tabindex: 4, 
-				emptyOption: "<option>Seleccione un tipo</option>", 
-				keys: i18n.menuTipoKeys, values: i18n.menuTipoValues
+				emptyOption: "<option>Seleccione un tipo</option>", values: i18n.menuTipoValues
 			})%>
 			<%-include("../forms/numbers/uiInteger", { id: "fmenu-orden", name: "orden", label: "Orden", tabindex: 5 })%>
 			<%-include("../forms/dates/uiRangeDate", { id: "fmenu-f", name: "f", tabindex: 6 })%>
@@ -150,20 +150,20 @@
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" name="id" class="hide" />
 
+		<h2>Menu</h2>
 		<div class="mx-auto my-2 lg:px-10">
 			<div class="flex flex-wrap [&>div]:grow">
 				<%-include("../forms/uiText", { id: "menu-nombre", name: "nombre", label: "Nombre", tabindex: 1, ph: "File / Edit ..." })%>
 				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, ph: "Title attribute" })%>
 				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, ph: "http://, #tab-0, etc..." })%>
 			</div>
-			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre_id", label: "Padre", tabindex: 4 })%>
+			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre_id", label: "Padre", tabindex: 4, disabled: null })%>
 			<div class="flex flex-wrap">
 				<%-include("../forms/uiSelect", {
-					id: "menu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: null, 
-					keys: i18n.menuTipoKeys, values: i18n.menuTipoValues
+					id: "menu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: null, values: i18n.menuTipoValues
 				})%>
 				<%-include("../forms/numbers/uiInteger", { id: "menu-orden", name: "orden", label: "Orden", tabindex: 5 })%>
-				<%-include("../forms/dates/uiDate", { id: "menu-creado", name: "creado", tabindex: 6, disabled: "disabled" })%>
+				<%-include("../forms/dates/uiDate", { id: "menu-creado", name: "creado", tabindex: 6, disabled: css.disabled })%>
 			</div>
 		</div>
 		<%-include("../forms/uiFormButtons")%>
@@ -171,7 +171,8 @@
 </div>
 
 <div id="tab-5" class="tab-content <%=css.tab2%>">
-	<form id="ftest" action="/test/filter.html">
+	<form id="ftest" action="/test/filter.html" class="card">
+		<h2>Test Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
 			<%-include("../forms/uiText", { id: "ftest-name", name: "name", label: "Nombre", tabindex: 1, ph: "" })%>
 			<%-include("../forms/uiText", { id: "ftest-memo", name: "memo", label: "Memoria", tabindex: 2, ph: "" })%>
@@ -215,7 +216,7 @@
 			<tr><td colspan="99"><p>No existen coincidencias a mostrar en la tabla</p></td></tr>
 		</tbody>
 		<tfoot data-tpl="pruebas-footer" class="hide">
-			<tr><td colspan="4">Filas: @size;</td><td class="text-right">@imp_i18n;</td><td></td><td class="text-right">@c4_i18n;</td><td></td></tr>
+			<tr><td colspan="4">Filas: @size;</td><td class="text-right">@imp_i18n;</td><td></td><td class="text-right pr-2">@c4_i18n;</td><td></td></tr>
 		</tfoot>
 	</table>
 	<%-include("../forms/uiTableButtons")%>
@@ -226,20 +227,21 @@
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" name="id" class="hide" />
 
-		<div class="mx-auto my-2 lg:px-10">
-			<%-include("../forms/uiAutocomplete", { id: "test-nif", name: "nif", label: "Nombre", tabindex: 1 })%>
-			<div class="flex flex-wrap">
-				<%-include("../forms/numbers/uiEuro", { id: "test-imp", name: "imp_i18n", label: "Importe", tabindex: 2 })%>
+		<h2>Test</h2>
+		<div class="mx-auto lg:px-10">
+			<%-include("../forms/uiAutocomplete", { id: "test-nif", name: "nif", label: "Nombre", tabindex: 1, disabled: null })%>
+			<div class="flex flex-wrap my-2">
+				<%-include("../forms/numbers/uiEuro", { id: "test-imp", name: "imp_i18n", label: "Importe", tabindex: 2, disabled: null })%>
 				<%-include("../forms/dates/uiDate", { id: "test-fecha", name: "fecha", tabindex: 3, disabled: null })%>
 			</div>
-			<div class="flex flex-wrap m-2"> <!-- check-group checked subgroup by id -->
+			<div class="flex flex-wrap [&>div]:grow my-2"> <!-- check-group checked subgroup by id -->
 				<%-include("../forms/checkboxes/uiCheckRed", { id: "test-bin1", name: "binary", value:"1", label: "Check 1", tabindex: 4 })%>
 				<%-include("../forms/checkboxes/uiCheckGreen", { id: "test-bin2", name: "binary", value:"2", label: "Check 2", tabindex: 5 })%>
 				<%-include("../forms/checkboxes/uiCheckPurple", { id: "test-bin3", name: "binary", value:"4", label: "Check 3", tabindex: 6 })%>
 				<%-include("../forms/checkboxes/uiCheckTeal", { id: "test-bin4", name: "binary", value:"8", label: "Check 4", tabindex: 7 })%>
 				<%-include("../forms/checkboxes/uiCheckRight", { id: "binary", name: "", value:"15", label: "All", tabindex: 8 })%>
 			</div>
-			<div class="flex flex-wrap m-2"> <!-- check-list checked subgroup by id -->
+			<div class="flex flex-wrap [&>div]:grow my-2"> <!-- check-list checked subgroup by id -->
 				<%-include("../forms/checkboxes/uiCheckRed", { id: "test-list1", name: "values", value:"1", label: "Check 1", tabindex: 9 })%>
 				<%-include("../forms/checkboxes/uiCheckGreen", { id: "test-list2", name: "values", value:"2", label: "Check 2", tabindex: 10 })%>
 				<%-include("../forms/checkboxes/uiCheckPurple", { id: "test-list3", name: "values", value:"3", label: "Check 3", tabindex: 11 })%>

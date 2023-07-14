@@ -228,10 +228,8 @@ function DomBox() {
 		opts = opts || {}; // Settings
 		opts.action = opts.action || form.action; //action-override
 		opts.method = opts.method || form.method; //method-override
-		opts.classExcluded = opts.classExcluded || "ui-excluded";
 
 		const fd = new FormData(form); // Data container
-		self.apply("." + opts.classExcluded, form.elements, el => fd.delete(el.name));
 		if (opts.method == "get") // Form get => prams in url
 			opts.action += "?" + (new URLSearchParams(fd)).toString();
 		else

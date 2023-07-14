@@ -5,7 +5,7 @@ import i18n from "../i18n/langs.js";
 const form = {}; // validators for model
 const langs = i18n.getLangs(); // Languages container
 
-langs.es.menuTipoKeys = langs.en.menuTipoKeys = [ 1, 2 ];
+//langs.es.menuTipoKeys = langs.en.menuTipoKeys = [ 1, 2 ];
 langs.en.menuTipoValues = [ "Menu", "Action" ];
 langs.es.menuTipoValues = [ "Menú", "Acción" ];
 

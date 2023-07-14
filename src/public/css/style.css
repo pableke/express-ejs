@@ -38,11 +38,13 @@ hr { margin: 15px 0; border-top: 1px solid #1976d2; }
 .link { @apply text-blue-600 underline dark:text-blue-500 hover:no-underline }
 .action { @apply ml-2 font-bold text-sm text-blue-500 hover:text-blue-800 }
 .action-red { @apply ml-2 font-bold text-sm text-red-500 hover:text-red-800 }
+.text-red { color: red; }
 
 /* Cards */
-.card { border-left: 6px solid #1976D2; }
-.card h1 { margin: 1em; /*color: #1976D2;*/ border-bottom: 1px solid #1976D2; }
-.card-glass { @apply py-10 lg:mx-80 lg:px-10 md:mx-40 md:px-4 sm:mx-3 sm:px-1 shadow-lg rounded-xl bg-white bg-clip-padding bg-opacity-50 border border-gray-200 filter blur-lg }
+.card { display: inline-block; width: 98%; margin: 0 1em; padding: 0 6px; border-left: 6px solid #1976D2; }
+.card h2 { margin: 8px; padding: 0 5px; font-weight: bold; border-bottom: 2px solid #1976D2; }
+.card-glass { @apply py-10 lg:mx-64 lg:px-9 md:mx-40 md:px-4 sm:mx-3 sm:px-1 shadow-lg rounded-xl bg-white bg-clip-padding bg-opacity-50 border border-gray-200 filter blur-lg }
+.card-glass h2 { margin: 8px; padding: 0 5px; font-weight: bold; border-bottom: 2px solid #2196f3; }
 /* Cards */
 
 /* Inputs */
@@ -52,9 +54,9 @@ label.required:after { color: #e32; content: " *"; }
 .ui-input {
 	@apply w-full border-2 text-sm rounded-lg disabled:opacity-75 outline-none bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-300 focus:border-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-300 dark:focus:border-blue-300
 }
-.ui-date { width: 10rem/* 160px */; }
-.ui-check { margin-left: 6px; margin-right: 10px; }
-.ui-integer, .ui-float { width: 10rem/* 160px */; text-align: right; }
+.ui-check { margin: 0 1px; }
+.ui-date { width: 10rem/* w-40 = 160px */; }
+.ui-integer, .ui-float { width: 10rem/* w-40 = 160px */; text-align: right; }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { margin-left: 0.5em; }
 .ui-l-icon { position: absolute; top: 0; bottom: 0; left: 0; height: 40px; }
 .ui-r-icon { position: absolute; top: 0; bottom: 0; right: 0; height: 40px; }
@@ -67,7 +69,8 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { margin-left
 .btn { @apply inline-block border font-medium rounded-lg text-sm px-5 py-2 ml-1 focus:ring-4 focus:outline-none }
 .btn-primary { @apply text-white bg-blue-700 border-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 }
 .btn-secondary { @apply text-gray-900 bg-white border-gray-300 hover:bg-gray-100 focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 }
-.btn-green { @apply text-white bg-green-700 hover:bg-green-800 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 }
+.btn-light { @apply text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 }
+.btn-green { @apply text-white bg-green-700 border-green-700 hover:bg-green-800 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 }
 .btn-dark { @apply text-white bg-gray-800 hover:bg-gray-900 focus:ring-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 }
 .btn-danger { @apply text-white bg-red-700 hover:bg-red-800 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 }
 /* Buttons */

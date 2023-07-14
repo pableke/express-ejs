@@ -3,6 +3,6 @@
     <label for="<%=id%>" class="block mb-1 required"><%=label%>:</label>
     <select id="<%=id%>" name="<%=name%>" tabindex="<%=tabindex%>" class="ui-input ui-select">
         <%-emptyOption%>
-        <%-keys.map((k, i) => `<option value="${k}">${values[i]}</option>`)%>
+        <%-values.map((val, i) => `<option value="${keys[i]}">${val}</option>`)%>
     </select>
 </div>

@@ -6,7 +6,6 @@ import login from "./model/login.js";
 //DOM is fully loaded
 dom.ready(function() {
 	const form = login.getForm("login");
-	console.log('form', form)
 	const flogin = dom.getForm("#signin");
 	const fcontact = dom.getForm("#contact");
 
