@@ -10,79 +10,36 @@
 </div>
 
 <div id="tab-1" class="tab-content <%=css.tab1%>">
-	<form method="post" action="/user/profile.html">
-		<h2><%=i18n.msgFormLogin%></h2><hr/>
+	<form id="profile" method="post" action="/user/profile.html" class="card-glass">
 
-		<div class="ui-block">
-			<label for="nombre" class="required"><%=i18n.lblNombre%>:</label>
-			<input type="text" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
-			<span class="ui-errtip"><%=msgs.nombre%></span>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="ap1" class="required"><%=i18n.lblApellido1%>:</label>
-			<input type="text" id="ap1" name="ap1" maxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido1%>" />
-			<span class="ui-errtip"><%=msgs.ap1%></span>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="ap2"><%=i18n.lblApellido2%>:</label>
-			<input type="text" id="ap2" name="ap2" maxlength="200" tabindex="3" class="ui-input ui-text" title="<%=i18n.titApellido%>" placeholder="<%=i18n.phApellido2%>" />
-			<span class="ui-errtip"><%=msgs.ap2%></span>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="nif" class="required"><%=i18n.lblNifCif%>:</label>
-			<input type="text" name="nif" maxlength="20" tabindex="4" class="ui-input ui-text" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
-			<div class="ui-errtip"><%=msgs.nif%></div>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="correo" class="required"><%=i18n.lblCorreo%>:</label>
-			<input type="text" id="correo" name="correo" maxlength="200" tabindex="5" class="ui-input ui-text" title="<%=i18n.titCorreo%>" placeholder="xxxx@yyyy.com" />
-			<div class="ui-errtip"><%=msgs.correo%></div>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="alta" class="required"><%=i18n.lblFecha%>:</label>
-			<input type="text" id="alta" name="alta" size="15" maxlength="10" tabindex="6" readonly class="ui-input ui-text date disabled" title="<%=i18n.titDate%>" placeholder="<%=i18n.phDate%>" />
-			<div class="ui-errtip"><%=msgs.alta%></div>
-		</div>
+		<h2>Datos del Usuario</h2><br/>
+		<%-include("../forms/uiText", { id: "profile-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiText", { id: "profile-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: css.required, title: null, ph: "Walter" })%>
+		<%-include("../forms/uiText", { id: "profile-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: css.required, title: null, ph: "White" })%>
+		<%-include("../forms/uiText", { id: "profile-nif", name: "nif", label: "Nif", tabindex: 4, required: css.required, title: null, ph: "11111111H" })%>
+		<%-include("../forms/uiEmail", { id: "profile-correo", name: "correo", tabindex: 5 })%>
 
-		<hr/>
-		<a href="#tab-0" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
-		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
-		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		<div class="my-4">
+			<a href="#tab-0" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left mr-2"></i>Volver</a>
+			<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		</div>
 	</form>
 </div>
 
 <div id="tab-2" class="tab-content <%=css.tab2%>">
-	<h1><%=i18n.msgFormLogin%></h1>
-	<hr/>
+	<form id="pass" method="post" action="/user/pass.html" class="card-glass">
 
-	<form method="post" action="/user/pass.html">
-		<div class="ui-block">
-			<label for="oldPass" class="required"><%=i18n.lblClaveAct%>:</label>
-			<input type="password" id="oldPass" name="oldPass" value="" maxlength="200" class="ui-input ui-text" tabindex="1" title="@titUsuario;" placeholder="********" />
-			<span class="ui-errtip"><%=msgs.oldPass%></span>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="clave" class="required"><%=i18n.lblNewClave%>:</label>
-			<input type="password" id="clave" name="clave" value="" maxlength="200" class="ui-input ui-text" tabindex="2" title="@titClave;" placeholder="********" />
-			<span class="ui-errtip"><%=msgs.clave%></span>
-		</div>
-		<br/>
-		<div class="ui-block">
-			<label for="reclave" class="required"><%=i18n.lblReClave%>:</label>
-			<input type="password" id="reclave" name="reclave" value="" maxlength="200" class="ui-input ui-text" tabindex="3" title="@titClave;" placeholder="********" />
-			<span class="ui-errtip"><%=msgs.reclave%></span>
-		</div>
+		<h2>Nueva Contraseña</h2><br/>
+		<%-include("../forms/uiPassword", { id: "pass-oldPass", name: "oldPass", label: "Clave Actual", tabindex: 1 })%>
+		<%-include("../forms/uiPassword", { id: "pass-clave", name: "clave", label: "Nueva Actual", tabindex: 2 })%>
+		<%-include("../forms/uiPassword", { id: "pass-reclave", name: "reclave", label: "Confirmación de la Clave", tabindex: 3 })%>
 
-		<hr/>
-		<a href="#tab-0" tabindex="100" class="btn btn-primary">&#8810; <%=i18n.lblVolver%></a>
-		<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
-		<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		<div class="my-4">
+			<a href="#tab-0" tabindex="101" class="btn btn-primary"><i class="fas fa-angle-double-left mr-2"></i>Volver</a>
+			<button type="submit" class="btn btn-success" tabindex="101" title="@titAcceder;"><%=i18n.lblGuardar%> <i class="far fa-save"></i></button>
+			<button type="reset" class="btn btn-light" tabindex="102" title="@titRestaurar;">&olarr; <%=i18n.lblLimpiar%></button>
+		</div>
 	</form>
 </div>
 
@@ -90,9 +47,9 @@
 	<form id="fmenu" action="/menu/list.html" class="card">
 		<h2>Menu Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
-			<%-include("../forms/uiText", { id: "fmenu-nombre", name: "nombre", label: "Nombre", tabindex: 1, ph: "File / Edit ..." })%>
-			<%-include("../forms/uiText", { id: "fmenu-titulo", name: "titulo", label: "Título", tabindex: 2, ph: "Title attribute" })%>
-			<%-include("../forms/uiText", { id: "fmenu-enlace", name: "enlace", label: "Enlace", tabindex: 3, ph: "http://, #tab-0, etc..." })%>
+			<%-include("../forms/uiText", { id: "fmenu-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: null, title: null, ph: "File / Edit ..." })%>
+			<%-include("../forms/uiText", { id: "fmenu-titulo", name: "titulo", label: "Título", tabindex: 2, required: null, title: null, ph: "Title attribute" })%>
+			<%-include("../forms/uiText", { id: "fmenu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: null, title: null, ph: "http://, #tab-0, etc..." })%>
 		</div>
 		<div class="flex flex-wrap">
 			<%-include("../forms/uiSelect", {
@@ -153,9 +110,9 @@
 		<h2>Menu</h2>
 		<div class="mx-auto my-2 lg:px-10">
 			<div class="flex flex-wrap [&>div]:grow">
-				<%-include("../forms/uiText", { id: "menu-nombre", name: "nombre", label: "Nombre", tabindex: 1, ph: "File / Edit ..." })%>
-				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, ph: "Title attribute" })%>
-				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, ph: "http://, #tab-0, etc..." })%>
+				<%-include("../forms/uiText", { id: "menu-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "File / Edit ..." })%>
+				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, required: css.required, title: null, ph: "Title attribute" })%>
+				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: css.required, title: null, ph: "http://, #tab-0, etc..." })%>
 			</div>
 			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre_id", label: "Padre", tabindex: 4, disabled: null })%>
 			<div class="flex flex-wrap">
@@ -174,8 +131,8 @@
 	<form id="ftest" action="/test/filter.html" class="card">
 		<h2>Test Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
-			<%-include("../forms/uiText", { id: "ftest-name", name: "name", label: "Nombre", tabindex: 1, ph: "" })%>
-			<%-include("../forms/uiText", { id: "ftest-memo", name: "memo", label: "Memoria", tabindex: 2, ph: "" })%>
+			<%-include("../forms/uiText", { id: "ftest-name", name: "name", label: "Nombre", tabindex: 1, title: null, required: null, ph: "" })%>
+			<%-include("../forms/uiText", { id: "ftest-memo", name: "memo", label: "Memoria", tabindex: 2, title: null, required: null, ph: "" })%>
 		</div>
 		<div class="flex flex-wrap">
 			<%-include("../forms/numbers/uiRangeFloat", { id: "ftest-imp", name: "ftest-imp", tabindex: 3 })%>

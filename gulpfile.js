@@ -80,7 +80,7 @@ gulp.task("minify-js", done => {
 });
 
 // Task to build dist when deployment on server
-gulp.task("deploy", gulp.series("modules", "minify-html", "minify-js"));
+gulp.task("deploy", gulp.series("modules", "minify-html", "minify-css", "minify-js"));
 
 gulp.task("watch", () => {
 	gulp.watch(HTML_PATH, gulp.series("minify-html", "minify-css"));
