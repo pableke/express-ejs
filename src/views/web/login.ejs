@@ -4,8 +4,8 @@
 		<input type="hidden" name="token" />
 
 		<h2>Formulario de acceso</h2><br/>
-		<%-include("../forms/uiUser", { id: "usuario", name: "usuario", tabindex: 1 })%>
-		<%-include("../forms/uiPassword", { id: "clave", name: "clave", tabindex: 2 })%>
+		<%-include("../forms/uiUser", { id: "signin-usuario", name: "usuario", tabindex: 1 })%>
+		<%-include("../forms/uiPassword", { id: "signin-clave", name: "clave", label: "Clave", tabindex: 2 })%>
 
 		<div class="flex my-4 px-4">
 			<div class="flex grow">
@@ -23,27 +23,11 @@
 		<input type="hidden" name="token" />
 
 		<h2>Alta de nuevo usuario</h2><br/>
-		<div class="ui-box">
-			<label for="nm" class="required">Nombre:</label>
-			<input type="text" id="nm" name="nm" maxlength="200" class="ui-input ui-text" tabindex="1" title="<%=i18n.titNombre%>" placeholder="<%=i18n.phNombre%>" />
-			<span class="ui-errtip"></span>
-		</div>
-		<div class="ui-box">
-			<label for="ap1" class="required">Primer Apellido:</label>
-			<input type="text" id="ap1" name="ap1" maxlength="200" class="ui-input ui-text" tabindex="2" title="<%=i18n.titApellido1%>" placeholder="<%=i18n.phApellido1%>" />
-			<span class="ui-errtip"></span>
-		</div>
-		<div class="ui-box">
-			<label for="ap2">Segundo Apellido:</label>
-			<input type="text" id="ap2" name="ap2" maxlength="200" class="ui-input ui-text" tabindex="3" title="<%=i18n.titApellido2%>" placeholder="<%=i18n.phApellido2%>" />
-			<span class="ui-errtip"></span>
-		</div>
-		<div class="ui-box">
-			<label for="nif" class="required">Nif:</label>
-			<input type="text" id="nif" name="nif" maxlength="20" class="ui-input ui-text" tabindex="4" title="<%=i18n.titNif%>" placeholder="<%=i18n.phNif%>" />
-			<span class="ui-errtip"></span>
-		</div>
-		<%-include("../forms/uiEmail", { id: "correo", name: "correo", tabindex: 5 })%>
+		<%-include("../forms/uiText", { id: "signup-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiText", { id: "signup-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: css.required, title: null, ph: "Walter" })%>
+		<%-include("../forms/uiText", { id: "signup-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: css.required, title: null, ph: "White" })%>
+		<%-include("../forms/uiText", { id: "signup-nif", name: "nif", label: "Nif", tabindex: 4, required: css.required, title: null, ph: "11111111H" })%>
+		<%-include("../forms/uiEmail", { id: "signup-correo", name: "correo", tabindex: 5 })%>
 
 		<hr/>
 		<button type="submit" class="btn btn-primary" tabindex="100" title="@titAcceder;">Enviar &raquo;</button>
@@ -74,21 +58,9 @@
 		<input type="hidden" name="token" />
 
 		<h2>Contacto</h2><br/>
-		<div class="ui-box">
-			<label for="nombre" class="required">Nombre:</label>
-			<input type="text" id="nombre" name="nombre" maxlength="200" tabindex="1" class="ui-input ui-text" title="<%=i18n.titNombre%>" placeholder="Joe" />
-			<div class="ui-errtip"></div>
-		</div>
-		<div class="ui-box">
-			<label for="correo" class="required">E-Mail:</label>
-			<input type="text" name="correo" vmaxlength="200" tabindex="2" class="ui-input ui-text" title="<%=i18n.titCorreo%>" placeholder="<%=i18n.ejCorreo%>" />
-			<div class="ui-errtip"></div>
-		</div>
-		<div class="ui-box">
-			<label for="asunto" class="required">Asunto:</label>
-			<input type="text" id="asunto" name="asunto" maxlength="200" tabindex="7" class="ui-input ui-text" placeholder="Type a resume" />
-			<div class="ui-errtip"></div>
-		</div>
+		<%-include("../forms/uiText", { id: "contact-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiEmail", { id: "contact-correo", name: "correo", label: "E-Mail", tabindex: 2 })%>
+		<%-include("../forms/uiText", { id: "contact-asunto", name: "asunto", label: "Asunto", tabindex: 3, required: css.required, title: null, ph: "Subject" })%>
 		<%-include("../forms/uiTextArea", { id: "contact-info", name: "info", label: "Informacion", tabindex: 8 })%>
 
 		<hr/>

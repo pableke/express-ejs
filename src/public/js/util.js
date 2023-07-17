@@ -19,32 +19,6 @@ dom.ready(function() {
 	window.onscroll = function() { dom.toggle(_top, "hide", this.scrollY < 80); }
 	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
 
-	// Build tree menu as UL > Li > *
-	const menu = dom.get("ul.menu");
-	const fnSort = (a, b) => nb.cmp(a.dataset.orden, b.dataset.orden);
-	Array.from(menu?.children).sort(fnSort).forEach(child => {
-		let padre = child.dataset.padre; // Has parent?
-		let mask = child.dataset.mask ?? 4; // Default mask = active
-		if (padre) { // Move child with his parent
-			const li = dom.get("li[id='" + padre + "']", menu);
-			if (li) {
-				const children = +li.dataset.children || 0;
-				if (!children) { // Is first child?
-					li.innerHTML += '<ul class="sub-menu"></ul>';
-					dom.addClass(li.firstElementChild, "nav-tri")
-						.click(li.firstElementChild, ev => !dom.toggle(li, "active")); //usfull on sidebar
-				}
-				mask &= li.dataset.mask ?? 4; // Propage disabled
-				li.dataset.children = children + 1; // add child num
-				li.lastElementChild.appendChild(child); // move child
-			}
-		}
-		else // force reorder lebel 1
-			menu.appendChild(child);
-		dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
-	});
-	dom.show(menu);
-
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(form, selector, opts) {
 		const input = dom.getInput(form, selector); //Autocomplete input
@@ -103,14 +77,34 @@ dom.ready(function() {
 		//.onChangeFields(".ui-integer", (ev, el) => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "text-red", sb.starts(el.value, "-")); })
 		.onChangeFields(".ui-float", (ev, el) => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "text-red", sb.starts(el.value, "-")); })
 
-	// Language selector
-	const currentLang = dom.get("#currentLang", menu);
-	const liLangIcon = dom.get("li#" + i18n.get("lang"), menu);
-	currentLang.src = liLangIcon.firstElementChild.firstElementChild.src;
-	dom.hide(liLangIcon);
+	// Build tree menu as UL > Li > *
+	const menu = dom.get("ul.menu");
+	const fnSort = (a, b) => nb.cmp(a.dataset.orden, b.dataset.orden);
+	Array.from(menu.children).sort(fnSort).forEach(child => {
+		let padre = child.dataset.padre; // Has parent?
+		let mask = child.dataset.mask ?? 4; // Default mask = active
+		if (padre) { // Move child with his parent
+			const li = dom.get("li[id='" + padre + "']", menu);
+			if (li) {
+				const children = +li.dataset.children || 0;
+				if (!children) { // Is first child?
+					li.innerHTML += '<ul class="sub-menu"></ul>';
+					dom.addClass(li.firstElementChild, "nav-tri")
+						.click(li.firstElementChild, ev => !dom.toggle(li, "active")); //usfull on sidebar
+				}
+				mask &= li.dataset.mask ?? 4; // Propage disabled
+				li.dataset.children = children + 1; // add child num
+				li.lastElementChild.appendChild(child); // move child
+			}
+		}
+		else // force reorder lebel 1
+			menu.appendChild(child);
+		dom.toggle(child.firstElementChild, "disabled", !(mask & 4));
+	});
+	dom.show(menu);
 
 	// On page load or when changing themes, best to add inline in `head` to avoid FOUC
-	const themeToggleBtn = dom.get("#theme-toggle", menu);
+	const themeToggleBtn = menu.lastElementChild.firstElementChild;
 	const themeToggleDarkIcon = themeToggleBtn.firstElementChild;
 	const themeToggleLightIcon = themeToggleBtn.lastElementChild;
 	if ((localStorage.getItem("color-theme") === "dark") || (!("color-theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
@@ -146,4 +140,11 @@ dom.ready(function() {
 			}
 		}
 	});
+
+	// Language selector
+	const selectLang = menu.lastElementChild.previousElementSibling;
+	const currentLang = selectLang.firstElementChild.firstElementChild;
+	const liLangIcon = selectLang.querySelector("li#" + i18n.get("lang"));
+	currentLang.src = liLangIcon.firstElementChild.firstElementChild.src;
+	dom.hide(liLangIcon);
 });
