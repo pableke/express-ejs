@@ -1,7 +1,6 @@
 
 function IrseRutas() {
 	const self = this; //self instance
-	const GASOLINA = .19; //euros/km
 	const CT_LAT = 37.62568269999999;
 	const CT_LNG = -0.9965839000000187;
 
@@ -41,7 +40,7 @@ function IrseRutas() {
 	let rutas;
 
 	function fmtImpKm(ruta) {
-		return i18n.isoFloat(ruta.km1 * GASOLINA)
+		return i18n.isoFloat(ruta.km1 * IRSE.gasolina)
 	}
 	function fnSetMain(ruta) {
 		rutas.forEach(ruta => { ruta.mask &= ~1; });
@@ -87,7 +86,7 @@ function IrseRutas() {
 			resume.totKmCalc += nb.round(ruta.km2 || 0);
 		});
 		resume.km1 = resume.totKm; //synonym
-		resume.impKm = resume.totKm * GASOLINA;
+		resume.impKm = resume.totKm * IRSE.gasolina;
 		resume.justifi = (resume.totKmCalc + .01) < resume.totKm;
 		return self;
 	}

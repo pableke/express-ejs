@@ -103,8 +103,14 @@ dom.ready(function() {
 	});
 	dom.show(menu);
 
+	// Language selector
+	const currentLang = dom.get("#currentLang");
+	const linkLang = dom.get('[href="?lang=' + i18n.get("lang") + '"]', currentLang.nextElementSibling);
+	currentLang.firstElementChild.src = linkLang.firstElementChild.src;
+	dom.hide(linkLang.parentNode);
+
 	// On page load or when changing themes, best to add inline in `head` to avoid FOUC
-	const themeToggleBtn = menu.lastElementChild.firstElementChild;
+	const themeToggleBtn = dom.get("#theme-toggle");
 	const themeToggleDarkIcon = themeToggleBtn.firstElementChild;
 	const themeToggleLightIcon = themeToggleBtn.lastElementChild;
 	if ((localStorage.getItem("color-theme") === "dark") || (!("color-theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
@@ -140,11 +146,4 @@ dom.ready(function() {
 			}
 		}
 	});
-
-	// Language selector
-	const selectLang = menu.lastElementChild.previousElementSibling;
-	const currentLang = selectLang.firstElementChild.firstElementChild;
-	const liLangIcon = selectLang.querySelector("li#" + i18n.get("lang"));
-	currentLang.src = liLangIcon.firstElementChild.firstElementChild.src;
-	dom.hide(liLangIcon);
 });

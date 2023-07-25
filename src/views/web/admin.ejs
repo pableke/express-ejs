@@ -1,12 +1,16 @@
 
 <div id="tab-0" class="tab-content <%=css.tab0%>">
-	<% actions.forEach(function(action) { %>
-		<a href="<%=action.enlace%>"><img src="/public/img/png/<%=action.icono%>"/><%=action.nombre%></a>
-	<% }); %>
-	<a href="#tab-1" title="Datos de perfil"><img src="/public/img/png/user_edit.png"/></a>
-	<a href="#tab-2" title="Cambio de clave"><img src="/public/img/png/bubble.png"/></a>
-	<a href="#tab-5" title="Formulario de Pruebas"><img src="/public/img/png/test-tube.png"/></a>
-	<a href="/logout.html"><img src="/public/img/png/exit.png"/></a>
+	<div class="flex">
+		<% actions.forEach(function(action) { %>
+			<%-include("../components/icon-card", action)%>
+		<% }); %>
+	</div>
+	<div class="flex">
+		<%-include("../components/icon-card", { enlace: "#tab-1", icono: "user_edit.png", titulo: "Datos de perfil", nombre: "Datos del perfil" })%>
+		<%-include("../components/icon-card", { enlace: "#tab-2", icono: "bubble.png", titulo: "Cambiar la clave de acceso", nombre: "Cambio de clave" })%>
+		<%-include("../components/icon-card", { enlace: "#tab-5", icono: "test-tube.png", titulo: "Formulario de pruebas", nombre: "Formulario de pruebas" })%>
+		<%-include("../components/icon-card", { enlace: "/logout.html", icono: "exit.png", titulo: "Cerrar la sesión", nombre: "Desconectar" })%>
+	</div>
 </div>
 
 <div id="tab-1" class="tab-content <%=css.tab1%>">
@@ -59,7 +63,7 @@
 			<%-include("../forms/numbers/uiInteger", { id: "fmenu-orden", name: "orden", label: "Orden", tabindex: 5 })%>
 			<%-include("../forms/dates/uiRangeDate", { id: "fmenu-f", name: "f", tabindex: 6 })%>
 		</div>
-		<%-include("../forms/uiFilterButtons")%>
+		<%-include("../forms/buttons/uiFilter")%>
 	</form>
 
 	<table id="menus">
@@ -99,7 +103,7 @@
 			<tr><td colspan="99">Filas: @size;</td></tr>
 		</tfoot>
 	</table>
-	<%-include("../forms/uiTableButtons")%>
+	<%-include("../forms/buttons/uiTable")%>
 </div>
 
 <div id="tab-4" class="tab-content <%=css.tab4%>">
@@ -123,7 +127,7 @@
 				<%-include("../forms/dates/uiDate", { id: "menu-creado", name: "creado", tabindex: 6, disabled: css.disabled })%>
 			</div>
 		</div>
-		<%-include("../forms/uiFormButtons")%>
+		<%-include("../forms/buttons/uiForm")%>
 	</form>
 </div>
 
@@ -138,7 +142,7 @@
 			<%-include("../forms/numbers/uiRangeFloat", { id: "ftest-imp", name: "ftest-imp", tabindex: 3 })%>
 			<%-include("../forms/dates/uiRangeDate", { id: "ftest-f", name: "f", tabindex: 5 })%>
 		</div>
-		<%-include("../forms/uiFilterButtons")%>
+		<%-include("../forms/buttons/uiFilter")%>
 	</form>
 
 	<table id="pruebas">
@@ -176,7 +180,7 @@
 			<tr><td colspan="4">Filas: @size;</td><td class="text-right">@imp_i18n;</td><td></td><td class="text-right pr-2">@c4_i18n;</td><td></td></tr>
 		</tfoot>
 	</table>
-	<%-include("../forms/uiTableButtons")%>
+	<%-include("../forms/buttons/uiTable")%>
 </div>
 
 <div id="tab-6" class="tab-content <%=css.tab3%>">
@@ -209,7 +213,7 @@
 			<!-- <a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload ml-1"></i></button> -->
 			<%-include("../forms/uiTextArea", { id: "test-memo", name: "memo", label: "Memoria", tabindex: 15 })%>
 		</div>
-		<%-include("../forms/uiFormButtons")%>
+		<%-include("../forms/buttons/uiForm")%>
 	</form>
 </div>
 

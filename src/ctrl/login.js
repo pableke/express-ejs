@@ -9,28 +9,12 @@ const TPL_LOGIN = "web/login";
 const form = i18n.getForm("login");
 
 function Login() {
-	this.view = function(req, res) {
-		util.goTab(res, TPL_LOGIN, 0);
-	}
-	function fnLogout(req) {
-		delete req.session.ssId; //remove user id
-		delete req.session.menus; //remove menus
-		//remove session: regenerated next request
-		req.session.destroy(); //specific destroy
-		delete req.session; //full destroy
-	}
-	this.logout = function(req, res) {
-		fnLogout(req); //click logout user
-		util.setTab(res, TPL_LOGIN, 0).send(res, "msgLogout");
-	}
-	this.destroy = function(req, res) {
-		fnLogout(req); //onclose even client
-		res.send("ok"); //response ok
-	}
-
 	const fnScore = info => (info.score > .5) ? Promise.resolve(info) : Promise.reject("¿Eres humano?");
 	const reCaptcha = token => api.ajax.post(`https://www.google.com/recaptcha/api/siteverify?secret=${config.RECAPTCHA_PRIVATE}&response=${token}`).then(fnScore);
 	const fnLogin = (usuario, clave, token) => reCaptcha(token).then(info => dao.sqlite.usuarios.login(usuario, clave));
+	this.view = function(req, res) {
+		util.goTab(res, TPL_LOGIN, 0);
+	}
 	this.sign = function(req, res, next) {
 		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (!form.signin(req.body)) // check errors
@@ -38,7 +22,7 @@ function Login() {
 
 		const { usuario, clave, token } = req.body; // read post data
 		fnLogin(usuario, clave, token).then(user => { // user exists
-			req.session.ssId = user.id; // Important! autosave on res.send!
+			req.session.user = user; // Important! autosave on res.send!
 			dao.sqlite.menus.serialize(user.id).then(tpl => { //specific user menus
 				res.locals.menus = req.session.menus = tpl; //set on view and session
 				// access allowed => go to private area
@@ -53,14 +37,30 @@ function Login() {
 	}
 	this.verify = function(req, res, next) {
 		util.setTab(res, TPL_LOGIN, 0); //if error => go login
-		req.session.ssId = 1; // pruebas quitar
+		req.session.user = { id: 1, nombre: "Pablo Rosique", email: "name@flowbite.com" }; // solo para pruebas => quitar
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
-		if (!req.session.ssId || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
+		if (!req.session.user || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
 			req.session.redirTo = !req.xhr && (req.method == "GET") && req.originalUrl; // Update session helper
-			return next(req.session.ssId ? "endSession" : "err401");
+			return next(req.session.user ? "endSession" : "err401");
 		}
 		next(); //next middleware
+	}
+
+	function fnLogout(req) {
+		delete req.session.user; //remove user id
+		delete req.session.menus; //remove menus
+		//remove session: regenerated next request
+		req.session.destroy(); //specific destroy
+		delete req.session; //full destroy
+	}
+	this.logout = function(req, res) {
+		fnLogout(req); //click logout user
+		util.setTab(res, TPL_LOGIN, 0).send(res, "msgLogout");
+	}
+	this.destroy = function(req, res) {
+		fnLogout(req); //onclose even client
+		res.send("ok"); //response ok
 	}
 
 	const MAIL_CONCAT = {
@@ -68,6 +68,9 @@ function Login() {
 		subject: "Solicitud de información",
 		body: "emails/contact.ejs"
 	};
+	this.viewContact = function(req, res) {
+		util.goTab(res, TPL_LOGIN, 3);
+	}
 	this.contact = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
 		const data = Object.assign({}, form.contact(req.body));
@@ -87,6 +90,9 @@ function Login() {
 		subject: "Registro como nuevo usuario",
 		body: "emails/signup.ejs"
 	};
+	this.viewSignup = function(req, res) {
+		util.goTab(res, TPL_LOGIN, 1);
+	}
 	this.signup = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
 		const data = Object.assign({}, form.signup(req.body));
@@ -114,6 +120,9 @@ function Login() {
 		subject: "Nueva clave de acceso",
 		body: "emails/remember.ejs"
 	};
+	this.viewRemember = function(req, res) {
+		util.goTab(res, TPL_LOGIN, 2);
+	}
 	this.remember = (req, res, next) => {
 		util.setTab(res, TPL_LOGIN, 0); // default view login
 		if (!form.remember(req.body)) // check errors

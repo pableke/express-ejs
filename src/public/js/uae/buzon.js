@@ -1,45 +1,35 @@
 
 dom.ready(() => {
-	const ECO_TEXT = "Seleccione una económica";
-	const TPL_ECO_EMPTY = '<option value="">' + ECO_TEXT + '</option>';
-	const TPL_ECO = '<option value="@value;">@label;</option>';
-
-	const fnOrganica = (value, label) => dom.setValue("#org-id", value).setValue("#organica", label);
-	const fnTramit = (value, label) => dom.setValue("#tramit-value", value).setValue("#tramit-label", label);
-	function fnResetOrganica() {
-		if (this.value) return;
-		dom.hide("#ut").setHtml("#tramit", TPL_ECO_EMPTY);
-		fnTramit(null, ECO_TEXT);
-		fnOrganica();
-	}
-	$("#organica").attr("type", "search").keydown(fnAcChange).autocomplete({
+	const form = dom.find("#xeco-buzon", document.forms);
+	$("#organica", form).attr("type", "search").keydown(fnAcChange).autocomplete({
 		delay: 500, //milliseconds between keystroke occurs and when a search is performed
 		focus: fnFalse, //no change focus on select
 		search: fnAcSearch, //lunch source
 		source: fnSourceItems, //show datalist
-		select: function(ev, ui) {
-			loading(); // muestro denuevo el cargando para cargar las economicas
-			fnOrganica(ui.item.value, ui.item.label); //load data
-			return !dom.trigger("#find-unidades-tramit", "click");
-		}
-	}).change(fnResetOrganica).on("search", fnResetOrganica);
+		select: fnSelectItem //load data
+	}).change(fnAcReset).on("search", fnAcReset);
 
-	window.loadUnidadesTramit = (xhr, status, args) => {
-		const uts = ab.parse(args.data);
-		const ut = uts && uts[0];
-		if (ut) {
-			dom.setHtml("#tramit", uts.format(TPL_ECO));
-			fnTramit(ut.value, ut.label);
-		}
-		dom.toggleHide("#ut", ab.size(uts) < 2);
-		unloading(); // fin del calculo de las UT's
+	dom.onclick("#proveedor", el => dom.setValue("#tipo", 1))
+		.onclick("#cesionario", el => dom.setValue("#tipo", 2))
+		.onChangeFile("#factura_input[type='file']", (el, file) => dom.toggleHide(".next-" + el.id, !file))
+		.onChangeFile("#pago_input[type='file']", (el, file) => dom.toggleHide(".next-" + el.id, !file))
+		.onShowTab(0, tab => dom.hide(".tab-file-next").each(document.forms, form => form.reset()));
+
+	const fnHandleTabs = function(tab, mask) {
+		dom.viewTab(tab).setTabMask(mask)
+			.each("a[data-bitand]", el => { el.dataset.mask = mask & +el.dataset.bitand; }) // 111001111 = 463
+			.each("a.load-mask", el => { el.dataset.mask = mask; });
 	}
+	window.handleLoad = (xhr, status, args) => fnHandleTabs(2, +args.mask);
+	window.handleLoadOtros = (xhr, status, args) => fnHandleTabs(1, +args.mask);
+	//window.handleAddBuzon = (xhr, status, args) => dom.val("#org-id,#organica");
+	window.loadOrganica = link => dom.setText("#org-desc", link.innerText, form);
 
-	dom.onChangeInput("#tramit", el => fnTramit(el.value, dom.getOptText(el)))
-		.click("[data-organica]", link => { dom.each("a.load-mask", el => { el.dataset.mask = link.dataset.mask; }); })
-		.click("[data-mask]", el => { dom.setTabMask(parseInt(el.dataset.mask, 2)); })
-		.click("[data-bitor]", el => { dom.orTabMask(parseInt(el.dataset.bitor, 2)); })
-		.click("[data-bitand]", el => { dom.andTabMask(parseInt(el.dataset.bitand, 2)); })
-		.onChangeFile("[type='file']", (file, data) => dom.toggleHide(".tab-file-next", !data))
-		.onShowTab(0, tab => dom.hide(".tab-file-next").find("#xeco-buzon", document.forms).reset());
+	dom.onShowTab(7, tab => {
+		const factura = dom.find("#factura_input", form.elements).files[0];
+		const jp = dom.find("#pago_input", form.elements).files[0];
+		const select = dom.find("#tramit", form.elements);
+		dom.setText("#file-name", factura.name + (jp ? (", " + jp.name) : ""), tab)
+			.setText("#ut-desc", dom.getOptText(select), tab);
 	});
+});

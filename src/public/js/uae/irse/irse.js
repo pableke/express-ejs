@@ -1,7 +1,7 @@
 
 dom.ready(function() {
 	i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
-	dom.tr(".i18n-tr-h1"); //local traductor
+	dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
 });
 
 //Global IRSE components

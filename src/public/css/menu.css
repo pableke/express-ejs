@@ -1,10 +1,16 @@
 
-nav { position: sticky; top: 0; z-index: 3; opacity: .9; }
+nav {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	opacity: .9;
+	background-color: #f8f9fa;
+}
 
 /* Menu dropdown */
-ul.menu-phone { display: none; background-color: #f8f9fa; }
-ul.menu { display: flex; padding: 5px; background-color: #f8f9fa; }
-ul.sub-menu { display: none; position: absolute; left: 0; background-color: #f8f9fa; border-left: 2px solid #2c3e50; }
+ul.menu-phone { display: none; }
+ul.menu { display: flex; padding: 5px;  }
+ul.sub-menu { display: none; position: absolute; left: 0; border-left: 2px solid #2c3e50; background-color: #f8f9fa; }
 
 /* First li level: starts hide and after fadeIn by JS */
 ul.menu li { position: relative; float: left; list-style: none; }
@@ -20,10 +26,20 @@ ul.menu ul ul { top: 1%; left: 99%; }
 ul.menu a { display: block; padding: .5rem .8rem; white-space: nowrap; text-decoration: none; color: #000; }
 ul.menu .nav-tri:after { content: "\25B6"; margin-left: 4px; }
 .nav-icon { display: inline-block; margin-right: 8px; }
-/* Right extra options menu */
-ul.menu li.button ul { border: none; }
-ul.menu li.button:hover a { color: #000; background-color: #f8f9fa; }
 /* Menu dropdown */
+
+/* Dropdown */
+.dropdown { position: relative; display: flex; justify-content: center; align-items: center; }
+.dropdown img { display: inline-block; width: 24px; height: auto; margin-right: 0.5rem/* 8px */; }
+.dropdown > a { @apply inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2 }
+.dropdown > div {
+	position: absolute; top: 50px; display: none; z-index: 10; margin: auto; min-width: max-content;
+	@apply bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600
+}
+.dropdown:hover > div, .dropdown.active > div { display: block; }
+.dropdown .link { @apply block px-4 py-2 text-sm no-underline text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white }
+.dropdown .icon { @apply w-4 h-4 inline-block mr-2 text-gray-700 dark:text-gray-200 }
+/* Dropdown */
 
 /* Breadcrumb pagination */
 ul.breadcrumb { padding: 10px 16px; list-style: none; background-color: #eee; }
@@ -54,6 +70,15 @@ ul.inline li+li:before { padding: 8px; color: black; content: "\007C"; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media screen and (max-width: 575.98px) {
+	nav {
+		left: -80%; /* width + padding-left + padding-right*/
+		width: 80%;
+		flex-direction: column;
+		padding: 1px;
+		min-height: 100vh;
+		transition: all 500ms linear;
+	}
+
 	ul.menu-phone {
 		position: relative;
 		display: grid;
@@ -69,22 +94,12 @@ ul.inline li+li:before { padding: 8px; color: black; content: "\007C"; }
 	ul.menu-phone li:hover > a { color: #fff; }
 	ul.menu-phone a { display: block; padding: .1rem .4rem; white-space: nowrap; text-decoration: none; color: #000; }
 
-	ul.menu {
-		position: fixed;
-		top: 0;
-		left: -80%; /* width + padding-left + padding-right*/
-		width: 80%;
-		flex-direction: column;
-		padding: 1px;
-		min-height: 100vh;
-		transition: all 500ms linear;
-	}
+	ul.menu { display: block; }
 	ul.menu:hover, ul.menu.active { left: 0; }
 	ul.sub-menu { position: relative; display: none; border: none; }
 
 	/* This hides all dropdowns */
-	ul.menu > li:first-child { margin-top: 38px; }
-	ul.menu > li { display: block; width: 100%; margin-bottom: 3px; }
+	ul.menu > li { display: block; width: 100%; margin-bottom: 3px; border: 2px solid transparent; }
 	ul.menu > li:hover, ul.menu > li.active { border-radius: 8px; border: 2px solid #2c3e50; }
 	ul.menu li:hover > a, ul.menu li.active > a { color: #fff; background-color: #2c3e50; }
 	ul.menu > li:hover > a.nav-tri:after, ul.menu > li.active > a.nav-tri:after { content: "\25BE"; } /* More important than hover */
@@ -96,8 +111,10 @@ ul.inline li+li:before { padding: 8px; color: black; content: "\007C"; }
 	ul.menu li:hover > ul ul, ul.menu li.active > ul ul { display: none; }
 	ul.menu li:hover > ul .nav-tri:after, ul.menu ul .nav-tri:after { content: ""; }
 	ul.menu .nav-tri:after { float: right; }
-	/* Right extra options menu */
-	ul.menu li.button { flex-direction: row; }
+
+	/* Dropdown */
+	.dropdown > div { top: auto; bottom: 40px; /*left: min(1px, 100%);*/ }
+	/* Dropdown */
 }
 /* Small devices (landscape phones, 576px and up) */
 @media screen and (min-width: 576px) and (max-width: 767.98px) {
