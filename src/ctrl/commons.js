@@ -26,7 +26,9 @@ function Commons() {
 		const lang = req.query.lang || req.session.lang || sb.substr(req.headers["accept-language"], 0, 5);
 		res.locals.i18n = i18n.setLang(lang).getLang(); // Selected language
 		req.session.lang = res.locals.i18n.lang; // Save current lang
-	
+
+		res.locals.user = req.session.user;
+		res.locals.tplUser = req.session.user ? "userLogin" : "userPublic";
 		res.locals.menus = req.session.menus || dao.sqlite.menus.getPublic();
 		res.locals._tplBody = "web/index"; // Set data on response
 		res.locals.msgs = i18n.getMsgs(); // Set messages on view

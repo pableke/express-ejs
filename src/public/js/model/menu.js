@@ -6,8 +6,8 @@ const form = {}; // validators for model
 const langs = i18n.getLangs(); // Languages container
 
 //langs.es.menuTipoKeys = langs.en.menuTipoKeys = [ 1, 2 ];
-langs.en.menuTipoValues = [ "Menu", "Action" ];
-langs.es.menuTipoValues = [ "Menú", "Acción" ];
+langs.en.menuTipoValues = [ null, "Menu", "Action" ];
+langs.es.menuTipoValues = [ null, "Menú", "Acción" ];
 
 langs.en.menu = (data, i) => {
     data.count = i + 1;

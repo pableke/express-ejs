@@ -22,17 +22,15 @@ dom.ready(function() {
 		partidas: { "org-inc": i18n.required, "org-inc-id": i18n.required, "eco-inc": i18n.required, "imp-inc": i18n.gt0 } //importe obligatorio
 	};
 
-	const ECO_TEXT = "Seleccione una económica";
-	const TPL_ECO_EMPTY = '<option value="">' + ECO_TEXT + '</option>';
-	const TPL_ECO = '<option value="@value;">@label;</option>';
-
-	let economicasDec, economicasInc, dec;
+	let economicasDec, dec;
 	let partidas = ab.parse(dom.getText("#partidas-json")) || [];
 
 	//****** partida a decrementar ******//
-	const fnRenderOrganica = item => item.label;
 	const fnOrganicaDec = (id, mask, txt) => dom.setValue("#org-dec", txt).setValue("#org-dec-id", id).setValue("#fa-dec", i18n.fmtBool(mask & 1));
-	const fnEconomicaDec = (id, txt, imp) => dom.setValue("#eco-value", id).setValue("#eco-label", txt).setValue("#imp-cd", i18n.isoFloat(imp));
+	const fnLoadDC = index => {
+		dec = economicasDec[index];
+		dom.setValue("#imp-cd", i18n.isoFloat(dec?.imp));
+	}
 	const fnAvisoFa = mask => { //aviso para organicas afectadas en TCR o FCE
 		const info = "La orgánica seleccionada es afectada, por lo que su solicitud solo se aceptará para determinado tipo de operaciones.";
 		(mask & 1) && ([1, 6].indexOf(PRESTO.tipo) > -1) && dom.showInfo(info);
@@ -49,31 +47,33 @@ dom.ready(function() {
 		}
 		else
 			dom.showError(msg);
-		unloading(); // fin del calculo de los AIP
 	}
 
-	window.loadEconomicasDec = (xhr, status, args) => {
-		unloading(); // fin del calculo de las economicas
-		economicasDec = ab.parse(args.data);
-		dec = economicasDec && economicasDec[0];
-		if (dec) {
-			fnEconomicaDec(dec.value, dec.label, dec.imp).setHtml("#eco-dec", economicasDec.format(TPL_ECO));
-			if (PRESTO.tipo == 3) //L83 => busco su AIP
-				dom.loading().trigger("#find-aip", "click");
-			else if (PRESTO.tipo == 5) //ANT => cargo misma organica
-				dom.loading().trigger("#find-ant", "click");
-		}
-		else
-			dom.showError("Aplicación no encontrada en el sistema.");
+	window.autoloadL83 = (xhr, status, args) => fnAutoloadInc(args.data, "Aplicación AIP no encontrada en el sistema.");
+	window.autoloadAnt = (xhr, status, args) => fnAutoloadInc(args.data, "No se ha encontrado el anticipo en el sistema.");
+	window.loadCD = el => {
+		if (PRESTO.tipo == 3) //L83 => busco su AIP
+			dom.trigger("#autoload-l83", "click");
+		else if (PRESTO.tipo == 5) //ANT => cargo misma organica
+			dom.trigger("#autoload-ant", "click");
+		fnLoadDC(el.selectedIndex);
 	}
-	window.loadAip = (xhr, status, args) => fnAutoloadInc(args.data, "Aplicación AIP no encontrada en el sistema.");
-	window.loadAnt = (xhr, status, args) => fnAutoloadInc(args.data, "No se ha encontrado el anticipo en el sistema.");
+	window.loadEconomicasDec = (xhr, status, args) => {
+		economicasDec = ab.parse(args.economicas) || [];
+		if (args.data) {
+			if (PRESTO.tipo == 3) //L83 => busco su AIP
+				autoloadL83(xhr, status, args);
+			else if (PRESTO.tipo == 5) //ANT => cargo misma organica
+				autoloadAnt(xhr, status, args);
+		}
+		fnLoadDC(0); // Cargo el importe del crédito disponible por defecto
+		unloading(); // fin del calculo de las economicas
+	}
 
 	function fnResetPartidaDec() {
 		if ((PRESTO.tipo != 8) && PRESTO.autoloadInc) //autoload y no AFC
 			dom.clearTable("#partidas-tb", partidas, RESUME, STYLES);
-		fnEconomicaDec("", ECO_TEXT).setHtml("#eco-dec", TPL_ECO_EMPTY);
-		fnOrganicaDec();
+		fnOrganicaDec().trigger("#find-economicas-dec", "click");
 	}
 	function fnResetOrganicaDec() {
 		this.value || fnResetPartidaDec();
@@ -88,7 +88,7 @@ dom.ready(function() {
 		select: function(ev, ui) {
 			loading(); // muestro denuevo el cargando para cargar las economicas
 			fnAvisoFa(ui.item.int); //aviso para organicas afectadas en TCR o FCE
-			fnOrganicaDec(ui.item.value, ui.item.int, fnRenderOrganica(ui.item));
+			fnOrganicaDec(ui.item.value, ui.item.int, ui.item.label);
 			return !dom.trigger("#find-economicas-dec", "click");
 		}
 	}).change(fnResetOrganicaDec).on("search", fnResetOrganicaDec);
@@ -100,19 +100,11 @@ dom.ready(function() {
 
 	//****** partida a incrementar ******//
 	const fnOrganicaInc = (id, mask, txt) => dom.setValue("#org-inc", txt).setValue("#org-inc-id", id).setValue("#fa-inc", i18n.fmtBool(mask & 1));
-	const fnEconomicaInc = (id, txt) => dom.setValue("#eco-inc-value", id).setValue("#eco-inc-label", txt);
+	function fnResetPartidaInc() { fnOrganicaInc().setValue("#imp-inc").trigger("#find-economicas-inc", "click"); }
+	function fnResetOrganicaInc() { this.value || fnResetPartidaInc(); }
+
 	window.loadEconomicasInc = (xhr, status, args) => {
-		economicasInc = ab.parse(args.data);
-		const inc = economicasInc && economicasInc[0];
-		inc && fnEconomicaInc(inc.value, inc.label).setHtml("#eco-inc", economicasInc.format(TPL_ECO));
 		unloading(); // fin del calculo de las economicas
-	}
-	function fnResetPartidaInc() {
-		fnOrganicaInc();
-		fnEconomicaInc("", ECO_TEXT).setHtml("#eco-inc", TPL_ECO_EMPTY).setValue("#imp-inc");
-	}
-	function fnResetOrganicaInc() {
-		this.value || fnResetPartidaInc();
 	}
 
 	$("#org-inc").attr("type", "search").keydown(fnAcChange).autocomplete({
@@ -124,7 +116,7 @@ dom.ready(function() {
 		select: function(ev, ui) {
 			loading(); // muestro denuevo el cargando para cargar las economicas
 			fnAvisoFa(ui.item.int); //aviso para organicas afectadas en TCR o FCE
-			fnOrganicaInc(ui.item.value, ui.item.int, fnRenderOrganica(ui.item));
+			fnOrganicaInc(ui.item.value, ui.item.int, ui.item.label);
 			return !dom.trigger("#find-economicas-inc", "click");
 		}
 	}).change(fnResetOrganicaInc).on("search", fnResetOrganicaInc);
@@ -133,14 +125,6 @@ dom.ready(function() {
 	dom.onChangeInput("#ej-dec", el => { dom.setValue("#ej-inc", el.value); fnResetPartidaDec(); })
 		.onChangeInput("#ej-inc", fnResetPartidaInc)
 		.eachInput(".ui-float", el => { el.value = i18n.isoFmt(el.value); });
-	dom.onChangeInput("#eco-dec", el => {
-		dec = economicasDec[el.selectedIndex];
-		fnEconomicaDec(el.value, dom.getOptText(el), dec.imp);
-	});
-	dom.onChangeInput("#eco-inc", el => {
-		inc = economicasInc[el.selectedIndex];
-		fnEconomicaInc(el.value, dom.getOptText(el));
-	});
 
 	//****** tabla de partidas a incrementar ******//
 	window.fnAddPartidaInc = (xhr, status, args) => dom.validate("#xeco-presto", VALIDATORS.partidas);

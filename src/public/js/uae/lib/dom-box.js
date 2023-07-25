@@ -528,11 +528,11 @@ function DomBox(opts) {
 				let file = el.files[index];
 				const fnRead = () => reader.readAsBinaryString(file); //reader.readAsText(file, "UTF-8");
 				reader.onload = ev => { // event on load file
-					fn(file, ev.target.result, index);
+					fn(el, file, ev.target.result, index);
 					file = el.files[++index];
 					file && fnRead();
 				}
-				file ? fnRead() : fn();
+				file ? fnRead() : fn(el);
 			});
 		}
 	
@@ -756,8 +756,6 @@ function DomBox(opts) {
 		self.getTabs = () => tabs; //all tabs
 		self.getTab = id => self.find("#tab-" + id, tabs); // Find by id selector
 		self.setTabMask = mask => { _tabMask = mask; return self; } // set mask for tabs
-		self.orTabMask = mask => self.setTabMask(_tabMask | mask); // set or mask for tabs
-		self.andTabMask = mask => self.setTabMask(_tabMask & mask); // set and mask for tabs
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
 		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
@@ -802,8 +800,8 @@ function DomBox(opts) {
 
 		if (_tabSize > 0) { // Has view tabs?
 			self.onclick("a[href='#back-tab']", () => !self.backTab())
-				.onclick("a[href='#prev-tab']", () => !self.prevTab())
-				.onclick("a[href='#next-tab']", () => !self.nextTab())
+				.onclick("a[href='#prev-tab']", el => !self.setTabMask(+(el.dataset.mask ?? _tabMask)).prevTab())
+				.onclick("a[href='#next-tab']", el => !self.setTabMask(+(el.dataset.mask ?? _tabMask)).nextTab())
 				.onclick("a[href='#last-tab']", () => !self.lastTab())
 				.onclick("a[href^='#tab-']", el => !self.viewTab(self.lastId(el.href)));
 		}
