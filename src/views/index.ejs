@@ -15,7 +15,7 @@
 
 	<!-- CSS Styles -->
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css">
-	<link rel="stylesheet" href="/public/css/styles-min.css">
+	<link rel="stylesheet" href="/public/css/styles.css">
 	<!--<link rel="manifest" href="/public/web/manifest.json" />-->
 
 	<!-- JS Scripts -->
@@ -26,27 +26,20 @@
 </head>
 
 <body class="dark:bg-gray-800 dark:text-white">
-	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
-	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
-	<%-include("components/alerts")%>
-
 	<header></header>
-	<nav class="flex flex-col sm:flex-row">
-		<div>
-			<ul class="menu-phone">
-				<li><a href="#toggle" data-target="ul.menu" data-css="active" data-toggle="fa-bars fa-arrow-left"><i class="fas fa-bars"></i></a></li>
-				<li><a href="#" title="Link phone 1">Link phone 1</a></li>
-				<li><a href="#" title="Link phone 2">Link phone 2</a></li>
-				<li><a href="#" title="Link phone 3">Link phone 3</a></li>
-			</ul>
-		</div>
-		<div>
-			<ul class="menu hide"><%-menus%></ul>
-		</div>
-		<div class="grow"></div>
+	<ul class="menu-phone">
+		<li><a href="#toggle" data-target="nav" data-css="active" data-toggle="fa-bars fa-arrow-left"><i class="fas fa-bars"></i></a></li>
+		<li><a href="#" title="Link phone 1">Link phone 1</a></li>
+		<li><a href="#" title="Link phone 2">Link phone 2</a></li>
+		<li><a href="#" title="Link phone 3">Link phone 3</a></li>
+	</ul>
+	<nav>
+		<ul class="menu grow hide">
+			<%-menus%>
+		</ul>
 		<div class="flex">
 			<div class="dropdown">
-				<a id="currentLang" href="#">
+				<a id="currentLang" href="#" class="w-max">
 					<img id="currentLang" src="/public/img/flags/spain.png">
 					<svg class="inline-block translate-y-2 w-6 h-6" fill="none" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 5.326 5.7a.909.909 0 0 0 1.348 0L13 1"/></svg>
 				</a>
@@ -68,6 +61,9 @@
 		</div>
 	</nav>
 
+	<div class="loading hide"><b class="fas fa-spinner fa-3x fa-spin loading-content"></b></div>
+	<a id="back-to-top" href="#top" class="hide back-to-top"><i class="fas fa-chevron-up"></i></a>
+	<%-include("components/alerts")%>
 	<main>
 		<%-include(_tplBody)%>
 	</main>

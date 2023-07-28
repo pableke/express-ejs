@@ -1,13 +1,13 @@
 
-table { margin: 20px auto; width:96%; border-collapse: collapse; }
-thead { border-bottom: solid 1px #000; }
-tfoot { font-weight: bold; border-top: 1px dashed #000; }
+table { margin: 20px auto; width:96%; border-collapse: collapse; opacity: .9; }
+thead { border-bottom: 1px dashed; @apply border-black dark:border-white }
+tfoot { font-weight: bold; border-top: 1px dashed; @apply border-black dark:border-white }
 tfoot td { padding-top: 3px; }
 
 tbody.no-data td { padding: 1rem; text-align: center; }
-tr.tb-data:nth-child(odd) { background-color: #fff; }
-tr.tb-data:nth-child(even) { background-color: #eee; }
-tr.tb-data:hover { background-color: #E6E6FA; }
+tr.tb-data:nth-child(odd) { @apply bg-gray-50 dark:bg-gray-700 }
+tr.tb-data:nth-child(even) { @apply bg-gray-200 dark:bg-gray-800 }
+tr.tb-data:hover { @apply bg-gray-300 dark:bg-gray-600 }
 
 .sort {
 	display: inline-block;

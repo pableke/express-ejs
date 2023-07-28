@@ -1,8 +1,4 @@
 
-/* Style the tab content */
-.tab-contents { display: none; }
-.tab-contents.active { display: block; }
-
 /* Progressbar styles */
 #progressbar {
 	display: flex;

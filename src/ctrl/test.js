@@ -11,11 +11,19 @@ const form = i18n.getForm("test");
 
 export const index = (req, res) => util.tabs(res, 0).render(res, "web/index");
 
-export const filter = (req, res) => {
+export const list = (req, res) => {
 	const FILTER = form.filter(req.query);
 	const fields = ["name", "memo"]; // Strings ilike filter
 	const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
 	api.ajax.get(ENDPOINT).then(data => res.json(data.filter(fnFilter)));
+}
+export const filter = (req, res) => {
+	const { term } = req.query;
+	const fnFilter = row => sb.ilike(row.name, term);
+	if (sb.size(term) > 3) // Params recibed successfully
+		api.ajax.get(ENDPOINT).then(data => res.json(data.filter(fnFilter)));
+	else
+		res.json([]); // Empty results
 }
 
 export const save = (req, res) => {

@@ -7,9 +7,10 @@ import i18n from "./i18n/langs.js";
 //DOM is fully loaded
 dom.ready(function() {
 	i18n.load(); // Set language
+	const _nav = dom.find("nav", document.body.children);
 
 	// Loading div
-	const _loading = document.body.firstChild;
+	const _loading = _nav.nextElementSibling;
 	dom.loading = () => dom.show(_loading).closeAlerts();
 	dom.working = () => dom.fadeOut(_loading);
 	// End loading div
@@ -21,15 +22,14 @@ dom.ready(function() {
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(form, selector, opts) {
+		const url = new URL("http://localhost:3000" + opts.action); //request
 		const input = dom.getInput(form, selector); //Autocomplete input
 		const id = dom.sibling(input, "[type=hidden]"); //id associated
 
-		const fnNull = param => null;
-		const fnClear = param => { dom.setValue(input).setValue(id); opts.remove(input); }
+		const fnNull = () => null;
+		const fnClear = () => { dom.setValue(input).setValue(id); opts.remove(input); }
 		let _search, _searching; // call source indicator (reduce calls)
 
-		opts = opts || {}; //default config
-		opts.action = opts.action || "#"; //request
 		opts.minLength = opts.minLength || 3; //length to start
 		opts.maxResults = opts.maxResults || 10; //max showed rows (default = 10)
 		opts.delay = opts.delay || 500; //milliseconds between keystroke occurs and when a search is performed
@@ -46,7 +46,8 @@ dom.ready(function() {
 					let label = sb.iwrap(opts.render(item, input, id), req.term); //decore matches
 					return $("<li>").append("<div>" + label + "</div>").appendTo(ul);
 				}
-				dom.ajax(opts.action + "?term=" + req.term).then(data => {
+				url.searchParams.set("term", req.term);
+				dom.ajax(url.toString()).then(data => {
 					res(opts.sort(data).slice(0, opts.maxResults));
 				}).finally(() => {
 					_searching = false; // Allow next searchs
@@ -78,7 +79,7 @@ dom.ready(function() {
 		.onChangeFields(".ui-float", (ev, el) => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "text-red", sb.starts(el.value, "-")); })
 
 	// Build tree menu as UL > Li > *
-	const menu = dom.get("ul.menu");
+	const menu = dom.get("ul.menu", _nav);
 	const fnSort = (a, b) => nb.cmp(a.dataset.orden, b.dataset.orden);
 	Array.from(menu.children).sort(fnSort).forEach(child => {
 		let padre = child.dataset.padre; // Has parent?
@@ -104,21 +105,22 @@ dom.ready(function() {
 	dom.show(menu);
 
 	// Language selector
-	const currentLang = dom.get("#currentLang");
+	const currentLang = dom.get("#currentLang", _nav);
 	const linkLang = dom.get('[href="?lang=' + i18n.get("lang") + '"]', currentLang.nextElementSibling);
 	currentLang.firstElementChild.src = linkLang.firstElementChild.src;
 	dom.hide(linkLang.parentNode);
 
 	// On page load or when changing themes, best to add inline in `head` to avoid FOUC
-	const themeToggleBtn = dom.get("#theme-toggle");
+	const html = document.documentElement;
+	const themeToggleBtn = dom.get("#theme-toggle", _nav);
 	const themeToggleDarkIcon = themeToggleBtn.firstElementChild;
 	const themeToggleLightIcon = themeToggleBtn.lastElementChild;
 	if ((localStorage.getItem("color-theme") === "dark") || (!("color-theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-		document.documentElement.classList.add("dark");
+		html.classList.add("dark");
 		themeToggleLightIcon.classList.remove("hidden");
 	}
 	else {
-		document.documentElement.classList.remove("dark");
+		html.classList.remove("dark");
 		themeToggleDarkIcon.classList.remove("hidden");
 	}
 	themeToggleBtn.addEventListener("click", function() {
@@ -129,19 +131,19 @@ dom.ready(function() {
 		// if set via local storage previously
 		if (localStorage.getItem("color-theme")) {
 			if (localStorage.getItem("color-theme") === "light") {
-				document.documentElement.classList.add("dark");
+				html.classList.add("dark");
 				localStorage.setItem("color-theme", "dark");
 			} else {
-				document.documentElement.classList.remove("dark");
+				html.classList.remove("dark");
 				localStorage.setItem("color-theme", "light");
 			}
 		}
 		else { // if NOT set via local storage previously
-			if (document.documentElement.classList.contains("dark")) {
-				document.documentElement.classList.remove("dark");
+			if (html.classList.contains("dark")) {
+				html.classList.remove("dark");
 				localStorage.setItem("color-theme", "light");
 			} else {
-				document.documentElement.classList.add("dark");
+				html.classList.add("dark");
 				localStorage.setItem("color-theme", "dark");
 			}
 		}
