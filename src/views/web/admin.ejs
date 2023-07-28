@@ -1,18 +1,20 @@
 
+<!-- Acciones de administración -->
 <div id="tab-0" class="tab-content <%=css.tab0%>">
 	<div class="flex">
 		<% actions.forEach(function(action) { %>
-			<%-include("../components/icon-card", action)%>
+			<%-include("../components/iconCard", action)%>
 		<% }); %>
 	</div>
 	<div class="flex">
-		<%-include("../components/icon-card", { enlace: "#tab-1", icono: "user_edit.png", titulo: "Datos de perfil", nombre: "Datos del perfil" })%>
-		<%-include("../components/icon-card", { enlace: "#tab-2", icono: "bubble.png", titulo: "Cambiar la clave de acceso", nombre: "Cambio de clave" })%>
-		<%-include("../components/icon-card", { enlace: "#tab-5", icono: "test-tube.png", titulo: "Formulario de pruebas", nombre: "Formulario de pruebas" })%>
-		<%-include("../components/icon-card", { enlace: "/logout.html", icono: "exit.png", titulo: "Cerrar la sesión", nombre: "Desconectar" })%>
+		<%-include("../components/iconCard", { enlace: "#tab-1", icono: "user_edit.png", titulo: "Datos de perfil", nombre: "Datos del perfil" })%>
+		<%-include("../components/iconCard", { enlace: "#tab-2", icono: "bubble.png", titulo: "Cambiar la clave de acceso", nombre: "Cambio de clave" })%>
+		<%-include("../components/iconCard", { enlace: "#tab-5", icono: "test-tube.png", titulo: "Formulario de pruebas", nombre: "Formulario de pruebas" })%>
+		<%-include("../components/iconCard", { enlace: "/logout.html", icono: "exit.png", titulo: "Cerrar la sesión", nombre: "Desconectar" })%>
 	</div>
 </div>
 
+<!-- Datos del perfil -->
 <div id="tab-1" class="tab-content <%=css.tab1%>">
 	<form id="profile" method="post" action="/user/profile.html" class="card-glass">
 
@@ -31,6 +33,7 @@
 	</form>
 </div>
 
+<!-- Cambio de contraseña -->
 <div id="tab-2" class="tab-content <%=css.tab2%>">
 	<form id="pass" method="post" action="/user/pass.html" class="card-glass">
 
@@ -47,6 +50,7 @@
 	</form>
 </div>
 
+<!-- Modelo Menu -->
 <div id="tab-3" class="tab-content <%=css.tab3%>">
 	<form id="fmenu" action="/menu/list.html" class="card">
 		<h2>Menu Search</h2>
@@ -91,8 +95,8 @@
 				<td class="text-right">@orden;</td>
 				<td class="text-center">@creado_i18n;</td>
 				<td class="text-center">
-					<a href="#find" class="action"><i class="fas fa-search fa-lg"></i></a>
-					<a href="#remove" class="action-red"><i class="fa fa-times fa-lg"></i></a>
+					<a href="#find" class="action action-blue"><i class="fas fa-search fa-lg"></i></a>
+					<a href="#remove" class="action action-red"><i class="fa fa-times fa-lg"></i></a>
 				</td>
 			</tr>
 		</tbody>
@@ -110,6 +114,7 @@
 	<form id="menu" action="/menu/save.html" method="post" class="card-glass">
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" name="id" class="hide" />
+		<input type="text" name="mask" class="hide" />
 
 		<h2>Menu</h2>
 		<div class="mx-auto my-2 lg:px-10">
@@ -118,7 +123,7 @@
 				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, required: css.required, title: null, ph: "Title attribute" })%>
 				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: css.required, title: null, ph: "http://, #tab-0, etc..." })%>
 			</div>
-			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre_id", label: "Padre", tabindex: 4, disabled: null })%>
+			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre", label: "Padre", tabindex: 4, disabled: null })%>
 			<div class="flex flex-wrap">
 				<%-include("../forms/uiSelect", {
 					id: "menu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: null, values: i18n.menuTipoValues
@@ -131,8 +136,9 @@
 	</form>
 </div>
 
+<!-- Modelo Test -->
 <div id="tab-5" class="tab-content <%=css.tab2%>">
-	<form id="ftest" action="/test/filter.html" class="card">
+	<form id="ftest" action="/test/list.html" class="card">
 		<h2>Test Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
 			<%-include("../forms/uiText", { id: "ftest-name", name: "name", label: "Nombre", tabindex: 1, title: null, required: null, ph: "" })%>
@@ -168,8 +174,8 @@
 				<td class="text-center">@fecha_i18n;</td>
 				<td class="text-right"><input type="text" name="test" value="@c4_i18n;" class="ui-input ui-float" /></td>
 				<td class="text-center">
-					<a href="#find" class="action"><i class="fas fa-search fa-lg"></i></a>
-					<a href="#remove" class="action-red"><i class="fa fa-times fa-lg"></i></a>
+					<a href="#find" class="action action-blue"><i class="fas fa-search fa-lg"></i></a>
+					<a href="#remove" class="action action-red"><i class="fa fa-times fa-lg"></i></a>
 			</td>
 			</tr>
 		</tbody>
@@ -210,7 +216,7 @@
 				<%-include("../forms/checkboxes/uiCheckRight", { id: "values", name: "", value:"15", label: "All", tabindex: 13 })%>
 			</div>
 			<%-include("../forms/uiFile", { id: "test-adjuntos", name: "adjuntos", tabindex: 14 })%>
-			<!-- <a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload ml-1"></i></button> -->
+			<!-- <a id="uploads" href="/test/api/files" class="btn btn-success" tabindex="5">Upload<i class="fas fa-upload ml-2"></i></button> -->
 			<%-include("../forms/uiTextArea", { id: "test-memo", name: "memo", label: "Memoria", tabindex: 15 })%>
 		</div>
 		<%-include("../forms/buttons/uiForm")%>

@@ -14,6 +14,7 @@ function UtilBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
+	this.number = (res, val) => res.send("" + val);
 	this.msg = (res, msg) => res.send(i18n.tr(msg));
 	this.msgs = res => res.json(i18n.getMsgs());
 	this.err404 = (res, msg) => res.status(404).send(i18n.tr(msg));

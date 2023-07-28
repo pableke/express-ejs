@@ -22,6 +22,10 @@ export default class Menus {
         const sql = "select * from v_menu_padre where (? is null or tipo = ?) and (? is null or nombre like ?)";
         return this.db.list(sql, [data.tipo, data.tipo, data.nombre, data.nombre + "%"]);
     }
+    filterByParams(tipo, term) {
+        const sql = "select * from v_menu_padre where (tipo = ?) and (UPPER(nombre) like ?)";
+        return this.db.list(sql, [ tipo, "%" + term.toUpperCase() + "%" ]);
+    }
 
     getById(id) {
         return this.db.find("select * from v_menu_padre where id = ?", id);

@@ -4,10 +4,10 @@
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
     </a>
     <!-- Dropdown menu -->
-    <div id="userDropdown">
-        <div class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-            <div><%=user.nombre%></div>
-            <div class="text-gray-500 truncate"><%=user.email%></div>
+    <div id="userDropdown" class="sm:-right-5">
+        <div class="px-4 py-3 text-sm">
+            <div class="text-gray-900 dark:text-white"><%=user.nombre%></div>
+            <div class="truncate text-gray-500 dark:text-gray-200"><%=user.email%></div>
         </div>
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
             <li>

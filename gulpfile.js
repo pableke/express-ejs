@@ -1,16 +1,16 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss gulp-autoprefixer
-//npm install --save-dev gulp gulp-concat gulp-uglify gulp-clean-css gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss gulp-autoprefixer
+//npm remove gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss autoprefixer
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss autoprefixer
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
 import minifyejs from "gulp-minify-ejs";
 import uglify from "gulp-uglify";
 import concat from "gulp-concat";
-import cssmin from "gulp-clean-css";
+import cssnano from "gulp-cssnano";
 import postcss from "gulp-postcss";
 import tailwindcss from "tailwindcss";
-import autoprefixer from "gulp-autoprefixer";
+import autoprefixer from "autoprefixer";
 import strip from "gulp-strip-comments";
 
 const CSS_FILES = "src/public/css/**/*.css";
@@ -49,15 +49,17 @@ gulp.task("minify-html", done => {
 		removeComments: true, //removeComments => remove CDATA
 		removeRedundantAttributes: false //remove attr with default value
 	};
-	gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs()).pipe(gulp.dest("dist")).on("end", done);
+	gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs())
+		.pipe(gulp.dest("dist")).on("end", done);
 });
 // Tasks to minify CSS"s
 gulp.task("minify-css", done => {
-	const config = { level: {1: { specialComments: 0 }} };
-	const plugins = [ tailwindcss("./tailwind.config.js"), autoprefixer ];
-	fs.rmSync("dist/public/css/styles-min.css", RM_OPTS); // NO lo duplico
-	gulp.src(CSS_FILES).pipe(postcss(plugins, {})).pipe(cssmin(config)).pipe(gulp.dest("dist/public/css")).on("end", () => {
-		fnConcat("dist/public/css/**/*.css", "dist/public/css", "styles-min.css").on("end", done);
+	const destino = "dist/public/css";
+	fs.rmSync("dist/public/css/styles.css", RM_OPTS); // NO lo duplico
+	gulp.src(CSS_FILES).pipe(cssnano()).pipe(gulp.dest(destino)).on("end", () => {
+		const plugins = [ tailwindcss("./tailwind.config.js"), autoprefixer ];
+		gulp.src("dist/public/css/**/*.css").pipe(postcss(plugins)).pipe(cssnano())
+			.pipe(concat("styles.css")).pipe(gulp.dest(destino)).on("end", done);
 	});
 });
 // Tasks to minify JS"s

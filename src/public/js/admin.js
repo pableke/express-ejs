@@ -3,6 +3,7 @@ import dt from "./lib/date-box.js";
 import nb from "./lib/number-box.js";
 import sb from "./lib/string-box.js";
 import dom from "./lib/dom-box.js";
+
 import menu from "./model/menu.js";
 import test from "./model/test.js";
 
@@ -10,6 +11,7 @@ import test from "./model/test.js";
 dom.ready(function() {
     const tabs = {};
 
+    // Formularios de los menús
     tabs["tab-3"] = tab => {
         const filter = dom.getForm("#fmenu");
         const table = dom.get("table#menus", tab);
@@ -35,6 +37,14 @@ dom.ready(function() {
                 .setAction(form, ".next-item", ev => goTo(table.next()))
                 .setAction(form, ".last-item", ev => goTo(table.last()))
                 .toggleHide(updateOnly, !data.id).load(form, data).viewTab(4);
+            dom.autocomplete(form, "#menu-padre", {
+                action: "/menu/filter.html?tipo=" + data.tipo,
+                render: item => (item.nombre + " (" + data.tipo_i18n + ")"),
+                load: (item, ac, id) => {
+                    ac.value = item.nombre;
+                    id.value = item.padre;
+                }
+            });
         }
 
         //const RESUME = {};
@@ -63,6 +73,7 @@ dom.ready(function() {
         return true;
     }
 
+    // Formularios de tests
     tabs["tab-5"] = tab => {
 		const filter = dom.getForm("#ftest");
         const table = dom.get("table#pruebas", tab);
@@ -82,11 +93,10 @@ dom.ready(function() {
             const FORM_SETTINGS = { validate, update: table.update, insert: table.insert };
 
             // Load click and submit event when show form tab
-            const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
             dom.request(form, "a#uploads", msg => dom.setOk(form, msg))
                 .onChangeFile(form, "#adjuntos", console.log)
                 .autocomplete(form, "#test-nif", {
-                    action: ENDPOINT,
+                    action: "/test/filter.html",
                     render: item => {
                         item.nif = item.nif ?? sb.rand(9);
                         return item.nif + " - " + item.name;

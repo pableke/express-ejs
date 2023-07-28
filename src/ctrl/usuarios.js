@@ -13,17 +13,22 @@ export const view = (req, res) => {
 }
 
 export const insert = (req, res, next) => {
-	if (!form.validate(req.body))
-		return util.errors(res);
-	dao.sqlite.usuarios.insert(i18n.getData())
-					.then(id => res.json("" + id))
-					.catch(next);
+	if (form.validate(req.body))
+		dao.sqlite.usuarios.insert(i18n.getData()).then(id => res.json("" + id)).catch(next);
+	else
+		util.errors(res);
 }
 export const update = (req, res, next) => {
-	dao.sqlite.usuarios.update(req.body).then(changes => res.send("" + changes)).catch(next);
+	if (form.validate(req.body))
+		dao.sqlite.usuarios.update(req.body).then(changes => res.send("" + changes)).catch(next);
+	else
+		util.errors(res);
 }
 export const save = (req, res, next) => {
-	dao.sqlite.usuarios.save(req.body).then(info => res.send("" + info)).catch(next);
+	if (form.validate(req.body))
+		dao.sqlite.usuarios.save(req.body).then(info => res.send("" + info)).catch(next);
+	else
+		util.errors(res);
 }
 export const remove = (req, res, next) => {
 	dao.sqlite.usuarios.delete(req.query.id).then(changes => res.send("" + changes)).catch(next);
