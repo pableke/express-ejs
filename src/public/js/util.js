@@ -17,8 +17,8 @@ dom.ready(function() {
 
 	// Scroll body to top on click and toggle back-to-top arrow
 	const _top = _loading.nextElementSibling;
-	window.onscroll = function() { dom.toggle(_top, "hide", this.scrollY < 80); }
-	dom.click(_top, el => document.body.scrollIntoView({ behavior: "smooth" }));
+	window.onscroll = function() { dom.toggleHide(_top, this.scrollY < 80); }
+	dom.click(_top, ev => document.body.scrollIntoView({ behavior: "smooth" }));
 
 	// Extends dom-box actions (require jquery)
 	dom.autocomplete = function(form, selector, opts) {

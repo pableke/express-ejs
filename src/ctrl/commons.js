@@ -10,7 +10,6 @@ import dao from "app/dao/factory.js";
 
 import sb from "app/lib/string-box.js";
 
-const KEYS = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
 const UPLOADS = {
 	keepExtensions: true,
 	uploadDir: config.DIR_UPLOADS,
@@ -26,19 +25,10 @@ export const lang = function(req, res, next) { // Load specific language in serv
 	res.locals.i18n = i18n.setLang(lang).getLang(); // Selected language
 	req.session.lang = res.locals.i18n.lang; // Save current lang
 
-	res.locals.user = req.session.user;
+	res.locals.user = req.session.user; // quitar tras pruebas
 	res.locals.tplUser = req.session.user ? "userLogin" : "userPublic";
 	res.locals.menus = req.session.menus || dao.sqlite.menus.getPublic();
 	res.locals._tplBody = "web/index"; // Set data on response
-	res.locals.msgs = i18n.getMsgs(); // Set messages on view
-	res.locals.keys = KEYS; // Commons keys array
-
-	// View classes
-	res.locals.css = {};
-	res.locals.css.required = "required";
-	res.locals.css.disabled = "disabled";
-
-	res.on("finish", i18n.reset); // Close response event
 	next(); // Go next middleware
 }
 

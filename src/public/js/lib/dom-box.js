@@ -335,11 +335,9 @@ function DomBox() {
 		return data || !self.setErrors(form, i18n.getMsgs());
 	}
 	this.validate = (form, opts) => {
-		const aux = self.isValid(form, opts.validate);
+		const data = self.isValid(form, opts.validate);
 		if (i18n.isError()) // Validate input data
 			return Promise.reject(i18n.getMsgs()); // Call a reject promise
-
-		const data = Object.assign({}, aux); // clone resutls
 		const pk = data[opts.pkName || "id"]; // Get pk value
 		const fnUpdate = (data, info) => self.setOk(form, info); // Default acction
 		const fnSave = ((opts.insert && !pk) ? opts.insert : opts.update) || fnUpdate;
@@ -514,7 +512,6 @@ function DomBox() {
 			return self.each(texts, closeAlert).each(INPUTS, fnClearError);
 		}
 		self.setOk = (form, msg) => {
-			i18n.reset(); // Clear previos messages
 			return self.each(alerts.children, fnHide).each(form.elements, fnClearError).showOk(msg);
 		}
 		self.setErrors = (form, messages) => {

@@ -1,6 +1,6 @@
 
 <!-- Acciones de administración -->
-<div id="tab-0" class="tab-content <%=css.tab0%>">
+<div id="tab-0" class="tab-content <%=msgs.tab0%>">
 	<div class="flex">
 		<% actions.forEach(function(action) { %>
 			<%-include("../components/iconCard", action)%>
@@ -15,14 +15,14 @@
 </div>
 
 <!-- Datos del perfil -->
-<div id="tab-1" class="tab-content <%=css.tab1%>">
+<div id="tab-1" class="tab-content <%=msgs.tab1%>">
 	<form id="profile" method="post" action="/user/profile.html" class="card-glass">
 
 		<h2>Datos del Usuario</h2><br/>
-		<%-include("../forms/uiText", { id: "profile-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
-		<%-include("../forms/uiText", { id: "profile-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: css.required, title: null, ph: "Walter" })%>
-		<%-include("../forms/uiText", { id: "profile-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: css.required, title: null, ph: "White" })%>
-		<%-include("../forms/uiText", { id: "profile-nif", name: "nif", label: "Nif", tabindex: 4, required: css.required, title: null, ph: "11111111H" })%>
+		<%-include("../forms/uiText", { id: "profile-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: msgs.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiText", { id: "profile-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: msgs.required, title: null, ph: "Walter" })%>
+		<%-include("../forms/uiText", { id: "profile-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: msgs.required, title: null, ph: "White" })%>
+		<%-include("../forms/uiText", { id: "profile-nif", name: "nif", label: "Nif", tabindex: 4, required: msgs.required, title: null, ph: "11111111H" })%>
 		<%-include("../forms/uiEmail", { id: "profile-correo", name: "correo", tabindex: 5 })%>
 
 		<div class="my-4">
@@ -34,7 +34,7 @@
 </div>
 
 <!-- Cambio de contraseña -->
-<div id="tab-2" class="tab-content <%=css.tab2%>">
+<div id="tab-2" class="tab-content <%=msgs.tab2%>">
 	<form id="pass" method="post" action="/user/pass.html" class="card-glass">
 
 		<h2>Nueva Contraseña</h2><br/>
@@ -51,7 +51,7 @@
 </div>
 
 <!-- Modelo Menu -->
-<div id="tab-3" class="tab-content <%=css.tab3%>">
+<div id="tab-3" class="tab-content <%=msgs.tab3%>">
 	<form id="fmenu" action="/menu/list.html" class="card">
 		<h2>Menu Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
@@ -60,9 +60,8 @@
 			<%-include("../forms/uiText", { id: "fmenu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: null, title: null, ph: "http://, #tab-0, etc..." })%>
 		</div>
 		<div class="flex flex-wrap">
-			<%-include("../forms/uiSelect", {
-				id: "fmenu-tipo", name: "tipo", label: "Tipo", tabindex: 4, 
-				emptyOption: "<option>Seleccione un tipo</option>", values: i18n.menuTipoValues
+			<%-include("../forms/uiSelectOptions", {
+				id: "fmenu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: i18n.tplEmptyMenuTipo, options: i18n.tplMenuTipo
 			})%>
 			<%-include("../forms/numbers/uiInteger", { id: "fmenu-orden", name: "orden", label: "Orden", tabindex: 5 })%>
 			<%-include("../forms/dates/uiRangeDate", { id: "fmenu-f", name: "f", tabindex: 6 })%>
@@ -110,7 +109,7 @@
 	<%-include("../forms/buttons/uiTable")%>
 </div>
 
-<div id="tab-4" class="tab-content <%=css.tab4%>">
+<div id="tab-4" class="tab-content <%=msgs.tab4%>">
 	<form id="menu" action="/menu/save.html" method="post" class="card-glass">
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" name="id" class="hide" />
@@ -119,17 +118,17 @@
 		<h2>Menu</h2>
 		<div class="mx-auto my-2 lg:px-10">
 			<div class="flex flex-wrap [&>div]:grow">
-				<%-include("../forms/uiText", { id: "menu-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "File / Edit ..." })%>
-				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, required: css.required, title: null, ph: "Title attribute" })%>
-				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: css.required, title: null, ph: "http://, #tab-0, etc..." })%>
+				<%-include("../forms/uiText", { id: "menu-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: msgs.required, title: null, ph: "File / Edit ..." })%>
+				<%-include("../forms/uiText", { id: "menu-titulo", name: "titulo", label: "Título", tabindex: 2, required: msgs.required, title: null, ph: "Title attribute" })%>
+				<%-include("../forms/uiText", { id: "menu-enlace", name: "enlace", label: "Enlace", tabindex: 3, required: msgs.required, title: null, ph: "http://, #tab-0, etc..." })%>
 			</div>
 			<%-include("../forms/uiAutocomplete", { id: "menu-padre", name: "padre", label: "Padre", tabindex: 4, disabled: null })%>
 			<div class="flex flex-wrap">
-				<%-include("../forms/uiSelect", {
-					id: "menu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: null, values: i18n.menuTipoValues
+				<%-include("../forms/uiSelectOptions", {
+					id: "menu-tipo", name: "tipo", label: "Tipo", tabindex: 4, emptyOption: null, options: i18n.tplMenuTipo
 				})%>
 				<%-include("../forms/numbers/uiInteger", { id: "menu-orden", name: "orden", label: "Orden", tabindex: 5 })%>
-				<%-include("../forms/dates/uiDate", { id: "menu-creado", name: "creado", tabindex: 6, disabled: css.disabled })%>
+				<%-include("../forms/dates/uiDate", { id: "menu-creado", name: "creado", tabindex: 6, disabled: msgs.disabled })%>
 			</div>
 		</div>
 		<%-include("../forms/buttons/uiForm")%>
@@ -137,7 +136,7 @@
 </div>
 
 <!-- Modelo Test -->
-<div id="tab-5" class="tab-content <%=css.tab2%>">
+<div id="tab-5" class="tab-content <%=msgs.tab2%>">
 	<form id="ftest" action="/test/list.html" class="card">
 		<h2>Test Search</h2>
 		<div class="flex flex-wrap [&>div]:grow">
@@ -189,7 +188,7 @@
 	<%-include("../forms/buttons/uiTable")%>
 </div>
 
-<div id="tab-6" class="tab-content <%=css.tab3%>">
+<div id="tab-6" class="tab-content <%=msgs.tab3%>">
 	<form id="test" action="/test/save.html" method="post" enctype="multipart/form-data" class="card-glass">
 		<!-- reset form not to aplly for hidden inputs -->
 		<input type="text" name="id" class="hide" />
