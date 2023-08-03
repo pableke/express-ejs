@@ -1,18 +1,17 @@
 
-import ab from "./array-box.js";
 import nb from "./number-box.js";
 import sb from "./string-box.js";
 import valid from "./validator-box.js";
 
 function I18nBox() {
 	const self = this; //self instance
-	const DATA = {}; // Parsed data container
-	const MSGS = {}; // Messages container
 	const FORMS = {}; // Forms validators
 	const KEY_ERROR = "msgError"; // Error name message
 
 	let errors = 0; // Errors counter
 	let _langs, _lang; // Current languages
+	let data, msgs; // Parsed data and messages
+	data = msgs = {}; // Empty containers
 
 	this.getLangs = () => _langs;
 	this.setLangs = langs => {
@@ -61,9 +60,9 @@ function I18nBox() {
 	this.confirm = msg => confirm(self.tr(msg));
 
 	// Validators: data and messages
-	this.getData = () => DATA;
+	this.getData = () => data;
 	this.setData = (name, value) => {
-		DATA[name] = value;
+		data[name] = value;
 		return self;
 	}
 	// Parse optional fields
@@ -75,17 +74,17 @@ function I18nBox() {
 	this.setText1000 = (name, value) => self.setData(name, valid.text1000(value));
 	this.setText2000 = (name, value) => self.setData(name, valid.text2000(value));
 
-	this.getMsgs = () => MSGS;
-	this.getMsg = name => MSGS[name];
+	this.getMsgs = () => msgs;
+	this.getMsg = name => msgs[name];
 	this.setMsg = (name, msg) => {
-		MSGS[name] = self.tr(msg);
+		msgs[name] = self.tr(msg);
 		return self;
 	}
 
 	this.setOk = msg => self.setMsg("msgOk", msg);
 	this.setInfo = msg => self.setMsg("msgInfo", msg);
 	this.setWarn = msg => self.setMsg("msgWarn", msg);
-	this.getError = name => MSGS[name || KEY_ERROR];
+	this.getError = name => msgs[name || KEY_ERROR];
 	this.setError = (msg, name) => {
 		errors++;
 		name = name || KEY_ERROR;
@@ -95,8 +94,9 @@ function I18nBox() {
 	this.isOk = () => (errors == 0);
 	this.isError = () => (errors > 0);
 	this.reset = () => {
+		data = {};
+		msgs = {};
 		errors = 0;
-		ab.clear(DATA).clear(MSGS);
 		return self;
 	}
 

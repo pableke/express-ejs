@@ -13,7 +13,14 @@ import config from "app/dist/config.js";
 function UtilBox() {
 	const self = this; //self instance
 
-	this.setBody = (res, tpl) => { res.locals._tplBody = tpl; return self; }
+	this.setBody = (res, tpl, tab) => {
+		res.locals._tplBody = tpl;
+		res.locals.msgs = i18n.getMsgs();
+		res.locals.msgs["tab" + tab] = "active";
+		res.locals.msgs.required = "required";
+		res.locals.msgs.disabled = "disabled";
+		return self;
+	}
 	this.number = (res, val) => res.send("" + val);
 	this.msg = (res, msg) => res.send(i18n.tr(msg));
 	this.msgs = res => res.json(i18n.getMsgs());
@@ -30,17 +37,10 @@ function UtilBox() {
 		});
 	}*/
 
-	this.render = (res, tpl) => { self.setBody(res, tpl); res.render("index"); }
+	this.render = (res, tpl, tab) => { self.setBody(res, tpl, tab); res.render("index"); }
 	this.send = (res, msg) => { i18n.setOk(msg); res.render("index"); }
 	this.info = (res, msg) => { i18n.setInfo(msg); res.render("index"); }
 	this.error = (res, msg) => { i18n.setError(msg); res.render("index"); }
-
-	this.setTab = (res, tpl, tab) => self.tabs(res, tab).setBody(res, tpl);
-	this.goTab = (res, tpl, tab) => self.tabs(res, tab).render(res, tpl);
-	this.tabs = (res, tab) => {
-		res.locals.css["tab" + tab] = "active";
-		return self;
-	}
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);

@@ -1,5 +1,5 @@
 
-<div id="tab-0" class="tab-content <%=css.tab0%>">
+<div id="tab-0" class="tab-content <%=msgs.tab0%>">
 	<form id="signin" method="post" action="/login" class="card-glass">
 		<input type="hidden" name="token" />
 
@@ -18,15 +18,15 @@
 	</form>
 </div>
 
-<div id="tab-1" class="tab-content <%=css.tab1%>">
+<div id="tab-1" class="tab-content <%=msgs.tab1%>">
 	<form id="signup" action="/signup.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Alta de nuevo usuario</h2><br/>
-		<%-include("../forms/uiText", { id: "signup-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
-		<%-include("../forms/uiText", { id: "signup-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: css.required, title: null, ph: "Walter" })%>
-		<%-include("../forms/uiText", { id: "signup-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: css.required, title: null, ph: "White" })%>
-		<%-include("../forms/uiText", { id: "signup-nif", name: "nif", label: "Nif", tabindex: 4, required: css.required, title: null, ph: "11111111H" })%>
+		<%-include("../forms/uiText", { id: "signup-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: msgs.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiText", { id: "signup-ap1", name: "ap1", label: "Primer Apellido", tabindex: 2, required: msgs.required, title: null, ph: "Walter" })%>
+		<%-include("../forms/uiText", { id: "signup-ap2", name: "ap2", label: "Segundo Apellido", tabindex: 3, required: msgs.required, title: null, ph: "White" })%>
+		<%-include("../forms/uiText", { id: "signup-nif", name: "nif", label: "Nif", tabindex: 4, required: msgs.required, title: null, ph: "11111111H" })%>
 		<%-include("../forms/uiEmail", { id: "signup-correo", name: "correo", tabindex: 5 })%>
 
 		<hr/>
@@ -35,7 +35,7 @@
 	</form>
 </div>
 
-<div id="tab-2" class="tab-content <%=css.tab2%>">
+<div id="tab-2" class="tab-content <%=msgs.tab2%>">
 	<form id="reactive" action="/reactive.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
@@ -53,14 +53,14 @@
 	</form>
 </div>
 
-<div id="tab-3" class="tab-content <%=css.tab3%>">
+<div id="tab-3" class="tab-content <%=msgs.tab3%>">
 	<form id="contact" action="/contact.html" method="post" class="card-glass">
 		<input type="hidden" name="token" />
 
 		<h2>Contacto</h2><br/>
-		<%-include("../forms/uiText", { id: "contact-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: css.required, title: null, ph: "Joe" })%>
+		<%-include("../forms/uiText", { id: "contact-nombre", name: "nombre", label: "Nombre", tabindex: 1, required: msgs.required, title: null, ph: "Joe" })%>
 		<%-include("../forms/uiEmail", { id: "contact-correo", name: "correo", label: "E-Mail", tabindex: 2 })%>
-		<%-include("../forms/uiText", { id: "contact-asunto", name: "asunto", label: "Asunto", tabindex: 3, required: css.required, title: null, ph: "Subject" })%>
+		<%-include("../forms/uiText", { id: "contact-asunto", name: "asunto", label: "Asunto", tabindex: 3, required: msgs.required, title: null, ph: "Subject" })%>
 		<%-include("../forms/uiTextArea", { id: "contact-info", name: "info", label: "Informacion", tabindex: 8 })%>
 
 		<hr/>

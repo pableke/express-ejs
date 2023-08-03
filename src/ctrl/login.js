@@ -13,10 +13,10 @@ function Login() {
 	const reCaptcha = token => api.ajax.post(`https://www.google.com/recaptcha/api/siteverify?secret=${config.RECAPTCHA_PRIVATE}&response=${token}`).then(fnScore);
 	const fnLogin = (usuario, clave, token) => reCaptcha(token).then(info => dao.sqlite.usuarios.login(usuario, clave));
 	this.view = function(req, res) {
-		util.goTab(res, TPL_LOGIN, 0);
+		util.render(res, TPL_LOGIN, 0);
 	}
 	this.sign = function(req, res, next) {
-		util.setTab(res, TPL_LOGIN, 0); // default view login
+		util.setBody(res, TPL_LOGIN, 0); // default view login
 		if (!form.signin(req.body)) // check errors
 			return next(i18n.getError());
 
@@ -36,7 +36,7 @@ function Login() {
 		}).catch(next); // User not found, no login or clave error
 	}
 	this.verify = function(req, res, next) {
-		util.setTab(res, TPL_LOGIN, 0); //if error => go login
+		util.setBody(res, TPL_LOGIN, 0); //if error => go login
 		req.session.user = { id: 1, nombre: "Pablo Rosique", email: "name@flowbite.com" }; // solo para pruebas => quitar
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
@@ -56,7 +56,7 @@ function Login() {
 	}
 	this.logout = function(req, res) {
 		fnLogout(req); //click logout user
-		util.setTab(res, TPL_LOGIN, 0).send(res, "msgLogout");
+		util.setBody(res, TPL_LOGIN, 0).send(res, "msgLogout");
 	}
 	this.destroy = function(req, res) {
 		fnLogout(req); //onclose even client
@@ -69,12 +69,12 @@ function Login() {
 		body: "emails/contact.ejs"
 	};
 	this.viewContact = function(req, res) {
-		util.goTab(res, TPL_LOGIN, 3);
+		util.render(res, TPL_LOGIN, 3);
 	}
 	this.contact = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
 		const data = Object.assign({}, form.contact(req.body));
-		util.setTab(res, TPL_LOGIN, 0); // default view login
+		util.setBody(res, TPL_LOGIN, 0); // default view login
 		if (i18n.isError())
 			return util.errors(res);
 
@@ -91,7 +91,7 @@ function Login() {
 		body: "emails/signup.ejs"
 	};
 	this.viewSignup = function(req, res) {
-		util.goTab(res, TPL_LOGIN, 1);
+		util.render(res, TPL_LOGIN, 1);
 	}
 	this.signup = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
@@ -111,7 +111,7 @@ function Login() {
 		.catch(next);
 	}
 	this.activate = (req, res, next) => {
-		util.setTab(res, TPL_LOGIN, 0); // default view
+		util.setBody(res, TPL_LOGIN, 0); // default view
 		const fnResult = changes => (changes == 1) ? util.send(res, "msgUserActivated") : util.err500(res, "userNotFound");
 		dao.sqlite.usuarios.activate(+req.query.id).then(fnResult).catch(next);
 	}
@@ -121,10 +121,10 @@ function Login() {
 		body: "emails/remember.ejs"
 	};
 	this.viewRemember = function(req, res) {
-		util.goTab(res, TPL_LOGIN, 2);
+		util.render(res, TPL_LOGIN, 2);
 	}
 	this.remember = (req, res, next) => {
-		util.setTab(res, TPL_LOGIN, 0); // default view login
+		util.setBody(res, TPL_LOGIN, 0); // default view login
 		if (!form.remember(req.body)) // check errors
 			return next(i18n.getError());
 
