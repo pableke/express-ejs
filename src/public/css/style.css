@@ -54,7 +54,7 @@ hr {
 	margin: 8px; padding: 0 5px; font-size: x-large; font-weight: bold; border-bottom: 2px solid;
 	@apply border-blue-300 dark:border-gray-300
 }
-.card-glass { @apply py-10 lg:mx-64 lg:px-9 md:mx-40 md:px-4 sm:mx-3 sm:px-1 shadow-lg rounded-xl bg-white bg-clip-padding opacity-90 border border-gray-200 dark:border-gray-300 dark:bg-gray-700 }
+.card-glass { @apply py-10 lg:mx-64 lg:px-9 md:mx-40 md:px-4 sm:mx-3 sm:px-1 shadow-lg rounded-xl bg-white opacity-90 border border-gray-200 dark:border-gray-300 dark:bg-gray-700 }
 .card-glass h2 {
 	margin: 8px; padding: 0 5px; font-size: x-large; font-weight: bold; border-bottom: 2px solid;
 	@apply border-blue-300 dark:border-gray-300

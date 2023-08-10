@@ -42,6 +42,7 @@ ul.menu .nav-tri:after { content: "\25B6"; margin-left: 4px; }
 	@apply rounded-lg shadow border bg-white border-gray-100 divide-y divide-gray-100 dark:border-gray-500 dark:bg-gray-700 dark:divide-gray-600
 }
 .dropdown:hover > div, .dropdown.active > div { display: block; }
+.dropdown:hover .rotate, .dropdown.active .rotate { transform: rotate(180deg); }
 .dropdown .link { @apply block px-4 py-2 text-sm no-underline text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white }
 .dropdown .icon { @apply w-4 h-4 inline-block mr-2 text-gray-700 dark:text-gray-200 }
 /* Dropdown */
