@@ -14,11 +14,11 @@ function UtilBox() {
 	const self = this; //self instance
 
 	this.setBody = (res, tpl, tab) => {
-		res.locals._tplBody = tpl;
-		res.locals.msgs = i18n.getMsgs();
+		res.locals.msgs = {}; // Messages container
 		res.locals.msgs["tab" + tab] = "active";
 		res.locals.msgs.required = "required";
 		res.locals.msgs.disabled = "disabled";
+		res.locals._tplBody = tpl;
 		return self;
 	}
 	this.number = (res, val) => res.send("" + val);
@@ -38,9 +38,10 @@ function UtilBox() {
 	}*/
 
 	this.render = (res, tpl, tab) => { self.setBody(res, tpl, tab); res.render("index"); }
-	this.send = (res, msg) => { i18n.setOk(msg); res.render("index"); }
-	this.info = (res, msg) => { i18n.setInfo(msg); res.render("index"); }
-	this.error = (res, msg) => { i18n.setError(msg); res.render("index"); }
+	this.send = (res, msg) => { res.locals.msgs.msgOk = i18n.tr(msg); res.render("index"); }
+	this.info = (res, msg) => { res.locals.msgs.msgInfo = i18n.tr(msg); res.render("index"); }
+	this.warn = (res, msg) => { res.locals.msgs.msgWarn = i18n.tr(msg); res.render("index"); }
+	this.error = (res, msg) => { res.locals.msgs.msgError = i18n.tr(msg); res.render("index"); }
 
 	/******************* send file to client *******************/
 	this.getFile = filename => path.join(config.DIR_FILES, filename);

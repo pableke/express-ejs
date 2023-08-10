@@ -10,8 +10,7 @@ function I18nBox() {
 
 	let errors = 0; // Errors counter
 	let _langs, _lang; // Current languages
-	let data, msgs; // Parsed data and messages
-	data = msgs = {}; // Empty containers
+	let _data, _msgs; // Parsed data and messages
 
 	this.getLangs = () => _langs;
 	this.setLangs = langs => {
@@ -60,9 +59,9 @@ function I18nBox() {
 	this.confirm = msg => confirm(self.tr(msg));
 
 	// Validators: data and messages
-	this.getData = () => data;
+	this.getData = () => _data;
 	this.setData = (name, value) => {
-		data[name] = value;
+		_data[name] = value;
 		return self;
 	}
 	// Parse optional fields
@@ -74,17 +73,18 @@ function I18nBox() {
 	this.setText1000 = (name, value) => self.setData(name, valid.text1000(value));
 	this.setText2000 = (name, value) => self.setData(name, valid.text2000(value));
 
-	this.getMsgs = () => msgs;
-	this.getMsg = name => msgs[name];
+	this.getMsgs = () => _msgs;
+	this.setMsgs = msgs => { _msgs = msgs; return self; }
+	this.getMsg = name => _msgs[name];
 	this.setMsg = (name, msg) => {
-		msgs[name] = self.tr(msg);
+		_msgs[name] = self.tr(msg);
 		return self;
 	}
 
 	this.setOk = msg => self.setMsg("msgOk", msg);
 	this.setInfo = msg => self.setMsg("msgInfo", msg);
 	this.setWarn = msg => self.setMsg("msgWarn", msg);
-	this.getError = name => msgs[name || KEY_ERROR];
+	this.getError = name => _msgs[name || KEY_ERROR];
 	this.setError = (msg, name) => {
 		errors++;
 		name = name || KEY_ERROR;
@@ -93,11 +93,11 @@ function I18nBox() {
 
 	this.isOk = () => (errors == 0);
 	this.isError = () => (errors > 0);
-	this.reset = () => {
-		data = {};
-		msgs = {};
+	this.reset = () => self.init({}, {});
+	this.init = (msgs, data) => {
 		errors = 0;
-		return self;
+		_data = data;
+		return self.setMsgs(msgs);
 	}
 
 	// Validators
