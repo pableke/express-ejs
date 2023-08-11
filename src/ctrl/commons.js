@@ -25,7 +25,7 @@ export const lang = function(req, res, next) { // Load specific language in serv
 	res.locals.i18n = i18n.setLang(lang).getLang(); // Selected language
 	req.session.lang = res.locals.i18n.lang; // Save current lang
 
-	res.locals.user = req.session.user; // quitar tras pruebas
+	res.locals.user = req.session.user; // Set user data on view
 	res.locals.tplUser = req.session.user ? "userLogin" : "userPublic";
 	res.locals.menus = req.session.menus || dao.sqlite.menus.getPublic();
 	res.locals._tplBody = "web/index"; // Set data on response

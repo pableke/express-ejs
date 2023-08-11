@@ -1,17 +1,15 @@
 
-//npm remove gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss autoprefixer
-//npm install --save-dev gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-strip-comments gulp-minify-ejs gulp-postcss autoprefixer
+//npm remove gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-postcss autoprefixer
+//npm install --save-dev gulp gulp-concat gulp-uglify gulp-cssnano gulp-htmlmin gulp-postcss autoprefixer
 import fs from "fs"; //file system module
 import gulp from "gulp"; // automatizer module
 import htmlmin from "gulp-htmlmin";
-import minifyejs from "gulp-minify-ejs";
 import uglify from "gulp-uglify";
 import concat from "gulp-concat";
 import cssnano from "gulp-cssnano";
 import postcss from "gulp-postcss";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
-import strip from "gulp-strip-comments";
 
 const CSS_FILES = "src/public/css/**/*.css";
 const JS_FILES = [ "src/**/*.js", "src/**/*.mjs" ];
@@ -49,8 +47,7 @@ gulp.task("minify-html", done => {
 		removeComments: true, //removeComments => remove CDATA
 		removeRedundantAttributes: false //remove attr with default value
 	};
-	gulp.src(HTML_PATH).pipe(strip()).pipe(htmlmin(options)).pipe(minifyejs())
-		.pipe(gulp.dest("dist")).on("end", done);
+	gulp.src(HTML_PATH).pipe(htmlmin(options)).pipe(gulp.dest("dist")).on("end", done);
 });
 // Tasks to minify CSS"s
 gulp.task("minify-css", done => {
