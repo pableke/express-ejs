@@ -37,7 +37,6 @@ function Login() {
 	}
 	this.verify = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN, 0); //if error => go login
-		req.session.user = { id: 1, nombre: "Pablo Rosique", email: "name@flowbite.com" }; // solo para pruebas => quitar
 		if (!req.session || !req.sessionID) //not session found
 			return next("err401");
 		if (!req.session.user || (req.session.cookie.maxAge < 1)) { //user not logged or time session expired
