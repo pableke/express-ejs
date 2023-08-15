@@ -1,6 +1,7 @@
 
 import sb from "app/lib/string-box.js";
-import i18n from "app/model/menu.js";
+import i18n from "app/i18n/langs.js";
+import menu from "app/model/menu.js";
 
 const tpl = '<li id="@id;" data-padre="@padre;" data-orden="@orden;"><a href="@enlace;" title="@titulo_i18n;">@icono;@nombre_i18n;</a></li>';
 
@@ -13,8 +14,8 @@ export default class Menus {
         const sql = "select * from menus where (tipo = 1) and (mask & 1) = 1"; // menus publicos
         this.db.all(sql, [], (err, menus) => {
             const langs = i18n.getLangs(); // Language container
-            langs.en.menus = err ? null : sb.render(tpl, menus, langs.en.menu);
-            langs.es.menus = err ? null : sb.render(tpl, menus, langs.es.menu);
+            langs.en.menus = err ? null : sb.render(tpl, menus, menu.enRender);
+            langs.es.menus = err ? null : sb.render(tpl, menus, menu.esRender);
         });
     }
 
@@ -35,7 +36,7 @@ export default class Menus {
     getActions(user) { return this.db.list("select * from v_actions where usuario_id = ?", user); }
     getMenus(user) { return this.db.list("select * from v_menus where usuario_id is null or usuario_id = ?", user) };
     serialize(user) {
-        const fnRender = i18n.get("menu");
+        const fnRender = i18n.get("renderMenu");
         return this.getMenus(user).then(menus => Promise.resolve(sb.render(tpl, menus, fnRender)));
     }
 

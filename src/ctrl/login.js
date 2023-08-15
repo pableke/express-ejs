@@ -2,11 +2,11 @@
 import config from "../config.js";
 import api from "app/lib/api-box.js";
 import util from "app/ctrl/util.js";
-import i18n from "app/model/login.js";
+import i18n from "app/i18n/langs.js";
 import dao from "app/dao/factory.js";
+import login from "app/model/login.js";
 
 const TPL_LOGIN = "web/login";
-const form = i18n.getForm("login");
 
 function Login() {
 	const fnScore = info => (info.score > .5) ? Promise.resolve(info) : Promise.reject("¿Eres humano?");
@@ -17,7 +17,7 @@ function Login() {
 	}
 	this.sign = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN, 0); // default view login
-		if (!form.signin(req.body)) // check errors
+		if (!login.signin(req.body)) // check errors
 			return next(i18n.getError());
 
 		const { usuario, clave, token } = req.body; // read post data
@@ -72,7 +72,7 @@ function Login() {
 	}
 	this.contact = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
-		const data = Object.assign({}, form.contact(req.body));
+		const data = Object.assign({}, login.contact(req.body));
 		util.setBody(res, TPL_LOGIN, 0); // default view login
 		if (i18n.isError())
 			return util.errors(res);
@@ -94,7 +94,7 @@ function Login() {
 	}
 	this.signup = (req, res, next) => {
 		// Clone resutls to avoid clean data before async call
-		const data = Object.assign({}, form.signup(req.body));
+		const data = Object.assign({}, login.signup(req.body));
 		if (i18n.isError())
 			return util.errors(res);
 
@@ -124,7 +124,7 @@ function Login() {
 	}
 	this.remember = (req, res, next) => {
 		util.setBody(res, TPL_LOGIN, 0); // default view login
-		if (!form.remember(req.body)) // check errors
+		if (!login.remember(req.body)) // check errors
 			return next(i18n.getError());
 
 		const { usuario, clave, token } = req.body; // read post data

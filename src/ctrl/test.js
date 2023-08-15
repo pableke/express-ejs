@@ -4,15 +4,15 @@ import util from "app/ctrl/util.js";
 import api from "app/lib/api-box.js";
 import nb from "app/lib/number-box.js";
 import sb from "app/lib/string-box.js";
-import i18n from "app/model/test.js";
+import i18n from "app/i18n/langs.js";
+import test from "app/model/test.js";
 
 const ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-const form = i18n.getForm("test");
 
-export const index = (req, res) => util.tabs(res, 0).render(res, "web/index");
+export const index = (req, res) => util.render(res, "web/index", 0);
 
 export const list = (req, res) => {
-	const FILTER = form.filter(req.query);
+	const FILTER = test.filter(req.query);
 	const fields = ["name", "memo"]; // Strings ilike filter
 	const fnFilter = row => (sb.multilike(row, FILTER, fields) && nb.in(row.imp, FILTER.imp1, FILTER.imp2) && sb.inDates(row.fecha, FILTER.f1, FILTER.f2));
 	api.ajax.get(ENDPOINT).then(data => res.json(data.filter(fnFilter)));
@@ -27,7 +27,7 @@ export const filter = (req, res) => {
 }
 
 export const save = (req, res) => {
-	const data = form.validate(req.body);
+	const data = test.validate(req.body);
 	if (i18n.isError())
 		return util.errors(res);
 	console.log("save", req.body, data);

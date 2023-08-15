@@ -2,19 +2,18 @@
 import jwt from "jsonwebtoken"; // JSON web token
 import config from "../config.js";
 import util from "app/ctrl/util.js";
-import i18n from "app/model/login.js";
+import i18n from "app/i18n/langs.js";
 import dao from "app/dao/factory.js";
+import login from "app/model/login.js";
 
 const TPL_LOGIN = "web/login";
-const form = i18n.getForm("login");
-
 const JWT_OPTIONS = { expiresIn: config.JWT_EXPIRES };
 const COOKIE_OPTS = { maxAge: config.SESSION_EXPIRES, httpOnly: true };
 
 function Jwt() {
 	this.sign = function(req, res, next) {
 		util.setBody(res, TPL_LOGIN); // default view login
-		if (!form.validate(req.body)) // check errors
+		if (!login.validate(req.body)) // check errors
 			return next(i18n.getError());
 
 		const { login, clave } = req.body; // Inputs

@@ -3,6 +3,7 @@ import dt from "./lib/date-box.js";
 import nb from "./lib/number-box.js";
 import sb from "./lib/string-box.js";
 import dom from "./lib/dom-box.js";
+import i18n from "./lib/i18n-box.js";
 
 import menu from "./model/menu.js";
 import test from "./model/test.js";
@@ -21,12 +22,11 @@ dom.ready(function() {
         function fnViewMenu(data) {
             const form = dom.getForm("#menu"); // form associated to tab
             const updateOnly = form.querySelectorAll(".update-only"); // ojo uno/varios por tab
-            const validate = menu.getValidator("menu", "validate");
 
             const goTo = ev => fnViewMenu(ev.data);
             const endSubmit = () => dom.backTab().showOk("saveOk");
             const endClone = () => dom.hide(updateOnly).setInputVal(form, "id").showOk("saveOk");
-            const FORM_SETTINGS = { validate, update: table.update, insert: table.insert };
+            const FORM_SETTINGS = { validate: menu.validate, update: table.update, insert: table.insert };
 
             // Rewrite click and submit event when show form tab
             form.onsubmit = ev => { ev.preventDefault(); dom.validate(form, FORM_SETTINGS).then(endSubmit); }
@@ -50,7 +50,7 @@ dom.ready(function() {
         //const RESUME = {};
         const TABLE_MENUS = {
             beforeRender: data => dom.toggleHide(linksReset, !data.size),
-            onRender: menu.get("menu"), // Render object
+            onRender: i18n.get("renderMenu"), // Render object
             find: ev => fnViewMenu(ev.data), // Show current data
             "find-padre": ev => {
                 table.find(row => (row.id == ev.data.padre));
@@ -80,17 +80,14 @@ dom.ready(function() {
         const linksCreate = dom.getAll(".create-data", tab); // ojo uno/varios por tab
         const linksReset = dom.getAll("a[href='#reset']", tab); // ojo uno/varios por tab
 
-        const fnRender = test.get("test");
-
         function fnViewTest(data) {
             const form = dom.getForm("#test"); // form associated to tab
             const updateOnly = form.querySelectorAll(".update-only"); // ojo uno/varios por tab
-            const validate = test.getValidator("test", "validate");
 
             const goTo = ev => fnViewTest(ev.data);
             const endSubmit = () => dom.backTab().showOk("saveOk");
             const endClone = () => dom.hide(updateOnly).setInputVal(form, "id").showOk("saveOk");
-            const FORM_SETTINGS = { validate, update: table.update, insert: table.insert };
+            const FORM_SETTINGS = { validate: test.validate, update: table.update, insert: table.insert };
 
             // Load click and submit event when show form tab
             dom.request(form, "a#uploads", msg => dom.setOk(form, msg))
@@ -135,7 +132,7 @@ dom.ready(function() {
 				data.icons = data.icons ?? nb.randInt(0, 3);
 
 				RESUME.c4 += data.c4; RESUME.imp += data.imp;
-				return fnRender(data, i);
+				return i18n.get("renderTest")(data, i);
 			},
 			afterRender: data => {
 				data.c4_i18n = test.isoFloat(RESUME.c4);
