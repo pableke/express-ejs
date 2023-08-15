@@ -1,12 +1,11 @@
 
-import util from "app/ctrl/util.js";
-import i18n from "app/model/menu.js";
 import dao from "app/dao/factory.js";
-
-const form = i18n.getForm("menu");
+import i18n from "app/i18n/langs.js";
+import util from "app/ctrl/util.js";
+import menu from "app/model/menu.js";
 
 export const list = (req, res) => {
-	const FILTER = form.filter(req.query);
+	const FILTER = menu.filter(req.query);
 	dao.sqlite.menus.filter(FILTER).then(menus => res.json(menus));
 }
 export const filter = (req, res) => {
@@ -21,19 +20,19 @@ export const view = (req, res) => {
 }
 
 export const insert = (req, res, next) => {
-	if (form.validate(req.body))
+	if (menu.validate(req.body))
 		dao.sqlite.menus.insert(i18n.getData()).then(id => res.json("" + id)).catch(next);
 	else
 		util.errors(res);
 }
 export const update = (req, res, next) => {
-	if (form.validate(req.body))
+	if (menu.validate(req.body))
 		dao.sqlite.menus.update(req.body).then(changes => res.send("" + changes)).catch(next);
 	else
 		util.errors(res);
 }
 export const save = (req, res, next) => {
-	if (form.validate(req.body))
+	if (menu.validate(req.body))
 		dao.sqlite.menus.save(req.body).then(info => res.send("" + info)).catch(next);
 	else
 		util.errors(res);

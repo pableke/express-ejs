@@ -5,7 +5,6 @@ import valid from "./validator-box.js";
 
 function I18nBox() {
 	const self = this; //self instance
-	const FORMS = {}; // Forms validators
 	const KEY_ERROR = "msgError"; // Error name message
 
 	let errors = 0; // Errors counter
@@ -32,14 +31,6 @@ function I18nBox() {
 	this.get = name => _lang[name];
 	this.tr = name => _lang[name] || name;
 	this.format = tpl => sb.format(tpl, _lang);
-
-	this.getForms = () => FORMS;
-	this.getForm = name => FORMS[name];
-	this.getValidator = (form, name) => FORMS[form][name];
-	this.setForm = (name, data) => {
-		FORMS[name] = data;
-		return self;
-	}
 
 	// Shortcuts
 	this.toInt = str => _lang.toInt(str);
