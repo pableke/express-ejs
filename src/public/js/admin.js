@@ -50,11 +50,7 @@ dom.ready(function() {
         //const RESUME = {};
         const TABLE_MENUS = {
             beforeRender: data => dom.toggleHide(linksReset, !data.size),
-<<<<<<< HEAD
             onRender: menu.getRender(), // Render object
-=======
-            onRender: i18n.get("renderMenu"), // Render object
->>>>>>> origin
             find: ev => fnViewMenu(ev.data), // Show current data
             "find-padre": ev => {
                 table.find(row => (row.id == ev.data.padre));
@@ -136,11 +132,7 @@ dom.ready(function() {
 				data.icons = data.icons ?? nb.randInt(0, 3);
 
 				RESUME.c4 += data.c4; RESUME.imp += data.imp;
-<<<<<<< HEAD
 				return test.getRender()(data, i);
-=======
-				return i18n.get("renderTest")(data, i);
->>>>>>> origin
 			},
 			afterRender: data => {
 				data.c4_i18n = test.isoFloat(RESUME.c4);

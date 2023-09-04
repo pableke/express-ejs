@@ -62,11 +62,7 @@ function DomBox() {
 	// Styles
 	const fnHide = el => el.classList.add(HIDE);
 	const fnShow = el => el.classList.remove(HIDE);
-<<<<<<< HEAD
 	//const isHide = el => el.classList.contains(HIDE);
-=======
-	const isHide = el => el.classList.contains(HIDE);
->>>>>>> origin
 	const fnToggle = (el, name, force) => el.classList.toggle(name, force);
 	const fnVisible = el => (el.offsetWidth || el.offsetHeight || el.getClientRects().length);
 
