@@ -25,7 +25,10 @@ function Menu() {
         data["ac-padre"] = data.padre_i18n ? (data.padre_i18n + " (" + data.tipo_i18n + ")") : "";
         return data;
     }
+<<<<<<< HEAD
     this.getRender = () => i18n.get("renderMenu");
+=======
+>>>>>>> origin
 
     this.filter = data => {
         i18n.reset() // All data optional

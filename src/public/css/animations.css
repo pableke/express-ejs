@@ -1,16 +1,31 @@
 
 /* Animations */
+<<<<<<< HEAD
 .fadeIn { animation: fadeIn 1s forwards; }
 .fadeOut { animation: fadeOut 1s forwards; }
 @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; display: none; } }
+=======
+.fadeIn { animation: fadeIn 1s; }
+.fadeOut { animation: fadeOut 1s; }
+@keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; } }
+>>>>>>> origin
 
 .slideIn { animation: slideIn 1s forwards; }
 .slideOut { animation: slideOut 1s forwards; }
 @keyframes slideIn { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+<<<<<<< HEAD
 @keyframes slideOut { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); display: none; } }
+=======
+@keyframes slideOut { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
+>>>>>>> origin
 
 .slideRtl { animation: slideRtl 1s forwards; }
 .slideLtr { animation: slideLtr 1s forwards; }
 @keyframes slideRtl { 0% { transform: translateX(100%); } 100% { transform: translateX(0%); } }
+<<<<<<< HEAD
 @keyframes slideLtr { 0% { transform: translateX(0%); } 100% { transform: translateX(100%); display: none; } }
+=======
+@keyframes slideLtr { 0% { transform: translateX(0%); } 100% { transform: translateX(100%); } }
+>>>>>>> origin
