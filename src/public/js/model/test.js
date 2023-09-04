@@ -25,6 +25,7 @@ function Test() {
         data["ac-nif"] = data.nif + " - " + data.name;
         return data;
     }
+    this.getRender = () => i18n.get("renderTest");
 
     this.filter = data => {
         i18n.reset() // All data optional

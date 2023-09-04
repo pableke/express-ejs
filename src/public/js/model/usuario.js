@@ -17,6 +17,7 @@ function Usuario() {
         view.creado_i18n = sb.esDate(data.creado);
         return data;
     }
+    this.getRender = () => i18n.get("renderUsuario");
 
     this.filter = data => {
         return i18n.getData();
