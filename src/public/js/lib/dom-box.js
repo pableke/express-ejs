@@ -360,11 +360,7 @@ function DomBox() {
 	}
 
 	// Animations
-<<<<<<< HEAD
 	/*function fnAnimateClass(el, name, opts) {
-=======
-	function fnAnimateClass(el, name, opts) {
->>>>>>> origin
 		opts.once = true; // fired once
 		opts.onstart(el); // before animation
 		el.addEventListener("animationend", ev => {
@@ -399,11 +395,7 @@ function DomBox() {
 	this.fadeToggle = list => self.animateToggle(list, "fadeIn", "fadeOut");
 	this.slideIn = list => self.animateIn(list, "slideIn");
 	this.slideOut = list => self.animateOut(list, "slideOut");
-<<<<<<< HEAD
 	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");*/
-=======
-	this.slideToggle = list => self.animateToggle(list, "slideIn", "slideOut");
->>>>>>> origin
 
 	// Events
 	const ON_CHANGE = "change";
@@ -502,13 +494,8 @@ function DomBox() {
 		opts.classInputError = opts.classInputError || "ui-error";
 
 		const texts = self.getAll("." + opts.classAlertText, alerts);
-<<<<<<< HEAD
 		const showAlert = el => { el.parentNode.classList.remove("hide", "fadeOut"); el.parentNode.classList.add("fadeIn"); return self; }
 		const closeAlert = el => { el.parentNode.classList.replace("fadeIn", "fadeOut"); return self; }
-=======
-		const showAlert = el => self.fadeIn(el.parentNode);
-		const closeAlert = el => self.fadeOut(el.parentNode);
->>>>>>> origin
 		const setAlert = (el, txt) => txt ? showAlert(el).setInnerHtml(el, i18n.tr(txt)) : self;
 
 		self.showOk = msg => setAlert(texts[0], msg); //green
