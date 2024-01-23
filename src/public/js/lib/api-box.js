@@ -23,7 +23,7 @@ function fnAjax(res) {
 }
 function fnAjaxJSON(action, method, data, token) {
 	const opts = { action, method, body: JSON.stringify(data), token };
-	opts.headers = { "Content-Type":"application/json; charset=utf-8" };
+	opts.headers = { "Content-Type": "application/json; charset=utf-8" };
 	return fnFetch(opts).then(fnAjax);
 }
 

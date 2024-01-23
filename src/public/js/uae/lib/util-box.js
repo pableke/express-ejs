@@ -17,8 +17,8 @@ const dfLatin = i18n.isoDate;
 const fnFirmar = () => i18n.confirm("msgFirmar") && loading();
 const fnIntegrar = () => i18n.confirm("msgIntegrar") && loading();
 const fnRemove = () => i18n.confirm("removeSolicitud") && loading();
-const handleMessages = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)); }
-const handleReport = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.data)).redir(args.url); }
+const handleMessages = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.msgs)); }
+const handleReport = (xhr, status, args) => { unloading(); dom.showAlerts(ab.parse(args.msgs)).redir(args.url); }
 const fnRechazar = () => dom.closeAlerts().required("#rechazo", "Debe indicar un motivo para el rechazo de la solicitud.").isOk() && i18n.confirm("msgRechazar");
 
 //Autocomplete helper
