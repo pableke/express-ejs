@@ -72,9 +72,13 @@ gulp.task("minify-js", done => {
 		"dist/public/js/uae/irse/irse.js"
 	];
 
+	const CV_IRSE = "C:/CampusVirtualV2/workspaceGIT/campusvirtual/applications/uae/src/main/webapp/resources/js/irse";
 	gulp.src(JS_FILES).pipe(uglify()).pipe(gulp.dest("dist")).on("end", () => {
 		fnConcat(JS_UAE, "dist/public/js/uae", "uae-min.js");
-		fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", done);
+		fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", () => {
+			gulp.src("dist/public/js/uae/irse-min.js").pipe(gulp.dest(CV_IRSE))
+			gulp.src("dist/public/js/uae/irse/tabs/*.js").pipe(gulp.dest(CV_IRSE + "/tabs")).on("end", done);
+		});
 	});
 });
 

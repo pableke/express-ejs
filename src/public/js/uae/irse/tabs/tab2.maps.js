@@ -28,8 +28,8 @@ function initMap() {
 		return pais;
 	}
 
-	const origen = new google.maps.places.Autocomplete(dom.get("#origen"), OPTIONS); //Get the autocomplete input
-	const destino = new google.maps.places.Autocomplete(dom.get("#destino"), OPTIONS); //Get the autocomplete input
+	const origen = new google.maps.places.Autocomplete(document.getElementById("origen"), OPTIONS); //Get the autocomplete input
+	const destino = new google.maps.places.Autocomplete(document.getElementById("destino"), OPTIONS); //Get the autocomplete input
 	const distance = new google.maps.DistanceMatrixService(); //Instantiate a distance matrix
 
 	var p1, p2; // from..to
@@ -40,8 +40,11 @@ function initMap() {
 	dom.addClick("#add-ruta", el => {
 		let loc1 = null; //source location
 
-		if (!p1 && ir.empty()) //primera ruta
-			loc1 = CT;
+		if (!p1 && ir.empty()) { //primera ruta
+			loc1 = new google.maps.LatLng(CT.lat, CT.lng);
+			loc1.pais = CT.pais;
+			loc1.mask = CT.mask;
+		}
 		else if (p1) { //ha seleccionado un origen?
 			loc1 = p1.geometry.location;
 			loc1.pais = fnCountry(p1);
@@ -112,4 +115,5 @@ function initMap() {
 const script = document.createElement("script");
 script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBIlqxZkVg9GyjzyNzC0rrZiuY6iPLzTZI&libraries=places&callback=initMap";
 script.async = true; // Solicita al navegador que descargue y ejecute la secuencia de comandos de manera asíncrona, despues llamará a initMap
+script.defer = true; // Will execute the script after the document has been parsed
 document.head.appendChild(script); // Append the "script" element to "head"

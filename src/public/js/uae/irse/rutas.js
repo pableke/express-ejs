@@ -17,8 +17,7 @@ function IrseRutas() {
 	const CT = { //default CT coords
 		desp: 0, mask: 4, lat: CT_LAT, lng: CT_LNG, pais: "ES",
 		origen: "Cartagena, España", lat1: CT_LAT, lng1: CT_LNG, pais1: "ES",
-		destino: "Cartagena, España", lat2: CT_LAT, lng2: CT_LNG, pais2: "ES",
-		lat: () => CT_LAT, lng: () => CT_LNG // google Lat/Lng Object Literal
+		destino: "Cartagena, España", lat2: CT_LAT, lng2: CT_LNG, pais2: "ES"
 	};
 
 	const resume = {};
