@@ -1,9 +1,6 @@
 
 import url from "url"; // Url handler
 import path from "path"; //file and directory paths
-import env from "dotenv"; // Environment
-
-env.config(); // Initialize process.env
 
 const SRC = url.fileURLToPath(new URL(".", import.meta.url));
 const FILES = url.fileURLToPath(new URL("./public/files", import.meta.url));
