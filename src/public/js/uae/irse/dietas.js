@@ -121,12 +121,12 @@ function IrseDietas() {
 
 	this.getDieta = pais => DIETAS[pais] || DIETAS.ZZ;
 	this.getPais = pais => i18n.val(self.getDieta(pais), "name");
-	this.getImporte = function(pais, tipo) {
+	/*this.getImporte = function(pais, tipo) {
 		const current = self.getDieta(pais); //dieta actual
 		var key = ((tipo == "1") ? "a" : "m") + dieta; //prefix (dieta = "1"/"2")
 		key += (IRSE.mask & 16) ? "" : "UPCT"; //mascara de la solicitud
 		return current[key];
-	}
+	}*/
 
 	this.getImpMax = () => resume.impMax;
 	this.getImpReducido = () => resume.reducido;
