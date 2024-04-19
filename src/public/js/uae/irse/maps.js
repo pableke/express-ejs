@@ -111,9 +111,16 @@ function initMap() {
 	//*************** rutas / trayectos - maps ***************//
 }
 
-// Create the script tag, set the appropriate attributes
-const script = document.createElement("script");
-script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBIlqxZkVg9GyjzyNzC0rrZiuY6iPLzTZI&libraries=places&callback=initMap";
-script.async = true; // Solicita al navegador que descargue y ejecute la secuencia de comandos de manera asíncrona, despues llamará a initMap
-script.defer = true; // Will execute the script after the document has been parsed
-document.head.appendChild(script); // Append the "script" element to "head"
+dom.ready(function() {
+	dom.onShowTab(2, tab2 => {
+		if (tab2.dataset.loaded)
+			return; //script preloaded
+		// Create the script tag, set the appropriate attributes
+		const script = document.createElement("script");
+		script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBIlqxZkVg9GyjzyNzC0rrZiuY6iPLzTZI&libraries=places&callback=initMap";
+		script.async = true; // Solicita al navegador que descargue y ejecute la secuencia de comandos de manera asíncrona, despues llamará a initMap
+		script.defer = true; // Will execute the script after the document has been parsed
+		document.head.appendChild(script); // Append the "script" element to "head"
+		tab2.dataset.loaded = "1";
+	});
+});

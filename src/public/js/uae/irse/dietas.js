@@ -1,8 +1,8 @@
 
 function IrseDietas() {
-	const self = this; //self instance
-	const ENGLAND = { a1:183.910, a2:156.860, m1:91.350, m2:82.940, a1UPCT:239.080, a2UPCT:239.080, m1UPCT:91.350, m2UPCT:91.350, name:"Reino Unido", name_en:"United Kingdom" };
-	const DIETAS = {
+	//const self = this; //self instance
+	//const ENGLAND = { a1:183.910, a2:156.860, m1:91.350, m2:82.940, a1UPCT:239.080, a2UPCT:239.080, m1UPCT:91.350, m2UPCT:91.350, name:"Reino Unido", name_en:"United Kingdom" };
+	/*const DIETAS = {
 		"ES":   { a1:102.560, a2:65.9700, m1:53.340, m2:37.400, a1UPCT:100.000, a2UPCT:100.000, m1UPCT:53.340, m2UPCT:53.340, name:"España",                 name_en:"Spain" },
 		"ES-MD":{ a1:102.560, a2:65.9700, m1:53.340, m2:37.400, a1UPCT:140.000, a2UPCT:140.000, m1UPCT:53.340, m2UPCT:53.340, name:"España (Madrid)",        name_en:"Spain (Madrid)" },
 		"ES-BA":{ a1:102.560, a2:65.9700, m1:53.340, m2:37.400, a1UPCT:140.000, a2UPCT:140.000, m1UPCT:53.340, m2UPCT:53.340, name:"España (Barcelona)",     name_en:"Spain (Barcelona)" },
@@ -104,11 +104,11 @@ function IrseDietas() {
 		"ZR":   { a1:119.000, a2:101.570, m1:60.700, m2:54.090, a1UPCT:154.700, a2UPCT:154.700, m1UPCT:78.910, m2UPCT:78.910, name:"Zaire / Congo",          name_en:"Zaire / Congo" },
 		"ZW":   { a1:90.1500, a2:76.9300, m1:45.080, m2:39.070, a1UPCT:117.200, a2UPCT:117.200, m1UPCT:58.600, m2UPCT:58.600, name:"Zimbabwe",               name_en:"Zimbabwe" },
 		"ZZ":   { a1:127.410, a2:108.780, m1:46.880, m2:40.870, a1UPCT:165.630, a2UPCT:60.9400, m1UPCT:165.63, m2UPCT:60.940, name:"Resto del Mundo",        name_en:"Rest of the world" }
-	};
+	};*/
 
 	const resume = { dias: 0, impMax: 0, reducido: 0, percibir: 0 };
 	const STYLES = {
-		cod: val => i18n.val(self.getDieta(val), "name"), f1: i18n.fmtDate, f2: i18n.fmtDate, // cod = codigo iso del pais + fechas
+		/*cod: val => i18n.val(self.getDieta(val), "name"),*/ f1: i18n.fmtDate, f2: i18n.fmtDate, // cod = codigo iso del pais + fechas
 		imp1: i18n.isoFloat1, imp2: i18n.isoFloat, impMax: i18n.isoFloat, maxDietas: i18n.isoFloat1, reducido: i18n.isoFloat, percibir: i18n.isoFloat,
 		dietas: (val, dieta, j) => { //calculado
 			let output = "";
@@ -119,8 +119,8 @@ function IrseDietas() {
 	}
 	let dieta;
 
-	this.getDieta = pais => DIETAS[pais] || DIETAS.ZZ;
-	this.getPais = pais => i18n.val(self.getDieta(pais), "name");
+	//this.getDieta = pais => DIETAS[pais] || DIETAS.ZZ;
+	//this.getPais = pais => i18n.val(self.getDieta(pais), "name");
 	/*this.getImporte = function(pais, tipo) {
 		const current = self.getDieta(pais); //dieta actual
 		var key = ((tipo == "1") ? "a" : "m") + dieta; //prefix (dieta = "1"/"2")

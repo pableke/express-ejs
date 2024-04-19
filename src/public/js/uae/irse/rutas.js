@@ -60,8 +60,9 @@ function IrseRutas() {
 	this.empty = () => ab.empty(rutas);
 	this.first = () => rutas[0];
 	this.last = () => ab.last(rutas);
-	this.start = () => sb.toDate(rutas[0]?.dt1);
-	this.end = () => sb.toDate(ab.last(rutas)?.dt2);
+	this.start = () => (self.size() && sb.toDate(self.first().dt1));
+	this.end = () => (self.size() && sb.toDate(self.last().dt2));
+	this.inRange = fecha => (self.size() && (sb.enDate(self.first().dt1) <= fecha) && (fecha <= sb.enDate(self.last().dt2)));
 	this.isSalidaTemprana = () => (self.size() && (sb.getHours(rutas[0].dt1) < 14));
 	this.isSalidaTardia = () => (self.size() && (sb.getHours(rutas[0].dt1) > 21));
 	this.isLlegadaTemprana = () => (self.size() && (sb.getHours(self.last().dt2) < 14));
@@ -174,7 +175,7 @@ function IrseRutas() {
 		dom.closeAlerts();
 		if (resume.justifi)
 			dom.required("#justifiKm", "errJustifiKm", "errRequired");
-		return dom.isOk();
+		return dom.isOk() && dom.loading();
 	}
 
 	// DOM loaded

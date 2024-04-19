@@ -27,15 +27,16 @@ gulp.task("modules", done => {
 	fs.rmSync("dist/public/js", RM_OPTS); // Reset js client files
 	fs.rmSync("dist/public/css", RM_OPTS); // Reset css statics files
 	FOLDERS.forEach(dir => (fs.existsSync(dir) || fs.mkdirSync(dir)));
-	gulp.src("src/**/*").pipe(gulp.dest("dist/")).on("end", () => {
-		gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
+	//gulp.src("src/**/*").pipe(gulp.dest("dist/")).on("end", () => {
+		/*gulp.src("dist").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/dao").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/ctrl").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/i18n").pipe(gulp.symlink("node_modules/app"));
 		gulp.src("dist/public/js/lib").pipe(gulp.symlink("node_modules/app"));
-		gulp.src("dist/public/js/model").pipe(gulp.symlink("node_modules/app"));
-		done();
-	});
+		gulp.src("dist/public/js/model").pipe(gulp.symlink("node_modules/app"));*/
+		//done();
+	//});
+	done();
 });
 
 // Task to minify all views (HTML"s and EJS"s)
@@ -76,8 +77,9 @@ gulp.task("minify-js", done => {
 	gulp.src(JS_FILES).pipe(uglify()).pipe(gulp.dest("dist")).on("end", () => {
 		fnConcat(JS_UAE, "dist/public/js/uae", "uae-min.js");
 		fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", () => {
-			gulp.src("dist/public/js/uae/irse-min.js").pipe(gulp.dest(CV_IRSE))
-			gulp.src("dist/public/js/uae/irse/tabs/*.js").pipe(gulp.dest(CV_IRSE + "/tabs")).on("end", done);
+			const FILES = [ "dist/public/js/uae/irse-min.js", "dist/public/js/uae/irse/maps.js"]
+			gulp.src(FILES).pipe(gulp.dest(CV_IRSE)).on("end", done);
+			//gulp.src("dist/public/js/uae/irse/tabs/*.js").pipe(gulp.dest(CV_IRSE + "/tabs")).on("end", done);
 		});
 	});
 });

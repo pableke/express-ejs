@@ -7,14 +7,14 @@ const IRSE = {
 // Meessages
 const IRSE_I18N = {
 	en: { //english
-		msgRechazar: "\277Confirma que desea rechazar esta comunicación?",
-		msgUnlink: "\277Confirma que desea desasociar esta operación de la comunicación?",
-		msgReactivar: "\277Confirma que desea reactivar esta comunicación?",
-		msgFirmar: "\277Confirma que desea firmar esta comunicación?",
-		msgFirmarEnviar: "\277Confirma que desea firmar y enviar esta comunicación?",
-		removeSolicitud: "\277Confirma que desea eliminar esta comunicación?",
-		msgDelOrg: "\277Confirma que desea eliminar esta orgánica de la comunicación?",
-		msgDelRuta: "\277Confirma que desea eliminar esta etapa de la comunicación?",
+		msgRechazar: "¿Confirma que desea rechazar esta comunicación?",
+		msgUnlink: "¿Confirma que desea desasociar esta operación de la comunicación?",
+		msgReactivar: "¿Confirma que desea reactivar esta comunicación?",
+		msgFirmar: "¿Confirma que desea firmar esta comunicación?",
+		msgFirmarEnviar: "¿Confirma que desea firmar y enviar esta comunicación?",
+		removeSolicitud: "¿Confirma que desea eliminar esta comunicación?",
+		msgDelOrg: "¿Confirma que desea eliminar esta orgánica de la comunicación?",
+		msgDelRuta: "¿Confirma que desea eliminar esta etapa de la comunicación?",
 
 		errPerfil: "No ha seleccionado un perfil válido.",
 		errOrganicas: "No se han encontrado orgánicas asociadas a la comunicación.",
@@ -65,18 +65,19 @@ const IRSE_I18N = {
 
 		lblPorAqui: "¡Por Aquí!",
 		lblPaso: "Paso", lblDe: "de", lblA: "a",
-		firstDay: "Primer día", medDay: "Días Intermedios", lastDay: "Último día"
+		firstDay: "Primer día", medDay: "Días Intermedios", lastDay: "Último día",
+		lblDescObserv: "Descripción / observaciones:", lblDescTaxi: "Itinerario (para justificación del proyecto):"
 	},
 
 	es: { //spanish
-		msgRechazar: "\277Confirma que desea rechazar esta comunicación?",
-		msgUnlink: "\277Confirma que desea desasociar esta operación de la comunicación?",
-		msgReactivar: "\277Confirma que desea reactivar esta comunicación?",
-		msgFirmar: "\277Confirma que desea firmar esta comunicación?",
-		msgFirmarEnviar: "\277Confirma que desea firmar y enviar esta comunicación?",
-		removeSolicitud: "\277Confirma que desea eliminar esta comunicación?",
-		msgDelOrg: "\277Confirma que desea eliminar esta orgánica de la comunicación?",
-		msgDelRuta: "\277Confirma que desea eliminar esta etapa de la comunicación?",
+		msgRechazar: "¿Confirma que desea rechazar esta comunicación?",
+		msgUnlink: "¿Confirma que desea desasociar esta operación de la comunicación?",
+		msgReactivar: "¿Confirma que desea reactivar esta comunicación?",
+		msgFirmar: "¿Confirma que desea firmar esta comunicación?",
+		msgFirmarEnviar: "¿Confirma que desea firmar y enviar esta comunicación?",
+		removeSolicitud: "¿Confirma que desea eliminar esta comunicación?",
+		msgDelOrg: "¿Confirma que desea eliminar esta orgánica de la comunicación?",
+		msgDelRuta: "¿Confirma que desea eliminar esta etapa de la comunicación?",
 
 		errPerfil: "No ha seleccionado un perfil válido.",
 		errOrganicas: "No se han encontrado orgánicas asociadas a la comunicación.",
@@ -127,6 +128,7 @@ const IRSE_I18N = {
 
 		lblPorAqui: "¡Por Aquí!",
 		lblPaso: "Paso", lblDe: "de", lblA: "a",
-		firstDay: "Primer día", medDay: "Días Intermedios", lastDay: "Último día"
+		firstDay: "Primer día", medDay: "Días Intermedios", lastDay: "Último día",
+		lblDescObserv: "Descripción / observaciones:", lblDescTaxi: "Itinerario (para justificación del proyecto):"
 	}
 };
