@@ -1,6 +1,8 @@
 
 function IrseOrganicas() {
 	const self = this; //self instance
+	const ii = new IrseImputacion();
+
 	const resume = {
 		imp1: 0,
 		totManutenciones: 0, totPernoctas: 0,

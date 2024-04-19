@@ -8,6 +8,10 @@ dom.ready(function() {
 	dom.onShowTab(3, tab3 => {
 		if (window.fnPaso3)
 			return; // tab preloaded
+		if (ip.isColaboracion()) { // tab3 = colaboracion
+			window.fnPaso3 = () => dom.closeAlerts().required("#justifi", "errJustifiSubv", "errRequired").isOk();
+			return; // validate col only
+		}
 
 		const eCong = dom.getInput("#congreso", tab3); //congreso si/no
 		const eIniCong = dom.getInput("#fIniCong", tab3); //fecha inicio del congreso
@@ -35,7 +39,6 @@ dom.ready(function() {
 			.onChangeInput(eCong, updateCong);
 		updateCong();
 
-		window.fnPaso3 = () => dom.closeAlerts().required("#justifi", "errJustifiSubv", "errRequired").isOk();
 		window.fnPaso3 = function() {
 			dom.closeAlerts()
 				.required("#justifi", "errJustifiSubv", "errRequired")
@@ -175,7 +178,6 @@ dom.ready(function() {
 //Global IRSE components
 const ip = new IrsePerfil();
 const io = new IrseOrganicas();
-const ii = new IrseImputacion();
 const ir = new IrseRutas();
 const dietas = new IrseDietas();
 
@@ -183,3 +185,13 @@ const dietas = new IrseDietas();
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
 const saveTab = () => dom.showOk(i18n.get("saveOk")).working();
+const showNextTab = (xhr, status, args) => {
+	if (!xhr || (status != "success"))
+		return !dom.showError("Error 500: Internal server error.").working();
+	if (!args) // Has server response?
+		return dom.nextTab(); // Show next tab
+	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
+	if (!msgs?.msgError) // is ok?
+		dom.nextTab(); // Show next tab
+	dom.showAlerts(msgs); // Always show alerts after change tab
+}
