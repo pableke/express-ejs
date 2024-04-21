@@ -34,7 +34,7 @@ function DomBox(opts) {
 
 	const fnSelf = () => self;
 	const fnParam = value => value; // return param value
-	const fnValue = (obj, name) => obj[name]; // get prop.
+	//const fnValue = (obj, name) => obj[name]; // get prop.
 	const fnLog = data => console.log("Log:", data); // Show log
 	const fnSplit = str => str ? str.split(/\s+/) : []; // class separator
 	const fnQuery = (elem, parent) => sb.isstr(elem) ? self.get(elem, parent) : elem;
@@ -149,7 +149,7 @@ function DomBox(opts) {
 	function fnSetVal(el, value) {
 		value = value ?? EMPTY; // define value as string
 		if (el.tagName === "SELECT") // select option
-			el.selectedIndex = self.findIndex("[value='" + value + "']", el.options);
+			el.selectedIndex = Math.max(self.findIndex("[value='" + value + "']", el.options), 0);
 		else if ((el.type === "checkbox") || (el.type === "radio"))
 			el.checked = (el.value == value);
 		else
@@ -750,7 +750,6 @@ function DomBox(opts) {
 		/**************** Tabs helper ****************/
 		let _tabIndex = self.findIndex(".active", tabs); //current index tab
 		let _tabSize = tabs.length - 1; // max tabs size
-		let _backTab = _tabIndex; // back to previous tab
 		let _tabMask = ~0; // all 11111....
 
 		self.getTabs = () => tabs; //all tabs
@@ -759,13 +758,11 @@ function DomBox(opts) {
 		self.lastId = (str, max) => nb.max(sb.lastId(str) || 0, max || 99); // Extract id
 
 		self.onTab = (id, name, fn, opts) => fnAddEvent(self.getTab(id), name, fn, opts);
-		self.onPrevTab = (id, fn) => self.onTab(id, "prev-tab", fn);
 		self.onLoadTab = (id, fn) => self.onTab(id, "show-tab", fn, { once: true });
 		self.onShowTab = (id, fn) => self.onTab(id, "show-tab", fn);
-		self.onNextTab = (id, fn) => self.onTab(id, "next-tab", fn);
 		self.onChangeTab = (id, fn) => self.onTab(id, ON_CHANGE, fn);
 
-		function fnShowTab(i) { //show tab by index
+		function fnShowTab(i, backward) { //show tab by index
 			self.closeAlerts(); // always close alerts
 			i = nb.range(i, 0, _tabSize); // Force range
 			if (i == _tabIndex) // is current tab
@@ -773,12 +770,9 @@ function DomBox(opts) {
 			const tab = tabs[i]; // get next tab
 			// Trigger show tab event (show-tab) and change tab if ok
 			if (self.trigger(tab, "show-tab").isOk()) {
-				const progressbar = self.get("#progressbar");
-				if (progressbar) { // progressbar is optional
-					const step = "step-" + i; //go to a specific step on progressbar
-					self.each(progressbar.children, li => self.toggle(li, "active", li.id <= step));
-				}
-				_backTab = _tabIndex; // save from
+				// calculate the source tab index
+				tab.dataset.back = backward ? Math.max(tab.dataset.back ?? (i - 1), 0)
+											: Math.max(_tabIndex, i - 1, 0);
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
 					.setFocus(tab).scroll(); // Auto set focus and scroll
@@ -786,13 +780,11 @@ function DomBox(opts) {
 			return self;
 		}
 
-		self.viewTab = id => fnShowTab(self.findIndex("#tab-" + id, tabs)); //find by id selector
+		const fnFindIndex = id => self.findIndex("#tab-" + id, tabs); //find index tab by id
+		self.viewTab = id => fnShowTab(fnFindIndex(id)); //find by id selector
 		self.lastTab = () => fnShowTab(_tabSize);
-		self.backTab = () => fnShowTab(_backTab);
-		self.prevTab = () => { // Ignore 0's mask tab
-			for (var i = _tabIndex - 1; !nb.mask(_tabMask, i) && (i > 0); i--);
-			return fnShowTab(i); // Show calculated prev tab
-		}
+		self.backTab = id => fnShowTab(sb.isset(id) ? fnFindIndex(id) : +tabs[_tabIndex].dataset.back, true);
+		self.prevTab = self.backTab; // sysnonym
 		self.nextTab = () => { // Ignore 0's mask tab
 			for (var i = _tabIndex + 1; !nb.mask(_tabMask, i) && (i < _tabSize); i++);
 			return fnShowTab(i); // Show calculated next tab

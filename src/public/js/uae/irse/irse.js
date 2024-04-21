@@ -1,8 +1,12 @@
 
+//Global IRSE components
+const ip = new IrsePerfil();
+const ir = new IrseRutas();
+const dietas = new IrseDietas();
+const io = new IrseOrganicas();
+
 dom.ready(function() {
-	i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
-	dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
-	dom.each(document.forms, form => form.setAttribute("novalidate", "1"));
+	var isTab6Loaded;
 
 	/*********** subvención, congreso, asistencias/colaboraciones ***********/
 	dom.onShowTab(3, tab3 => {
@@ -54,10 +58,10 @@ dom.ready(function() {
 
 	/*********** FACTURAS, TICKETS y demás DOCUMENTACIÓN para liquidar ***********/
 	dom.onShowTab(5, tab5 => {
-		const eTipoGasto = dom.getInput("#tipo-gasto"); //select tipo
-		if (window.fnPaso5 || !eTipoGasto)
+		if (window.fnPaso5)
 			return; // tab preloaded
 
+		const eTipoGasto = dom.getInput("#tipo-gasto"); //select tipo
 		dom.setAttrInputs(".ui-pernocta", "min", dt.isoEnDate(ir.start()))
 			.setAttrInputs(".ui-pernocta", "max", dt.isoEnDate(ir.end()))
 			.setValue("#fAloMin", dt.isoEnDate(ir.start()))
@@ -122,11 +126,23 @@ dom.ready(function() {
 		}
 	});
 
+	/*********** Tablas de resumen ***********/
+	function fnLoadTab6() {
+		if (!isTab6Loaded)
+			dietas.render(); //muestro la tabla de dietas
+		isTab6Loaded = true; //load indicator
+	}
+	dom.onShowTab(6, fnLoadTab6);
+
+	/*********** Fin + IBAN ***********/
 	dom.onShowTab(9, tab9 => {
-		const cuentas = dom.getInput("#cuentas");
-		if (window.fnPaso9 || !cuentas)
+		// always auto build table organicas/gastos
+		fnLoadTab6();
+		io.build();
+		if (window.fnPaso9)
 			return; // tab preloaded
 
+		const cuentas = dom.getInput("#cuentas");
 		function fnPais(pais) {
 			let es = (pais == "ES");
 			dom.toggleHide("#entidades", !es).toggleHide(".swift-block,#banco", es);
@@ -175,12 +191,6 @@ dom.ready(function() {
 	dom.viewTab(tab0.dataset.paso || 13);
 });
 
-//Global IRSE components
-const ip = new IrsePerfil();
-const io = new IrseOrganicas();
-const ir = new IrseRutas();
-const dietas = new IrseDietas();
-
 //PF needs confirmation in onclick attribute
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
@@ -193,5 +203,19 @@ const showNextTab = (xhr, status, args) => {
 	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
 	if (!msgs?.msgError) // is ok?
 		dom.nextTab(); // Show next tab
-	dom.showAlerts(msgs); // Always show alerts after change tab
+	// Always show alerts after change tab
+	dom.showAlerts(msgs).working();
 }
+const gotoTab = (xhr, status, args, tab) => {
+	if (!xhr || (status != "success"))
+		return !dom.showError("Error 500: Internal server error.").working();
+	if (!args) // Has server response?
+		return dom.nextTab(); // Show next tab
+	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
+	if (!msgs?.msgError) // is ok?
+		dom.viewTab(tab); // Show next tab
+	// Always show alerts after change tab
+	dom.showAlerts(msgs).working();
+}
+const onList = () => dom.val(".ui-filter").setValue("#firma", "5" ).loading();
+const onVinc = () => dom.val(".ui-filter").setValue("#estado", "1" ).loading();

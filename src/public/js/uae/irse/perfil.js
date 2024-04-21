@@ -144,19 +144,23 @@ function IrsePerfil() {
 	this.getOrganica = (id) => organicas.find(org => org.id == id); //get organica by id
 	this.isInve3005 = (org) => org && sb.starts(org.o, "3005") && ((org.mask & 64) == 64); //es de investigacion de la 3005XX
 	this.is643 = (org) => org && ((org.mask & 16) == 16); //contiene alguna aplicacion 643?
-	this.addOrganica = function() {
+	this.addOrganica = () => {
 		if (current && !organicas.find(org => org.id==current.id))
 			organicas.push(current);
 		dom.table("#organicas", organicas, resume, STYLES);
 	}
 
-	this.valid = function() {
+	this.valid = () => {
 		dom.closeAlerts().required("#perfil-financiacion", "errPerfil");
 		self.empty(organicas) && dom.required("#organica", "errOrganicas");
 		return dom.required("#tramitador", "errPerfil").required("#interesado", "errPerfil").isOk();
 	}
 
 	dom.ready(function() {
+		i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
+		dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
+		dom.each(document.forms, form => form.setAttribute("novalidate", "1"));
+
 		eRol = dom.getInput("#rol");
 		eCol = dom.get("#colectivo");
 		eFin = dom.getInput("#financiacion");
@@ -186,9 +190,9 @@ function IrsePerfil() {
 		}).change(fnAcReset).on("search", fnAcReset);
 		/********** interesqado autocomplete **********/
 
+		/********** organicas autocompletes **********/
 		function fnResetOrganica() {
 			i18n.set("imp", null); dom.toggleHide(".msg-cd", !this.value);
-			fnAcReset();
 		}
 		$("#organica").attr("type", "search").keydown(fnAcChange).autocomplete({
 			delay: 500, //milliseconds between keystroke occurs and when a search is performed
@@ -207,8 +211,9 @@ function IrsePerfil() {
 				}
 				return !dom.tr(".msg-cd", STYLES_CD);
 			}
-		}).change(fnResetOrganica).on("search", fnResetOrganica);
-		/********** tramitador / organicas autocompletes **********/
+		}).change(fnAcReset).on("search", fnAcReset)
+			.change(fnResetOrganica).on("search", fnResetOrganica);
+		/********** organicas autocompletes **********/
 
 		organicas = ab.parse(dom.getText("#org-data")) || [];
 		i18n.set("imp", organicas[0]?.imp); //importe precargado

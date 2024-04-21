@@ -111,8 +111,6 @@ function IrseOrganicas() {
 
 	dom.ready(function() {
 		organicas = ab.parse(dom.getText("#gastos-org")) || [];
-
-		// Table handlers
 		dom.onRenderTable("#multiorganicas", table => {
 			resume.imp1 = 0;
 			resume.totManutenciones = resume.totPernoctas = 0;
@@ -128,7 +126,6 @@ function IrseOrganicas() {
 			dom.setValue("#imp-org", JSON.stringify(organicas))
 				.setValue("#imp1-org", "").setFocus("#tipo-org");
 		});
-		dom.table("#multiorganicas", organicas, resume, STYLES)
-			.autofocus();
+		//dom.table("#multiorganicas", organicas, resume, STYLES).autofocus();
 	});
 }
