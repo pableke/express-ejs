@@ -161,6 +161,7 @@ function IrsePerfil() {
 		dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
 		dom.each(document.forms, form => form.setAttribute("novalidate", "1"));
 
+		// Campos del perfil
 		eRol = dom.getInput("#rol");
 		eCol = dom.get("#colectivo");
 		eFin = dom.getInput("#financiacion");

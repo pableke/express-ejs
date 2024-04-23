@@ -6,8 +6,6 @@ const dietas = new IrseDietas();
 const io = new IrseOrganicas();
 
 dom.ready(function() {
-	var isTab6Loaded;
-
 	/*********** subvención, congreso, asistencias/colaboraciones ***********/
 	dom.onShowTab(3, tab3 => {
 		if (window.fnPaso3)
@@ -72,7 +70,7 @@ dom.ready(function() {
 		function isPernocta() { return eTipoGasto.value == "9"; }
 
 		const file = $("#fileGasto_input", tab5).change(() => !dom.show(eTipoGasto.parentNode));
-		dom.get("[href='#open-file-gasto']", tab5).addEventListener("click", ev => file.click());
+		dom.addClick("[href='#open-file-gasto']", ev => file.click());
 
 		dom.change(eTipoGasto, () => {
 			const grupos = dom.setValue("#tipoGasto", eTipoGasto.value)
@@ -127,6 +125,7 @@ dom.ready(function() {
 	});
 
 	/*********** Tablas de resumen ***********/
+	var isTab6Loaded;
 	function fnLoadTab6() {
 		if (!isTab6Loaded)
 			dietas.render(); //muestro la tabla de dietas
@@ -186,6 +185,45 @@ dom.ready(function() {
 		window.fnSend = () => i18n.confirm("msgFirmarEnviar");
 	});
 
+	/*********** Autocompletes expediente uxxiec ***********/
+	var isTab15Loaded;
+	dom.onShowTab(15, tab15 => {
+		const RESUME = {};
+		const STYLES = { imp: i18n.isoFloat, fUxxi: i18n.fmtDate };
+		let op, operaciones; // vinc. container
+		if (!isTab15Loaded) {
+			$("#uxxi", tab15).attr("type", "search").keydown(fnAcChange).autocomplete({
+				delay: 500, //milliseconds between keystroke occurs and when a search is performed
+				minLength: 3, //force filter => reduce matches
+				focus: fnFalse, //no change focus on select
+				search: fnAcSearch, //lunch source
+				source: function(req, res) {
+					const fn = item => (item.num + " - " + item.uxxi + "<br>" + item.desc);
+					fnAutocomplete(this.element,  ["num", "desc"], res, fn);
+				},
+				select: function(ev, ui) {
+					op = ui.item; // current operation
+					return fnAcLoad(this, null, op.num + " - " + op.desc);
+				}
+			}).change(fnAcReset).on("search", fnAcReset);
+			dom.click("a#add-uxxi", el => {
+				if (op) {
+					delete op.id; //force insert
+					operaciones.push(op); // save container
+					dom.table("#op-table", operaciones, RESUME, STYLES);
+				}
+				dom.setValue("#uxxi", "").setFocus("#uxxi")
+			});
+			dom.onRenderTable("#op-table", table => {
+				dom.setValue("#operaciones", JSON.stringify(operaciones));
+				op = null; // reinit vinc.
+			});
+		}
+		operaciones = ab.parse(dom.getText("#op-json")) || []; // preload docs
+		dom.setValue("#operaciones").table("#op-table", operaciones, RESUME, STYLES);
+		isTab15Loaded = true;
+	});
+
 	// show current tab
 	const tab0 = dom.getTab(13);
 	dom.viewTab(tab0.dataset.paso || 13);
@@ -195,27 +233,17 @@ dom.ready(function() {
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
 const saveTab = () => dom.showOk(i18n.get("saveOk")).working();
-const showNextTab = (xhr, status, args) => {
+const showNextTab = (xhr, status, args, tab) => {
 	if (!xhr || (status != "success"))
 		return !dom.showError("Error 500: Internal server error.").working();
 	if (!args) // Has server response?
 		return dom.nextTab(); // Show next tab
 	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
-	if (!msgs?.msgError) // is ok?
-		dom.nextTab(); // Show next tab
+	if (!msgs?.msgError) // If no error => Show next tab
+		sb.isset(tab) ? dom.viewTab(tab) : dom.nextTab();
 	// Always show alerts after change tab
 	dom.showAlerts(msgs).working();
 }
-const gotoTab = (xhr, status, args, tab) => {
-	if (!xhr || (status != "success"))
-		return !dom.showError("Error 500: Internal server error.").working();
-	if (!args) // Has server response?
-		return dom.nextTab(); // Show next tab
-	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
-	if (!msgs?.msgError) // is ok?
-		dom.viewTab(tab); // Show next tab
-	// Always show alerts after change tab
-	dom.showAlerts(msgs).working();
-}
-const onList = () => dom.val(".ui-filter").setValue("#firma", "5" ).loading();
-const onVinc = () => dom.val(".ui-filter").setValue("#estado", "1" ).loading();
+const onList = () => dom.val(".ui-filter").setValue("#firma", "5").loading();
+const clickList = () => onList().trigger("#filter-list", "click");
+const clickVinc = () => dom.val(".ui-filter").setValue("#estado", "1").trigger("#filter-list", "click");

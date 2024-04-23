@@ -1,7 +1,7 @@
 
 /* Animations */
-.fadeIn { animation: fadeIn 1s forwards; }
-.fadeOut { animation: fadeOut 1s forwards; }
+.fadeIn { animation: fadeIn .8s forwards; }
+.fadeOut { animation: fadeOut .5s forwards; }
 @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; display: none; } }
 

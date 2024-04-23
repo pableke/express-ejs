@@ -467,9 +467,9 @@ function DomBox(opts) {
 			return self.showAlerts(data); //show global menssages
 		}
 
-		// Show posible server messages and close click event
-		self.each(texts, el => { el.firstChild && showAlert(el); })
-			.click(self.getAll("." + CONFIG.classAlertClose, alerts), closeAlert);
+		// Show posible server messages after DOMContentLoaded event
+		setTimeout(() => self.each(texts, el => { el.firstChild && showAlert(el); }), 1);
+		self.click(self.getAll("." + CONFIG.classAlertClose, alerts), closeAlert); // close click event
 
 		// Tables, Forms and Inputs helpers
 		self.getTable = elem =>  sb.isstr(elem) ? self.find(elem, tables) : elem;

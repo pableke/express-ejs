@@ -1,10 +1,9 @@
 
 function IrseDietas() {
 	//const self = this; //self instance
-
 	const resume = { dias: 0, impMax: 0, reducido: 0, percibir: 0 };
 	const STYLES = {
-		/*cod: val => i18n.val(self.getDieta(val), "name"),*/ f1: i18n.fmtDate, f2: i18n.fmtDate, // cod = codigo iso del pais + fechas
+		f1: i18n.fmtDate, f2: i18n.fmtDate,
 		imp1: i18n.isoFloat1, imp2: i18n.isoFloat, impMax: i18n.isoFloat, maxDietas: i18n.isoFloat1, reducido: i18n.isoFloat, percibir: i18n.isoFloat,
 		dietas: (val, dieta, j) => { //calculado
 			let output = "";
@@ -13,8 +12,6 @@ function IrseDietas() {
 			return output;
 		}
 	}
-	let dieta;
-
 	//this.getDieta = pais => DIETAS[pais] || DIETAS.ZZ;
 	//this.getPais = pais => i18n.val(self.getDieta(pais), "name");
 	/*this.getImporte = function(pais, tipo) {
@@ -29,10 +26,8 @@ function IrseDietas() {
 	this.getImpPercibir = () => resume.percibir;
 
 	this.render = () => { // Build table step 7
-		dieta = dom.getValue("#dieta") || "2"; //valor leido del select en paso 2
+		const dieta = dom.getValue("#dieta") || "2"; //valor leido del select en paso 2
 		const manutenciones = ab.parse(dom.getText("#dietas-data")) || [];
-
-		// Table handlers
 		dom.onChangeTable("#manutenciones", table => {
 			const tr = resume.row;
 			const dieta = resume.data;
