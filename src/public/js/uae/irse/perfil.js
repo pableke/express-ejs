@@ -71,7 +71,7 @@ function IrsePerfil() {
 	dt.addDate(fCache, -1); //fecha de ayer
 	i18n.set("fCache", fCache);
 
-	this.isLoaded = () => eRol && eCol && eFin && eAct;
+	//this.isLoaded = () => eRol && eCol && eFin && eAct;
 	this.getRol = () => eRol.value;
 	this.isColaboracion = () => (eAct.value == "OCE") || (eAct.value == "IAE+OCE");
 	this.isTribunal = () => (eAct.value == "ATR") || (eAct.value == "IAE+ATR");
@@ -156,19 +156,15 @@ function IrsePerfil() {
 		return dom.required("#tramitador", "errPerfil").required("#interesado", "errPerfil").isOk();
 	}
 
-	dom.ready(function() {
-		i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
-		dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
-		dom.each(document.forms, form => form.setAttribute("novalidate", "1"));
-
+	this.init = () => {
 		// Campos del perfil
 		eRol = dom.getInput("#rol");
 		eCol = dom.get("#colectivo");
 		eFin = dom.getInput("#financiacion");
 		eAct = dom.getInput("#actividad");
 		eTramit = dom.getInput("#tramite");
-		if (!self.isLoaded())
-			return; //no hay calculo del perfil
+		//if (!self.isLoaded())
+			//return; //no hay calculo del perfil
 
 		/********** interesqado autocomplete **********/
 		$(".ac-persona:not(.ui-state-disabled)").attr("type", "search").keydown(fnAcChange).autocomplete({
@@ -230,5 +226,5 @@ function IrsePerfil() {
 		dom.getValue("#interesado") && dom.show(eCol.parentNode); //muestro el colectivo
 		dom.change(eRol, fnUpdatePerfil).change(eAct, fnUpdatePerfil).tr(".msg-cd", STYLES_CD)
 			.onChangeInput("#interesado", el => dom.toggleHide(eCol.parentNode, !el.value));
-	});
+	}
 }

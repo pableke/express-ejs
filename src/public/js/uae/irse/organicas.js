@@ -109,7 +109,7 @@ function IrseOrganicas() {
 		return self.validAll();
 	}
 
-	dom.ready(function() {
+	this.init = () => {
 		organicas = ab.parse(dom.getText("#gastos-org")) || [];
 		dom.onRenderTable("#multiorganicas", table => {
 			resume.imp1 = 0;
@@ -127,5 +127,5 @@ function IrseOrganicas() {
 				.setValue("#imp1-org", "").setFocus("#tipo-org");
 		});
 		//dom.table("#multiorganicas", organicas, resume, STYLES).autofocus();
-	});
+	}
 }

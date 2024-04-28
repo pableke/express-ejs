@@ -20,7 +20,7 @@ function IrseRutas() {
 		destino: "Cartagena, España", lat2: CT_LAT, lng2: CT_LNG, pais2: "ES"
 	};
 
-	const resume = {};
+	const resume = { sizeOut: 0, sizeVp: 0 };
 	const STYLES = {
 		remove: "msgDelRuta",
 		f1: (val, ruta) => i18n.fmtDate(ruta.dt1), h1: (val, ruta) => sb.minTime(ruta.dt1), 
@@ -56,19 +56,23 @@ function IrseRutas() {
 	this.getCT = () => CT;
 
 	this.getAll = () => rutas;
+	this.getResume = () => resume;
+	this.getStyles = () => STYLES;
 	this.size = () => ab.size(rutas);
 	this.empty = () => ab.empty(rutas);
 	this.first = () => rutas[0];
 	this.last = () => ab.last(rutas);
 	this.start = () => (self.size() && sb.toDate(self.first().dt1));
 	this.end = () => (self.size() && sb.toDate(self.last().dt2));
-	this.inRange = fecha => (self.size() && (sb.enDate(self.first().dt1) <= fecha) && (fecha <= sb.enDate(self.last().dt2)));
+	//this.inRange = fecha => (self.size() && (sb.enDate(self.first().dt1) <= fecha) && (fecha <= sb.enDate(self.last().dt2)));
 	this.isSalidaTemprana = () => (self.size() && (sb.getHours(rutas[0].dt1) < 14));
 	this.isSalidaTardia = () => (self.size() && (sb.getHours(rutas[0].dt1) > 21));
 	this.isLlegadaTemprana = () => (self.size() && (sb.getHours(self.last().dt2) < 14));
 	this.isLlegadaTardia = () => (self.size() && (sb.getHours(self.last().dt2) < 5));
 	this.isLlegadaCena = () => (self.size() && (sb.getHours(self.last().dt2) > 21));
-	this.getRuta = f1 => { // Ruta asociada a f1
+	this.getNumRutasVp = () => resume.sizeVp;
+	this.getNumRutasOut = () => resume.sizeOut;
+	/*this.getRuta = f1 => { // Ruta asociada a f1
 		let aux = dt.clone(f1); // f1 = readonly
 		dt.addHours(aux, 29); // 5h del dia siguiente
 		let fMax = aux.toJSON(); // Stringify date
@@ -78,7 +82,7 @@ function IrseRutas() {
 			ruta = (aux.dt2 < fMax) ? aux : ruta;
 		});
 		return ruta;
-	}
+	}*/
 
 	this.resume = function() {
 		resume.totKm = resume.totKmCalc = 0;
@@ -178,10 +182,9 @@ function IrseRutas() {
 		return dom.isOk() && dom.loading();
 	}
 
-	// DOM loaded
-	dom.ready(function() {
-		if (!ip.isLoaded()) // hay perfil?
-			return; //no hay calculo de rutas
+	this.init = () => {
+		//if (!ip.isLoaded()) // hay perfil?
+			//return; //no hay calculo de rutas
 
 		rutas = ab.parse(dom.getText("#rutas-data")) || [];
 		resume.out = rutas.filter(ruta => (ruta.desp != 1) && (ruta.desp != 3) && !ruta.g); //rutas no asociadas a factura
@@ -213,8 +216,7 @@ function IrseRutas() {
 				dom.table("#rutas", rutas, resume, STYLES);
 			}).onRenderTable("#rutas", table => {
 				let last = self.resume().last(rutas) || CT;
-				dom.table("#rutas-read", rutas, resume, STYLES)
-					.setValue("#origen", last.destino).setValue("#f1", sb.enDate(last.dt2)).setValue("#h1", sb.minTime(last.dt2))
+				dom.setValue("#origen", last.destino).setValue("#f1", sb.enDate(last.dt2)).setValue("#h1", sb.minTime(last.dt2))
 					.setValue("#destino", "").copyVal("#f2", "#f1").setValue("#h2", "").setValue("#principal", "0").setValue("#desp", "")
 					.delAttrInput("#f1", "max").delAttrInput("#f2", "min").hide(".grupo-matricula");
 				if (!last.dt1)
@@ -252,5 +254,5 @@ function IrseRutas() {
 			.onChangeInput("#f1", el => dom.setValue("#f2", el.value)).setRangeDate("#f1", "#f2")
 			.onChangeInput("#desp", el => dom.toggleHide(".grupo-matricula", el.value!="1"))
 			.onChangeInput("#matricula", el => { el.value = sb.toUpperWord(el.value); });
-	});
+	}
 }

@@ -430,7 +430,7 @@ function DomBox(opts) {
 		const elements = self.getAll(".tab-content,table,form," + INPUTS);
 		const tabs = self.filter(".tab-content", elements); //all tabs
 		const tables = self.filter("table", elements); //all html tables
-		const forms = self.filter("form", elements); //all html forms
+		const forms = Array.from(document.forms); //all html forms
 		const inputs = self.filter(INPUTS, elements); //all html inputs
 
 		self.isOk = i18n.isOk;
@@ -765,14 +765,12 @@ function DomBox(opts) {
 		function fnShowTab(i, backward) { //show tab by index
 			self.closeAlerts(); // always close alerts
 			i = nb.range(i, 0, _tabSize); // Force range
-			if (i == _tabIndex) // is current tab
-				return self; // nothing to do
 			const tab = tabs[i]; // get next tab
 			// Trigger show tab event (show-tab) and change tab if ok
 			if (self.trigger(tab, "show-tab").isOk()) {
 				// calculate the source tab index
 				tab.dataset.back = backward ? Math.max(tab.dataset.back ?? (i - 1), 0)
-											: Math.max(_tabIndex, i - 1, 0);
+											: Math.max(Math.min(_tabIndex, i - 1), 0);
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
 					.setFocus(tab).scroll(); // Auto set focus and scroll

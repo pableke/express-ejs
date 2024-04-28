@@ -26,7 +26,7 @@ function IrseDietas() {
 	this.getImpPercibir = () => resume.percibir;
 
 	this.render = () => { // Build table step 7
-		const dieta = dom.getValue("#dieta") || "2"; //valor leido del select en paso 2
+		//const dieta = dom.getValue("#dieta") || "2"; //valor leido del select en paso 2
 		const manutenciones = ab.parse(dom.getText("#dietas-data")) || [];
 		dom.onChangeTable("#manutenciones", table => {
 			const tr = resume.row;

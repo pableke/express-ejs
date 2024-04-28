@@ -53,7 +53,17 @@ function fnAutocomplete(el, columns, fnResponse, fnRender) {
 	el.siblings("[id^='find-']").click(); //ajax call
 }
 
-//DOM is fully loaded
+// Show / Hide related info
+dom.toggleInfo = el => {
+	el.querySelectorAll("a[href='#toggle']").forEach(link => {
+		const names = sb.split(link.dataset.toggle, " "); // multi class name
+		const fnToggle = child => { names.forEach(name => child.classList.toggle(name)); }
+		link.onclick = () => dom.toggleLink(link).eachChild(link, "i", fnToggle);
+	});
+	return dom;
+}
+
+	//DOM is fully loaded
 dom.ready(function() {
 	// Loading
 	dom.append('<div class="ibox"><div class="ibox-wrapper"><b class="fas fa-spinner fa-3x fa-spin"></b></div></div>');
@@ -66,13 +76,6 @@ dom.ready(function() {
 		.onChangeInputs(".ui-integer", el => { el.value = i18n.fmtInt(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.onChangeInputs(".ui-float", el => { el.value = i18n.fmtFloat(el.value); dom.toggle(el, "texterr", sb.starts(el.value, "-")); })
 		.setAttrInputs(".ui-date", "type", "date").setAttrInputs(".disabled,.ui-state-disabled", "readonly", true);
-	// Initialize all textarea counter
-	const ta = dom.getInputs("textarea");
-	function fnCounter(el) {
-		let value = Math.abs(600 - sb.size(el.value));
-		dom.setText(dom.get(".counter", el.parentNode), value);
-	}
-	dom.keyup(ta, fnCounter).each(ta, fnCounter);
 	// Sistema de urgencia para las solicitudes
 	dom.onChangeInput("#urgente", () => dom.toggleHide(".grp-urgente")).setAttrInput("#fMax", "min", dt.isoEnDate(dt.sysdate()));
 
@@ -89,9 +92,6 @@ dom.ready(function() {
 	dom.leToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.leToday);
 	dom.geToday = (el, msg, msgtip) => dom.setError(el, msg, msgtip, i18n.geToday);
 
-	// Show / Hide related info
-	dom.onclick("a[href='#toggle']", el => !dom.toggleLink(el));
-	dom.onclick("[data-toggle]", el => !dom.eachChild(el, "i", child => dom.toggle(child, el.dataset.toggle)));
 	dom.eachInput(".ac-xeco-item:not(.ui-state-disabled)", el => {
 		$(el).attr("type", "search").keydown(fnAcChange).change(fnAcReset).on("search", fnAcReset).autocomplete({
 			delay: 500, //milliseconds between keystroke occurs and when a search is performed
@@ -102,4 +102,5 @@ dom.ready(function() {
 			select: fnSelectItem //show item selected
 		});
 	});
+	dom.toggleInfo(document);
 });

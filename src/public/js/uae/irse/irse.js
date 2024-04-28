@@ -5,9 +5,17 @@ const ir = new IrseRutas();
 const dietas = new IrseDietas();
 const io = new IrseOrganicas();
 
-dom.ready(function() {
+dom.ready(function() { // DOM ready
+	i18n.addLangs(IRSE_I18N).setCurrent(IRSE.lang); //Set init. config
+	dom.tr(".i18n-tr-h1").setText("#imp-gasolina-km", i18n.isoFloat(IRSE.gasolina)); //local traductor
+	dom.each(document.forms, form => form.setAttribute("novalidate", "1"));
+
+	// Init. IRSE form
+	ip.init(); ir.init(); io.init();
+
 	/*********** subvención, congreso, asistencias/colaboraciones ***********/
 	dom.onShowTab(3, tab3 => {
+		tab3.querySelectorAll(".rutas-vp").forEach(el => el.classList.toggle("hide", ir.getNumRutasVp() < 1));
 		if (window.fnPaso3)
 			return; // tab preloaded
 		if (ip.isColaboracion()) { // tab3 = colaboracion
@@ -44,8 +52,9 @@ dom.ready(function() {
 		window.fnPaso3 = function() {
 			dom.closeAlerts()
 				.required("#justifi", "errJustifiSubv", "errRequired")
-				.required("#justifiVp", "errJustifiVp", "errRequired")
 				.required("#entidad-origen", "errEntidadOrigen", "errRequired");
+			if (ir.getNumRutasVp())
+				dom.required("#justifiVp", "errJustifiVp", "errRequired");
 			if (validCong())
 				dom.required("#justifiCong", "errCongreso", "errRequired");
 			if (eCong.value == "4")
@@ -56,49 +65,56 @@ dom.ready(function() {
 
 	/*********** FACTURAS, TICKETS y demás DOCUMENTACIÓN para liquidar ***********/
 	dom.onShowTab(5, tab5 => {
-		if (window.fnPaso5)
-			return; // tab preloaded
+		const eTipoGasto = tab5.querySelector("#tipo-gasto"); //select tipo
+		if (!eTipoGasto)
+			return; // modo solo consulta
 
-		const eTipoGasto = dom.getInput("#tipo-gasto"); //select tipo
-		dom.setAttrInputs(".ui-pernocta", "min", dt.isoEnDate(ir.start()))
-			.setAttrInputs(".ui-pernocta", "max", dt.isoEnDate(ir.end()))
-			.setValue("#fAloMin", dt.isoEnDate(ir.start()))
-			.setValue("#fAloMax", dt.isoEnDate(ir.end()));
-
-		function isDoc() { return ["201", "202", "204", "205", "206"].indexOf(eTipoGasto.value) > -1; }
-		function isExtra() { return ["301", "302", "303", "304"].indexOf(eTipoGasto.value) > -1; }
-		function isPernocta() { return eTipoGasto.value == "9"; }
-
-		const file = $("#fileGasto_input", tab5).change(() => !dom.show(eTipoGasto.parentNode));
-		dom.addClick("[href='#open-file-gasto']", ev => file.click());
-
-		dom.change(eTipoGasto, () => {
-			const grupos = dom.setValue("#tipoGasto", eTipoGasto.value)
-								.setText("[for=txtGasto]", i18n.get("lblDescObserv"), tab5)
-								.getAll(".grupo-gasto", tab5);
+		const grupos = dom.getAll(".grupo-gasto", tab5);
+		const isDoc = () => (["201", "202", "204", "205", "206"].indexOf(eTipoGasto.value) > -1);
+		const isExtra = () => (["301", "302", "303", "304"].indexOf(eTipoGasto.value) > -1);
+		const isPernocta = () => (eTipoGasto.value == "9");
+		eTipoGasto.onchange = () => {
+			dom.setValue("#tipoGasto", eTipoGasto.value)
+				.setText("[for=txtGasto]", i18n.get("lblDescObserv"), tab5);
 			if (isPernocta())
 				dom.view(grupos, 0b11011);
 			else if (isDoc())
 				dom.view(grupos, 0b10101);
 			else if (isExtra())
 				dom.view(grupos, 0b10111);
-			else if (ip.isIsu() && ("4" == eTipoGasto.value)) //ISU y taxi
+			else if ("4" == eTipoGasto.value) //ISU y taxi
 				dom.setText("[for=txtGasto]", i18n.get("lblDescTaxi"), tab5).view(grupos, 0b10111);
 			else if (0 < +eTipoGasto.value)
 				dom.view(grupos, 0b10011);
 			else
 				dom.view(grupos, 0b00001);			
-		});
+		}
 
-		dom.addClick("a#gasto-rutas", () => {
+		// trayectos de ida y vuelta => al menos 2
+		tab5.querySelectorAll(".rutas-gt-1").forEach(el => el.classList.toggle("hide", ir.size() < 2));
+		dom.table("#rutas-read", ir.getAll(), ir.getResume(), ir.getStyles())
+			.setAttrInputs(".ui-pernocta", "min", dt.isoEnDate(ir.start()))
+			.setAttrInputs(".ui-pernocta", "max", dt.isoEnDate(ir.end()))
+			.setValue("#fAloMin", dt.isoEnDate(ir.start()))
+			.setValue("#fAloMax", dt.isoEnDate(ir.end()))
+			.view(grupos, 0);
+
+		eTipoGasto.value = ""; // clear selection
+		tab5.querySelector("#impGasto").value = i18n.isoFloat(0);
+		tab5.querySelector("#txtGasto").value = "";
+
+		const file = tab5.querySelector("#fileGasto_input");
+		file.onchange = () => dom.show(eTipoGasto.parentNode);
+		tab5.querySelector("[href='#open-file-gasto']").onclick = () =>file.click();
+		document.querySelector("a#gasto-rutas").onclick = () => { // button in tab12
 			let etapas = dom.values(dom.getCheckedRows("#rutas-out")).join(",");
 			if (etapas) {
 				dom.setValue("#trayectos", etapas);
-				$("#uploadGasto", tab5).click();
+				tab5.querySelector("#uploadGasto").click();
 			}
 			else
 				dom.showError(i18n.get("errLinkRuta"));
-		});
+		}
 
 		window.fnPaso5 = function() {
 			dom.closeAlerts();
@@ -117,8 +133,8 @@ dom.ready(function() {
 				let fFin = dom.getValue("#fAloMax");
 				if (!fIni || !fFin)
 					return !dom.addError("fAloMin", "errFechasAloja");
-				if (!ir.inRange(fIni) || !ir.inRange(fFin))
-					return !dom.addError("fAloMin", "errRangoAloja");
+				//if (!ir.inRange(fIni) || !ir.inRange(fFin))
+					//return !dom.addError("fAloMin", "errRangoAloja");
 			}
 			return true;
 		}
@@ -126,21 +142,21 @@ dom.ready(function() {
 
 	/*********** Tablas de resumen ***********/
 	var isTab6Loaded;
-	function fnLoadTab6() {
+	dom.onShowTab(6, tab6 => {
 		if (!isTab6Loaded)
-			dietas.render(); //muestro la tabla de dietas
+			dietas.render(); // Calc dietas
+		dom.toggleInfo(tab6); // update toggle links
+		tab6.querySelectorAll(".rutas-vp").forEach(el => el.classList.toggle("hide", ir.getNumRutasVp() < 1));
 		isTab6Loaded = true; //load indicator
-	}
-	dom.onShowTab(6, fnLoadTab6);
+	});
 
 	/*********** Fin + IBAN ***********/
 	dom.onShowTab(9, tab9 => {
-		// always auto build table organicas/gastos
-		fnLoadTab6();
-		io.build();
+		io.build(); // always auto build table organicas/gastos
 		if (window.fnPaso9)
 			return; // tab preloaded
 
+		dietas.render(); // Force dietas recalc
 		const cuentas = dom.getInput("#cuentas");
 		function fnPais(pais) {
 			let es = (pais == "ES");
@@ -186,47 +202,45 @@ dom.ready(function() {
 	});
 
 	/*********** Autocompletes expediente uxxiec ***********/
-	var isTab15Loaded;
+	const RESUME = {};
+	const STYLES = { imp: i18n.isoFloat, fUxxi: i18n.fmtDate };
+	let op, operaciones; // vinc. container
+	dom.onLoadTab(15, tab15 => {
+		$("#uxxi", tab15).attr("type", "search").keydown(fnAcChange).autocomplete({
+			delay: 500, //milliseconds between keystroke occurs and when a search is performed
+			minLength: 3, //force filter => reduce matches
+			focus: fnFalse, //no change focus on select
+			search: fnAcSearch, //lunch source
+			source: function(req, res) {
+				const fn = item => (item.num + " - " + item.uxxi + "<br>" + item.desc);
+				fnAutocomplete(this.element,  ["num", "desc"], res, fn);
+			},
+			select: function(ev, ui) {
+				op = ui.item; // current operation
+				return fnAcLoad(this, null, op.num + " - " + op.desc);
+			}
+		}).change(fnAcReset).on("search", fnAcReset);
+		dom.click("a#add-uxxi", el => {
+			if (op) {
+				delete op.id; //force insert
+				operaciones.push(op); // save container
+				dom.table("#op-table", operaciones, RESUME, STYLES);
+			}
+			dom.setValue("#uxxi", "").setFocus("#uxxi")
+		});
+		dom.onRenderTable("#op-table", table => {
+			dom.setValue("#operaciones", JSON.stringify(operaciones));
+			op = null; // reinit vinc.
+		});
+	});
 	dom.onShowTab(15, tab15 => {
-		const RESUME = {};
-		const STYLES = { imp: i18n.isoFloat, fUxxi: i18n.fmtDate };
-		let op, operaciones; // vinc. container
-		if (!isTab15Loaded) {
-			$("#uxxi", tab15).attr("type", "search").keydown(fnAcChange).autocomplete({
-				delay: 500, //milliseconds between keystroke occurs and when a search is performed
-				minLength: 3, //force filter => reduce matches
-				focus: fnFalse, //no change focus on select
-				search: fnAcSearch, //lunch source
-				source: function(req, res) {
-					const fn = item => (item.num + " - " + item.uxxi + "<br>" + item.desc);
-					fnAutocomplete(this.element,  ["num", "desc"], res, fn);
-				},
-				select: function(ev, ui) {
-					op = ui.item; // current operation
-					return fnAcLoad(this, null, op.num + " - " + op.desc);
-				}
-			}).change(fnAcReset).on("search", fnAcReset);
-			dom.click("a#add-uxxi", el => {
-				if (op) {
-					delete op.id; //force insert
-					operaciones.push(op); // save container
-					dom.table("#op-table", operaciones, RESUME, STYLES);
-				}
-				dom.setValue("#uxxi", "").setFocus("#uxxi")
-			});
-			dom.onRenderTable("#op-table", table => {
-				dom.setValue("#operaciones", JSON.stringify(operaciones));
-				op = null; // reinit vinc.
-			});
-		}
 		operaciones = ab.parse(dom.getText("#op-json")) || []; // preload docs
 		dom.setValue("#operaciones").table("#op-table", operaciones, RESUME, STYLES);
-		isTab15Loaded = true;
 	});
 
 	// show current tab
 	const tab0 = dom.getTab(13);
-	dom.viewTab(tab0.dataset.paso || 13);
+	return dom.viewTab(tab0.dataset.paso || 13);
 });
 
 //PF needs confirmation in onclick attribute
@@ -234,16 +248,27 @@ const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
 const saveTab = () => dom.showOk(i18n.get("saveOk")).working();
 const showNextTab = (xhr, status, args, tab) => {
-	if (!xhr || (status != "success"))
-		return !dom.showError("Error 500: Internal server error.").working();
-	if (!args) // Has server response?
-		return dom.nextTab(); // Show next tab
+	if (!xhr || (status != "success")) // is server error?
+		return !dom.showError(xhr || "Error 500: Internal server error.").working();
 	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
-	if (!msgs?.msgError) // If no error => Show next tab
+	const ok = !msgs?.msgError; // has error message
+	if (ok) // If no error => Show next tab
 		sb.isset(tab) ? dom.viewTab(tab) : dom.nextTab();
 	// Always show alerts after change tab
 	dom.showAlerts(msgs).working();
+	return ok;
 }
 const onList = () => dom.val(".ui-filter").setValue("#firma", "5").loading();
 const clickList = () => onList().trigger("#filter-list", "click");
 const clickVinc = () => dom.val(".ui-filter").setValue("#estado", "1").trigger("#filter-list", "click");
+/*const viewIrse = (xhr, status, args, tab) => {
+	if (!xhr || (status != "success")) // is server error?
+		return !dom.showError("Error 500: Internal server error.").working();
+	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
+	if (!msgs?.msgError) // If no error => Show next tab
+		sb.isset(tab) ? dom.viewTab(tab) : dom.nextTab();
+	// Init. IRSE form
+	ip.init(); ir.init(); io.init();
+	// Always show alerts after change tab
+	dom.initIris().showAlerts(msgs).working();
+}*/
