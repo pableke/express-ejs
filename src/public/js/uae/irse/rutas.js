@@ -182,16 +182,18 @@ function IrseRutas() {
 		return dom.isOk() && dom.loading();
 	}
 
-	this.init = () => {
-		//if (!ip.isLoaded()) // hay perfil?
-			//return; //no hay calculo de rutas
-
+	this.update = () => {
 		rutas = ab.parse(dom.getText("#rutas-data")) || [];
 		resume.out = rutas.filter(ruta => (ruta.desp != 1) && (ruta.desp != 3) && !ruta.g); //rutas no asociadas a factura
 		resume.sizeOut = resume.out.length; // size table footer
 		resume.vp = rutas.filter(ruta => (ruta.desp == 1)); //rutas en vp
 		resume.sizeVp = resume.vp.length; // size table footer
+		dom.table("#rutas-out", resume.out, resume, STYLES);
+		return self;
+	}
 
+	this.init = () => {
+		self.update(); // Actualizo los tipos de rutas
 		if (ip.isAutA7j() || ip.is1Dia()) {
 			const ruta = Object.assign({}, self.getLoc(), rutas[0]);
 			rutas[0] = ruta; // Save new data (routes.length = 1)
@@ -250,7 +252,6 @@ function IrseRutas() {
 			.onRenderTable("#rutas", self.save) // save after first render
 			.table("#vp", resume.vp, resume, STYLES)
 			.toggleHide(".justifi-km", !resume.justifi)
-			.table("#rutas-out", resume.out, resume, STYLES)
 			.onChangeInput("#f1", el => dom.setValue("#f2", el.value)).setRangeDate("#f1", "#f2")
 			.onChangeInput("#desp", el => dom.toggleHide(".grupo-matricula", el.value!="1"))
 			.onChangeInput("#matricula", el => { el.value = sb.toUpperWord(el.value); });

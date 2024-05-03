@@ -770,7 +770,7 @@ function DomBox(opts) {
 			if (self.trigger(tab, "show-tab").isOk()) {
 				// calculate the source tab index
 				tab.dataset.back = backward ? Math.max(tab.dataset.back ?? (i - 1), 0)
-											: Math.max(Math.min(_tabIndex, i - 1), 0);
+											: Math.max((_tabIndex < 0) ? i - 1 : _tabIndex, 0);
 				_tabIndex = i; // set current index
 				self.removeClass(tabs, "active").addClass(tab, "active") // set active tab
 					.setFocus(tab).scroll(); // Auto set focus and scroll

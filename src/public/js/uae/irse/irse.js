@@ -15,6 +15,7 @@ dom.ready(function() { // DOM ready
 
 	/*********** subvención, congreso, asistencias/colaboraciones ***********/
 	dom.onShowTab(3, tab3 => {
+		ir.update(); // Actualizo los tipos de rutas
 		tab3.querySelectorAll(".rutas-vp").forEach(el => el.classList.toggle("hide", ir.getNumRutasVp() < 1));
 		if (window.fnPaso3)
 			return; // tab preloaded
@@ -69,6 +70,7 @@ dom.ready(function() { // DOM ready
 		if (!eTipoGasto)
 			return; // modo solo consulta
 
+		ir.update(); // Actualizo los tipos de rutas
 		const grupos = dom.getAll(".grupo-gasto", tab5);
 		const isDoc = () => (["201", "202", "204", "205", "206"].indexOf(eTipoGasto.value) > -1);
 		const isExtra = () => (["301", "302", "303", "304"].indexOf(eTipoGasto.value) > -1);
@@ -102,10 +104,11 @@ dom.ready(function() { // DOM ready
 		eTipoGasto.value = ""; // clear selection
 		tab5.querySelector("#impGasto").value = i18n.isoFloat(0);
 		tab5.querySelector("#txtGasto").value = "";
+		dom.setValue("#trayectos");
 
 		const file = tab5.querySelector("#fileGasto_input");
 		file.onchange = () => dom.show(eTipoGasto.parentNode);
-		tab5.querySelector("[href='#open-file-gasto']").onclick = () =>file.click();
+		tab5.querySelector("[href='#open-file-gasto']").onclick = () => file.click();
 		document.querySelector("a#gasto-rutas").onclick = () => { // button in tab12
 			let etapas = dom.values(dom.getCheckedRows("#rutas-out")).join(",");
 			if (etapas) {
@@ -247,9 +250,19 @@ dom.ready(function() { // DOM ready
 const fnUnlink = () => i18n.confirm("msgUnlink") && loading();
 const fnClone = () => i18n.confirm("msgReactivar") && loading();
 const saveTab = () => dom.showOk(i18n.get("saveOk")).working();
+// Handle errors or parse server messages
+const isLoaded = (xhr, status, args) => (xhr && (status == "success")) || !alerts.showError(xhr || "Error 500: Internal server error.").working();
+const showAlerts = (xhr, status, args) => {
+    if (isLoaded(xhr, status, args)) { // Error or parse server messages
+        const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
+        dom.showAlerts(msgs); // Always show alerts after change tab
+        return !msgs?.msgError; // has error message
+    }
+    return false; // Server error
+}
 const showNextTab = (xhr, status, args, tab) => {
-	if (!xhr || (status != "success")) // is server error?
-		return !dom.showError(xhr || "Error 500: Internal server error.").working();
+	if (!isLoaded(xhr, status, args))
+		return false; // Server error
 	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
 	const ok = !msgs?.msgError; // has error message
 	if (ok) // If no error => Show next tab
@@ -261,14 +274,3 @@ const showNextTab = (xhr, status, args, tab) => {
 const onList = () => dom.val(".ui-filter").setValue("#firma", "5").loading();
 const clickList = () => onList().trigger("#filter-list", "click");
 const clickVinc = () => dom.val(".ui-filter").setValue("#estado", "1").trigger("#filter-list", "click");
-/*const viewIrse = (xhr, status, args, tab) => {
-	if (!xhr || (status != "success")) // is server error?
-		return !dom.showError("Error 500: Internal server error.").working();
-	const msgs = args.msgs && JSON.parse(args.msgs); // Parse server messages
-	if (!msgs?.msgError) // If no error => Show next tab
-		sb.isset(tab) ? dom.viewTab(tab) : dom.nextTab();
-	// Init. IRSE form
-	ip.init(); ir.init(); io.init();
-	// Always show alerts after change tab
-	dom.initIris().showAlerts(msgs).working();
-}*/

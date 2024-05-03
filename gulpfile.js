@@ -80,7 +80,7 @@ gulp.task("minify-js", done => {
 			gulp.src("dist/public/js/uae/uae-min.js").pipe(gulp.dest(CV_UAE));
 		});
 		fnConcat(JS_UAE_IRSE, "dist/public/js/uae", "irse-min.js").on("end", () => {
-			const FILES = [ "dist/public/js/uae/irse-min.js", "dist/public/js/uae/irse/maps.js"]
+			const FILES = [ "dist/public/js/uae/irse-min.js", "dist/public/js/uae/irse/maps.js", "dist/public/js/uae/irse/otri.js"]
 			gulp.src(FILES).pipe(gulp.dest(CV_IRSE)).on("end", done);
 			//gulp.src("dist/public/js/uae/irse/tabs/*.js").pipe(gulp.dest(CV_IRSE + "/tabs")).on("end", done);
 		});
